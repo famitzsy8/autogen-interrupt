@@ -1,2 +1,4 @@
 .ba-venv/
 secrets.ini
+congressMCP/xml_responses.xml
+congress_notesheet/

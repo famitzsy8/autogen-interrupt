@@ -4,6 +4,8 @@
 import configparser, os
 from openai import AsyncOpenAI
 from cdg_client import CDGClient
+from google import genai
+
 
 def __get_api_keys(path="../secrets.ini"):
     config = configparser.ConfigParser()
@@ -19,21 +21,27 @@ def __get_api_keys(path="../secrets.ini"):
     try:
         congress_key = config["API_KEYS"]["CONGRESS_API_KEY"]
         openai_key = config["API_KEYS"]["OPENAI_API_KEY"]
+        gai_key = config["API_KEYS"]["GOOGLE_API_KEY"]
     except KeyError as e:
         raise KeyError(f"Missing expected key in secrets.ini: {e}")
 
-    return congress_key, openai_key
+    return congress_key, openai_key, gai_key
 
 def _get_cdg_client():
-    congress_key, openai_key = __get_api_keys()
+    congress_key, _, _ = __get_api_keys()
 
     cdg_client = CDGClient(api_key=congress_key, response_format="xml")
 
     return cdg_client
 
 def _get_oai_client():
-    congress_key, openai_key = __get_api_keys()
+    _, openai_key, _ = __get_api_keys()
 
     oai_client = AsyncOpenAI(api_key=openai_key)
 
     return oai_client
+
+def _get_gai_client():
+    _, _, gai_key = __get_api_keys()
+    gai_client = genai.Client(api_key=gai_key)
+    return gai_client
