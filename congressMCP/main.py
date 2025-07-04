@@ -1,53 +1,35 @@
-import yaml
-
-# !/03_Code/congressMCP/.ba-venv/bin/python
+# !/03_Code/.ba-venv/bin/python
 # main.py
 
-from parse_util import _call_and_parse, _parse_oai_json_response, _extract_htm_pdf_from_xml
-from api_util import _get_oai_client, _get_gai_client
-from other_util import _craft_adapted_path
+import yaml
+import re
+import requests
+import xml.etree.ElementTree as ET
+
+from parse_util import _call_and_parse, _parse_oai_json_response, _extract_htm_pdf_from_xml, _parse_roll_call_number_house, _get_committee_code
+from other_util import _craft_adapted_path, _get_description_for_function, _show_tools
 
 from mcp.server.fastmcp import FastMCP
 
-oai_client = _get_oai_client()
-
 mcp = FastMCP(name="Congress MCP Server", host="127.0.0.1", port=8080, timeout=30)
 
+@mcp.tool(description=_get_description_for_function("convertLVtoCongress"))
+def convertLVtoCongress(lobby_view_bill_id: str) -> dict:
 
-@mcp.tool(description="Parse a LobbyView index like \"hjres44-115\" into a dict to build the Congress Index")
-async def convertLVtoCongress(lobby_view_bill_id: str) -> dict:
+    pattern = r'^(s|hr|sconres|hconres|hjres|sjres)(\d{1,5})-(1\d{2}|200)$'
+    match = re.match(pattern, lobby_view_bill_id.lower())
+    if not match:
+        return None
+    bill_type, number, congress = match.groups()
 
-    """
-    1) Send a prompt to gpt-4o telling it to split a LobbyView database index like "hjres44-115" into
-        elements like { "congress": 115, "bill_type": "hjres", "bill_number": 44 }, that can be used to build the Congress API index.
-    2) Return the parsed JSON as a Python dict.
-    """
+    return {
+        "congress": congress,
+        "bill_type": bill_type,
+        "bill_number": number
+    }
 
-    # 200 tokens
-    prompt = (
-        f"Take this index from the LobbyView DB (e.g. \"{lobby_view_bill_id}\")\n"
-        f"and convert it into a JSON object with exactly three keys:\n"
-        f"- \"congress\" (integer for the Congress number),\n"
-        f"- \"bill_type\" (one of hr, s, hjres, etc.),\n"
-        f"- \"bill_number\" (integer).\n\n"
-        f"For example:\n"
-        f"  Input: \"hjres44-115\"\n"
-        f"  Output (JSON only):\n"
-        f"    {{\"congress\":115, \"bill_type\":\"hjres\", \"bill_umber\":44}}\n\n"
-        f"Now convert:\n"
-        f"  \"{lobby_view_bill_id}\"\n\n"
-        f"Respond with exactly the JSON object—no extra text."
-    )
 
-    response = await oai_client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.0,
-    )
-
-    return _parse_oai_json_response(response)
-
-@mcp.tool(description="Takes a Congress API index of the form { \"congress\": 115, \"bill_type\": \"hjres\", \"bill_number\": 44 } representing a bill and extracts the bill text from the Congress API")
+@mcp.tool(description=_get_description_for_function("extractBillText"))
 def extractBillText(congress_index:dict) -> dict:
 
     """
@@ -66,28 +48,9 @@ def extractBillText(congress_index:dict) -> dict:
     return urls
 
 
-@mcp.tool(description="Takes a Congress API index of the form { \"congress\": 115, \"bill_type\": \"hjres\", \"bill_number\": 44 } representing a bill and returns the cosponsors of the respective bill.")
+@mcp.tool(description=_get_description_for_function("getBillCosponsors"))
 def getBillCosponsors(congress_index: dict) -> list:
-    """
-    Takes:
-        An obtained Congress API Index representing a bill in the format of:
-        { "congress": 115, "bill_type": "hjres", "bill_number": 44 }
-    
-    Returns:
-        A list of dictionaries containing information about each respective cosponsor of the bill. The return format will be in the form of:
-        [{
-            "bioguide_id": "M001189",
-            "full_name": "Rep. Messer, Luke [R-IN-6]",
-            "first_name": "Luke",
-            "last_name": "Messer",
-            "party": "R",
-            "state": "IN",
-            "url": "https://api.congress.gov/v3/member/M001189?format=xml",
-            "district": "6",
-            "sponsorship_date": "2017-02-02",
-            "is_original_cosponsor": True
-        }, ...]
-    """
+
     root = _call_and_parse(congress_index, "bill/{congress}/{bill_type}/{bill_number}/cosponsors")
     return [
         {
@@ -106,50 +69,80 @@ def getBillCosponsors(congress_index: dict) -> list:
     ]
 
 
+@mcp.tool(description=_get_description_for_function("getBillCommittees"))
+def getBillCommittees(congress_index: dict) -> dict:
 
-@mcp.tool(description="Takes a Congress API index of the form { \"congress\": 115, \"bill_type\": \"hjres\", \"bill_number\": 44 } representing a bill and returns the legislative actions that were taken on the requested bill.")
+    root = _call_and_parse(congress_index, "bill/{congress}/{bill_type}/{bill_number}/committees")
+    debug = []
+    committees = []
+
+    for committee in root.findall(".//committees/item"):
+        try:
+            c = {
+                "system_code": committee.findtext("systemCode"),
+                "name": committee.findtext("name"),
+                "chamber": committee.findtext("chamber"),
+                "type": committee.findtext("type"),
+                "activities": [],
+                "subcommittees": [],
+            }
+
+            # Add committee-level activities
+            for act in committee.findall("./activities/item"):
+                c["activities"].append({
+                    "name": act.findtext("name"),
+                    "date": act.findtext("date"),
+                })
+
+            # Add subcommittees if any
+            for sub in committee.findall("./subcommittees/item"):
+                sub_obj = {
+                    "system_code": sub.findtext("systemCode"),
+                    "name": sub.findtext("name"),
+                    "activities": []
+                }
+                for act in sub.findall("./activities/item"):
+                    sub_obj["activities"].append({
+                        "name": act.findtext("name"),
+                        "date": act.findtext("date"),
+                    })
+                c["subcommittees"].append(sub_obj)
+
+            committees.append(c)
+            debug.append(f"Parsed committee: {c['name']} with {len(c['activities'])} activities")
+
+        except Exception as e:
+            debug.append(f"Failed to parse committee: {e}")
+
+    return {
+        "committees": committees,
+        "debug": debug
+    }
+
+
+@mcp.tool(description=_get_description_for_function("extractBillActions"))
 def extractBillActions(congress_index: dict) -> list:
 
-    """
-    Takes:
-        An obtained Congress API Index representing a bill in the format of:
-        { "congress": 115, "bill_type": "hjres", "bill_number": 44 }
-    
-    Returns:
-        A list of dictionaries containing information about each respective legislative action taken in the U.S. Congress. The return format will be in the form of:
-        [{"date": "2024-01-07", "text": ""Cloture motion on the motion...", "type": "IntroReferral" }]
-    """
-
     root = _call_and_parse(congress_index, "bill/{congress}/{bill_type}/{bill_number}/actions")
-    return [
+    return {"actions": [
         {
             "date": item.findtext("actionDate"),
             "text": item.findtext("text"),
             "type": item.findtext("type"),
         }
         for item in root.findall(".//actions/item")
-    ]
+    ]}
 
-@mcp.tool(description="Takes a Congress API index of the form { \"congress\": 115, \"bill_type\": \"hjres\", \"bill_number\": 44 } representing a bill, and returns an overview of all the amendments that have been cast on a bill")
-def getAmendmentNumbers(congress_index:dict) -> dict:
 
-    """
+@mcp.tool(description=_get_description_for_function("getBillAmendments"))
+def getBillAmendments(congress_index:dict) -> dict:
 
-    Takes:
-        An obtained Congress API Index representing a bill in the format of:
-        { "congress": 115, "bill_type": "hjres", "bill_number": 44 }
-    
-    Returns:
-        A list of dictionaries containing information about each amendment that has been cast on the input bill in Congress. The return format will be in the form of:
-        [{
-            "number": amendment number (str)
-            "congress": congress session (int)
-            "type": amendment type (str)
-            "updateDate": last update timestamp (str, ISO 8601)
-            "detailURL": API URL for the amendment detail (str)
-        }]
-
-    """
+    debug_msgs = []
+    debug_msgs.append(f"RAW ARGUMENT: {congress_index!r}")
+    if isinstance(congress_index, dict) and 'congress_index' in congress_index:
+        congress_index = congress_index['congress_index']
+        debug_msgs.append("UNWRAPPED congress_index")
+    debug_msgs.append(f"USING ARGUMENT: {congress_index!r}")
 
     endpoint = "bill/{congress}/{bill_type}/{bill_number}/amendments"
 
@@ -184,60 +177,24 @@ def getAmendmentNumbers(congress_index:dict) -> dict:
 
         offset += limit
 
-    return results
+    return {
+        "amendments": results,
+        "debug": debug_msgs
+    }
 
-@mcp.tool(
-    description="Takes a Congress API index of the form { \"congress\": 117, \"bill_type\": \"samdt\", \"number\": \"2137\" } representing an amendment, and returns all available text versions (PDF and HTML)."
-)
+
+@mcp.tool(description=_get_description_for_function("getAmendmentText"))
 def getAmendmentText(congress_index: dict) -> dict:
-    """
-    Takes:
-        A Congress API index for an amendment in the form:
-            { "congress": 117, "bill_type": "samdt", "number": "2137" }
-    Returns:
-        A dict containing each text version of the amendment, for example:
-        {
-            "pdf_url": "https://…pdf",
-            "text": "The raw HTML-extracted text…"
-        }
-    """
+
     endpoint = "amendment/{congress}/{bill_type}/{number}/text"
     root = _call_and_parse(congress_index, endpoint)
     # parse_util._extract_htm_pdf_from_xml will walk <textVersions>…<formats>…
     return _extract_htm_pdf_from_xml(root, is_amendment=True)
 
-@mcp.tool(
-    description="Takes a Congress API index of the form { \"congress\": 117, \"bill_type\": \"samdt\", \"number\": \"2137\" } representing an amendment, and returns the sequence of legislative actions taken on that amendment."
-)
+
+@mcp.tool(description=_get_description_for_function("getAmendmentActions"))
 def getAmendmentActions(congress_index: dict) -> list:
-    """
-    Takes:
-        A Congress API index for an amendment in the form:
-            { "congress": 117, "bill_type": "samdt", "number": "2137" }
-    Returns:
-        A list of action records, each shaped as:
-        {
-            "actionDate": "2021-08-08",
-            "text": "Amendment SA 2137 agreed to…",
-            "bill_type": "Floor",
-            "actionCode": "97000",            # optional
-            "sourceSystem": {                 # optional
-                "code": "0",
-                "name": "Senate"
-            },
-            "recordedVotes": [                # optional
-                {
-                    "rollNumber": "312",
-                    "chamber": "Senate",
-                    "congress": "117",
-                    "date": "2021-08-09T00:45:48Z",
-                    "sessionNumber": "1",
-                    "url": "https://…"
-                },
-                ...
-            ]
-        }
-    """
+
     endpoint = "amendment/{congress}/{type}/{number}/actions"
     root = _call_and_parse(congress_index, endpoint)
     actions = []
@@ -274,39 +231,9 @@ def getAmendmentActions(congress_index: dict) -> list:
         actions.append(action)
     return actions
 
-
-@mcp.tool(
-    description="Takes a Congress API index of the form { \"congress\": 117, \"bill_type\": \"samdt\", \"number\": \"2137\" } representing an amendment, and returns its cosponsors along with pagination info."
-)
+@mcp.tool(description=_get_description_for_function("getAmendmentCoSponsors"))
 def getAmendmentCoSponsors(congress_index: dict) -> dict:
-    """
-    Takes:
-        A Congress API index for an amendment in the form:
-            { "congress": 117, "bill_type": "samdt", "number": "2137" }
-    Returns:
-        A dict with:
-        {
-            "pagination": {
-                "count": 9,
-                "countIncludingWithdrawnCosponsors": 9
-            },
-            "cosponsors": [
-                {
-                    "bioguideId": "P000449",
-                    "fullName": "Sen. Portman, Rob [R-OH]",
-                    "firstName": "Rob",
-                    "lastName": "Portman",
-                    "middleName": "M.",         # optional
-                    "party": "R",
-                    "state": "OH",
-                    "url": "https://…",
-                    "sponsorshipDate": "2021-08-01",
-                    "isOriginalCosponsor": True
-                },
-                ...
-            ]
-        }
-    """
+
     endpoint = "amendment/{congress}/{type}/{number}/cosponsors"
     root = _call_and_parse(congress_index, endpoint)
 
@@ -344,91 +271,213 @@ def getAmendmentCoSponsors(congress_index: dict) -> dict:
         "cosponsors": cosponsors
     }
 
-@mcp.tool(description="Takes a committee code (like hlig or hlig02) and a congress number between 113 and 119 and returns the members in the committee")
-def get_committee_members(committee_code: str, congress:int,  path='data/113_119.yaml'):
-    """
-    Returns a list of all members (dicts) for a given committee code from the YAML file.
-    Args:
-        committee_code (str): The code of the committee (e.g. 'hlig')
-        path (str): Path to the 113_119.yaml file
-    Returns:
-        list of dicts, each dict contains info about a member (name, party, rank, etc)
-    """
+@mcp.tool(description=_get_description_for_function("get_committee_members"))
+def get_committee_members(committee_name: str, congress: int, path='data/113_119.yaml') -> dict:
+
+    debug_messages = []
+
+    committee_code, _debug_messages = _get_committee_code(committee_name).values()
+    debug_messages.append(_debug_messages)
+
+    if committee_code is None:
+        return {"members": None, "debug": debug_messages}
+
     committee_code = committee_code.lower()
+    debug_messages.append(f"committee_code obtained: {committee_code}")
+
     path = _craft_adapted_path(rel_path=path)
+    debug_messages.append(f"Using committee data path: {path}")
+
     with open(path, 'r') as f:
         data = yaml.safe_load(f)
+
     try:
         committee_id = f"{committee_code}_{congress}"
-    except:
+        debug_messages.append(f"Whole committee_id: {committee_id}")
+
+    except Exception as e:
+
         if congress < 114:
-            raise KeyError("Only congresses between the 114th and 119th are supported")
+            msg = "Only congresses between the 114th and 119th are supported"
+            debug_messages.append(msg)
+            raise KeyError(msg)
+        
         else:
-            raise KeyError(f"Couldn't find any entry for{committee_id}")
-    return data.get(committee_id, [])
+            msg = f"Couldn't find any entry for {committee_id}"
+            debug_messages.append(msg)
+            raise KeyError(msg)
+        
+    result = data.get(committee_id, [])
+
+    # Edge case: We have got "{main_committee_code}01_{congress_num} but it is stored as {main_committee_code}_{congress_num}"
+    if result == []:
+        committee_id = committee_id[:-6] + committee_id[-4:]
+        result = data.get(committee_id, [])
+    debug_messages.append(f"Found {len(result)} members for committee_id {committee_id}")
+    return {"members": result, "debug": debug_messages}
 
 
-@mcp.tool(description="Takes a formal committee or subcommittee name and returns a composed committee code")
-def get_committee_code(name: str) -> str | None:
-    """
-    Accepts inputs of the form:
-      - "House Committee on X"
-      - "Senate Committee on Y"
-      - "Subcommittee on Z under the House Committee on X"
-      - "Subcommittee on Z under the Senate Committee on Y"
-      --> Inputs must ALWAYS include the chamber
-    Returns:
-      - "<COMMITTEE_ID>01" for a main committee
-      - "<PARENT_COMMITTEE_ID><SUB_COMMITTEE_ID>" for a subcommittee
-    """
-    import yaml
-    import re
+@mcp.tool(description=_get_description_for_function("get_senate_votes"))
+def get_senate_votes(congress: int, session: int, roll_call_vote_no: int) -> list[dict]:
 
-    path = _craft_adapted_path("data/committees_standing.yaml")
-    with open(path, "r") as f:
-        committees = yaml.safe_load(f)
+    base = "https://www.senate.gov/legislative/LIS/roll_call_votes"
+    directory = f"vote{congress}{session}"
+    filename = f"vote_{congress}_{session}_{roll_call_vote_no:05d}.xml"
+    url = f"{base}/{directory}/{filename}"
 
-    raw = name.strip()
+    resp = requests.get(url)
+    resp.raise_for_status()
 
-    # 1) Subcommittee form
-    sub_re = re.compile(
-        r"^Subcommittee on (.+) under the (House|Senate) Committee on (.+)$",
-        re.IGNORECASE
-    )
-    m = sub_re.match(raw)
-    if m:
-        sub_name, chamber, parent_main = m.groups()
-        parent_full = f"{chamber} Committee on {parent_main}".strip().lower()
-        sub_name = sub_name.strip().lower()
+    root = ET.fromstring(resp.content)
+    votes = []
+    for member in root.findall(".//member"):
+        votes.append({
+            "name":      member.findtext("member_full") or "",
+            "party":     member.findtext("party") or "",
+            "member_id": member.findtext("lis_member_id") or "",
+            "vote":      member.findtext("vote_cast") or "",
+        })
+    return votes
 
-        for c in committees:
-            if c.get("name", "").strip().lower() == parent_full:
-                parent_id = c.get("thomas_id")
-                for sub in c.get("subcommittees", []):
-                    if sub.get("name", "").strip().lower() == sub_name:
-                        sub_id = sub.get("thomas_id")
-                        # Compose parent + sub ids
-                        return f"{parent_id}{sub_id}"
-        return None
+@mcp.tool(description=_get_description_for_function("get_house_votes"))
+def get_house_votes(year: int, roll_call_number: int) -> list[dict]:
 
-    # 2) Main committee form
-    main_re = re.compile(r"^(House|Senate) Committee on (.+)$", re.IGNORECASE)
-    m = main_re.match(raw)
-    if m:
-        chamber, main_body = m.groups()
-        full = f"{chamber} Committee on {main_body}".strip().lower()
+    roll = _parse_roll_call_number_house(roll_call_number)
+    url = f"https://clerk.house.gov/evs/{year}/roll{roll}.xml"
+    resp = requests.get(url)
+    resp.raise_for_status()
 
-        for c in committees:
-            if c.get("name", "").strip().lower() == full:
-                base_id = c.get("thomas_id")
-                # Append "01" for main committees
-                return f"{base_id}01"
-        return None
+    root = ET.fromstring(resp.content)
+    votes = []
+    # iterate over each recorded-vote element
+    for rv in root.findall(".//recorded-vote"):
+        leg = rv.find("legislator")
+        if leg is None:
+            continue
 
-    # 3) Unrecognized format
-    return None
+        name      = (leg.text or "").strip()
+        member_id = leg.attrib.get("name-id", "").strip()
+        party     = leg.attrib.get("party", "").strip()
+        vote_cast = (rv.findtext("vote") or "").strip()
+
+        votes.append({
+            "name":      name,
+            "party":     party,
+            "member_id": member_id,
+            "vote":      vote_cast
+        })
+
+    return votes
+
+@mcp.tool(description=_get_description_for_function("getCongressMember"))
+def getCongressMember(bioguideId: str) -> dict:
+
+    endpoint = "member/{bioguideId}"
+    root = _call_and_parse({"bioguideId": bioguideId}, endpoint)
+    
+    debug = []
+    
+    try:
+        first = root.find(".//firstName").text
+        last = root.find(".//lastName").text
+        middle = root.findtext(".//directOrderName")
+        full_name = middle if middle else f"{first} {last}"
+        debug.append(f"Parsed full name: {full_name}")
+    except Exception as e:
+        full_name = None
+        debug.append(f"Failed to parse name: {e}")
+
+    try:
+        state = root.findtext(".//state")
+        debug.append(f"Parsed state: {state}")
+    except Exception as e:
+        state = None
+        debug.append(f"Failed to parse state: {e}")
+    
+    try:
+        state_code = root.find(".//terms/item/stateCode").text
+        debug.append(f"Parsed stateCode: {state_code}")
+    except Exception as e:
+        state_code = None
+        debug.append(f"Failed to parse stateCode: {e}")
+    try:
+        party = root.find(".//partyHistory/item/partyName").text
+        debug.append(f"Parsed party: {party}")
+    except Exception as e:
+        party = None
+        debug.append(f"Failed to parse party: {e}")
+
+    try:
+        congress_items = root.findall(".//terms/item/congress")
+        congresses = sorted({int(c.text) for c in congress_items})
+        debug.append(f"Parsed congress sessions: {congresses}")
+    except Exception as e:
+        congresses = []
+        debug.append(f"Failed to parse congress sessions: {e}")
+    
+    return {
+        "fullName": full_name,
+        "state": state,
+        "stateCode": state_code,
+        "party": party,
+        "congressesServed": congresses,
+        "debug": debug
+    }
+
+@mcp.tool(description=_get_description_for_function("getCongressMembersByState"))
+def getCongressMembersByState(stateCode: str) -> dict:
+    debug = []
+
+    stateCodes = [
+        'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
+        'MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC',
+        'SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'
+    ]
+
+    if stateCode not in stateCodes:
+        debug.append(f"{stateCode} is not a valid U.S. State Code")
+        return {"members": None, "debug": debug}
+
+    endpoint = f"member/{stateCode}"
+    root = _call_and_parse({"stateCode": stateCode}, endpoint)
+    debug.append(f"Called endpoint: {endpoint}")
+
+    members = []
+    for m in root.findall(".//members/member"):
+        try:
+            member_data = {
+                "bioguideId": m.findtext("bioguideId"),
+                "name": m.findtext("name"),
+                "state": m.findtext("state"),
+                "party": m.findtext("partyName"),
+                "district": m.findtext("district"),
+                "chambers": list({term.findtext("chamber") for term in m.findall(".//terms/item/item")}),
+                "url": m.findtext("url"),
+                "imageUrl": m.findtext(".//depiction/imageUrl"),
+            }
+            members.append(member_data)
+            debug.append(f"Parsed member: {member_data['name']} ({member_data['bioguideId']})")
+        except Exception as e:
+            debug.append(f"Failed to parse member: {e}")
+
+    return {
+        "members": members,
+        "debug": debug
+    }
 
 
 if __name__ == "__main__":
     print("Starting Congress MCP server at PORT 8080...")
     mcp.run()
+
+    # DEBUGGING RUNS
+    # ==============
+  
+    # print(get_senate_votes(115, 2, 221))
+    # print(get_house_votes(2018, 287))
+    # print(getCongressMember("W000819"))
+    # print(getBillAmendments({"congress_index" : {"congress": 116, "bill_type": "s", "bill_number": 3894}}))
+    # print(getBillCommittees({"congress": 119, "bill_type": "hr", "bill_number": 1}))
+    # print(extractBillActions({"congress": 115, "bill_type": "s", "bill_number": 3094}))
+
+    # asyncio.run(_show_tools())
