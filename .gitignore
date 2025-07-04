@@ -1,4 +1,24 @@
+# Ignore Python virtual environment
 .ba-venv/
+
+# Ignore secret configs
 secrets.ini
+
+# Ignore XML and notesheets
 congressMCP/xml_responses.xml
-congress_notesheet/
+congressMCP/congress_notesheet/
+agents/retrieval_notesheet/
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+
+# Ignore system files
+.DS_Store
+
+# Ignore logs
+logs/
+
+# Ignore VSCode or IDE stuff
+.vscode/
+.idea/
