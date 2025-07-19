@@ -22,3 +22,6 @@ logs/
 # Ignore VSCode or IDE stuff
 .vscode/
 .idea/
+
+# Ignore Docker cache
+.cache/
