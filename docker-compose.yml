@@ -1,0 +1,28 @@
+services:
+  congressmcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: congressmcp_service
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./congressMCP:/app/congressMCP
+      - ./secrets.ini:/app/secrets.ini
+    working_dir: /app/congressMCP
+    command: sleep infinity
+
+  agents:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agents_service
+    volumes:
+      - ./agents:/app/agents
+      - ./secrets.ini:/app/secrets.ini
+    working_dir: /app/agents
+    command: sleep infinity 
+
+
+
+    
