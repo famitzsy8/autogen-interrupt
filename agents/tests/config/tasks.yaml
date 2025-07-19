@@ -1,0 +1,73 @@
+# 03_Code/agents/tests/config/tasks.yaml
+
+# big_task:
+#   description: >
+#     Compile a throughly-researched report, about the legislative actions you are given
+#     that were most relevant to {company}'s interests in the bill {bill} of the United States Congress.
+#     The relevance should be estimated by the degree of potential reward a lobbying group for {company}
+#     could invest into a specific action. Also, the relevance of the actions should be estimated relatively to each other,
+#     meaning that the absence of an action (say, a bill got a committee referral and never got out of it) also plays a highly important role.
+#   expected_output: >
+#     A detailed report, listing the most important legislative actions (or inactions) that foster or hinder {company}'s interests.
+#   agent:
+#     actions_agent
+  
+# retrieval_task:
+
+#   description: >
+#     Upon request of other agents, call the MCP tool to get all the legislative actions of bill {bill}, and output the raw result of the tool call.
+#   expected_output: >
+#     The raw result of the MCP tool call.
+#   agent:
+#     retrieval_agent
+
+data_fetch_task:
+  description: >
+    Using the MCP tools, fetch **all primary data** for bill {bill}: full action timeline, committee list & actions, amendment list & texts, and every available version of the bill text.  Return the raw JSON exactly as provided by the tools — no commentary.
+  expected_output: >
+    A dictionary with keys actions, committees, amendments, bill_text.
+  agent:
+    data_fetch_agent
+
+committee_task:
+  description: >
+    Analyse the committees returned by the data-fetch task for {bill}.  For each committee provide:
+      • overall relevance score (1-5) for {company}
+      • member alignment table (Indifferent / ±Moderate / ±Strong)
+      • narrative of how the committee's actions help or hinder {company}.
+  expected_output: >
+    Markdown with committee relevance scores, member table, and commentary.
+  agent:
+    committee_agent
+
+amendment_task:
+  description: >
+    Read every amendment and its actions from the data-fetch task.  Highlight passages that materially impact {company} (max 5 per amendment) and score each amendment 1-5 for relevance.
+  expected_output: >
+    Markdown bullet list grouped by relevance tier with quoted passages.
+  agent:
+    amendment_agent
+
+bill_text_task:
+  description: >
+    From the full bill text supplied by the data-fetch task, quote up to seven passages most significant to {company}.  Provide location, relevance score (1-5) and brief impact note.
+  expected_output: >
+    Markdown table of passages with relevance scores.
+  agent:
+    bill_text_agent
+
+actions_overview_task:
+  description: >
+    Using the complete action timeline (data-fetch) plus the committee and amendment analyses, identify the **high-leverage moments** in the bill's journey where lobbying could have the greatest effect for {company}.  Rank them by projected ROI.
+  expected_output: >
+    A ranked markdown list of key actions with justification and ROI estimate.
+  agent:
+    actions_overview_agent
+
+coordination_task:
+  description: >
+    Integrate the findings of timeline, committee, amendment and bill-text analyses into a single lobbying heat-map and strategic plan.  Provide budget allocation guidance and next-step recommendations.
+  expected_output: >
+    Board-ready markdown report with heat-map and action items.
+  agent:
+    coordinator_agent
