@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./congressMCP:/app/congressMCP
+      - .:/app
       - ./secrets.ini:/app/secrets.ini
     working_dir: /app/congressMCP
     command: sleep infinity
@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     container_name: agents_service
     volumes:
-      - ./agents:/app/agents
+      - .:/app
       - ./secrets.ini:/app/secrets.ini
     working_dir: /app/agents
     command: sleep infinity 
