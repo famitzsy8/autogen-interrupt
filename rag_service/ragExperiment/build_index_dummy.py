@@ -13,7 +13,7 @@ torch.set_num_threads(1)
 
 
 # Simplified configuration for demo
-JSON_PATH = "./congressMCP/analysis/ragExperiment/committee_meetings_116_senate_50.json"  # smaller dataset
+JSON_PATH = "./congressMCP/analysis/ragExperiment/committee_meetings_116_senate_1000.json"  # smaller dataset
 INDEX_DIR = pathlib.Path("index_demo")
 EMBED_MODEL = "all-MiniLM-L6-v2"
 TOKENS_PER_CHUNK = 256  # smaller chunks for demonstration

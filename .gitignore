@@ -5,9 +5,7 @@
 secrets.ini
 
 # Ignore XML and notesheets
-congressMCP/xml_responses.xml
-congressMCP/congress_notesheet/
-agents/retrieval_notesheet/
+mcp_analysis/xml_responses.xml
 
 # Ignore compiled Python files
 __pycache__/

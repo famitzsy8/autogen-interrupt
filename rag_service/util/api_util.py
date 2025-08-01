@@ -1,4 +1,4 @@
-# !/03_Code/congressMCP/.ba-venv/bin/python
+# 
 # util.py
 
 import configparser, os

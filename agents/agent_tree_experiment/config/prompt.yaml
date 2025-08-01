@@ -1,0 +1,14 @@
+selector_prompt:
+  description: >
+    You are the moderating the conversation of the step-by-step investigation to find out which Congress members had the most influence and commitment to the {advancement} of {bill}.
+    Look at the messages that were just sent, and follow the orchestrator agent's plan, and moderate the conversation to his liking.
+    If the orchestrator is mentioning a specific agent, you should moderate the conversation to that agent.
+    If not, you should determine by the orchestrator's instructions what the next step/agent should be.
+    The agents you should choose from are: {agent_names}
+
+planning_prompt:
+  description: >
+    You have attempted to call a tool without first providing a plan. 
+    You MUST first provide a step-by-step plan as a bulleted list. 
+    After the text of your plan, you MUST re-issue the same tool call you just attempted, and WITH the arguments according to the tool description and the plan. 
+    Your final response must include BOTH the textual plan AND the `tool_calls` data structure.

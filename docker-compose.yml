@@ -12,17 +12,6 @@ services:
     working_dir: /app/congressMCP
     command: sleep infinity
 
-  agents:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: agents_service
-    volumes:
-      - .:/app
-      - ./secrets.ini:/app/secrets.ini
-    working_dir: /app/agents
-    command: sleep infinity 
-
 
 
     
