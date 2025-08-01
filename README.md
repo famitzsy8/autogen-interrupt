@@ -6,7 +6,6 @@ Currently the codebase is organized like this:
 
 - `agents`: Contains the multi-agent system files
 - `congressMCP`: main logic of MCP functions
-- `logs`: Run logs from the agents
 
 ## Analysis & Experiments
 - `mcp_analysis`: Where the experiments for the MCP functions are done. Contains more functions than in `congressMCP`
