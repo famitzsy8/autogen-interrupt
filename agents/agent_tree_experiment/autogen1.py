@@ -16,10 +16,10 @@ from util.other_util import _craft_adapted_path
 
 import yaml
 
-with open(_craft_adapted_path('config/agents.yaml'), 'r') as file:
+with open(_craft_adapted_path('config/agents_3.yaml'), 'r') as file:
     agents_config = yaml.safe_load(file)
 
-with open(_craft_adapted_path('config/tasks.yaml'), 'r') as file:
+with open(_craft_adapted_path('config/tasks_3.yaml'), 'r') as file:
     tasks_config = yaml.safe_load(file)
 
 with open(_craft_adapted_path('config/prompt.yaml'), 'r') as file:

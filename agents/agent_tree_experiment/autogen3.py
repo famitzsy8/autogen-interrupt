@@ -211,13 +211,13 @@ selector_logger.addHandler(file_handler)
 async def main() -> None:
     # -------------------- Config & constants --------------------
     advancement = "advancement"
-    bill = "s1661-115"
+    bill = "hr2307-117"
     selected_agent_names = ["committee_specialist", "bill_specialist", "orchestrator", "actions_specialist", "amendment_specialist", "congress_member_specialist"]
 
     # -------------------- Load YAML configs --------------------
-    with open(_craft_adapted_path("config/agents.yaml"), "r") as f:
+    with open(_craft_adapted_path("config/agents_3.yaml"), "r") as f:
         agents_cfg = yaml.safe_load(f)
-    with open(_craft_adapted_path("config/tasks.yaml"), "r") as f:
+    with open(_craft_adapted_path("config/tasks_3.yaml"), "r") as f:
         tasks_cfg = yaml.safe_load(f)
     with open(_craft_adapted_path("config/prompt.yaml"), "r") as f:
         prompt_cfg = yaml.safe_load(f)
@@ -232,13 +232,13 @@ async def main() -> None:
     # -------------------- Workbench setup --------------------
     params = StdioServerParams(
         command="python",
-        args=["congressMCP/main.py"],
+        args=["ragMCP/main.py"],
         read_timeout_seconds=60,
     )
 
     async with McpWorkbench(server_params=params) as workbench:
         allowed_tool_names_comm = ["get_committee_members", "get_committee_actions", "getBillCommittees"]
-        allowed_tool_names_bill = ["extractBillText", "getBillSponsors", "getBillCoSponsors", "getBillCommittees"]
+        allowed_tool_names_bill = ["getBillSponsors", "getBillCoSponsors", "getBillCommittees", "getRelevantBillSections"]
         allowed_tool_names_actions = ["extractBillActions", "get_committee_actions"]
         allowed_tool_names_amendments = ["extractAmendmentText", "getAmendmentSponsors", "getAmendmentCoSponsors", "getBillText"]
         allowed_tool_names_congress_members = ["getCongressMemberName", "getCongressMemberParty", "getCongressMemberState", "getBillSponsors", "getBillCoSponsors"]
@@ -323,7 +323,8 @@ async def main() -> None:
             agents,
             termination_condition=termination_condition,
             selector_func=smart_selector,
-            model_client=model_client
+            model_client=model_client,
+            max_turns=150
         )
         await Console(team.run_stream(task=tasks_cfg["main_task"]["description"].format(bill=bill, advancement=advancement)))
 

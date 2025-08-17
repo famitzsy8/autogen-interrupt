@@ -17,6 +17,15 @@ An extension of Autogen 1 with the difference that there are 2 more agents. The 
 
 A good upgrade to Autogen 2 that includes logic for more correct tool calling (`PlannerAgent`) and complex selection logic to determine the next agent manually instead of an LLM.
 
+## Autogen 4
+
+This version builds upon Autogen 3 and introduces the following new things:
+
+- A RAG pipeline for retrieving the relevant text sections from a (possibly large) bill text
+- Upgraded PlannerAgent to correct wrong tool calls with LLMs
+- Delegation handled by an LLM to make more context-aware delegation decisions
+
+
 ### Other Subdirectories
 
 In `older_tryouts/` you will see the first runs I did to understand the library. They are included in this repository for documentation purposes

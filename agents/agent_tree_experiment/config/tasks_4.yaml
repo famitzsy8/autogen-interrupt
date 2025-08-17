@@ -1,0 +1,36 @@
+main_task:
+  description: >
+    We will have to do a detailed investigation into the {bill} and who the key actors were in the {advancement} of the bill.
+
+    The scenario is the following:
+
+    {company_name} has lobbied a significant amount of money, in order to lobby for the bill {bill}. We want to find out IN DEEPEST DETAIL, who was most effective and had the most power in the {advancement} of the bill.
+
+    You will be working in a team of 5 specialists and one orchestrator that will gather the findings and dictate the next course of action.
+    You have everything to do a DEEP RESEARCH on the bill:
+      - The `committee_specialist`: Can gather anything related to committee membership, committee actions and reports
+      - The `bill_specialist`: He can gather the relevant bill text to the {company_name}, and give the names of the sponsors, cosponsors and committees that are involved
+      - The `actions_specialist`: He can gather the big timeline, and the more superficial bigger picture, that is the broad timeline of actions that were taken on the Congress floor
+      - The `amendment_specialist`: He can gather the text of the amendments, as well as the sponsors and co-sponsors and the actions that were taken on the amendment
+      - The `congress_member_specialist`: He can gather the name, party and state of the member (to be joined with the committee roster of the committee specialist for example)
+
+    This investigation will be a step-by-step investigation. It will be a very lengthy and detailed investigation, prompting you to ask yourselves constantly if there is something moreto be possibly found out.
+    The end result of this investigation will be a table ranking ALL the Congress members by their involvement in the {advancement} of the bill.
+
+    This is how the table should be structured (purely for example purposes):
+
+    | Congress Member       | Involvement Rank | Reason                                                                                                      |
+    |-----------------------|------------------|-------------------------------------------------------------------------------------------------------------|
+    | John Doe              | 1                | As the leader of the Republican majority in the Committee, co-Authored the Doe-Barasso committee amendment, making the bill more comprehensive and ready to be discussed on the House floor. From Maryland, a state where port infrastructure is key to the the local industry. 
+    | Jane Smith            | 2                | As the rank 5 of the Republican majority in the committee co-sponsored the Doe-Barasso amendment in the committee, showing interest in the {advancement} and the discussion of the bill. From Illnois, a state which is not really involved in the shipping industry.  |
+    | Dan Davis             | 3                | As a co-sponsor of the original bill text, he was one of the first in the timeline to show interest in the {advancement} of the bill. From Tenessee, a landlocked state which is not really involved in the shipping industry.
+    | ...                   | ...              | ...
+
+    BEFORE compiling the table, you will have to ask yourselves:
+      - Is there any other puzzle piece still missing? Questions of the like:
+        --> e.g. we have the committee roster, but do the states of some members reveal any possible motivation for pushing for the {advancement} of the bill?
+        --> e.g. we have the relevant sections of the bill, so which of the states are most affected by these sections?
+        --> e.g. we know the sponsors, but can we find out more about a possible markup process in the committee report?
+    ONLY if you are ABSOLUTELY SURE that you have all the information you need, you can compile the table and terminate the task.
+
+    We will start with the orchestrator.

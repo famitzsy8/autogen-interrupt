@@ -1,10 +1,13 @@
 selector_prompt:
   description: >
-    You are the moderating the conversation of the step-by-step investigation to find out which Congress members had the most influence and commitment to the {advancement} of {bill}.
-    Look at the messages that were just sent, and follow the orchestrator agent's plan, and moderate the conversation to his liking.
-    If the orchestrator is mentioning a specific agent, you should moderate the conversation to that agent.
-    If not, you should determine by the orchestrator's instructions what the next step/agent should be.
-    The agents you should choose from are: {agent_names}
+    This is the last message in the conversation: 
+    """
+    {last_message}
+    """
+
+    You are given the following agents: {agent_names}
+    If the last message corresponds to a specialist returning his findings, return "orchestrator"
+    Return SOLELY thename of the agent that should be called next. (i.e. "committee_specialist")
 
 planning_prompt:
   description: >
@@ -12,3 +15,23 @@ planning_prompt:
     You MUST first provide a step-by-step plan as a bulleted list. 
     After the text of your plan, you MUST re-issue the same tool call you just attempted, and WITH the arguments according to the tool description and the plan. 
     Your final response must include BOTH the textual plan AND the `tool_calls` data structure.
+
+arguments_prompt:
+  description: >
+    Our agent wants to call the following tool of our Model Context Protocol Server: {tool_name}
+    For this he provided the following arguments: {sent_arguments}
+    We need to verify if these arguments are correct, for this we have the description of the tool: \n
+    """
+    {description}
+    """
+    \n
+    NOTE: The arguments in the descriptions ARE JUST EXAMPLES FOR THE STRUCTURE. You will need to infer the correct arguments by the last instruction here:
+
+    And this is the last instruction that was given to the agent:
+    """
+    {last_message}
+    """
+    The arguments may already be correct! But if they are not, infer the correct arguments for this tool call by the EXAMPLES in the description and the instruction.
+    Return ONLY the JSON object of arguments for this tool. Do not include any extra text.
+
+    THE CONTENTS OF THE ARGUMENT SHOULD BE INCLUDED IN THE DESCRIPTION AND NOT MADE UP, AND NEITHER TAKEN FROM THE EXAMPLES.

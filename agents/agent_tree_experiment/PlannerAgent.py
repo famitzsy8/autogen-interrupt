@@ -7,32 +7,27 @@ from autogen_agentchat.messages import (
     ToolCallRequestEvent,
     ToolCallExecutionEvent,
 )
+from autogen_core import FunctionCall
 from autogen_core.models import (
     CreateResult,
-    FunctionExecutionResult,
-    FunctionExecutionResultMessage,
-    AssistantMessage,
 )
-from autogen_core.models import (
-    CreateResult,
-    FunctionExecutionResult,
-    FunctionExecutionResultMessage,
-    AssistantMessage,
-)
-from autogen_agentchat.messages import UserMessage 
+from autogen_agentchat.messages import UserMessage
 from autogen_agentchat.messages import ToolCallExecutionEvent
+from FilteredWorkbench import FilteredWorkbench
 
 import yaml
+import json
+import re
+import openai
 from util.other_util import _craft_adapted_path
+from util.api_util import __get_api_keys as get_api_keys
 
 class PlannerAgent(AssistantAgent):
     """
-    An AssistantAgent that intercepts the first tool-call attempt after receiving
-    a task and forces the model to generate a plan first.
-    It works by checking if a model result contains tool calls AND if it's the
-    first such attempt in the current turn. If so, it injects a "please plan"
-    message and re-runs the model. Subsequent tool calls within the same turn
-    are processed normally by the parent AssistantAgent logic.
+    An AssistantAgent that intercepts ANY tool-call request with empty arguments,
+    infers the correct arguments using an LLM prompt (gpt-4o) defined in
+    `config/prompt.yaml` under the key `arguments_prompt`, and proceeds with the
+    original tool call using the inferred JSON arguments.
     """
 
     @classmethod
@@ -57,39 +52,24 @@ class PlannerAgent(AssistantAgent):
         message_id,
         format_string=None,
     ):
-        # Condition to check if this is the very first tool call attempt of the turn.
-        is_first_tool_call_attempt = isinstance(model_result.content, list) and not any(
-            isinstance(m, (ToolCallRequestEvent, ToolCallExecutionEvent)) for m in inner_messages
+        # Load prompts; prefer config/prompts.yaml if present; fallback to config/prompt.yaml
+        prompt_config = {}
+        try:
+            with open(_craft_adapted_path('config/prompts.yaml'), 'r') as file:
+                prompt_config = yaml.safe_load(file) or {}
+        except FileNotFoundError:
+            try:
+                with open(_craft_adapted_path('config/prompt.yaml'), 'r') as file:
+                    prompt_config = yaml.safe_load(file) or {}
+            except FileNotFoundError:
+                prompt_config = {}
+
+        # Proceed only if there are tool calls; handle both wrappers and raw FunctionCall objects
+        has_tool_calls = isinstance(model_result.content, list) and any(
+            isinstance(evt, ToolCallRequestEvent) or isinstance(evt, FunctionCall)
+            for evt in model_result.content
         )
-        is_attempt_without_arguments = isinstance(model_result.content, list) and any(
-            any(call.arguments == "{}" for call in m.content)
-            for m in model_result.content if isinstance(m, ToolCallRequestEvent)
-        )
-
-        with open(_craft_adapted_path('config/prompt.yaml'), 'r') as file:
-            prompt_config = yaml.safe_load(file)
-
-        # If we get back a bill text, committee report, or committee meeting, we need to build a RAG index
-        # because the texts are simply too long for the model to process right away
-        # Also, it is assumed that the model will be able to better query the contents than it would be able to take
-        # all the text information into account at once.
-        if isinstance(model_result.content, list):
-            for m in model_result.content:
-                if isinstance(m, ToolCallExecutionEvent):
-                    for function_call in m.content:
-                        if not function_call.is_error:
-                            if function_call.name in ["extractBillText", "get_committee_report", "get_committee_meeting"]:
-                                # implement the RAG pipeline her
-                                # something like this:
-                                # build_index(function_call.content)
-                                pass
-
-        print("\nis_attempt_without_arguments", is_attempt_without_arguments)
-        print("\n\nmodel_result.content", model_result.content)
-        print("\nis_first_tool_call_attempt", is_first_tool_call_attempt)
-        print("\ninner_messages", inner_messages)
-        if not is_first_tool_call_attempt or not is_attempt_without_arguments:
-            # Not the first tool call, or not a tool call at all. Delegate to parent.
+        if not has_tool_calls:
             async for event in super()._process_model_result(
                 model_result,
                 inner_messages,
@@ -113,68 +93,110 @@ class PlannerAgent(AssistantAgent):
                 yield event
             return
 
-        # ---- It IS the first tool call attempt. Enforce planning. ----
-        # The parent `on_messages_stream` already added the AssistantMessage for the
-        # initial `model_result` to the context before calling this method.
+        # Extract last message from the last other agent
+        async def _get_last_other_message_text() -> str:
+            try:
+                msgs = await model_context.get_messages()
+            except Exception:
+                return ""
+            for msg in reversed(msgs):
+                src = getattr(msg, "source", None)
+                content = getattr(msg, "content", None)
+                if isinstance(content, str) and src and src != agent_name:
+                    return content
+            return ""
 
-        # 1. Add dummy tool responses to satisfy the OpenAI protocol.
-        print("Adding dummy tool responses to satisfy the OpenAI protocol.")
-        dummy_results = [
-            FunctionExecutionResult(
-                content="Plan requested before execution. This tool was not run.",
-                call_id=call.id,
-                is_error=True,
-                name=call.name,
-            )
-            for call in model_result.content
-        ]
-        await model_context.add_message(FunctionExecutionResultMessage(content=dummy_results))
+        last_message_text = await _get_last_other_message_text()
 
-        # 2. Inject the "please plan" user message.
-        print("Injecting the \"please plan\" user message.")
-        await model_context.add_message(
-            UserMessage(
-                content=prompt_config["planning_prompt"]["description"],
-                source="system-enforcer",
-            )
+        # Prepare OpenAI client
+        oai_key, _ = get_api_keys()
+        openai.api_key = oai_key
+
+        # Helper to extract JSON from a string robustly
+        def _parse_json_maybe(s: str) -> dict:
+            try:
+                return json.loads(s)
+            except Exception:
+                match = re.search(r"\{[\s\S]*\}", s)
+                if match:
+                    try:
+                        return json.loads(match.group(0))
+                    except Exception:
+                        pass
+            return {}
+
+        # Build prompt template
+        template = (
+            (prompt_config.get("arguments_prompt", {}) or {}).get("description")
+            or "Given the last message: \n\n{last_message}\n\n"
+               "Infer the JSON arguments for the tool `{tool_name}`. Return ONLY the JSON object with the arguments."
         )
 
-        # 3. Re-run the model to get a new response that includes the plan. 
-        print("Re-running the model to get a new response that includes the plan.")
-        next_model_result: CreateResult | None = None
-        async for chunk in cls._call_llm(
-            model_client=model_client,
-            model_client_stream=model_client_stream,
-            system_messages=system_messages,
-            model_context=model_context,
-            workbench=workbench,
-            handoff_tools=handoff_tools,
-            agent_name=agent_name,
-            cancellation_token=cancellation_token,
-            output_content_type=output_content_type,
-            message_id=message_id,
-        ):
-            if isinstance(chunk, CreateResult):
-                next_model_result = chunk
-            else:
-                yield chunk  # Pass streaming chunks through.
+        # Build a lookup of tool descriptions from the workbench (if provided)
+        tool_descriptions: dict[str, str] = {}
+        try:
+            if workbench is not None and hasattr(workbench[0], "list_tools"):
+                tools = await workbench[0].list_tools()  # type: ignore[reportUnknownArgumentType]
+                for t in tools:
+                    # Support both dict-like and attribute-like access
+                    name = t["name"] if isinstance(t, dict) else getattr(t, "name", None)
+                    desc = t.get("description", "") if isinstance(t, dict) else getattr(t, "description", "")
+                    if name:
+                        tool_descriptions[name] = desc or ""
+        except Exception as e:
+            print(f"Error listing tools: {e}")
+            # If listing tools fails, proceed without descriptions
+            pass
 
-        assert next_model_result is not None, "No model result produced after requesting plan."
+        # Mutate every tool call arguments using LLM inference (regardless of being empty or not)
+        if isinstance(model_result.content, list):
+            pass
+            for evt in model_result.content:
+                # 1) Wrapped batch of calls
+                if isinstance(evt, ToolCallRequestEvent):
+                    calls_iter = evt.content
+                # 2) Single raw FunctionCall
+                elif isinstance(evt, FunctionCall):
+                    calls_iter = [evt]
+                else:
+                    continue
 
-        # 4. Add the new assistant message (with plan) to the context.
-        print("Adding the new assistant message (with plan) to the context.")
-        await model_context.add_message(        
-            AssistantMessage(
-                content=next_model_result.content,
-                source=agent_name,
-                thought=getattr(next_model_result, "thought", None),
-            )
-        )
+                for call in calls_iter:
+                    description = tool_descriptions.get(call.name, "")
+                    # Normalize sent arguments to a JSON string for the prompt
+                    if isinstance(call.arguments, str) and call.arguments.strip() != "":
+                        sent_arguments = call.arguments
+                    elif isinstance(call.arguments, dict):
+                        sent_arguments = json.dumps(call.arguments)
+                    else:
+                        sent_arguments = "{}"
 
-        # 5. Delegate the NEW result back to the parent's processing logic. 
-        print("Delegating the NEW result back to the parent's processing logic.")
+                    if sent_arguments == "{}":
+                        prompt_text = template.format(
+                            tool_name=call.name,
+                            last_message=last_message_text,
+                            description=description,
+                            sent_arguments=sent_arguments,
+                        )
+                        response = openai.chat.completions.create(
+                            model="gpt-4o",
+                            messages=[
+                                {"role": "system", "content": "You extract STRICT JSON arguments for tools."},
+                                {"role": "user", "content": prompt_text},
+                            ],
+                            temperature=0,
+                            max_tokens=200,
+                        )
+                        content = response.choices[0].message.content
+                        args_obj = _parse_json_maybe(content or "")
+                        print("FACTUALLY CALLED WITH ARGS: ", args_obj)
+                        # Use inferred JSON if valid; otherwise keep original arguments
+                        if isinstance(args_obj, dict) and len(args_obj) > 0:
+                            call.arguments = json.dumps(args_obj)
+
+        # Delegate to parent with updated arguments
         async for event in super()._process_model_result(
-            next_model_result,
+            model_result,
             inner_messages,
             cancellation_token,
             agent_name,
