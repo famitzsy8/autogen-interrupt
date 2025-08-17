@@ -22,7 +22,7 @@ def _craft_adapted_path(rel_path:str) -> str:
 def _get_description_for_function(func_name: str, path: str = None) -> str:
 
     if path is None:
-        path = _craft_adapted_path('../data/mcp_descriptions.json')
+        path = _craft_adapted_path('data/mcp_descriptions.json')
 
     with open(path, 'r') as f:
         descriptions = json.load(f)

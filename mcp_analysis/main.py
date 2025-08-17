@@ -1,4 +1,3 @@
-# 
 # main.py
 
 import yaml
@@ -6,8 +5,8 @@ import re
 import requests
 import xml.etree.ElementTree as ET
 
-from util.parse_util import _call_and_parse, _parse_oai_json_response, _extract_htm_pdf_from_xml, _parse_roll_call_number_house, _get_committee_code, _parse_committee_report_text_links
-from util.other_util import _craft_adapted_path, _get_description_for_function, _show_tools
+from util.parse_util import _call_and_parse, _extract_htm_pdf_from_xml, _parse_roll_call_number_house, _get_committee_code, _parse_committee_report_text_links
+from util.other_util import _craft_adapted_path, _get_description_for_function
 from util.fetch_util import _searchAmendmentInCR
 from mcp.server.fastmcp import FastMCP
 
@@ -38,6 +37,15 @@ def convertLVtoCongress(lobby_view_bill_id: str) -> dict:
         "debug": debug
     }
 
+def getBillTitle(congress_index: dict) -> dict:
+    endpoint = "bill/{congress}/{bill_type}/{bill_number}/titles"
+    root = _call_and_parse(congress_index, endpoint)
+    titles = []
+    for item in root.findall(".//titles/item"):
+        title_text = item.findtext("title")
+        if title_text:
+            titles.append(title_text.strip())
+    return {"titles": titles}
 
 @mcp.tool(description=_get_description_for_function("extractBillText"))
 def extractBillText(congress_index:dict) -> dict:
@@ -693,14 +701,49 @@ if __name__ == "__main__":
 
     # # DEBUGGING RUNS
     # # ==============
+    # import json
+    # with open("helper/bill_token_lengths.json", "r") as f:
+    #     bills = json.load(f)
+    # for key, value in bills.items():
+    #     congress_index = convertLVtoCongress(key)
+    #     ams = getBillAmendments(congress_index["congress_index"])
+    #     len_ams = ams["debug"][-1]
+    #     print(f"{key}: {len_ams} ==== Length: {value}")
+
     import json
-    with open("helper/bill_token_lengths.json", "r") as f:
-        bills = json.load(f)
-    for key, value in bills.items():
-        congress_index = convertLVtoCongress(key)
-        ams = getBillAmendments(congress_index["congress_index"])
-        len_ams = ams["debug"][-1]
-        print(f"{key}: {len_ams} ==== Length: {value}")
+    import os
+
+    # Load the bill token lengths
+    bill_token_lengths_path = os.path.join("helper", "bill_token_lengths.json")
+    with open(bill_token_lengths_path, "r") as f:
+        bill_token_lengths = json.load(f)
+
+    results = {}
+
+    for bill_id, tokens in bill_token_lengths.items():
+        # Convert bill_id to congress_index using convertLVtoCongress
+        congress_result = convertLVtoCongress(bill_id)
+        congress_index = congress_result.get("congress_index")
+        if not congress_index:
+            title = None
+        else:
+            # Get the bill titles
+            titles_result = getBillTitle(congress_index)
+            titles = titles_result.get("titles", [])
+            if titles:
+                # Choose the title with the least characters
+                title = min(titles, key=len)
+            else:
+                title = None
+        results[bill_id] = {
+            "tokens": tokens,
+            "title": title
+        }
+
+    # Write the results to helper/lengths_and_names.json
+    output_path = os.path.join("helper", "lengths_and_names.json")
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=2)
 
     # print(get_senate_votes(115, 2, 221))
     # print(get_house_votes(2018, 287))
