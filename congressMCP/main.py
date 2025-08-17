@@ -9,50 +9,18 @@ import ast
 from typing import Any
 
 from util.parse_util import _call_and_parse, _parse_oai_json_response, _extract_htm_pdf_from_xml, _parse_roll_call_number_house, _get_committee_code, _parse_committee_report_text_links
-from util.other_util import _craft_adapted_path, _get_description_for_function, _show_tools
+from util.other_util import _craft_adapted_path, _get_description_for_function
 from util.fetch_util import _searchAmendmentInCR
-from util.helper_util import get_distinct_bill_ids, get_bill_text_and_token_count, write_results_to_json
-
+from util.rag_util import extractBillText
+from util.parse_util import _parse_congress_index_from_args
 from mcp.server.fastmcp import FastMCP
+
+from rag import BillTextRAG
 
 from crewai.project import CrewBase, agent, crew
 
 import os, argparse, asyncio
 from crewai import Crew, Agent, Task, LLM
-
-
-
-def _parse_congress_index_from_args(args: Any) -> dict | None:
-    """
-    Parses a variety of messy agent inputs to extract the core congress_index dictionary.
-    Handles nested wrappers and stringified dictionaries.
-    """
-    if not isinstance(args, (dict, str)):
-        return None
-
-    # If args is a string, try to parse it into a dict.
-    # Agents often incorrectly pass stringified dicts.
-    if isinstance(args, str):
-        try:
-            args = ast.literal_eval(args)
-            if not isinstance(args, dict):
-                return None
-        except (ValueError, SyntaxError):
-            return None # Not a stringified dict.
-
-    # Now `args` is guaranteed to be a dict.
-    # Check if the payload is at the top level.
-    # This is the base case for the recursion.
-    if "congress" in args and ("bill_type" in args or "reportType" in args or "chamber" in args):
-         return args
-
-    # If not, check for common wrapper keys and recurse.
-    for key in ["congress_index", "self"]:
-        if key in args:
-            # Recursively call with the value of the wrapper key
-            return _parse_congress_index_from_args(args[key])
-
-    return None
 
 
 class MCPServerWrapper:
@@ -61,7 +29,6 @@ class MCPServerWrapper:
 
     def __init__(self):
         pass
-
 
     @mcp.tool(description=_get_description_for_function("convertLVtoCongress"))
     def convertLVtoCongress(lobby_view_bill_id: str) -> dict:
@@ -84,22 +51,6 @@ class MCPServerWrapper:
             },
             "debug": debug
         }
-
-
-    @mcp.tool(description=_get_description_for_function("extractBillText"))
-    def extractBillText(congress_index:dict) -> dict:
-        debug = []
-        parsed_index = _parse_congress_index_from_args(congress_index)
-        if not parsed_index:
-            debug.append(f"Could not parse congress_index from input: {congress_index}")
-            return {"text_versions": [], "debug": debug}
-
-        endpoint = "bill/{congress}/{bill_type}/{bill_number}/text"
-        root = _call_and_parse(parsed_index, endpoint)
-        urls = _extract_htm_pdf_from_xml(root)
-        debug.append(f"Extracted {len(urls)} text versions for bill {parsed_index}")
-        return {"text_versions": urls, "debug": debug}
-
 
     @mcp.tool(description=_get_description_for_function("getBillCommittees"))
     @staticmethod
@@ -137,7 +88,7 @@ class MCPServerWrapper:
         }
 
     @mcp.tool(description=_get_description_for_function("get_committee_actions"))
-    def get_committee_actions(congress_index: dict) -> dict:
+    def get_committee_actions(self, congress_index: dict) -> dict:
         debug = []
         parsed_index = _parse_congress_index_from_args(congress_index)
         if not parsed_index:
@@ -148,23 +99,24 @@ class MCPServerWrapper:
         for committee in root.findall(".//committees/item"):
             try:
                 c = {
-                    "system_code": committee.findtext("systemCode"),
-                    "name": committee.findtext("name"),
-                    "chamber": committee.findtext("chamber"),
-                    "type": committee.findtext("type"),
+                    "system_code": committee.findtext("systemCode").strip(),
+                    "name": committee.findtext("name").strip(),
+                    "chamber": committee.findtext("chamber").strip(),
+                    "type": committee.findtext("type").strip(),
                     "actions": [],
                 }
                 # Add committee-level activities
                 for act in committee.findall("./activities/item"):
                     c["actions"].append({
-                        "name": act.findtext("name"),
-                        "date": act.findtext("date"),
+                        "name": act.findtext("name").strip(),
+                        "date": act.findtext("date").strip(),
                     })
                 # Add subcommittees if any
+                c["subcommittees"] = []
                 for sub in committee.findall("./subcommittees/item"):
                     sub_obj = {
-                        "system_code": sub.findtext("systemCode"),
-                        "name": sub.findtext("name"),
+                        "system_code": sub.findtext("systemCode").strip(),
+                        "name": sub.findtext("name").strip(),
                         "actions": []
                     }
                     for act in sub.findall("./activities/item"):
@@ -172,6 +124,7 @@ class MCPServerWrapper:
                             "name": act.findtext("name"),
                             "date": act.findtext("date"),
                         })
+                    
                     c["subcommittees"].append(sub_obj)
                 committees.append(c)
                 debug.append(f"Parsed committee actions: {c['name']} with {len(c['actions'])} actions")
@@ -664,16 +617,32 @@ class MCPServerWrapper:
             "debug": debug
         }
 
+    @mcp.tool(description=_get_description_for_function("getRelevantBillSections"))
+    def getRelevantBillSections(self, congress_index: dict, company_name: str) -> dict:
+        bill_text = extractBillText(congress_index)
+        raw_text = bill_text["text_versions"]["text"]
+
+        bill_text_file_name = f"{congress_index['bill_type']}{congress_index['bill_number']}-{congress_index['congress']}.txt"
+        print(f"Bill text file name: {bill_text_file_name}")
+        # Save raw text to file
+        with open(f"congressMCP/texts/{bill_text_file_name}", "w") as f:
+            f.write(raw_text)
+        
+        bill_text_rag = BillTextRAG(bill_text_file_name)
+        return bill_text_rag.run(company_name=company_name, bill_name=f"{congress_index['congress']}{congress_index['bill_type']}-{congress_index['bill_number']}")
+
     def run(self):
         print("Starting 2nd Congress MCP server at PORT 8080...")
         self.mcp.run()
 
     def _debugging_runs(self):
-        print(self.getCommitteeReport({"congress": 116, "reportType": "srpt", "reportNumber": "288"}))
+        # print(self.getCommitteeReport({"congress": 116, "reportType": "srpt", "reportNumber": "288"}))
+        # print("\n\n" + 50 * "#" + "\n\n")
+        # print(self.getBillCommittees({"congress": 119, "bill_type": "hr", "bill_number": 1}))
         print("\n\n" + 50 * "#" + "\n\n")
-        print(self.getBillCommittees({"congress": 119, "bill_type": "hr", "bill_number": 1}))
-        print("\n\n" + 50 * "#" + "\n\n")
-        print(self.get_committee_meeting({"congress": 118, "chamber": "house", "eventid": "115-538"}))
+        # print(self.get_committee_meeting({"congress": 118, "chamber": "house", "eventid": "115-538"}))
+        #print(self.getRelevantBillSections({"congress": 114, "bill_type": "s", "bill_number": 2012}, "Exxon Mobil"))
+        print(self.get_committee_actions({"congress": 115, "bill_type": "hr", "bill_number": 2917}))
 
 
 if __name__ == "__main__":
@@ -686,6 +655,11 @@ if __name__ == "__main__":
     # print(getBillCommittees({"congress": 119, "bill_type": "hr", "bill_number": 1}))
 
     # print(get_committee_meeting({"congress": 118, "chamber": "house", "eventid": "115-538"}))
-    # print("\n\n" + 50 * "#" + "\n\n")
+    # print("n\n" + 50 * "#" + "\n\n")
     server = MCPServerWrapper()
-    server.run()
+
+    # s2012-114
+    server._debugging_runs()
+    # print(server.getRelevantBillSections({"congress": 114, "bill_type": "s", "bill_number": 2012}, "Exxon Mobil"))
+    # server = MCPServerWrapper()
+    # server.run()

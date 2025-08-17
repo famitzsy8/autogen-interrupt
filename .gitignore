@@ -1,12 +1,6 @@
 # Ignore Python virtual environment
 .ba-venv/
 
-# Ignore secret configs
-secrets.ini
-
-# Ignore XML and notesheets
-mcp_analysis/xml_responses.xml
-
 # Ignore compiled Python files
 __pycache__/
 *.pyc
@@ -14,12 +8,43 @@ __pycache__/
 # Ignore system files
 .DS_Store
 
-# Ignore logs
-logs/
-
 # Ignore VSCode or IDE stuff
 .vscode/
 .idea/
 
 # Ignore Docker cache
 .cache/
+
+# Ignore secret configs
+secrets.ini
+
+# Ignore XML and notesheets
+mcp_analysis/xml_responses.xml
+
+# Ignore logs
+logs/
+
+# Ignore the cloned repos
+cloned/
+
+# Ignore frontend demo
+frontend_demo/
+
+# Ignore old congress MCP code
+congressMCP/
+
+# Ignore old RAG experiments
+rag_service/
+
+# Ignore unrelated plots
+plots/
+
+# Ignore helper files
+helper/
+
+ragMCP/rag/vectorstores/
+
+agents/CongressChunker/
+agents/agentServer/
+agents/agent_rag_experiment/
+agents/langchain_rag/

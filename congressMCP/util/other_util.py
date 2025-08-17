@@ -1,5 +1,6 @@
 import os
 import json
+import tiktoken
 
 # Depending where we are calling the script that uses the MCP functions, we need to adapt
 # the path dynamically 
@@ -22,10 +23,24 @@ def _craft_adapted_path(rel_path:str) -> str:
 def _get_description_for_function(func_name: str, path: str = None) -> str:
 
     if path is None:
-        path = _craft_adapted_path('../data/mcp_descriptions.json')
+        path = _craft_adapted_path('data/mcp_descriptions.json')
 
     with open(path, 'r') as f:
         descriptions = json.load(f)
 
     return descriptions.get(func_name, "")
 
+def get_token_encoder():
+    try:
+        _ENCODER = tiktoken.get_encoding("cl100k_base")
+    except ModuleNotFoundError:
+        class _DummyEncoder:  # pylint: disable=too-few-public-methods
+            def encode(self, text: str):  # noqa: D401
+                return text.split()
+
+            def decode(self, tokens):  # noqa: D401
+                return " ".join(tokens)
+
+        _ENCODER = _DummyEncoder()
+
+    return _ENCODER
