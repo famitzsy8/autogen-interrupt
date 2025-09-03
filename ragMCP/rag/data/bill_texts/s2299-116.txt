@@ -1,0 +1,1163 @@
+[Congressional Bills 116th Congress]
+[From the U.S. Government Publishing Office]
+[S. 2299 Introduced in Senate (IS)]
+<DOC>
+116th CONGRESS
+1st Session
+S. 2299
+To amend title 49, United States Code, to enhance the safety and
+reliability of pipeline transportation, and for other purposes.
+_______________________________________________________________________
+IN THE SENATE OF THE UNITED STATES
+July 25, 2019
+Mrs. Fischer (for herself and Ms. Duckworth) introduced the following
+bill; which was read twice and referred to the Committee on Commerce,
+Science, and Transportation
+_______________________________________________________________________
+A BILL
+To amend title 49, United States Code, to enhance the safety and
+reliability of pipeline transportation, and for other purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE; TABLE OF CONTENTS.
+(a) Short Title.--This Act may be cited as the ``PIPES Act of
+2019''.
+(b) Table of Contents.--The table of contents for this Act is as
+follows:
+Sec. 1. Short title; table of contents.
+Sec. 2. Definitions.
+TITLE I--IMPROVING PIPELINE SAFETY AND INFRASTRUCTURE
+Sec. 101. Authorization of appropriations.
+Sec. 102. Pipeline workforce development.
+Sec. 103. Underground natural gas storage user fees.
+Sec. 104. Cost recovery and fees for facility reviews.
+Sec. 105. Advancement of new pipeline safety technologies and
+approaches.
+Sec. 106. Pipeline safety testing enhancement study.
+Sec. 107. Regulatory updates.
+Sec. 108. Self-disclosure of violations.
+Sec. 109. Due process protections in enforcement proceedings.
+Sec. 110. Pipeline operating status.
+Sec. 111. Liquefied natural gas facility project reviews.
+Sec. 112. Updates to standards for liquefied natural gas facilities.
+Sec. 113. National Center of Excellence for Liquefied Natural Gas
+Safety and Training.
+TITLE II--LEONEL RONDON PIPELINE SAFETY ACT
+Sec. 201. Short title.
+Sec. 202. Distribution integrity management plans.
+Sec. 203. Emergency response plans.
+Sec. 204. Operations and maintenance manuals.
+Sec. 205. Pipeline safety management systems.
+Sec. 206. Pipeline safety practices.
+SEC. 2. DEFINITIONS.
+In this Act:
+(1) Administration.--The term ``Administration'' means the
+Pipeline and Hazardous Materials Safety Administration.
+(2) Administrator.--The term ``Administrator'' means the
+Administrator of the Administration.
+(3) Secretary.--The term ``Secretary'' means the Secretary
+of Transportation.
+TITLE I--IMPROVING PIPELINE SAFETY AND INFRASTRUCTURE
+SEC. 101. AUTHORIZATION OF APPROPRIATIONS.
+(a) Gas and Hazardous Liquid.--Section 60125 of title 49, United
+States Code, is amended by striking subsection (a) and inserting the
+following:
+``(a) Gas and Hazardous Liquid.--
+``(1) In general.--From fees collected under section 60301,
+there are authorized to be appropriated to the Secretary to
+carry out section 12 of the Pipeline Safety Improvement Act of
+2002 (49 U.S.C. 60101 note; Public Law 107-355) and the
+provisions of this chapter relating to gas and hazardous
+liquid--
+``(A) $147,000,000 for fiscal year 2020, of which--
+``(i) $9,000,000 shall be used to carry out
+section 12 of the Pipeline Safety Improvement
+Act of 2002 (49 U.S.C. 60101 note; Public Law
+107-355); and
+``(ii) $60,000,000 shall be used for making
+grants;
+``(B) $151,000,000 for fiscal year 2021, of which--
+``(i) $9,000,000 shall be used to carry out
+section 12 of the Pipeline Safety Improvement
+Act of 2002 (49 U.S.C. 60101 note; Public Law
+107-355); and
+``(ii) $63,000,000 shall be used for making
+grants;
+``(C) $155,000,000 for fiscal year 2022, of which--
+``(i) $9,000,000 shall be used to carry out
+section 12 of the Pipeline Safety Improvement
+Act of 2002 (49 U.S.C. 60101 note; Public Law
+107-355); and
+``(ii) $66,000,000 shall be used for making
+grants; and
+``(D) $159,000,000 for fiscal year 2023, of which--
+``(i) $9,000,000 shall be used to carry out
+section 12 of the Pipeline Safety Improvement
+Act of 2002 (49 U.S.C. 60101 note; Public Law
+107-355); and
+``(ii) $69,000,000 shall be used for making
+grants.
+``(2) Trust fund amounts.--In addition to the amounts
+authorized to be appropriated under paragraph (1), there are
+authorized to be appropriated from the Oil Spill Liability
+Trust Fund established by section 9509(a) of the Internal
+Revenue Code of 1986 to carry out section 12 of the Pipeline
+Safety Improvement Act of 2002 (49 U.S.C. 60101 note; Public
+Law 107-355) and the provisions of this chapter relating to
+hazardous liquid--
+``(A) $25,000,000 for fiscal year 2020, of which--
+``(i) $3,000,000 shall be used to carry out
+section 12 of the Pipeline Safety Improvement
+Act of 2002 (49 U.S.C. 60101 note; Public Law
+107-355); and
+``(ii) $10,000,000 shall be used for making
+grants;
+``(B) $26,000,000 for fiscal year 2021, of which--
+``(i) $3,000,000 shall be used to carry out
+section 12 of the Pipeline Safety Improvement
+Act of 2002 (49 U.S.C. 60101 note; Public Law
+107-355); and
+``(ii) $11,000,000 shall be used for making
+grants;
+``(C) $27,000,000 for fiscal year 2022, of which--
+``(i) $3,000,000 shall be used to carry out
+section 12 of the Pipeline Safety Improvement
+Act of 2002 (49 U.S.C. 60101 note; Public Law
+107-355); and
+``(ii) $12,000,000 shall be used for making
+grants; and
+``(D) $28,000,000 for fiscal year 2023, of which--
+``(i) $3,000,000 shall be used to carry out
+section 12 of the Pipeline Safety Improvement
+Act of 2002 (49 U.S.C. 60101 note; Public Law
+107-355); and
+``(ii) $13,000,000 shall be used for making
+grants.
+``(3) Underground natural gas storage facility safety
+account.--From fees collected under section 60302, there is
+authorized to be appropriated to the Secretary to carry out
+section 60141 $8,000,000 for each of fiscal years 2020 through
+2023.''.
+(b) Operational Expenses.--Section 2(b) of the PIPES Act of 2016
+(Public Law 114-183; 130 Stat. 515) is amended by striking paragraphs
+(1) through (4) and inserting the following:
+``(1) $24,000,000 for fiscal year 2020.
+``(2) $25,000,000 for fiscal year 2021.
+``(3) $26,000,000 for fiscal year 2022.
+``(4) $27,000,000 for fiscal year 2023.''.
+(c) One-Call Notification Programs.--Section 6107 of title 49,
+United States Code, is amended by striking ``$1,058,000 for each of
+fiscal years 2016 through 2019'' and inserting ``$1,058,000 for each of
+fiscal years 2020 through 2023''.
+(d) Pipeline Safety Information Grants to Communities.--Section
+60130 of title 49, United States Code, is amended by striking
+subsection (c) and inserting the following:
+``(c) Funding.--
+``(1) In general.--Out of amounts made available under
+section 2(b) of the PIPES Act of 2016, the Secretary shall use
+$1,500,000 for each of fiscal years 2020 through 2023 to carry
+out this section.
+``(2) Limitation.--Any amounts used to carry out this
+section shall not be derived from user fees collected under
+section 60301.''.
+(e) Damage Prevention Programs.--Section 60134(i) of title 49,
+United States Code, is amended in the first sentence by striking
+``fiscal years 2012 through 2015'' and inserting ``fiscal years 2020
+through 2023''.
+(f) Pipeline Integrity Program.--Section 12(f) of the Pipeline
+Safety Improvement Act of 2002 (49 U.S.C. 60101 note; Public Law 107-
+355) is amended by striking ``2016 through 2019'' and inserting ``2020
+through 2023''.
+SEC. 102. PIPELINE WORKFORCE DEVELOPMENT.
+(a) Inspector Training.--Not later than 1 year after the date of
+enactment of this Act, the Administrator shall--
+(1) review the inspector training programs provided at the
+Inspector Training and Qualifications Division of the
+Administration in Oklahoma City, Oklahoma; and
+(2) determine whether any of the programs referred to in
+paragraph (1), or any portions of the programs, could be
+provided online through teletraining or another type of
+distance learning.
+(b) Report.--
+(1) In general.--Not later than 1 year after the date of
+enactment of this Act, the Secretary shall submit to the
+Committee on Commerce, Science, and Transportation of the
+Senate and the Committees on Transportation and Infrastructure,
+Energy and Commerce, and Science, Space, and Technology of the
+House of Representatives and make publicly available on a
+website of the Department of Transportation a report containing
+a comprehensive workforce plan for the Administration.
+(2) Contents.--The report under paragraph (1) shall
+include--
+(A) a description of the current staffing at the
+Administration;
+(B) an identification of the staff needed to
+achieve the mission of the Administration over the next
+10 years following the date of the report;
+(C) an evaluation of whether the inspector training
+programs referred to in subsection (a)(1) provide
+appropriate exposure to pipeline operations and current
+pipeline safety technology;
+(D) a summary of any gaps between the current
+workforce of the Administration and the future human
+capital needs of the Administration; and
+(E) a description of how the Administration--
+(i) uses the retention incentives defined
+by the Office of Personnel Management; and
+(ii) plans to use those retention
+incentives as part of the comprehensive
+workforce plan of the Administration.
+SEC. 103. UNDERGROUND NATURAL GAS STORAGE USER FEES.
+Section 60302(c) of title 49, United States Code, is amended--
+(1) in paragraph (2)--
+(A) in subparagraph (A), by striking ``and'' at the
+end;
+(B) in subparagraph (B)--
+(i) by striking ``the amount of the fee'';
+and
+(ii) by striking the period at the end and
+inserting ``; and''; and
+(C) by adding at the end the following:
+``(C) may only be used to the extent provided in
+advance in an appropriations Act.'';
+(2) by striking paragraph (3); and
+(3) by adding at the end the following:
+``(d) Limitation.--The amount of a fee imposed under subsection (a)
+shall be sufficient to pay the costs of activities referred to in
+subsection (c), subject to the limitation that the total amount of fees
+collected for a fiscal year under subsection (b) may not be more than
+105 percent of the total amount of the appropriations made for the
+fiscal year for activities to be financed by the fees.''.
+SEC. 104. COST RECOVERY AND FEES FOR FACILITY REVIEWS.
+(a) Fees for Compliance Reviews of Liquefied Natural Gas
+Facilities.--Chapter 603 of title 49, United States Code, is amended by
+inserting after section 60302 the following:
+``Sec. 60303. Fees for compliance reviews of liquefied natural gas
+facilities
+``(a) Imposition of Fee.--
+``(1) In general.--The Secretary of Transportation
+(referred to in this section as the `Secretary') shall impose
+on a person who files with the Federal Energy Regulatory
+Commission an application for a liquefied natural gas facility
+that has design and construction costs totaling not less than
+$2,500,000,000 a fee for the necessary expenses of a review, if
+any, that the Secretary conducts, in connection with that
+application, to determine compliance with subpart B of part 193
+of title 49, Code of Federal Regulations (or successor
+regulations).
+``(2) Relation to other review.--The Secretary may not
+impose fees under paragraph (1) and section 60117(o) or
+60301(b) for the same compliance review described in paragraph
+(1).
+``(b) Means of Collection.--
+``(1) In general.--The Secretary shall prescribe procedures
+to collect fees under this section.
+``(2) Use of government entities.--The Secretary may--
+``(A) use a department, agency, or instrumentality
+of the Federal Government or of a State or local
+government to collect fees under this section; and
+``(B) reimburse that department, agency, or
+instrumentality a reasonable amount for the services
+provided.
+``(c) Account.--There is established an account, to be known as the
+`Liquefied Natural Gas Siting Account', in the Pipeline Safety Fund
+established in the Treasury of the United States under section
+60301.''.
+(b) Clerical Amendment.--The table of sections for chapter 603 of
+title 49, United States Code, is amended by inserting after the item
+relating to section 60302 the following:
+``60303. Fees for compliance reviews of liquefied natural gas
+facilities.''.
+SEC. 105. ADVANCEMENT OF NEW PIPELINE SAFETY TECHNOLOGIES AND
+APPROACHES.
+(a) In General.--Chapter 601 of title 49, United States Code, is
+amended by adding at the end the following:
+``Sec. 60142. Pipeline safety enhancement programs
+``(a) In General.--The Secretary may establish and carry out
+limited safety-enhancing testing programs during the period of fiscal
+years 2020 through 2026 to evaluate innovative technologies and
+operational practices testing the safe operation of--
+``(1) a natural gas pipeline facility; or
+``(2) a hazardous liquid pipeline facility.
+``(b) Limitations.--
+``(1) In general.--Such testing programs may not exceed--
+``(A) 5 percent of the total miles of hazardous
+liquid pipelines in the United States; and
+``(B) 5 percent of the total miles of natural gas
+pipelines in the United States.
+``(2) High population areas.--Any program established under
+subsection (a) shall not be located in a high population area
+(as defined in section 195.450 of title 49, Code of Federal
+Regulations).
+``(c) Duration.--The term of a testing program established under
+subsection (a) shall be not more than a period of 4 years beginning on
+the date of approval of the program.
+``(d) Safety Standards.--
+``(1) In general.--The Secretary shall require, as a
+condition of approval of a testing program under subsection
+(a), that the safety measures in the testing program are
+designed to achieve a level of safety that is greater than, or
+equivalent to, the level of safety required by this chapter.
+``(2) Determination.--
+``(A) In general.--The Secretary may issue an order
+under subparagraph (A) of section 60118(c)(1) to
+accomplish the purpose of a testing program for a term
+not to exceed the time period described in subsection
+(c) if the condition described in paragraph (1) is met,
+as determined by the Secretary.
+``(B) Limitation.--An order under subparagraph (A)
+shall pertain only to those regulations that would
+otherwise prevent the use of the safety technology to
+be tested under the testing program.
+``(e) Considerations.--In establishing a testing program under
+subsection (a), the Secretary shall consider--
+``(1) whether the owners or operators participating in the
+program have a safety management system in place;
+``(2) whether the proposed safety technology has been
+tested through a research and development program carried out
+by--
+``(A) the Secretary;
+``(B) collaborative research development
+organizations; or
+``(C) other institutions; and
+``(3) whether the pipeline segments tested by the program
+are outside of a high population area (as defined in section
+195.450 of title 49, Code of Federal Regulations).
+``(f) Data and Findings.--As a participant in a testing program
+established under subsection (a), an operator shall submit to the
+Secretary detailed findings and a summary of data collected as a result
+of participation in the testing program.
+``(g) Authority To Revoke Participation.--The Secretary shall
+immediately revoke participation in a testing program under subsection
+(a) if--
+``(1) the participant fails to comply with the terms and
+conditions of the testing program; or
+``(2) in the determination of the Secretary, continued
+participation in the testing program by the participant would
+be unsafe or would not be consistent with the goals and
+objectives of this chapter.
+``(h) Authority To Terminate Program.--The Secretary shall
+immediately terminate a testing program under subsection (a) if
+continuation of the testing program would not be consistent with the
+goals and objectives of this chapter.
+``(i) State Rights.--
+``(1) Exemption.--Except as provided in paragraph (2), if a
+State submits to the Secretary notice that the State requests
+an exemption from any testing program considered for
+establishment under this section, the State shall be exempt.
+``(2) Limitations.--
+``(A) In general.--The Secretary shall not grant a
+requested exemption under paragraph (1) after a testing
+program is established.
+``(B) Late notice.--The Secretary shall not grant a
+requested exemption under paragraph (1) if the notice
+submitted under that paragraph is submitted to the
+Secretary more than 10 days after the date on which the
+Secretary issues an order providing an effective date
+for the testing program.
+``(3) Effect.--If a State has not submitted a notice
+requesting an exemption under paragraph (1), the State shall
+not enforce any law (including regulations) that is
+inconsistent with a testing program in effect in the State
+under this section.
+``(j) Program Review Process and Public Notice.--
+``(1) In general.--The Secretary shall publish in the
+Federal Register a notice of each testing program under
+subsection (a), including the order to be considered, and
+provide an opportunity for public comment for not less than 60
+days.
+``(2) Response from secretary.--Not later than the date on
+which the Secretary issues an order providing an effective date
+of a testing program noticed under paragraph (1), the Secretary
+shall respond to each comment submitted under that paragraph.
+``(k) Report to Congress.--At the conclusion of each testing
+program, the Secretary shall make publicly available on the website of
+the Department of Transportation a report containing--
+``(1) the findings and conclusions of the Secretary with
+respect to the testing program; and
+``(2) any recommendations of the Secretary with respect to
+the testing program, including any recommendations for
+amendments to laws (including regulations) and the
+establishment of standards, that--
+``(A) would enhance the safe operation of
+interstate gas or hazardous liquid pipeline facilities;
+and
+``(B) are technically, operationally, and
+economically feasible.
+``(l) Standards.--If a report under subsection (k) indicates that
+it is practicable to establish technically, operationally, and
+economically feasible standards for the use of a safety-enhancing
+technology and any corresponding operational practices tested by the
+testing program described in the report, the Secretary, as soon as
+practicable after submission of the report, may promulgate regulations
+consistent with chapter 5 of title 5 (commonly known as the
+`Administrative Procedures Act') that--
+``(1) allow operators of interstate gas or hazardous liquid
+pipeline facilities to use the relevant technology or practice
+to the extent practicable; and
+``(2) establish technically, operationally, and
+economically feasible standards for the capability and
+deployment of the technology or practice.''.
+(b) Clerical Amendment.--The table of sections for chapter 601 of
+title 49, United States Code, is amended by inserting after the item
+relating to section 60141 the following:
+``60142. Pipeline safety enhancement programs.''.
+SEC. 106. PIPELINE SAFETY TESTING ENHANCEMENT STUDY.
+Not later than 2 years after the date of enactment of this Act, the
+Secretary shall submit to the Committee on Commerce, Science, and
+Transportation of the Senate and the Committees on Transportation and
+Infrastructure, Energy and Commerce, and Science, Space, and Technology
+of the House of Representatives a report relating to--
+(1) the research and development capabilities of the
+Administration, in accordance with section 12 of the Pipeline
+Safety Improvement Act of 2002 (49 U.S.C. 60101 note; Public
+Law 107-355);
+(2)(A) the development of additional testing and research
+capabilities through the establishment of an independent
+pipeline safety testing facility under the Department of
+Transportation;
+(B) whether an independent pipeline safety testing facility
+would be critical to the work of the Administration; and
+(C) the costs and benefits of developing an independent
+pipeline safety testing facility under the Department of
+Transportation; and
+(3) the ability of the Administration to use the testing
+facilities of other Federal agencies or federally funded
+research and development centers.
+SEC. 107. REGULATORY UPDATES.
+(a) Definition of Outstanding Mandate.--In this section, the term
+``outstanding mandate'' means--
+(1) a final rule required to be issued under the Pipeline
+Safety, Regulatory Certainty, and Job Creation Act of 2011
+(Public Law 112-90; 125 Stat. 1904) that has not been published
+in the Federal Register;
+(2) a final rule required to be issued under the Protecting
+our Infrastructure of Pipelines and Enhancing Safety Act of
+2016 (Public Law 114-183; 130 Stat. 514) that has not been
+published in the Federal Register; and
+(3) any other final rule regarding gas or hazardous liquid
+pipeline facilities required to be issued under this Act or an
+Act enacted prior to the date of enactment of this Act that has
+not been published in the Federal Register.
+(b) Requirements.--
+(1) Periodic updates.--Not later than 30 days after the
+date of enactment of this Act, and every 30 days thereafter
+until a final rule referred to in paragraphs (1) through (3) of
+subsection (a) is published in the Federal Register, the
+Secretary shall publish on a publicly available website of the
+Department of Transportation an update regarding the status of
+each outstanding mandate in accordance with subsection (c).
+(2) Notification of congress.--On publication of a final
+rule in the Federal Register for an outstanding mandate, the
+Secretary shall submit to the Committee on Commerce, Science,
+and Transportation of the Senate and the Committees on
+Transportation and Infrastructure and Energy and Commerce of
+the House of Representatives a notification in accordance with
+subsection (c).
+(c) Contents.--An update published or a notification submitted
+under paragraph (1) or (2) of subsection (b) shall contain, as
+applicable--
+(1) with respect to information relating to the
+Administration--
+(A) a description of the work plan for each
+outstanding mandate;
+(B) an updated rulemaking timeline for each
+outstanding mandate;
+(C) the staff allocations with respect to each
+outstanding mandate;
+(D) any resource constraints affecting the
+rulemaking process for each outstanding mandate;
+(E) any other details associated with the
+development of each outstanding mandate that affect the
+progress of the rulemaking process with respect to that
+outstanding mandate; and
+(F) a description of all rulemakings regarding gas
+or hazardous liquid pipeline facilities published in
+the Federal Register that are not identified under
+subsection (b)(2); and
+(2) with respect to information relating to the Office of
+the Secretary--
+(A) the date that the outstanding mandate was
+submitted to the Office of the Secretary for review;
+(B) the reason that the outstanding mandate is
+under review beyond 45 days;
+(C) the staff allocations within the Office of the
+Secretary with respect to each outstanding mandate;
+(D) any resource constraints affecting review of
+the outstanding mandate;
+(E) an estimated timeline of when review of the
+outstanding mandate will be complete, as of the date of
+the update;
+(F) if applicable, the date that the outstanding
+mandate was returned to the Administration for revision
+and the anticipated date for resubmission to the Office
+of the Secretary;
+(G) the date that the outstanding mandate was
+submitted to the Office of Management and Budget for
+review; and
+(H) a statement of whether the outstanding mandate
+remains under review by the Office of Management and
+Budget.
+SEC. 108. SELF-DISCLOSURE OF VIOLATIONS.
+Section 60122(b)(1) of title 49, United States Code, is amended--
+(1) in subparagraph (B), by striking ``and'' at the end;
+and
+(2) by adding at the end the following:
+``(D) self-disclosure and correction of violations,
+or actions to correct a violation, prior to discovery
+by the Pipeline and Hazardous Materials Safety
+Administration; and''.
+SEC. 109. DUE PROCESS PROTECTIONS IN ENFORCEMENT PROCEEDINGS.
+(a) In General.--Section 60117 of title 49, United States Code, is
+amended--
+(1) by redesignating subsections (b) through (o) as
+subsections (c) through (p), respectively; and
+(2) by inserting after subsection (a) the following:
+``(b) Enforcement and Regulatory Procedures.--
+``(1) Request for formal hearing.--On request of a
+respondent in an enforcement or regulatory proceeding under
+this chapter, a hearing shall be held in accordance with
+section 554 of title 5.
+``(2) Administrative law judge.--A hearing under paragraph
+(1) shall be conducted by an administrative law judge appointed
+under section 3105 of title 5.
+``(3) Open to the public.--
+``(A) Hearings.--A hearing under paragraph (1)
+shall be--
+``(i) noticed to the public--
+``(I) on the website of the
+Pipeline and Hazardous Materials Safety
+Administration; and
+``(II) in the Federal Register; and
+``(ii) open to the public.
+``(B) Agreements, orders, and judgments.--A consent
+agreement, consent order, order, or judgment resulting
+from a hearing under paragraph (1) shall be made
+available to the public on the website of the Pipeline
+and Hazardous Materials Safety Administration.
+``(4) Procedures.--In implementing enforcement and
+regulatory procedures under this chapter, the Secretary shall--
+``(A) allow the use of a consent agreement and
+consent order to resolve any matter of fact or law
+asserted;
+``(B) allow the respondent and the agency to
+convene 1 or more meetings--
+``(i) for settlement or simplification of
+the issues; or
+``(ii) to aid in the disposition of issues;
+``(C) require that the case file in an enforcement
+proceeding include all agency records pertinent to the
+matters of fact and law asserted;
+``(D) require that a recommended decision be made
+available to the respondent when issued;
+``(E) allow a respondent to reply to any post-
+hearing submission;
+``(F) allow a respondent to request--
+``(i) that a hearing be held, and a
+recommended decision and order issued, on an
+expedited basis; or
+``(ii) that a hearing not commence for a
+period of not less than 90 days;
+``(G) require that the agency have the burden of
+proof, presentation, and persuasion in any enforcement
+matter;
+``(H) require that any recommended decision and
+order contain findings of fact and conclusions of law;
+``(I) require the Associate Administrator of the
+Office of Pipeline Safety to file a post-hearing
+recommendation not later than 30 days after the
+deadline for any post-hearing submission of a
+respondent;
+``(J) require an order on a petition for
+reconsideration to be issued not later than 120 days
+after the date on which the petition is filed; and
+``(K) allow a respondent to request that an issue
+of controversy or uncertainty be addressed through a
+declaratory order in accordance with section 554(e) of
+title 5, which order shall be issued not later than 120
+days after the date on which a request is made.
+``(5) Savings clause.--Nothing in this subsection alters
+the procedures applicable to an emergency order under
+subsection (p).''.
+(b) Conforming Amendments.--
+(1) Section 60105(b)(6) of title 49, United States Code, is
+amended by striking ``section 60108 (a) and (b)'' and inserting
+``subsections (a) and (c) of section 60108''.
+(2) Section 60106(a)(2) of title 49, United States Code, is
+amended by striking ``section 60108 (a) and (b)'' and inserting
+``subsections (a) and (c) of section 60108''.
+(3) Section 60118(a)(2) of title 49, United States Code, is
+amended by striking ``section 60108 (a) and (b)'' and inserting
+``subsections (a) and (c) of section 60108''.
+SEC. 110. PIPELINE OPERATING STATUS.
+(a) In General.--Chapter 601 of title 49, United States Code (as
+amended by section 105(a)), is amended by adding at the end the
+following:
+``Sec. 60143. Idled pipelines
+``(a) Definition of Idled.--In this section, the term `idled', with
+respect to a pipeline, means that the pipeline--
+``(1)(A) has ceased normal operations; and
+``(B) will not resume service for a period of not less than
+180 days;
+``(2) has been isolated from all sources of hazardous
+liquid, natural gas, or other gas; and
+``(3)(A) has been purged of combustibles and hazardous
+materials and maintains a blanket of inert, nonflammable gas at
+low pressure; or
+``(B) has not been purged as described in subparagraph (A),
+but the volume of gas is so small that there is no potential
+hazard.
+``(b) Rulemaking.--
+``(1) In general.--Not later than 2 years after the date of
+enactment of the PIPES Act of 2019, the Secretary shall
+promulgate regulations prescribing the applicability of the
+pipeline safety requirements to idled natural or other gas
+transmission and hazardous liquid pipelines.
+``(2) Requirements.--
+``(A) In general.--The applicability of the
+regulations under paragraph (1) shall be based on the
+risk that idled natural or other gas transmission and
+hazardous liquid pipelines pose to the public,
+property, and the environment, and shall include
+requirements to resume operation.
+``(B) Inspection.--The Secretary or an appropriate
+State agency shall inspect each idled pipeline and
+verify that the pipeline has been purged of
+combustibles and hazardous materials.
+``(C) Requirements for reinspection.--The Secretary
+shall determine the requirements for periodic
+reinspection of idled natural or other gas transmission
+and hazardous liquid pipelines.''.
+(b) Clerical Amendment.--The table of sections for chapter 601 of
+title 49, United States Code (as amended by section 105(b)), is amended
+by inserting after the item relating to section 60142 the following:
+``60143. Idled pipelines.''.
+SEC. 111. LIQUEFIED NATURAL GAS FACILITY PROJECT REVIEWS.
+Section 60103(a) of title 49, United States Code, is amended--
+(1) by redesignating paragraphs (1) through (7) as
+subparagraphs (A) through (G), respectively, and indenting
+appropriately;
+(2) in the first sentence, by striking ``The Secretary of
+Transportation'' and inserting the following:
+``(1) In general.--The Secretary of Transportation'';
+(3) in the second sentence, by striking ``In prescribing a
+standard'' and inserting the following:
+``(2) Considerations.--In prescribing a standard under
+paragraph (1)''; and
+(4) by adding at the end the following:
+``(3) Use of location standards.--If a Federal or State
+authority with jurisdiction over liquefied natural gas pipeline
+facility permits or approvals is using the location standards
+prescribed under paragraph (1) for purposes of making a
+decision with respect to the location of a new liquefied
+natural gas pipeline facility and submits to the Secretary of
+Transportation a request to provide a determination of whether
+the new liquefied natural gas pipeline facility would meet the
+location standards, the Secretary may provide such a
+determination to the requesting Federal or State authority.
+``(4) Effect.--Nothing in this subsection or subsection
+(b)--
+``(A) affects--
+``(i) section 3 of the Natural Gas Act (15
+U.S.C. 717b);
+``(ii) the authority of the Federal Energy
+Regulatory Commission to carry out that
+section; or
+``(iii) any other similar authority of any
+other Federal or State agency; or
+``(B) requires the Secretary of Transportation to
+formally approve any project proposal or otherwise
+perform any siting functions.''.
+SEC. 112. UPDATES TO STANDARDS FOR LIQUEFIED NATURAL GAS FACILITIES.
+(a) In General.--Not later than 3 years after the date of enactment
+of this Act, the Secretary shall--
+(1) review the minimum operating and maintenance standards
+prescribed under section 60103(d) of title 49, United States
+Code; and
+(2) based on the review under paragraph (1), update the
+standards described in that paragraph applicable to large-scale
+liquefied natural gas facilities (other than peak shaving
+facilities) to provide for a risk-based regulatory approach for
+such facilities, consistent with this section.
+(b) Scope.--In updating the minimum operating and maintenance
+standards under subsection (a)(2), the Secretary shall ensure that all
+regulations, guidance, and internal documents are developed and applied
+in a manner consistent with this section.
+(c) Requirements.--The updates to the operating and maintenance
+standards required under subsection (a)(2) shall, at a minimum, require
+operators--
+(1) to develop and maintain written safety information
+identifying hazards associated with--
+(A) the processes of liquefied natural gas
+conversion, storage, and transport;
+(B) equipment used in the processes; and
+(C) technology used in the processes;
+(2) to conduct a hazard assessment, including the
+identification of potential sources of accidental releases;
+(3)(A) to consult with employees and representatives of
+employees on the development and conduct of hazard assessments
+under paragraph (2); and
+(B) to provide employees access to the records of the
+hazard assessments and any other records required under the
+updated standards;
+(4) to establish a system to respond to the findings of a
+hazard assessment conducted under paragraph (2) that addresses
+prevention, mitigation, and emergency responses;
+(5) to review, when a design change occurs, a hazard
+assessment conducted under paragraph (2) and the response
+system established under paragraph (4);
+(6) to develop and implement written operating procedures
+for the processes of liquefied natural gas conversion, storage,
+and transport;
+(7)(A) to provide written safety and operating information
+to employees; and
+(B) to train employees in operating procedures with an
+emphasis on addressing hazards and using safe practices;
+(8) to ensure contractors and contract employees are
+provided appropriate information and training;
+(9) to train and educate employees and contractors in
+emergency response;
+(10) to establish a quality assurance program to ensure
+that equipment, maintenance materials, and spare parts relating
+to the operations and maintenance of liquefied natural gas
+facilities are fabricated and installed consistent with design
+specifications;
+(11) to establish maintenance systems for critical process-
+related equipment, including written procedures, employee
+training, appropriate inspections, and testing of that
+equipment to ensure ongoing mechanical integrity;
+(12) to conduct pre-start-up safety reviews of all newly
+installed or modified equipment;
+(13) to establish and implement written procedures to
+manage change to processes of liquefied natural gas conversion,
+storage, and transport, technology, equipment, and facilities;
+and
+(14)(A) to investigate each incident that results in, or
+could have resulted in--
+(i) loss of life;
+(ii) destruction of private property; or
+(iii) a major accident; and
+(B) to have operating personnel--
+(i) review any findings of an investigation under
+subparagraph (A); and
+(ii) if appropriate, take responsive measures.
+SEC. 113. NATIONAL CENTER OF EXCELLENCE FOR LIQUEFIED NATURAL GAS
+SAFETY AND TRAINING.
+(a) Definitions.--In this section:
+(1) Center.--The term ``Center'' means the National Center
+of Excellence for Liquefied Natural Gas Safety and Training
+established under subsection (b).
+(2) LNG.--The term ``LNG'' means liquefied natural gas.
+(3) LNG sector stakeholder.--The term ``LNG sector
+stakeholder'' means a representative of--
+(A) LNG facilities that represent the broad array
+of LNG facilities operating in the United States;
+(B) States, Indian Tribes, and units of local
+government;
+(C) postsecondary education;
+(D) labor organizations;
+(E) safety organizations; or
+(F) Federal regulatory agencies of jurisdiction,
+which may include--
+(i) the Administration;
+(ii) the Federal Energy Regulatory
+Commission;
+(iii) the Department of Energy;
+(iv) the Occupational Safety and Health
+Administration;
+(v) the Coast Guard; and
+(vi) the Maritime Administration.
+(b) Establishment.--Not later than 2 years after the date of
+enactment of this Act, the Secretary, in consultation with LNG sector
+stakeholders, shall establish a center, to be known as the ``National
+Center of Excellence for Liquefied Natural Gas Safety and Training''.
+(c) Functions.--The Center shall, for activities regulated under
+section 60103 of title 49, United States Code--
+(1) promote, facilitate, and conduct--
+(A) education;
+(B) training; and
+(C) technological advancements;
+(2) be a repository of information on best practices
+relating to, and expertise on, LNG operations;
+(3) foster collaboration among stakeholders; and
+(4) provide a curriculum for training that incorporates--
+(A) the incorporation of risk-based principles into
+the operation, management, and regulatory oversight of
+LNG facilities;
+(B) reliance on subject matter expertise within the
+LNG industry;
+(C) transfer of knowledge and expertise between the
+LNG industry and regulatory agencies; and
+(D) leverage of training and workshops that occur
+at operational facilities.
+(d) Location.--
+(1) In general.--The Center shall be located in close
+proximity to critical LNG transportation infrastructure on, and
+connecting to, the Gulf of Mexico, as determined by the
+Secretary.
+(2) Considerations.--In siting the location of the Center,
+the Secretary shall take into account the strategic value of
+locating resources in close proximity to LNG facilities.
+(e) Joint Operation With Educational Institution.--The Secretary
+may enter into an agreement with an appropriate official of an
+institution of higher education--
+(1) to provide for joint operation of the Center; and
+(2) to provide necessary administrative services for the
+Center.
+TITLE II--LEONEL RONDON PIPELINE SAFETY ACT
+SEC. 201. SHORT TITLE.
+This title may be cited as the ``Leonel Rondon Pipeline Safety
+Act''.
+SEC. 202. DISTRIBUTION INTEGRITY MANAGEMENT PLANS.
+(a) In General.--Section 60109(e) of title 49, United States Code,
+is amended by adding at the end the following:
+``(7) Distribution integrity management plans.--
+``(A) Evaluation of risk.--Not later than 2 years
+after the date of enactment of this paragraph, the
+Secretary shall promulgate regulations to ensure that
+each distribution integrity management plan developed
+by an operator of a distribution system includes an
+evaluation of--
+``(i) the risks resulting from the presence
+of cast iron pipes and mains in the
+distribution system; and
+``(ii) the risks that could lead to or
+result from the operation of a low-pressure
+distribution system at a pressure that makes
+the operation of any connected and properly
+adjusted low-pressure gas burning equipment
+unsafe (as described in section 192.623 of
+title 49, Code of Federal Regulations (or a
+successor regulation)).
+``(B) Consideration.--In the evaluations required
+in a plan under subparagraph (A), the regulations
+promulgated by the Secretary shall ensure that the
+distribution integrity management plan evaluates for
+future potential threats in a manner that considers
+factors other than past observed abnormal operations
+(within the meaning of section 192.605 of title 49,
+Code of Federal Regulations (or a successor
+regulation)), in ranking risks and identifying measures
+to mitigate those risks under that subparagraph, so
+that operators avoid using a risk rating of zero for
+low probability events unless otherwise supported by
+engineering analysis or operational knowledge.
+``(C) Deadlines.--
+``(i) In general.--Not later than 2 years
+after the date of enactment of this paragraph,
+each operator of a distribution system shall
+make available to the Secretary or the relevant
+State authority with a certification in effect
+under section 60105, as applicable, a copy of--
+``(I) the distribution integrity
+management plan of the operator;
+``(II) the emergency response plan
+under section 192.615 of title 49, Code
+of Federal Regulations (or a successor
+regulation); and
+``(III) the procedural manual for
+operations, maintenance, and
+emergencies under section 192.605 of
+title 49, Code of Federal Regulations
+(or a successor regulation).
+``(ii) Updates.--Each operator of a
+distribution system shall make available to the
+Secretary or make available for inspection to
+the relevant State authority with a
+certification in effect under section 60105, if
+applicable, an updated plan or manual described
+in clause (i) by not later than 60 days after
+the date of a significant update, as determined
+by the Secretary.
+``(iii) Applicability of foia.--Nothing in
+this subsection shall be construed to authorize
+the disclosure of any information that is
+exempt from disclosure under section 552(b) of
+title 5, United States Code.
+``(D) Review of plans and documents.--
+``(i) In general.--Not later than 1 year
+after the date of promulgation of the
+regulations under subparagraph (A), and not
+less frequently than once every 5 years
+thereafter, the Secretary or relevant State
+authority with a certification in effect under
+section 60105 shall review the distribution
+integrity management plan, the emergency
+response plan, and the procedural manual for
+operations, maintenance, and emergencies of
+each operator and record the results of that
+review for use in the next review of the
+program of that operator.
+``(ii) Review.--Each plan or procedural
+manual made available under subparagraph (C)(i)
+shall be reexamined--
+``(I) on significant change to the
+plan, procedural manual, or system, as
+applicable; and
+``(II) not less frequently than
+once every 5 years.
+``(iii) Context of review.--The Secretary
+may conduct a review under clause (i) or (ii)
+as an element of the inspection of the operator
+carried out by the Secretary.
+``(iv) Inadequate programs.--If the
+Secretary determines that the documents
+reviewed under clause (i) or (ii) do not comply
+with the requirements of this chapter
+(including regulations to implement this
+chapter), have not been adequately implemented,
+or are inadequate for the safe operation of a
+pipeline facility, the Secretary may conduct
+proceedings under this chapter.''.
+(b) Monitoring.--Section 60105(e) of title 49, United States Code,
+is amended--
+(1) in the second sentence, by striking ``A State
+authority'' and inserting the following:
+``(2) Cooperation.--A State authority with a certification
+in effect under this section'';
+(2) by striking ``The Secretary'' and inserting the
+following:
+``(1) In general.--The Secretary''; and
+(3) by adding at the end the following:
+``(3) Audit program.--Not later than 2 years after the date
+of enactment of this paragraph, the Secretary shall--
+``(A) revise the State audit protocols and
+procedures to update the annual State Program
+Evaluations carried out under this subsection and
+section 60106(d) to ensure that a State authority with
+a certification in effect under this section has the
+capability to sufficiently review and evaluate the
+adequacy of the plans and manuals described in section
+60109(e)(7)(C)(i);
+``(B) update the State Inspection Calculation Tool
+to take into account factors including--
+``(i) the number of miles of natural gas
+and hazardous liquid pipelines in the State,
+including the number of miles of cast iron and
+bare steel pipelines;
+``(ii) the number of services in the State;
+``(iii) the age of the gas distribution
+system in the State; and
+``(iv) environmental factors that could
+impact the integrity of the pipeline, including
+relevant geological issues; and
+``(C) promulgate regulations to require that a
+State authority with a certification in effect under
+this section has a sufficient number of qualified
+inspectors to ensure safe operations, as determined by
+the State Inspection Calculation Tool and other factors
+determined to be appropriate by the Secretary.''.
+SEC. 203. EMERGENCY RESPONSE PLANS.
+Section 60102 of title 49, United States Code, is amended by adding
+at the end the following:
+``(q) Emergency Response Plans.--Not later than 2 years after the
+date of enactment of this subsection, the Secretary shall update
+regulations to ensure that each emergency response plan developed by an
+operator of a distribution system under section 192.615 of title 49,
+Code of Federal Regulations (or a successor regulation), includes
+written procedures for--
+``(1) establishing communication with first responders and
+other relevant public officials, as soon as practicable,
+beginning from the time of confirmed discovery, as determined
+by the Secretary, by the operator of a gas pipeline emergency
+involving a release of gas from a distribution system of that
+operator that results in--
+``(A) a fire related to an unintended release of
+gas;
+``(B) an explosion;
+``(C) 1 or more fatalities; or
+``(D) the unscheduled release of gas and shutdown
+of gas service to a significant number of customers, as
+determined by the Secretary;
+``(2) establishing general public communication through an
+appropriate channel--
+``(A) as soon as practicable, as determined by the
+Secretary, after a gas pipeline emergency involving a
+release of gas that results in--
+``(i) a fire related to an unintended
+release of gas;
+``(ii) an explosion;
+``(iii) 1 or more fatalities; or
+``(iv) the unscheduled shutdown of gas
+service to a significant number of customers,
+as determined by the Secretary; and
+``(B) that provides information regarding--
+``(i) the emergency described in
+subparagraph (A); and
+``(ii) the status of public safety; and
+``(3) the development and implementation of a voluntary,
+opt-in system that would allow operators of distribution
+systems to rapidly communicate with customers in the event of
+an emergency.''.
+SEC. 204. OPERATIONS AND MAINTENANCE MANUALS.
+Section 60102 of title 49, United States Code (as amended by
+section 203), is amended by adding at the end the following:
+``(r) Operations and Maintenance Manuals.--Not later than 2 years
+after the date of enactment of this subsection, the Secretary shall
+update regulations to ensure that each procedural manual for
+operations, maintenance, and emergencies developed by an operator of a
+distribution pipeline under section 192.605 of title 49, Code of
+Federal Regulations (or a successor regulation), includes written
+procedures for--
+``(1) responding to overpressurization indications,
+including specific actions and an order of operations for
+immediately reducing pressure in or shutting down portions of
+the gas distribution system, if necessary; and
+``(2) a detailed procedure for the management of the change
+process, which shall--
+``(A) be applied to significant technology,
+equipment, procedural, and organizational changes to
+the distribution system; and
+``(B) ensure that relevant qualified personnel,
+such as an engineer with a professional engineer
+licensure, subject matter expert, or other employee who
+possesses the necessary knowledge, experience, and
+skills regarding natural gas distribution systems,
+review and certify construction plans for accuracy,
+completeness, and correctness.''.
+SEC. 205. PIPELINE SAFETY MANAGEMENT SYSTEMS.
+(a) In General.--Not later than 3 years after the date of enactment
+of this Act, the Secretary shall submit to the Committee on Commerce,
+Science, and Transportation of the Senate and the Committees on
+Transportation and Infrastructure and Energy and Commerce of the House
+of Representatives a report describing--
+(1) the number of operators of natural gas distribution
+systems who have implemented a pipeline safety management
+system in accordance with the standard established by the
+American Petroleum Institute entitled ``Pipeline Safety
+Management System Requirements'' and numbered American
+Petroleum Institute Recommended Practice 1173;
+(2) the progress made by operators of natural gas
+distribution systems who have implemented, or are in the
+process of implementing, a pipeline safety management system
+described in paragraph (1); and
+(3) the feasibility of an operator of a natural gas
+distribution system implementing a pipeline safety management
+system described in paragraph (1) based on the size of the
+operator as measured by--
+(A) the number of customers the operator has; and
+(B) the amount of natural gas the operator
+transports.
+(b) Requirements.--As part of the report required under subsection
+(a), the Secretary shall provide guidance or recommendations that would
+further the adoption of safety management systems in accordance with
+the standard established by the American Petroleum Institute entitled
+``Pipeline Safety Management System Requirements'' and numbered
+American Petroleum Institute Recommended Practice 1173.
+(c) Evaluation and Promotion of Safety Management Systems.--The
+Secretary and the relevant State authority with a certification in
+effect under section 60105 of title 49, United States Code, as
+applicable, shall--
+(1) promote and assess pipeline safety management systems
+frameworks developed by operators of natural gas distribution
+systems and described in the report under subsection (a),
+including--
+(A) if necessary, using independent third-party
+evaluators; and
+(B) through a system that promotes self-disclosure
+of--
+(i) errors; and
+(ii) deviations from regulatory standards;
+and
+(2) if a deviation from a regulatory standard is identified
+during the development and application of a pipeline safety
+management system, certify that--
+(A) due consideration will be given to factors such
+as flawed procedures, honest mistakes, or lack of
+understanding; and
+(B) the operators and regulators use the most
+appropriate tools to fix the deviation, return to
+compliance, and prevent the recurrence of the
+deviation, including--
+(i) root cause analysis; and
+(ii) training, education, or other
+appropriate improvements to procedures or
+training programs.
+SEC. 206. PIPELINE SAFETY PRACTICES.
+Section 60102 of title 49, United States Code (as amended by
+section 204), is amended by adding at the end the following:
+``(s) Other Pipeline Safety Practices.--
+``(1) Records.--Not later than 2 years after the date of
+enactment of this subsection, the Secretary shall promulgate
+regulations to require an operator of a distribution system--
+``(A) to identify and manage traceable, reliable,
+and complete records, including maps and other
+drawings, critical to ensuring proper pressure controls
+for a gas distribution system, and updating these
+records as needed, while collecting and identifying
+other records necessary for risk analysis on an
+opportunistic basis; and
+``(B) to ensure that the records required under
+subparagraph (A) are--
+``(i) accessible to all personnel
+responsible for performing or overseeing
+relevant construction or engineering work; and
+``(ii) submitted to, or made available for
+inspection by, the Secretary or the relevant
+State authority with a certification in effect
+under section 60105.
+``(2) Presence of qualified employees.--
+``(A) In general.--Not later than 180 days after
+the date of enactment of this subsection, the Secretary
+shall promulgate regulations to require that not less
+than 1 agent of an operator of a distribution system
+who is qualified to perform relevant covered tasks (as
+defined in section 192.801(b) of title 49, Code of
+Federal Regulations (or a successor regulation)) shall
+monitor gas pressure at the district regulator station
+or at an alternative site with equipment capable of
+ensuring proper pressure controls and have the
+capability to promptly shut down the flow of gas or
+control over pressurization at a district regulator
+station during any construction project that has the
+potential to cause a hazardous overpressurization at
+that station, including tie-ins and abandonment of
+distribution lines and mains, based on an evaluation,
+conducted by the operator, of threats that could result
+in unsafe operation.
+``(B) Exclusion.--In promulgating regulations under
+subparagraph (A), the Secretary shall ensure that those
+regulations do not apply to a district regulating
+station that has a monitoring system and the capability
+for remote or automatic shutoff.
+``(3) District regulator stations.--
+``(A) In general.--Not later than 1 year after the
+date of enactment of this subsection, the Secretary
+shall promulgate regulations to require that each
+operator of a distribution system assesses and
+upgrades, as appropriate, each district regulator
+station of the operator to ensure that--
+``(i) the risk of the gas pressure in the
+distribution system exceeding, by a common mode
+of failure, the maximum allowable operating
+pressure (as described in section 192.623 of
+title 49, Code of Federal Regulations (or a
+successor regulation)) allowed under Federal
+law (including regulations) is minimized;
+``(ii) the gas pressure of a low-pressure
+distribution system is monitored, particularly
+at or near the location of critical pressure-
+control equipment;
+``(iii) the regulator station has secondary
+or backup pressure-relieving or overpressure-
+protection safety technology, such as a relief
+valve or automatic shutoff valve, or other
+pressure-limiting devices appropriate for the
+configuration and siting of the station and, in
+the case of a regulator station that employs
+the primary and monitor regulator design, the
+operator shall eliminate the common mode of
+failure or provide backup protection capable of
+either shutting the flow of gas, relieving gas
+to the atmosphere to fully protect the
+distribution system from overpressurization
+events, or there must be technology in place to
+eliminate a common mode of failure; and
+``(iv) if the Secretary determines that it
+is not operationally possible for an operator
+to implement the requirements under clause
+(iii), the Secretary shall require such
+operator to identify actions in their plan that
+minimize the risk of an overpressurization
+event.''.
+<all>

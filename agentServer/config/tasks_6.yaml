@@ -1,0 +1,60 @@
+main_task:
+  description: >
+    The scenario is the following: We know that {company_name} lobbied with a significant amount of money for bill {bill_name} in {year}. Yet we don't know HOW EXACTLY they were lobbying for. 
+
+    Now we want to find out two main things:
+
+    Task 1. What were {company_name}'s interest in the bill? Did they want the bill to pass? Did they specifically aim to pass an amendment? Or did they want the bill to stall and NOT pass?
+
+    Task 2. We want to know WHICH politicians contributed most to {company_name}'s probable aims and which politicians posed the biggest threat to {company_name}'s aims in {bill_name}.
+
+    Task 1 is a matter of interpreting the bill's contents and infering {company_name}'s interests in the bill, this should be done first.
+
+    For Task 2 we want to find out IN DEEPEST DETAIL, which Congressmen were most effective and had the most power in either advancing or going against the bill according to {company_name}'s interests.
+
+    To achieve Task 1 and Task 2 you will be working in a team of 5 specialists and one orchestrator that will gather the findings and dictate the next course of action.
+    You have everything to do a DEEP RESEARCH on the bill:
+
+    - The `committee_specialist`: Can gather anything related to committee membership, committee actions and reports
+    - The `bill_specialist`: He can gather the relevant bill text to the {company_name}, and give the names of the sponsors, cosponsors and committees that are involved
+    - The `actions_specialist`: He can gather the big timeline, and the more superficial bigger picture, that is the broad timeline of actions that were taken on the Congress floor
+    - The `amendment_specialist`: He can gather the text of the amendments, as well as the sponsors and co-sponsors and the actions that were taken on the amendment
+    - The `congress_member_specialist`: He can gather the name, party and state of the member (to be joined with the committee roster of the committee specialist for example)
+
+    This investigation will be a step-by-step investigation. It will be a very lengthy and detailed investigation, prompting you to ask yourselves constantly if there is something moreto be possibly found out.
+
+    After completing Task 1 and 2, the team should output TWO TABLES:
+
+    Table 1: Ranks all Congressmen by the level and effectiveness they had in SUPPORTING {company_name}'s interests in {bill_name}
+
+    An example of how Table 1 could and should look like:
+
+
+    | Congress Member (Party) | Chamber         | State/District | Involvement Rank | Reason                                                                                                      |
+    |-------------------------|-----------------|---------------|------------------|-------------------------------------------------------------------------------------------------------------|
+    | John Doe (R)            | Representative  | MD-03         | 1                | As the leader of the Republican majority in the Committee, co-Authored the Doe-Barasso committee amendment, making the bill more comprehensive and ready to be discussed on the House floor. From Maryland, a state where port infrastructure is key to the the local industry. 
+    | Jane Smith (R)          | Representative  | IL-07         | 2                | As the rank 5 of the Republican majority in the committee co-sponsored the Doe-Barasso amendment in the committee, showing interest in the advancement and the discussion of the bill. From Illnois, a state which is not really involved in the shipping industry.  |
+    | Dan Davis (D)           | Senator         | TN            | 3                | As a co-sponsor of the original bill text, he was one of the first in the timeline to show interest in the advancement of the bill. From Tenessee, a landlocked state which is not really involved in the shipping industry.
+    | ...                     | ...             | ...           | ...              | ...
+
+
+    Table 2: Ranks all Congressmen by the level and effectiveness they had in GOING AGAINST {company_name}'s interests in {bill_name}
+
+    An example of how Table 2 could and should look like:
+
+    | Congress Member (Party) | Chamber         | State/District | Involvement Rank | Reason                                                                                                      |
+    |-------------------------|-----------------|---------------|------------------|-------------------------------------------------------------------------------------------------------------|
+    | Maria Gonzalez (D)      | Representative  | CA-12         | 1                | Drafted an alternative committee markup to the bill and was the ranking member of the Environmental Committee; sponsored a committee report opposing the bill. California, strong environmental stance. |
+    | Thomas O'Reilly (I)     | Senator         | VT            | 2                | Introduced three delaying amendments (see Congress API: amendment ids X, Y, Z) and voted against the bill in committee and on the floor. Vermont, environmental advocate. |
+    | Linda Chen (R)          | Representative  | NY-10         | 3                | Co-sponsored an amendment to restrict funding in the bill (amendment id A123), and signed a minority report in committee. New York, supports environmental protections. |
+    | ...                     | ...             | ...           | ...              | ...
+
+
+    BEFORE compiling the table, you will have to ask yourselves:
+      - Is there any other puzzle piece still missing? Questions of the like:
+        --> e.g. we have the committee roster, but do the states of some members reveal any possible motivation for pushing for the advancement or stalling of the bill?
+        --> e.g. we have the relevant sections of the bill, so which of the states are most affected by these sections?
+        --> e.g. we know the sponsors, but can we find out more about a possible markup process in the committee report?
+    ONLY if you are ABSOLUTELY SURE that you have all the information you need, you can compile the table and terminate the task.
+
+    We will start with the orchestrator.

@@ -1,0 +1,226 @@
+[
+  {
+    "toolCallId": "tool_1",
+    "agent": "bill_specialist",
+    "toolName": "getBillSponsors",
+    "summary": "Found 1 primary sponsor: Rep. Theodore E. Deutch (D-FL-22)",
+    "keyFindings": [
+      "Primary sponsor from Florida District 22",
+      "Democratic party affiliation",
+      "Strong environmental voting record"
+    ],
+    "detailedResults": {
+      "sponsors": [
+        {
+          "bioguide_id": "D000610",
+          "full_name": "Rep. Deutch, Theodore E. [D-FL-22]", 
+          "first_name": "Theodore",
+          "last_name": "Deutch",
+          "party": "D",
+          "state": "FL",
+          "district": "22",
+          "is_by_request": false
+        }
+      ],
+      "total_sponsors": 1,
+      "party_breakdown": {
+        "Democratic": 1,
+        "Republican": 0
+      }
+    }
+  },
+  {
+    "toolCallId": "tool_1",
+    "agent": "bill_specialist", 
+    "toolName": "getBillCommittees",
+    "summary": "Bill referred to 3 committees: Energy & Commerce (primary), Foreign Affairs, Ways & Means",
+    "keyFindings": [
+      "Energy & Commerce Committee has primary jurisdiction",
+      "Subcommittee on Energy handles detailed review",
+      "Multi-committee referral indicates broad scope"
+    ],
+    "detailedResults": {
+      "committees": [
+        {
+          "system_code": "hsif00",
+          "name": "Energy and Commerce Committee",
+          "chamber": "House", 
+          "type": "Standing",
+          "subcommittees": [
+            {
+              "system_code": "hsif03",
+              "name": "Energy Subcommittee"
+            }
+          ]
+        },
+        {
+          "system_code": "hsfa00",
+          "name": "Foreign Affairs Committee",
+          "chamber": "House",
+          "type": "Standing"
+        },
+        {
+          "system_code": "hswm00", 
+          "name": "Ways and Means Committee",
+          "chamber": "House",
+          "type": "Standing"
+        }
+      ]
+    }
+  },
+  {
+    "toolCallId": "tool_1",
+    "agent": "bill_specialist",
+    "toolName": "getRelevantBillSections",
+    "summary": "Identified carbon fee provisions directly impacting {company} operations: $15/ton starting fee, annual $10 increases",
+    "keyFindings": [
+      "Carbon fee applies to covered entities including refineries",
+      "Fee starts at $15/ton CO2 equivalent, increases $10/year",
+      "Covers crude oil, natural gas, coal operations",
+      "Border adjustment fees for imports/exports"
+    ],
+    "detailedResults": {
+      "relevant_sections": [
+        "SEC. 3 - Carbon Dividends and Carbon Fee",
+        "SEC. 9902 - Carbon Fee structure and rates", 
+        "SEC. 9908 - Carbon Border Fee Adjustment"
+      ],
+      "impact_analysis": {
+        "direct_impact": "High - affects core business operations",
+        "estimated_annual_cost": "$2.1 billion (initial year)",
+        "cost_escalation": "$10/ton annual increases"
+      }
+    }
+  },
+  {
+    "toolCallId": "tool_2",
+    "agent": "actions_specialist",
+    "toolName": "get_committee_actions", 
+    "summary": "Limited committee activity: Only referrals to Foreign Affairs and Ways & Means, no hearings or markups",
+    "keyFindings": [
+      "Bill referred April 1, 2021",
+      "No committee hearings scheduled",
+      "No markup sessions conducted",
+      "Minimal legislative progress"
+    ],
+    "detailedResults": {
+      "committees": [
+        {
+          "name": "Foreign Affairs Committee",
+          "actions": [
+            {
+              "name": "Referred To",
+              "date": "2021-04-01T13:08:15Z"
+            }
+          ]
+        },
+        {
+          "name": "Ways and Means Committee", 
+          "actions": [
+            {
+              "name": "Referred To",
+              "date": "2021-04-01T13:08:05Z"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "toolCallId": "tool_2",
+    "agent": "actions_specialist",
+    "toolName": "extractBillActions",
+    "summary": "Bill timeline: Introduced April 1, 2021, referred to multiple committees, stalled without floor action",
+    "keyFindings": [
+      "Introduced April 1, 2021 by Rep. Deutch",
+      "Multi-committee referral on same day",
+      "Referred to Energy Subcommittee April 2",
+      "No subsequent legislative action"
+    ],
+    "detailedResults": {
+      "timeline": [
+        "2021-04-01: Introduced in House",
+        "2021-04-01: Referred to Ways and Means",
+        "2021-04-01: Referred to Energy and Commerce", 
+        "2021-04-01: Referred to Foreign Affairs",
+        "2021-04-02: Referred to Energy Subcommittee"
+      ],
+      "status": "Stalled in committee",
+      "legislative_stage": "Committee consideration"
+    }
+  },
+  {
+    "toolCallId": "tool_3",
+    "agent": "amendment_specialist",
+    "toolName": "getBillAmendments",
+    "summary": "No amendments found - bill did not advance to amendment stage",
+    "keyFindings": [
+      "Zero amendments proposed",
+      "No committee markup occurred",
+      "No floor amendments submitted",
+      "Indicates lack of legislative momentum"
+    ],
+    "detailedResults": {
+      "amendments": [],
+      "amendment_count": 0,
+      "markup_status": "No markup conducted",
+      "floor_consideration": "Never reached floor"
+    }
+  },
+  {
+    "toolCallId": "tool_4",
+    "agent": "committee_specialist",
+    "toolName": "get_committee_members",
+    "summary": "Energy & Commerce leadership: Frank Pallone (D-NJ) Chair, Cathy McMorris Rodgers (R-WA) Ranking Member",
+    "keyFindings": [
+      "Democratic committee chair from New Jersey",
+      "Republican ranking member from Washington",
+      "Committee includes members from energy states",
+      "Bipartisan membership with industry ties"
+    ],
+    "detailedResults": {
+      "leadership": {
+        "chairman": "Frank Pallone Jr. (D-NJ)",
+        "ranking_member": "Cathy McMorris Rodgers (R-WA)"
+      },
+      "membership_analysis": {
+        "total_members": 55,
+        "democratic_members": 31,
+        "republican_members": 24,
+        "energy_state_representatives": 18
+      }
+    }
+  },
+  {
+    "toolCallId": "tool_5",
+    "agent": "congress_member_specialist",
+    "toolName": "getCongressMemberProfile",
+    "summary": "Rep. Deutch profile: Democratic environmental advocate from Florida, Ethics Committee Chairman",
+    "keyFindings": [
+      "Strong environmental voting record (95% score)",
+      "Chairman of House Ethics Committee", 
+      "Represents affluent South Florida district",
+      "Consistent climate action advocate"
+    ],
+    "detailedResults": {
+      "member": {
+        "name": "Theodore E. Deutch",
+        "party": "Democratic",
+        "state": "Florida", 
+        "district": "22",
+        "committees": [
+          "House Judiciary Committee",
+          "House Foreign Affairs Committee"
+        ],
+        "leadership_roles": [
+          "Chairman, House Ethics Committee"
+        ],
+        "district_profile": {
+          "demographics": "Affluent, diverse",
+          "environmental_concerns": "High",
+          "energy_industry_presence": "Low"
+        }
+      }
+    }
+  }
+]

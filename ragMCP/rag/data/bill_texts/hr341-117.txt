@@ -1,0 +1,156 @@
+[Congressional Bills 117th Congress]
+[From the U.S. Government Publishing Office]
+[H.R. 341 Introduced in House (IH)]
+<DOC>
+117th CONGRESS
+1st Session
+H. R. 341
+To make permanent certain telehealth flexibilities established in
+response to COVID-19.
+_______________________________________________________________________
+IN THE HOUSE OF REPRESENTATIVES
+January 15, 2021
+Mr. Williams of Texas introduced the following bill; which was referred
+to the Committee on Ways and Means, and in addition to the Committee on
+Energy and Commerce, for a period to be subsequently determined by the
+Speaker, in each case for consideration of such provisions as fall
+within the jurisdiction of the committee concerned
+_______________________________________________________________________
+A BILL
+To make permanent certain telehealth flexibilities established in
+response to COVID-19.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Ensuring Telehealth Expansion Act of
+2021''.
+SEC. 2. MAKING PERMANENT CERTAIN TELEHEALTH FLEXIBILITIES ESTABLISHED
+IN RESPONSE TO COVID-19.
+(a) Exemption for Telehealth Services.--
+(1) In general.--Subparagraph (E) of section 223(c)(2) of
+the Internal Revenue Code of 1986 is amended by striking ``In
+the case of plan years beginning on or before December 31,
+2021, a plan'' and inserting ``A plan''.
+(2) Certain coverage disregarded.--Clause (ii) of section
+223(c)(1)(B) of the Internal Revenue Code of 1986 is amended by
+striking ``(in the case of plan years beginning on or before
+December 31, 2021)''.
+(b) Increasing Medicare Telehealth Flexibilities.--Section 1834(m)
+of the Social Security Act (42 U.S.C. 1395m(m)) is amended by adding at
+the end the following new paragraph:
+``(9) Waiver authority.--The Secretary may waive any
+requirement of this subsection if determined appropriate by the
+Secretary.''.
+(c) Enhancing Medicare Telehealth Services for Federally Qualified
+Health Centers and Rural Health Clinics; Eliminating Special Payment
+Rule for Such Services.--
+(1) In general.--Paragraph (8) of section 1834(m) of the
+Social Security Act (42 U.S.C. 1395m(m)) is amended to read as
+follows:
+``(8) Enhancing telehealth services for federally qualified
+health centers and rural health clinics.--
+``(A) In general.--With respect to services
+furnished on or after the first day of the emergency
+period described in section 1135(g)(1)(B), the
+Secretary shall pay for telehealth services that are
+furnished via a telecommunications system by a
+Federally qualified health center or a rural health
+clinic to an eligible telehealth individual enrolled
+under this part notwithstanding that the Federally
+qualified health center or rural clinic providing the
+telehealth service is not at the same location as the
+beneficiary.
+``(B) Payment.--
+``(i) In general.--A telehealth service
+furnished by a rural health clinic or a
+Federally qualified health center serving as a
+distant site to an individual shall be deemed
+to be so furnished to such individual as an
+outpatient of such clinic or center (as
+applicable) for purposes of section 1861(aa)
+and payable as a rural health clinic service or
+Federally qualified health center service (as
+applicable) under section 1833(a)(3) or under
+the prospective payment system established
+under section 1834(o) (as applicable).
+``(ii) Treatment of costs for fqhc pps
+calculations and rhc air calculations.--Costs
+associated with the delivery of telehealth
+services by a Federally qualified health center
+or rural health clinic serving as a distant
+site pursuant to this paragraph shall be
+considered allowable costs for purposes of the
+prospective payment system established under
+section 1834(o) and any payment methodologies
+developed under section 1833(a)(3), as
+applicable.
+``(C) Definitions.--For purposes of this
+subsection--
+``(i) the term `distant site' includes a
+Federally qualified health center or rural
+health clinic that furnishes a telehealth
+service to an eligible telehealth individual;
+and
+``(ii) the term `telehealth services'
+includes a rural health clinic service or
+Federally qualified health center service that
+is furnished using telehealth to the extent
+that payment codes corresponding to services
+identified by the Secretary under clause (i) or
+(ii) of paragraph (4)(F) are listed on the
+corresponding claim for such rural health
+clinic service or Federally qualified health
+center service.''.
+(2) Conforming amendment.--Section 1834(m)(2)(A) of the
+Social Security Act (42 U.S.C. 1395m(m)(2)(A)) is amended by
+striking ``Subject to paragraph (8), the'' and inserting
+``The''.
+(3) Effective date.--The amendments made by this subsection
+shall take effect as if included in the enactment of the CARES
+Act (Public Law 116-136).
+(d) Waiver of Requirements for Face-to-Face Visits Between Home
+Dialysis Patients and Physicians.--Section 1881(b)(3)(B)(iii) of the
+Social Security Act (42 U.S.C. 1395rr(b)(3)(B)(iii)) is amended by
+striking ``during the emergency period described in section
+1135(g)(1)(B)'' and inserting ``during any period beginning on or after
+the first day of the emergency period described in section
+1135(g)(1)(B)''.
+(e) Use of Telehealth To Conduct Face-to-Face Encounter Prior to
+Recertification of Eligibility for Hospice Care.--Section
+1814(a)(7)(D)(i)(II) of the Social Security Act (42 U.S.C.
+1395f(a)(7(D)(i)(II)) is amended by striking ``during the emergency
+period described in section 1135(g)(1)(B)'' and inserting ``during any
+period beginning on or after the first day of the emergency period
+described in section 1135(g)(1)(B)''.
+(f) Encouraging Use of Telecommunications Systems for Home Health
+Services.--Section 3707 of the CARES Act (Public Law 116-136) is
+amended by striking ``during the emergency period described in section
+1135(g)(1)(B) of such Act (42 U.S.C. 1320b-5(g)(1)(B))'' and inserting
+``on or after the first day of the emergency period described in
+section 1135(g)(1)(B) of such Act (42 U.S.C. 1320b-5(g)(1)(B))''.
+SEC. 3. NONAPPLICATION OF ORIGINATING SITE REQUIREMENTS WITH RESPECT TO
+TELEHEALTH SERVICES UNDER MEDICARE PROGRAM.
+Section 1834(m)(4)(C) of the Social Security Act (42 U.S.C.
+1395m(m)(4)(C)) is amended--
+(1) in clause (i), by inserting before ``paragraphs (5),
+(6), and (7)'' the following: ``clause (iii) and''; and
+(2) by adding at the end the following new clause:
+``(iii) Nonapplication of originating site
+requirements.--Beginning on the first day of
+the emergency period described in section
+1135(g)(1)(B), the term `originating site'
+means any site at which the eligible telehealth
+individual is located at the time the service
+is furnished via a telecommunications
+system.''.
+SEC. 4. REPORT BY COMPTROLLER GENERAL.
+Not later than 5 years after the date of the enactment of this Act,
+the Comptroller General of the United States shall submit to Congress a
+report on the successes and limitations of implementing the statutory
+provisions amended by sections 2 and 3, including--
+(1) details of any savings or costs to the Federal
+Government that are attributable to the implementation of such
+provisions; and
+(2) an analysis of how the implementation of such
+provisions have impacted rural hospitals.
+<all>

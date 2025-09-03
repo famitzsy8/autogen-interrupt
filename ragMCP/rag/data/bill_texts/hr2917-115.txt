@@ -1,0 +1,66 @@
+[Congressional Bills 115th Congress]
+[From the U.S. Government Publishing Office]
+[H.R. 2917 Introduced in House (IH)]
+<DOC>
+115th CONGRESS
+1st Session
+H. R. 2917
+To amend the Federal Water Pollution Control Act to clarify when the
+Administrator of the Environmental Protection Agency has the authority
+to prohibit the specification of a defined area, or deny or restrict
+the use of a defined area for specification, as a disposal site under
+section 404 of such Act, and for other purposes.
+_______________________________________________________________________
+IN THE HOUSE OF REPRESENTATIVES
+June 15, 2017
+Mr. Gibbs (for himself, Mr. Chabot, Mr. Dunn, Mr. McKinley, Mr. Massie,
+Mr. Jones, Mr. Perry, Mr. Barletta, Mr. Lamborn, Mr. Gosar, Mr. Graves
+of Missouri, Mr. Johnson of Ohio, Mr. Jenkins of West Virginia, Mr.
+Tipton, and Mr. Collins of New York) introduced the following bill;
+which was referred to the Committee on Transportation and
+Infrastructure
+_______________________________________________________________________
+A BILL
+To amend the Federal Water Pollution Control Act to clarify when the
+Administrator of the Environmental Protection Agency has the authority
+to prohibit the specification of a defined area, or deny or restrict
+the use of a defined area for specification, as a disposal site under
+section 404 of such Act, and for other purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Regulatory Certainty Act of 2017''.
+SEC. 2. PERMITS FOR DREDGED OR FILL MATERIAL.
+(a) In General.--Section 404(c) of the Federal Water Pollution
+Control Act (33 U.S.C. 1344(c)) is amended--
+(1) by striking ``(c)'' and inserting ``(c)(1)'';
+(2) in paragraph (1), as so designated, by inserting
+``during the period described in paragraph (2) and'' before
+``after notice and opportunity for public hearings''; and
+(3) by adding at the end the following:
+``(2)(A) The period during which the Administrator may
+prohibit the specification (including the withdrawal of
+specification) of any defined area as a disposal site, or deny
+or restrict the use of any defined area for specification
+(including the withdrawal of specification) as a disposal site,
+under paragraph (1) shall--
+``(i) begin on the date that the Secretary provides
+notice to the Administrator that the Secretary has
+completed all procedures for processing an application
+for a permit under this section relating to the
+specification and is ready to determine, in accordance
+with the record and applicable regulations, whether the
+permit should be issued; and
+``(ii) end on the date that the Secretary issues
+the permit.
+``(B) The Secretary shall ensure that the period described
+in subparagraph (A) consists of not fewer than 30 consecutive
+days.
+``(C) The Secretary may issue a permit under this section
+only after the Secretary provides notice to the Administrator
+in accordance with this paragraph.''.
+(b) Applicability.--The amendments made by subsection (a) shall
+apply to a permit application submitted under section 404(a) of the
+Federal Water Pollution Control Act (33 U.S.C. 1344(a)) after the date
+of enactment of this Act.
+<all>

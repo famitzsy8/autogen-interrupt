@@ -1,17 +1,20 @@
 import os, re, yaml, requests
 import xml.etree.ElementTree as ET
+import sys
 
 from util.fetch.descriptions import _get_description_for_function
 from mcp.server.fastmcp import FastMCP
 
 from util.parse.parse import _call_and_parse, _parse_congress_index_from_args
 from util.parse.crep import _parse_committee_report_text_links
-from util.parse.committee import _get_committee_code
+from util.parse.committee import _get_committee_code, rectify_committee_arguments
 from util.parse.amendment import _searchAmendmentInCR
 from util.parse.text_parse import _extract_htm_pdf_from_xml
 from util.parse.votes import _parse_roll_call_number_house
-from util._main import extractBillText, getBillSummary
+from util._main import extractBillText, getBillSummary, getCongressMember
 from rag.BillTextRAG import BillTextRAG
+
+from typing import List
 
 local_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -225,14 +228,13 @@ class MCPServerWrapper:
         debug.append(f"Extracted {len(actions)} actions for bill {parsed_index}")
         return {"actions": actions, "debug": debug}
 
-
-
     @mcp.tool(description=_get_description_for_function("get_committee_members"))
     def get_committee_members(committee_name: str, congress: int) -> dict:
         """
         Retrieves committee members for a specific committee and congress.
         It dynamically loads the data from a congress-specific YAML file.
         """
+        committee_name = rectify_committee_arguments(committee_name)
         debug_messages = []
 
         # Determine the correct data file to use based on the congress number
@@ -280,61 +282,30 @@ class MCPServerWrapper:
         return {"members": result, "debug": debug_messages}
 
 
-    @mcp.tool(description=_get_description_for_function("getCongressMember"))
-    def getCongressMember(bioguideId: str) -> dict:
-
-        endpoint = "member/{bioguideId}"
-        root = _call_and_parse({"bioguideId": bioguideId}, endpoint)
+    @mcp.tool(description=_get_description_for_function("getCongressMemberState"))
+    def getCongressMemberState(bioguideIds: List[str]) -> dict:
+        res = []
+        for bioguideId in bioguideIds:
+            try:
+                result = getCongressMember(bioguideId)
+                res.append({result["fullName"]: result["stateCode"]})
+            except:
+                res.append({bioguideId: "Nothing found for this congressman"})
+        return {"states": res}
         
-        debug = []
-        
-        try:
-            first = root.find(".//firstName").text
-            last = root.find(".//lastName").text
-            middle = root.findtext(".//directOrderName")
-            full_name = middle if middle else f"{first} {last}"
-            debug.append(f"Parsed full name: {full_name}")
-        except Exception as e:
-            full_name = None
-            debug.append(f"Failed to parse name: {e}")
+    @mcp.tool(description=_get_description_for_function("getCongressMemberParty"))
+    def getCongressMemberParty(bioguideIds: List[str]) -> dict:
+        res = []
+        for bioguideId in bioguideIds:
 
-        try:
-            state = root.findtext(".//state")
-            debug.append(f"Parsed state: {state}")
-        except Exception as e:
-            state = None
-            debug.append(f"Failed to parse state: {e}")
-        
-        try:
-            state_code = root.find(".//terms/item/stateCode").text
-            debug.append(f"Parsed stateCode: {state_code}")
-        except Exception as e:
-            state_code = None
-            debug.append(f"Failed to parse stateCode: {e}")
-        try:
-            party = root.find(".//partyHistory/item/partyName").text
-            debug.append(f"Parsed party: {party}")
-        except Exception as e:
-            party = None
-            debug.append(f"Failed to parse party: {e}")
+            try:
+                result = getCongressMember(bioguideId)
+                res.append({result["fullName"]: result["party"]})
+            except:
+                res.append({bioguideId: "Nothing found for this congressman"})
+        return {"parties": res}
 
-        try:
-            congress_items = root.findall(".//terms/item/congress")
-            congresses = sorted({int(c.text) for c in congress_items})
-            debug.append(f"Parsed congress sessions: {congresses}")
-        except Exception as e:
-            congresses = []
-            debug.append(f"Failed to parse congress sessions: {e}")
         
-        return {
-            "fullName": full_name,
-            "state": state,
-            "stateCode": state_code,
-            "party": party,
-            "congressesServed": congresses,
-            "debug": debug
-        }
-
     @mcp.tool(description=_get_description_for_function("getCongressMembersByState"))
     def getCongressMembersByState(stateCode: str) -> dict:
         debug = []
@@ -376,7 +347,6 @@ class MCPServerWrapper:
             "debug": debug
         }
 
-
     @mcp.tool(description=_get_description_for_function("get_committee_meeting"))
     def get_committee_meeting(congress_index: dict) -> dict:
         """
@@ -386,6 +356,7 @@ class MCPServerWrapper:
 
         {"title": title, "committee": committee_name, "documents": [], "witnessDocuments": [], "witnesses": []}
         """
+        committee_name = rectify_committee_arguments(committee_name)
         parsed_index = _parse_congress_index_from_args(congress_index)
         if not parsed_index:
              raise ValueError(f"Could not parse congress_index from input: {congress_index}")
@@ -609,7 +580,6 @@ class MCPServerWrapper:
             text_urls["text"] = text_from_cr
         debug.append(f"Extracted amendment text for {congress_index}")
         return {"text_urls": text_urls, "debug": debug}
-        
 
     @mcp.tool(description=_get_description_for_function("getAmendmentActions"))
     def getAmendmentActions(congress_index: dict) -> dict:
@@ -617,7 +587,7 @@ class MCPServerWrapper:
         if not congress_index:
             debug.append("Empty argument passed to getAmendmentActions. Provide a congress_index with 'congress', 'amendment_type', and 'number'.")
             return {"actions": [], "debug": debug}
-        endpoint = "amendment/{congress}/{amendment_type}/{number}/actions"
+        endpoint = "amendment/{congress}/{amendment_type}/{amdt_number}/actions"
         root = _call_and_parse(congress_index, endpoint)
         actions = []
         for item in root.findall(".//actions/item"):
@@ -743,35 +713,54 @@ class MCPServerWrapper:
 
     def run(self):
         print("Starting RAG Congress MCP server at PORT 8080...")
-        self.mcp.run()
-
-    def _debugging_runs(self):
-
-        # fuuucking big bill
-        # hr3684-117
-        print(self.getRelevantBillSections({"congress": 117, "bill_type": "hr", "bill_number": 3684}, "Exxon Mobil"))
-        print(self.get_committee_report({"congress": 116, "reportType": "srpt", "reportNumber": "288"}))
-
-        ### OG DEBUGGING RUNS
-
-        print(self.get_senate_votes(115, 2, 221))
-        print(self.get_house_votes(2018, 287))
-        print(self.getCongressMember("W000819"))
-        print(self.getBillAmendments({"congress_index" : {"congress": 116, "bill_type": "s", "bill_number": 3894}}))
-        print(self.getBillCommittees({"congress": 119, "bill_type": "hr", "bill_number": 1}))
-        print(self.extractBillActions({"congress": 115, "bill_type": "s", "bill_number": 3094}))
-
-        text = self.getAmendmentText({"congress": 116, "amendment_type": "samdt", "amdt_number": 1593, "submittedDate": "2020-06-08T04:00:00Z"})
-        print(text)
-        print(self.getBillSponsors({"congress": 116, "bill_type": "s", "bill_number": 3591}))
-        print(self.getAmendmentSponsors({"congress": 116, "amendment_type": "samdt", "amdt_number": 1593, "submittedDate": "2020-06-08T04:00:00Z"}))
-        print(self.get_committee_meeting({"congress": 118, "chamber": "house", "eventid": "115-538"}))
-    def _debug_agent(self):
-        pass
-        # print(self.getRelevantBillSections({"congress": 117, "bill_type": "hr", "bill_number": 2307}, "Exxon Mobil"))
-        # print(self.getBillSponsors({"congress": 117, "bill_type": "hr", "bill_number": 2307}))
-        # print(self.getBillCosponsors({"congress": 117, "bill_type": "hr", "bill_number": 2307}))
+        print("Using SSE transport for better compatibility...")
+        self.mcp.run(transport="sse")
 
 if __name__ == "__main__":
-    server = MCPServerWrapper()
-    server.run()
+    
+    # Simple detection for stdio vs HTTP mode
+    if not sys.stdin.isatty():
+        # Running with piped input (stdio mode) - create a simple stdio MCP server
+        # from mcp.server.stdio import stdio_server
+        # from mcp.server import Server
+        # from mcp.types import Tool, TextContent
+        # import asyncio
+        
+        # # Create standard MCP server
+        # server = Server("rag-congress-mcp")
+        # wrapper = MCPServerWrapper()
+        
+        # @server.call_tool()
+        # async def call_tool(name: str, arguments: dict) -> list[TextContent]:
+        #     try:
+        #         method = getattr(wrapper, name)
+        #         result = method(arguments)
+        #         return [TextContent(type="text", text=str(result))]
+        #     except Exception as e:
+        #         return [TextContent(type="text", text=f"Error: {str(e)}")]
+        
+        # @server.list_tools()
+        # async def list_tools() -> list[Tool]:
+        #     tools = []
+        #     tool_names = [attr for attr in dir(wrapper) 
+        #                  if not attr.startswith('_') and callable(getattr(wrapper, attr))
+        #                  and attr not in ['run', '__init__']]
+        #     for name in tool_names:
+        #         tools.append(Tool(
+        #             name=name,
+        #             description=f"Tool: {name}",
+        #             inputSchema={"type": "object", "properties": {}, "required": []}
+        #         ))
+        #     return tools
+        
+        # async def main():
+        #     async with stdio_server() as (read, write):
+        #         await server.run(read, write, server.create_initialization_options())
+        
+        # asyncio.run(main())
+        server = MCPServerWrapper()
+        server._debugging_runs()
+    else:
+        # Standard HTTP mode
+        server = MCPServerWrapper()
+        server.run()

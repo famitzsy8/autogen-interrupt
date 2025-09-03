@@ -1,0 +1,558 @@
+[Congressional Bills 116th Congress]
+[From the U.S. Government Publishing Office]
+[H.R. 3742 Introduced in House (IH)]
+<DOC>
+116th CONGRESS
+1st Session
+H. R. 3742
+To amend the Pittman-Robertson Wildlife Restoration Act to make
+supplemental funds available for management of fish and wildlife
+species of greatest conservation need as determined by State fish and
+wildlife agencies, and for other purposes.
+_______________________________________________________________________
+IN THE HOUSE OF REPRESENTATIVES
+July 12, 2019
+Mrs. Dingell (for herself, Mr. Fortenberry, Mr. Lowenthal, Mr. Vela,
+Ms. Lee of California, Mr. Crist, Mr. Rodney Davis of Illinois, Mr.
+Amodei, Mr. Rouzer, Mr. Fitzpatrick, Ms. Velazquez, Ms. Schakowsky, Ms.
+Eshoo, Ms. Bonamici, Ms. Kuster of New Hampshire, Mr. Hill of Arkansas,
+Mr. Hastings, Mr. Schrader, Ms. Dean, Ms. Jackson Lee, Mr. Kilmer, Mr.
+Quigley, Mrs. Napolitano, Mr. Austin Scott of Georgia, Mr. Cole, Mr.
+Gaetz, Mr. Veasey, Mr. Carbajal, Mr. Upton, Mr. Pappas, Mrs. Axne, Mr.
+Michael F. Doyle of Pennsylvania, Mr. Soto, Mr. Courtney, Mrs.
+Radewagen, Mr. Mast, Mr. Cuellar, Mr. Simpson, Mr. Cooper, Mr.
+Blumenauer, Mr. Marshall, Mr. Rutherford, Mr. Brown of Maryland, Mr.
+Krishnamoorthi, Ms. DelBene, Mr. Raskin, Mr. Budd, Mr. Lujan, Mr.
+Stivers, Ms. Haaland, Mr. Cohen, Mr. Rush, Mr. Fleischmann, Mr.
+Huffman, Mr. Larson of Connecticut, Mr. Grijalva, Ms. Norton, Miss
+Gonzalez-Colon of Puerto Rico, Mr. Long, Mr. Kildee, Mr. Cartwright,
+and Ms. Tlaib) introduced the following bill; which was referred to the
+Committee on Natural Resources, and in addition to the Committee on the
+Budget, for a period to be subsequently determined by the Speaker, in
+each case for consideration of such provisions as fall within the
+jurisdiction of the committee concerned
+_______________________________________________________________________
+A BILL
+To amend the Pittman-Robertson Wildlife Restoration Act to make
+supplemental funds available for management of fish and wildlife
+species of greatest conservation need as determined by State fish and
+wildlife agencies, and for other purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Recovering America's Wildlife Act of
+2019''.
+SEC. 2. FINDINGS.
+Congress finds the following:
+(1) The populations of several species of wildlife across
+America are in crisis. The Nation's efforts to recover at-risk
+wildlife populations are not keeping pace with the increased
+demand for natural resources and threats to native wildlife,
+including disease, invasive species, habitat loss and
+fragmentation, shifts in temperature ranges, and extreme
+weather. More than 150 species are presumed extinct, another
+500 are likely extinct, and more than 12,000 species are
+designated as species of greatest conservation need, including
+more than 700 wildlife species in the United States that are
+already listed as threatened or endangered under the Endangered
+Species Act. An assessment of the best-known groups of United
+States wildlife and plants indicates that one-third of
+America's species are vulnerable to extinction and one-fifth
+imperiled and at high-risk of extinction.
+(2) A diverse array of species of fish and wildlife is of
+significant value to the United States for aesthetic,
+ecological, educational, cultural, recreational, economic, and
+scientific reasons.
+(3) More than 100 million citizens of the United States
+participate in outdoor recreation through hunting, fishing,
+birding, and other wildlife-dependent recreation, all of which
+have significant value to the citizens who engage in those
+activities and provide economic benefits to local communities.
+(4) It is in the interest of the United States--
+(A) to retain for present and future generations
+the opportunity to hunt, fish, observe, understand, and
+appreciate a wide variety of fish and wildlife;
+(B) to recover species of fish and wildlife listed
+as threatened species or endangered species under the
+Endangered Species Act of 1973 (16 U.S.C. 1531 et seq.)
+and to prevent fish and wildlife species from declining
+to the point of requiring Federal protection under such
+Act; and
+(C) to support collaborative and proactive
+conservation that will sustain the diverse fish and
+wildlife populations of the United States.
+(5) The first nongovernmental conservation organizations to
+instill fish and wildlife conservation values in hunters,
+anglers, bird watchers, and all citizens were founded during
+the 1880s to 1890s at the behest of hunters and anglers,
+including Theodore Roosevelt and naturalist George Bird
+Grinnell, who were alarmed that game and sportfish could not
+sustain unregulated harvest and that avifauna needed protection
+from commercial take.
+(6) At the turn of the 20th century, the States--
+(A) realized the need to regulate the harvest of
+game and sportfish for sustainable use;
+(B) required hunters and anglers to obtain licenses
+and established regulations for game seasons, bag and
+creel limits, and legal means of take for game and
+sportfish; and
+(C) used the funds received for such licenses
+largely for enforcement of such regulations.
+(7) In 1937, an alliance between hunters and conservation
+organizations, States, the Federal Government, and the shooting
+sports industry convinced Congress to transfer to the States
+receipts from an existing Federal excise tax on sporting arms
+and ammunition, matched by State hunting license dollars, for
+the management of wildlife and conservation of habitat under
+the Pittman-Robertson Wildlife Restoration Act (16 U.S.C. 669
+et seq.), which greatly enhanced the States' ability to move
+from primarily enforcing game seasons and bag limits to
+science-based research and management of wildlife.
+(8) In 1951, an alliance between anglers and conservation
+organizations, States, the Federal Government, and the
+sportfishing industry convinced Congress to impose a Federal
+excise tax on fishing equipment under the Dingell-Johnson
+Sportfish Restoration Act (16 U.S.C. 777 et seq.) and to
+transfer to the States such receipts, matched by State fishing
+license revenues, to manage sportfish and conserve aquatic
+habitats, enhancing the State fish and wildlife department's
+ability to use science-based research and management of fish
+species.
+(9) Such user-pay, public-benefits means of funding fish
+and wildlife conservation are unique in the world, having been
+started in the United States by sportsmen and sportswomen who
+were willing to pay these fees to ensure dedicated funds went
+to fish and wildlife conservation delivered by the States.
+(10) Such user-pay funds (licenses and excise taxes)--
+(A) have benefitted not only hunters and anglers,
+but all citizens of the United States by providing
+abundant fish and wildlife (including both game and
+nongame species), clean water, outdoor recreation,
+healthy activities, and quality of life; and
+(B) provide, and will continue to provide, a
+majority of the funds that are available to State fish
+and wildlife departments for science-based research and
+management of fish and wildlife.
+(11) State fish and wildlife agencies are responsible for
+the conservation and management of all fish and wildlife in the
+State, but are grossly underfunded because there are few funds
+available at the State level for fish and wildlife
+conservation, except those driven by hunting and fishing
+license revenues and Federal excise tax revenues.
+(12) Congress created a subaccount known as the Wildlife
+Conservation and Restoration Subaccount under section 3(a)(2)
+of the Pittman-Robertson Wildlife Restoration Act (16 U.S.C.
+669b(a)(2)) to support the full array of fish and wildlife
+conservation needs identified by State fish and wildlife
+departments, including for species that are not hunted or
+fished, but only authorized appropriations for the Subaccount
+for one year.
+(13) While some appropriated funds have been made available
+through related programs, the lack of assured and sufficient
+dedicated funding for the Wildlife Conservation and Restoration
+Subaccount has left unrealized the goals of the Subaccount,
+thereby allowing fish and wildlife populations to continue to
+decline across the United States and resulting in hundreds of
+species being listed as threatened species or endangered
+species under the Endangered Species Act of 1973 (16 U.S.C.
+1531 et seq.).
+(14) Under the Pittman-Robertson Wildlife Restoration Act
+(16 U.S.C. 669 et seq.), each State and territory is required
+to seek public input and produce a comprehensive fish and
+wildlife conservation strategy, otherwise known as a State
+Wildlife Action Plan, to guide the State-led conservation of
+the full array of fish, wildlife, and their habitats.
+(15) Providing assured and sufficient dedicated funding to
+the Wildlife Conservation and Restoration Subaccount will
+advance the national interest by assuring sustainable
+populations of fish and wildlife species are available for the
+use and enjoyment of citizens of the United States through
+implementing the comprehensive fish and wildlife conservation
+strategy of each State, territory, and the District of
+Columbia.
+TITLE I--WILDLIFE CONSERVATION AND RESTORATION
+SEC. 101. WILDLIFE CONSERVATION AND RESTORATION SUBACCOUNT.
+(a) In General.--Section 3 of the Pittman-Robertson Wildlife
+Restoration Act (16 U.S.C. 669b) is amended in subsection (c)--
+(1) by redesignating paragraphs (2) and (3) as paragraphs
+(9) and (10); and
+(2) by striking paragraph (1) and inserting the following:
+``(1) Establishment of subaccount.--
+``(A) In general.--There is established in the fund
+a subaccount to be known as the `Wildlife Conservation
+and Restoration Subaccount' (referred to in this
+section as the `Subaccount').
+``(B) Availability.--Amounts in the Subaccount
+shall be available without further appropriation, for
+each fiscal year, for apportionment in accordance with
+this Act.
+``(C) Deposits into subaccount.--Beginning in
+fiscal year 2020, the Secretary of the Treasury shall
+transfer $1,300,000,000 from the general fund of the
+treasury each fiscal year to the fund for deposit in
+the Subaccount.
+``(2) Supplement not supplant.--Amounts transferred to the
+Subaccount shall supplement, but not replace, existing funds
+available to the States from--
+``(A) the funds distributed pursuant to the
+Dingell-Johnson Sport Fish Restoration Act (16 U.S.C.
+777 et seq.); and
+``(B) the fund.
+``(3) Innovation grants.--
+``(A) In general.--The Secretary shall distribute
+10 percent of funds apportioned from the Subaccount
+through a competitive grant program to State fish and
+wildlife departments, the District of Columbia fish and
+wildlife department, fish and wildlife departments of
+territories, or to regional associations of fish and
+wildlife departments (or any group composed of more
+than 1 such entity).
+``(B) Purpose.--Such grants shall be provided for
+the purpose of catalyzing innovation of techniques,
+tools, strategies, or collaborative partnerships that
+accelerate, expand, or replicate effective and
+measurable recovery efforts for species of greatest
+conservation need and species listed under the
+Endangered Species Act of 1973 (15 U.S.C. 1531 et seq.)
+and the habitats of such species.
+``(C) Review committee.--The Secretary shall
+appoint a review committee comprised of--
+``(i) a State Director from each regional
+association of State fish and wildlife
+departments;
+``(ii) the head of a department responsible
+for fish and wildlife management in a
+territory; and
+``(iii) four individuals representing four
+different nonprofit organizations each of which
+is actively participating in carrying out
+wildlife conservation restoration activities
+using funds apportioned from the Subaccount.
+``(D) Support from united states fish and wildlife
+service.--The United States Fish and Wildlife Service
+shall provide any personnel or administrative support
+services necessary for such Committee to carry out its
+responsibilities under this Act.
+``(E) Evaluation.--Such committee shall evaluate
+each proposal submitted under this paragraph and
+recommend projects for funding.
+``(4) Use of funds.--Funds apportioned from the
+Subaccount--
+``(A) shall be used to carry out, revise, or
+enhance existing wildlife and habitat conservation and
+restoration programs and to develop and implement new
+wildlife conservation and restoration programs to
+recover and manage species of greatest conservation
+need and the key habitats and plant community types
+essential to the conservation of those species as
+determined by the appropriate State fish and wildlife
+department;
+``(B) shall be used to develop, revise, and
+implement a wildlife conservation strategy of the State
+as may be required by this Act;
+``(C) shall be used to assist in the recovery of
+species found in the State, territory, or in the case
+of funds received by the District of Columbia, the
+District of Columbia that are listed as endangered or
+threatened under the Endangered Species Act of 1973 (16
+U.S.C. 1531 et seq.) or under State law;
+``(D) may be used for wildlife conservation
+education and wildlife-associated recreation projects;
+``(E) may be used to manage a species of greatest
+conservation need whose range is shared with another
+State, territory, Indian Tribe, or foreign government
+and for the conservation of the habitat of such
+species;
+``(F) may be used to manage, control, and prevent
+invasive and nuisance species, disease, and other risks
+to species of greatest conservation need; and
+``(G) may be used for law enforcement activities
+that are directly related to the protection and
+conservation of a species of greatest conservation need
+and the habitat of such species.
+``(5) Minimum required spending for species recovery.--Not
+less than 10 percent of funds apportioned to a State or
+territory from the Subaccount shall be used for purposes
+described in paragraph (4)(C).
+``(6) Public access to private lands not required.--Funds
+apportioned from the Subaccount shall not be conditioned upon
+the provision of public access to private lands, waters, or
+holdings.
+``(7) Requirements for matching funds.--
+``(A) For the purposes of the non-Federal fund
+matching requirement for a wildlife conservation or
+restoration program or project funded by the
+Subaccount, a State may use as matching non-Federal
+funds--
+``(i) funds from Federal agencies other
+than the Department of the Interior and the
+Department of Agriculture;
+``(ii) donated private lands and waters,
+including privately owned easements;
+``(iii) in circumstances described in
+subparagraph (B), revenue generated through the
+sale of State hunting and fishing licenses; and
+``(iv) other sources consistent with part
+80 of title 50, Code of Federal Regulations, in
+effect on the date of enactment of the
+Recovering America's Wildlife Act of 2019.
+``(B) Revenue described in subparagraph (A)(iii)
+may only be used to fulfill the requirements of such
+non-Federal fund matching requirement if--
+``(i) no Federal funds apportioned to the
+State fish and wildlife department of such
+State from the Wildlife Restoration Program or
+the Sport Fish Restoration Program have been
+reverted because of a failure to fulfill such
+non-Federal fund matching requirement by such
+State during the previous 2 years; and
+``(ii) the project or program being funded
+benefits the habitat of a hunted or fished
+species and a species of greatest conservation
+need.
+``(8) Definitions.--In this subsection, the following
+definitions apply:
+``(A) Species of greatest conservation need.--The
+term `species of greatest conservation need' has the
+meaning given to it by each State fish and wildlife
+department, with respect to funds apportioned to such
+State.
+``(B) Territory and territories.--The terms
+`territory' and `territories' mean the Commonwealth of
+Puerto Rico, Guam, American Samoa, the Commonwealth of
+the Northern Mariana Islands, and the United States
+Virgin Islands.
+``(C) Wildlife.--The term `wildlife' means any
+species of wild, freeranging fauna, including fish, and
+also fauna in captive breeding programs the object of
+which is to reintroduce individuals of a depleted
+indigenous species into previously occupied range.''.
+(b) Allocation and Apportionment of Available Amounts.--Section 4
+of the Pittman-Robertson Wildlife Restoration Act (16 U.S.C. 669c) is
+amended--
+(1) by redesignating the second subsection (c), relating to
+the apportionment of the Wildlife Conservation and Restoration
+Account, and subsection (d) as subsections (d) and (e)
+respectively;
+(2) in subsection (d), as redesignated--
+(A) in paragraph (1)--
+(i) in subparagraph (A), by striking ``to
+the District of Columbia and to the
+Commonwealth of Puerto Rico, each'' and
+inserting ``To the District of Columbia'';
+(ii) in subparagraph (B), by striking ``to
+Guam'' and inserting ``To Guam''; and
+(iii) by adding at the end the following:
+``(C) To the Commonwealth of Puerto Rico, a sum
+equal to not more than 1 percent thereof.'';
+(B) in paragraph (2)(A), as redesignated--
+(i) in clause (i), by striking ``one-
+third'' and inserting ``one-half''; and
+(ii) in clause (ii), by striking ``two-
+thirds'' and inserting ``one-half''; and
+(C) in paragraph (3), by striking ``3 percent'' and
+inserting ``1.85 percent'';
+(3) by amending subsection (e)(4)(B), as redesignated, to
+read as follows:
+``(B) Not more than an average of 15 percent over a
+5-year period of amounts apportioned to each State
+under this section for a State's wildlife conservation
+and restoration program may be used for wildlife
+conservation education and wildlife-associated
+recreation.''; and
+(4) by adding at the end following:
+``(f) Minimization of Planning and Reporting.--Nothing in this Act
+shall be interpreted to require a State to create a comprehensive
+strategy related to conservation education or outdoor recreation.
+``(g) Report to Congress.--Not more than five years after the date
+of enactment of the Recovering America's Wildlife Act of 2019 and every
+5 years thereafter, each State fish and wildlife department shall
+submit a report describing the results derived from activities
+accomplished under paragraph (3) to--
+``(1) the Committee on Environment and Public Works of the
+Senate; and
+``(2) the Committee on Natural Resources of the House of
+Representatives.''.
+SEC. 102. TECHNICAL AMENDMENTS.
+(a) Definitions.--Section 2 of the Pittman-Robertson Wildlife
+Restoration Act (16 U.S.C. 669a) is amended--
+(1) by striking paragraph (5);
+(2) by redesignating paragraphs (6) through (9) as
+paragraphs (5) through (8), respectively; and
+(3) in paragraph (6), as redesignated by paragraph (2), by
+inserting ``Indian Tribes, academic institutions,'' before
+``wildlife conservation organizations''.
+(b) Conforming Amendments.--The Pittman-Robertson Wildlife
+Restoration Act (16 U.S.C. 669a et seq.) is amended--
+(1) in section 3--
+(A) in subsection (a)--
+(i) by striking ``(1) An amount equal to''
+and inserting ``An amount equal to''; and
+(ii) by striking paragraph (2);
+(B) in subsection (c)--
+(i) in paragraph (9), as redesignated by
+section 101(a)(1), by striking ``or an Indian
+tribe''; and
+(ii) in paragraph (10), as redesignated by
+section 101(a)(1), by striking ``Wildlife
+Conservation and Restoration Account'' and
+inserting ``Subaccount''; and
+(C) in subsection (d), by striking ``Wildlife
+Conservation and Restoration Account'' and inserting
+``Subaccount'';
+(2) in section 4 (16 U.S.C. 669c)--
+(A) in subsection (d), as redesignated--
+(i) in the heading, by striking ``Account''
+and inserting ``Subaccount''; and
+(ii) by striking ``Account'' each place it
+appears and inserting ``Subaccount''; and
+(B) in subsection (e)(1), as redesignated, by
+striking ``Account'' and inserting ``Subaccount''; and
+(3) in section 8 (16 U.S.C. 669g), in subsection (a), by
+striking ``Account'' and inserting ``Subaccount''.
+SEC. 103. SAVINGS CLAUSE.
+The Pittman-Robertson Wildlife Restoration Act (16 U.S.C. 669 et
+seq.) is amended--
+(1) by redesignating section 13 as section 15; and
+(2) by inserting after section 12 the following:
+``SEC. 13. SAVINGS CLAUSE.
+``Nothing in this Act shall be construed to enlarge or diminish the
+authority, jurisdiction, or responsibility of a State to manage,
+control, or regulate fish and wildlife under the law and regulations of
+the State on lands and waters within the State, including on Federal
+lands and waters.
+``SEC. 14. STATUTORY CONSTRUCTION WITH RESPECT TO ALASKA.
+``If any conflict arises between any provision of this Act and any
+provision of the Alaska National Interest Lands Conservation Act
+(Public Law 46-487, 16 U.S.C. 3101 et seq.), then the provision in the
+Alaska National Interest Lands Conservation Act shall prevail.''.
+SEC. 104. EXCLUSION FROM PAYGO SCORECARDS.
+(a) Statutory Pay-As-You-Go Scorecards.--The budgetary effects of
+this Act shall not be entered on any PAYGO scorecard maintained
+pursuant to section 4(d) of the Statutory Pay-As-You-Go Act of 2010.
+(b) Senate PAYGO Scorecards.--The budgetary effects of this Act
+shall not be entered on any PAYGO scorecard maintained for purposes of
+section 4106 of H. Con. Res. 71 (115th Congress), the concurrent
+resolution on the budget for fiscal year 2018.
+TITLE II--TRIBAL WILDLIFE CONSERVATION AND RESTORATION
+SEC. 201. INDIAN TRIBES.
+(a) Findings.--Congress finds that--
+(1) Indian Tribes are responsible for conservation and
+management of all fish, wildlife, and flora on lands within
+their jurisdiction;
+(2) however, their efforts remain grossly underfunded;
+(3) Tribes do not benefit from Federal excise tax revenues;
+(4) Tribal lands and waters provide vital habitat for
+hundreds of federally listed, sensitive, economically important
+and culturally significant species; and
+(5) a stable and consistent funding source that supports
+Tribal wildlife conservation and management will benefit the
+well-being of Tribes and the species they protect and conserve.
+(b) Definitions.--In this section--
+(1) Account.--The term ``Account'' means the Tribal
+Wildlife Conservation and Restoration Account established by
+subsection (c)(1).
+(2) Indian tribe.--The term ``Indian Tribe'' has the
+meaning given such term in section 4 of the Indian Self-
+Determination and Education Assistance Act (25 U.S.C. 5304).
+(3) Secretary.--The term ``Secretary'' means the Secretary
+of the Interior.
+(4) Tribal species of greatest conservation need.--The term
+``Tribal species of greatest conservation need'' means any
+species identified by an Indian Tribe as requiring conservation
+management because of declining population, habitat loss, or
+other threats, or because of their biological or cultural
+importance to such Tribe.
+(5) Wildlife.--The term ``wildlife'' means--
+(A) any species of wild flora or fauna including
+fish and marine mammals;
+(B) flora or fauna in a captive breeding,
+rehabilitation, and holding or quarantine program, the
+object of which is to reintroduce individuals of a
+depleted indigenous species into previously occupied
+range or to maintain a species for conservation
+purposes; and
+(C) does not include game farm animals.
+(c) Tribal Wildlife Conservation and Restoration Account.--
+(1) In general.--There is established in the Treasury an
+account to be known as the ``Tribal Wildlife Conservation and
+Restoration Account''.
+(2) Availability.--Amounts in the Account shall be
+available for each fiscal year without further appropriation
+for apportionment in accordance with this title.
+(3) Deposits.--Beginning in fiscal year 2020, and each
+fiscal year thereafter, the Secretary of the Treasury shall
+transfer $97,500,000 to the Account.
+(d) Distribution of Funds to Indian Tribes.--Each fiscal year, the
+Secretary of the Treasury shall deposit funds into the Account and
+distribute such funds through a noncompetitive application process
+according to guidelines and criteria determined by the Secretary of the
+Interior, acting through the Director of the Bureau of Indian Affairs,
+in consultation with Indian Tribes. Such funds shall remain available
+until expended.
+(e) Wildlife Management Responsibilities.--The distribution
+guidelines and criteria described in subsection (d) shall be based, in
+part, upon Indian Tribes' wildlife management responsibilities.
+(f) Use of Funds.--
+(1) In general.--Except as provided in paragraph (2), the
+Secretary may distribute funds from the Account to an Indian
+Tribe for any of the following purposes:
+(A) To develop, carry out, revise, or enhance
+wildlife conservation and restoration programs to
+manage Tribal species of greatest conservation need and
+the habitats of such species as determined by the such
+Indian Tribe.
+(B) To assist in the recovery of species listed as
+an endangered or threatened species under the
+Endangered Species Act of 1973 (16 U.S.C. 1531 et
+seq.).
+(C) For wildlife conservation education and
+wildlife-associated recreation projects.
+(D) To manage a Tribal species of greatest
+conservation need and the habitat of such species, the
+range of which may be shared with a foreign country,
+State, or other Indian Tribe.
+(E) To manage, control, and prevent invasive
+species as well as diseases and other risks to
+wildlife.
+(F) For law enforcement activities that are
+directly related to the protection and conservation of
+wildlife.
+(G) To develop, revise, and implement comprehensive
+wildlife conservation strategies and plans for such
+Tribe.
+(H) For the hiring and training of wildlife
+conservation and restoration program staff.
+(2) Conditions on the use of funds.--
+(A) Required use of funds.--In order to be eligible
+to receive funds under subsection (d), a Tribe's
+application must include a proposal to use funds for at
+least one of the purposes described in subparagraphs
+(A) and (B) of paragraph (1).
+(B) Imperiled species recovery.--In distributing
+funds under this section, the Secretary shall
+distribute not less than 15 percent of the total funds
+distributed to proposals to fund the recovery of a
+species, subspecies, or distinct population segment
+listed as a threatened species, endangered species, or
+candidate species under the Endangered Species Act of
+1973 (16 U.S.C. 1531 et seq.) or Tribal law.
+(C) Limitation.--In distributing funds under this
+section, the Secretary shall distribute not more than
+15 percent of all funds distributed under this section
+for the purpose described in paragraph (1)(C).
+(g) No Matching Funds Required.--No Indian Tribe shall be required
+to provide matching funds to be eligible to receive funds under this
+Act.
+(h) Public Access Not Required.--Funds apportioned from the Tribal
+Wildlife Conservation and Restoration Account shall not be conditioned
+upon the provision of public or non-Tribal access to Tribal or private
+lands, waters, or holdings.
+(i) Administrative Costs.--Of the funds deposited under subsection
+(c)(3) for each fiscal year, not more than 3 percent shall be used by
+the Secretary for administrative costs.
+(j) Savings Clause.--Nothing in this Act shall be construed as
+modifying or abrogating a treaty with any Indian Tribe, or as enlarging
+or diminishing the authority, jurisdiction, or responsibility of an
+Indian Tribe to manage, control, or regulate wildlife.
+<all>

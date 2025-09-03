@@ -39,6 +39,7 @@ def _call_and_parse(congress_index: dict, path_template: str, params={}, multipl
 
             return all_roots
         except Exception as e:
+            print(e)
             raise Exception(f"You have passed a congress index object that doesn't match the path template\n Congress index: {congress_index}\n Path template: {path_template}")
 
 def _parse_congress_index_from_args(args: Any) -> dict | None:

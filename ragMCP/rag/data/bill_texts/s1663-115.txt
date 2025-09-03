@@ -1,0 +1,88 @@
+[Congressional Bills 115th Congress]
+[From the U.S. Government Publishing Office]
+[S. 1663 Introduced in Senate (IS)]
+<DOC>
+115th CONGRESS
+1st Session
+S. 1663
+To amend the Internal Revenue Code of 1986 to enhance the requirements
+for secure geological storage of carbon dioxide for purposes of the
+carbon dioxide sequestration credit.
+_______________________________________________________________________
+IN THE SENATE OF THE UNITED STATES
+July 27, 2017
+Mr. Hoeven introduced the following bill; which was read twice and
+referred to the Committee on Finance
+_______________________________________________________________________
+A BILL
+To amend the Internal Revenue Code of 1986 to enhance the requirements
+for secure geological storage of carbon dioxide for purposes of the
+carbon dioxide sequestration credit.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``CO<INF>2</INF> Regulatory Certainty
+Act''.
+SEC. 2. SECURE GEOLOGICAL STORAGE OF CARBON DIOXIDE.
+Paragraph (2) of section 45Q(d) of the Internal Revenue Code of
+1986 is amended to read as follows:
+``(2) Secure geological storage.--
+``(A) In general.--Not later than December 31,
+2017, the Secretary, in consultation with the
+Administrator of the Environmental Protection Agency,
+the Secretary of Energy, and the Secretary of the
+Interior, shall establish regulations for determining
+adequate security measures for the geological storage
+of carbon dioxide under paragraph (1)(B) or (2)(C) of
+subsection (a) such that the carbon dioxide does not
+escape into the atmosphere.
+``(B) Requirements.--The regulations established
+pursuant to subparagraph (A) shall provide that--
+``(i) for purposes of paragraph (1)(B) of
+subsection (a), carbon dioxide shall be
+considered disposed of in secure geological
+storage if such carbon dioxide is stored in
+compliance with rules promulgated by the
+Environmental Protection Agency under subpart
+RR of part 98 of title 40, Code of Federal
+Regulations (as in effect on the date of the
+enactment of this paragraph), under the Clean
+Air Act (42 U.S.C. 7401 et seq.) and rules
+under the Safe Drinking Water Act (42 U.S.C.
+300f et seq.) which are applicable to carbon
+dioxide disposed of in secure geological
+storage and not used as a tertiary injectant in
+a qualified enhanced oil or natural gas
+recovery project, and
+``(ii) for purposes of paragraph (2)(C) of
+subsection (a), carbon dioxide shall be
+considered disposed of in secure geological
+storage if such carbon dioxide is stored in
+compliance with rules promulgated by the
+Environmental Protection Agency which are
+applicable to carbon dioxide used as a tertiary
+injectant in a qualified enhanced oil or
+natural gas recovery project under--
+``(I) subpart UU of part 98 of
+title 40, Code of Federal Regulations
+(as in effect on the date of the
+enactment of this paragraph), under the
+Clean Air Act, and
+``(II) subpart C of part 146 of
+title 40, Code of Federal Regulations
+(as in effect on the date of the
+enactment of this paragraph), under the
+Safe Drinking Water Act, to the extent
+such rules are applicable to Class II
+wells.''.
+SEC. 3. QUALIFIED ENHANCED OIL OR NATURAL GAS RECOVERY PROJECT.
+Paragraph (4) of section 45Q(d) of the Internal Revenue Code of
+1986 is amended--
+(1) by striking ``by substituting'' and inserting
+``determined--
+``(A) by substituting--'',
+(2) by striking the period and inserting ``, and'', and
+(3) by inserting at the end the following:
+``(B) without regard to subparagraph (A)(iii)
+thereof.''.
+<all>

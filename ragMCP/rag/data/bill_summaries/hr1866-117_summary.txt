@@ -1,0 +1,3 @@
+
+     <p><strong>Quantum Network Infrastructure Act of 2021</strong> </p><p>This bill directs the Department of Energy (DOE) to carry out a research, development, and demonstration program to accelerate innovation in quantum network infrastructure in order to (1) facilitate the advancement of distributed quantum computing systems through the internet and intranet, (2) improve the precision of measurements of scientific phenomena and physical imaging technologies, and (3) develop secure national quantum communications technologies and strategies.</p> <p>DOE shall submit to Congress a four-year research plan that identifies and prioritizes basic research needs relating to quantum network infrastructure.</p>
+    

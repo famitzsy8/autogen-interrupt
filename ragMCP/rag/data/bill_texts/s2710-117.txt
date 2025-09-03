@@ -1,0 +1,208 @@
+[Congressional Bills 117th Congress]
+[From the U.S. Government Publishing Office]
+[S. 2710 Introduced in Senate (IS)]
+<DOC>
+117th CONGRESS
+1st Session
+S. 2710
+To promote competition and reduce gatekeeper power in the app economy,
+increase choice, improve quality, and reduce costs for consumers.
+_______________________________________________________________________
+IN THE SENATE OF THE UNITED STATES
+August 11 (legislative day, August 10), 2021
+Mr. Blumenthal (for himself, Mrs. Blackburn, and Ms. Klobuchar)
+introduced the following bill; which was read twice and referred to the
+Committee on the Judiciary
+_______________________________________________________________________
+A BILL
+To promote competition and reduce gatekeeper power in the app economy,
+increase choice, improve quality, and reduce costs for consumers.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Open App Markets Act''.
+SEC. 2. DEFINITIONS.
+In this Act:
+(1) App.--The term ``App'' means a software application or
+electronic service that may be run or directed by a user on a
+computer, a mobile device, or any other general purpose
+computing device.
+(2) App store.--The term ``App Store'' means a publicly
+available website, software application, or other electronic
+service that distributes Apps from third-party developers to
+users of a computer, a mobile device, or any other general
+purpose computing device.
+(3) Covered company.--The term ``Covered Company'' means
+any person that owns or controls an App Store for which users
+in the United States exceed 50,000,000.
+(4) Developer.--The term ``developer'' means a person that
+owns or controls an App or an App Store.
+(5) In-app payment system.--The term ``In-App Payment
+System'' means an application, service, or user interface to
+process the payments from users of an App.
+(6) Non-public business information.--The term ``non-public
+business information'' means non-public data that is--
+(A) derived from a developer or an App or App Store
+owned or controlled by a developer, including
+interactions between users and the App or App Store of
+the developer; and
+(B) collected by a Covered Company in the course of
+operating an App Store or providing an operating
+system.
+SEC. 3. PROTECTING A COMPETITIVE APP MARKET.
+(a) Exclusivity and Tying.--A Covered Company shall not--
+(1) require developers to use an In-App Payment System
+owned or controlled by the Covered Company or any of its
+business partners as a condition of being distributed on an App
+Store or accessible on an operating system;
+(2) require as a term of distribution on an App Store that
+pricing terms or conditions of sale be equal to or more
+favorable on its App Store than the terms or conditions under
+another App Store; or
+(3) take punitive action or otherwise impose less favorable
+terms and conditions against a developer for using or offering
+different pricing terms or conditions of sale through another
+In-App Payment System or on another App Store.
+(b) Interference With Legitimate Business Communications.--A
+Covered Company shall not impose restrictions on communications of
+developers with the users of the App through an App or direct outreach
+to a user concerning legitimate business offers, such as pricing terms
+and product or service offerings.
+(c) Non-Public Business Information.--A Covered Company shall not
+use non-public business information derived from a third-party App for
+the purpose of competing with that App.
+(d) Interoperability.--A Covered Company that controls the
+operating system or operating system configuration on which its App
+Store operates shall allow and provide the readily accessible means for
+users of that operating system to--
+(1) choose third-party Apps or App Stores as defaults for
+categories appropriate to the App or App Store;
+(2) install third-party Apps or App Stores through means
+other than its App Store; and
+(3) hide or delete Apps or App Stores provided or
+preinstalled by the App Store owner or any of its business
+partners.
+(e) Self-Preferencing in Search.--
+(1) In general.--A Covered Company shall not provide
+unequal treatment of Apps in an App Store through unreasonably
+preferencing or ranking the Apps of the Covered Company or any
+of its business partners over those of other Apps.
+(2) Considerations.--Unreasonably preferencing--
+(A) includes applying ranking schemes or algorithms
+that prioritize Apps based on a criterion of ownership
+interest by the Covered Company or its business
+partners; and
+(B) does not include clearly disclosed advertising.
+(f) Open App Development.--Access to operating system interfaces,
+development information, and hardware and software features shall be
+provided to developers on a timely basis and on terms that are
+equivalent or functionally-equivalent to the terms for access by
+similar Apps or functions provided by the Covered Company or to its
+business partners.
+SEC. 4. PROTECTING THE SECURITY AND PRIVACY OF USERS.
+(a) In General.--Subject to section (b), a Covered Company shall
+not be in violation of a subsection of section 3 for an action that
+is--
+(1) necessary to achieve user privacy, security, or digital
+safety;
+(2) taken to prevent spam or fraud; or
+(3) taken to prevent a violation of, or comply with,
+Federal or State law.
+(b) Requirements.--Section (a) shall only apply if the Covered
+Company establishes by clear and convincing evidence that the action
+described is--
+(1) applied on a demonstrably consistent basis to Apps of
+the Covered Company or its business partners and to other Apps;
+(2) not used as a pretext to exclude, or impose unnecessary
+or discriminatory terms on, third-party Apps, In-App Payment
+Systems, or App Stores; and
+(3) narrowly tailored and could not be achieved through a
+less discriminatory and technically possible means.
+SEC. 5. ENFORCEMENT.
+(a) Enforcement.--
+(1) In general.--The Federal Trade Commission, the Attorney
+General, and any attorney general of a State subject to the
+requirements in paragraph (4) shall enforce this Act in the
+same manner, by the same means, and with the same jurisdiction,
+powers, and duties as though all applicable terms and
+provisions of the Federal Trade Commission Act (15 U.S.C. 41 et
+seq.) or the Clayton Act (15 U.S.C. 12 et seq.), as
+appropriate, were incorporated into and made a part of this
+Act.
+(2) Unfair methods of competition.--A violation of this Act
+shall also constitute an unfair method of competition under
+section 5 of the Federal Trade Commission Act (15 U.S.C. 5).
+(3) Federal trade commission independent litigation
+authority.--If the Federal Trade Commission has reason to
+believe that a Covered Company violated this Act, the Federal
+Trade Commission may commence a civil action, in its own name
+by any of its attorneys designated by it for such purpose, to
+recover a civil penalty and seek other appropriate relief in a
+district court of the United States against the covered
+platform operator.
+(4) Parens patriae.--Any attorney general of a State may
+bring a civil action in the name of such State for a violation
+of this Act as parens patriae on behalf of natural persons
+residing in such State, in any district court of the United
+States having jurisdiction of the defendant, and may secure any
+form of relief provided for in this section.
+(b) Suits by Developers Injured.--
+(1) In general.--Any developer who shall be injured by
+reason of anything forbidden in this Act may sue therefor in
+any district court of the United States in the district in
+which the defendant resides or is found or has an agent,
+without respect to the amount in controversy, and shall recover
+threefold the damages by him sustained, and the cost of suit,
+including a reasonable attorney's fee. The court may award
+under this subsection, pursuant to a motion by such developer
+promptly made, simple interest on actual damages for the period
+beginning on the date of service of such developer's pleading
+setting forth a claim under this Act and ending on the date of
+judgment, or for any shorter period therein, if the court finds
+that the award of such interest for such period is just in the
+circumstances. In determining whether an award of interest
+under this subsection for any period is just in the
+circumstances, the court shall consider only--
+(A) whether such developer or the opposing party,
+or either party's representative, made motions or
+asserted claims or defenses so lacking in merit as to
+show that such party or representative acted
+intentionally for delay, or otherwise acted in bad
+faith;
+(B) whether, in the course of the action involved,
+such developer or the opposing party, or either party's
+representative, violated any applicable rule, statute,
+or court order providing for sanctions for dilatory
+behavior or otherwise providing for expeditious
+proceedings; and
+(C) whether such developer or the opposing party,
+or either party's representative, engaged in conduct
+primarily for the purpose of delaying the litigation or
+increasing the cost thereof.
+(2) Injunctive relief.--Any developer shall be entitled to
+sue for and have injunctive relief, in any court of the United
+States having jurisdiction over the parties, against threatened
+loss or damage by a violation of this Act, when and under the
+same conditions and principles as injunctive relief against
+threatened conduct that will cause loss or damage is granted by
+courts of equity, under the rules governing such proceedings,
+and upon the execution of proper bond against damages for an
+injunction improvidently granted and a showing that the danger
+of irreparable loss or damage is immediate, a preliminary
+injunction may issue. In any action under this paragraph in
+which the plaintiff substantially prevails, the court shall
+award the cost of suit, including a reasonable attorney's fee,
+to such plaintiff.
+SEC. 6. RULE OF CONSTRUCTION.
+Nothing in this Act shall be construed to limit any authority of
+the Attorney General or the Federal Trade Commission under the
+antitrust laws (as defined in the first section of the Clayton Act (15
+U.S.C. 12)), the Federal Trade Commission Act (15 U.S.C. 41 et seq.),
+or any other provision of law or to limit the application of any law.
+SEC. 7. SEVERABILITY.
+If any provision of this Act, or the application of such a
+provision to any person or circumstance, is held to be
+unconstitutional, the remaining provisions of this Act, and the
+application of the provision held to be unconstitutional to any other
+person or circumstance, shall not be affected thereby.
+<all>

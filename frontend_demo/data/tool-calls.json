@@ -1,0 +1,358 @@
+[
+  {
+    "id": "tool_1",
+    "agent": "bill_specialist",
+    "timestamp": "2024-08-16T11:47:31Z",
+    "type": "tool_call",
+    "simplified": "Retrieving bill sponsors and committee assignments",
+    "toolCalls": [
+      {
+        "id": "call_R9AL6rrNdcHnPEuK638gd5KE",
+        "name": "getBillSponsors",
+        "arguments": {
+          "congress_index": {
+            "congress": 117,
+            "bill_type": "hr", 
+            "bill_number": 2307
+          }
+        }
+      },
+      {
+        "id": "call_ldUar2HE6lE2dQV2V2hPRqDV",
+        "name": "getBillCommittees", 
+        "arguments": {
+          "congress_index": {
+            "congress": 117,
+            "bill_type": "hr",
+            "bill_number": 2307
+          }
+        }
+      },
+      {
+        "id": "call_pvHDpS2fSbNeO4JXApIBIlE4",
+        "name": "getRelevantBillSections",
+        "arguments": {
+          "congress_index": {
+            "congress": 117,
+            "bill_type": "hr", 
+            "bill_number": 2307
+          },
+          "company_name": "ExxonMobil"
+        }
+      }
+    ],
+    "results": [
+      {
+        "call_id": "call_R9AL6rrNdcHnPEuK638gd5KE",
+        "content": {
+          "sponsors": [
+            {
+              "bioguide_id": "D000610",
+              "full_name": "Rep. Deutch, Theodore E. [D-FL-22]", 
+              "first_name": "Theodore",
+              "last_name": "Deutch",
+              "party": "D",
+              "state": "FL",
+              "district": "22",
+              "is_by_request": false
+            }
+          ]
+        },
+        "is_error": false
+      },
+      {
+        "call_id": "call_ldUar2HE6lE2dQV2V2hPRqDV",
+        "content": {
+          "committees": [
+            {
+              "system_code": "hsif00",
+              "name": "Energy and Commerce Committee",
+              "chamber": "House", 
+              "type": "Standing",
+              "subcommittees": [
+                {
+                  "system_code": "hsif03",
+                  "name": "Energy Subcommittee"
+                }
+              ]
+            },
+            {
+              "system_code": "hsfa00",
+              "name": "Foreign Affairs Committee",
+              "chamber": "House",
+              "type": "Standing"
+            },
+            {
+              "system_code": "hswm00", 
+              "name": "Ways and Means Committee",
+              "chamber": "House",
+              "type": "Standing"
+            }
+          ]
+        },
+        "is_error": false
+      },
+      {
+        "call_id": "call_pvHDpS2fSbNeO4JXApIBIlE4",
+        "content": "SEC. 3 CARBON DIVIDENDS AND CARBON FEE\n\nThe bill establishes a carbon fee on fossil fuels including crude oil, natural gas, and coal - directly impacting {company} operations. Key provisions:\n\n- Defines 'covered entity' to include refineries and petroleum importers\n- Imposes fees on 'covered fuels' starting at $15/ton CO2 equivalent \n- Annual fee increases of $10/ton with inflation adjustments\n- Carbon border adjustment fees for imports\n- Refunds for exported fuels and agricultural use\n- Carbon capture and sequestration incentives",
+        "is_error": false
+      }
+    ],
+    "status": "completed"
+  },
+  {
+    "id": "tool_2",
+    "agent": "actions_specialist", 
+    "timestamp": "2024-08-16T11:48:20Z",
+    "type": "tool_call",
+    "simplified": "Extracting legislative timeline and committee actions",
+    "toolCalls": [
+      {
+        "id": "call_S0CF78QOm273AG4nBNtz84sG",
+        "name": "get_committee_actions",
+        "arguments": {
+          "congress_index": {
+            "congress": 117,
+            "bill_type": "hr",
+            "bill_number": 2307
+          }
+        }
+      },
+      {
+        "id": "call_DGiX9C6DHUK7emEGTCuUvdry",
+        "name": "extractBillActions", 
+        "arguments": {
+          "congress_index": {
+            "congress": 117,
+            "bill_type": "hr",
+            "bill_number": 2307
+          }
+        }
+      }
+    ],
+    "results": [
+      {
+        "call_id": "call_S0CF78QOm273AG4nBNtz84sG",
+        "content": {
+          "committees": [
+            {
+              "name": "Foreign Affairs Committee",
+              "actions": [
+                {
+                  "name": "Referred To",
+                  "date": "2021-04-01T13:08:15Z"
+                }
+              ]
+            },
+            {
+              "name": "Ways and Means Committee", 
+              "actions": [
+                {
+                  "name": "Referred To",
+                  "date": "2021-04-01T13:08:05Z"
+                }
+              ]
+            }
+          ]
+        },
+        "is_error": false
+      },
+      {
+        "call_id": "call_DGiX9C6DHUK7emEGTCuUvdry",
+        "content": {
+          "actions": [
+            {
+              "date": "2021-04-02",
+              "text": "Referred to the Subcommittee on Energy.",
+              "type": "Committee"
+            },
+            {
+              "date": "2021-04-01", 
+              "text": "Referred to the Committee on Ways and Means, and in addition to the Committees on Energy and Commerce, and Foreign Affairs",
+              "type": "IntroReferral"
+            },
+            {
+              "date": "2021-04-01",
+              "text": "Introduced in House", 
+              "type": "IntroReferral"
+            }
+          ]
+        },
+        "is_error": false
+      }
+    ],
+    "status": "completed"
+  },
+  {
+    "id": "tool_3",
+    "agent": "amendment_specialist",
+    "timestamp": "2024-08-16T11:48:27Z", 
+    "type": "tool_call",
+    "simplified": "Searching for bill amendments and modifications",
+    "toolCalls": [
+      {
+        "id": "call_HPOqnwbOhHovZgQQ6SbkkBea",
+        "name": "getBillAmendments",
+        "arguments": {
+          "congress_index": {
+            "congress": 117,
+            "bill_type": "hr",
+            "bill_number": 2307
+          }
+        }
+      }
+    ],
+    "results": [
+      {
+        "call_id": "call_HPOqnwbOhHovZgQQ6SbkkBea",
+        "content": {
+          "amendments": [],
+          "debug": [
+            "Found 0 amendments for bill {'congress': 117, 'bill_type': 'hr', 'bill_number': 2307}"
+          ]
+        },
+        "is_error": false
+      }
+    ],
+    "status": "completed"
+  },
+  {
+    "id": "tool_4",
+    "agent": "committee_specialist",
+    "timestamp": "2024-08-16T11:47:20Z",
+    "type": "tool_call", 
+    "simplified": "Gathering committee membership and leadership data",
+    "toolCalls": [
+      {
+        "id": "call_f7qCIO1EdZ4e1HBUuZ1EOiE7",
+        "name": "get_committee_members",
+        "arguments": {
+          "congress_index": {
+            "congress": 117,
+            "committee_code": "hsif00"
+          }
+        }
+      },
+      {
+        "id": "call_0A1rgjjjTkLTmYjhmDGAZtRI", 
+        "name": "get_committee_actions",
+        "arguments": {
+          "congress_index": {
+            "congress": 117,
+            "committee_code": "hsif00"
+          }
+        }
+      }
+    ],
+    "results": [
+      {
+        "call_id": "call_f7qCIO1EdZ4e1HBUuZ1EOiE7",
+        "content": {
+          "members": [
+            {
+              "name": "Frank Pallone Jr.",
+              "party": "D",
+              "state": "NJ",
+              "role": "Chairman"
+            },
+            {
+              "name": "Cathy McMorris Rodgers", 
+              "party": "R", 
+              "state": "WA",
+              "role": "Ranking Member"
+            },
+            {
+              "name": "Fred Upton",
+              "party": "R",
+              "state": "MI", 
+              "role": "Member"
+            }
+          ]
+        },
+        "is_error": false
+      },
+      {
+        "call_id": "call_0A1rgjjjTkLTmYjhmDGAZtRI",
+        "content": {
+          "actions": [
+            {
+              "date": "2021-04-01",
+              "action": "Bill referred to committee",
+              "description": "H.R. 2307 referred to Energy and Commerce Committee"
+            }
+          ]
+        },
+        "is_error": false
+      }
+    ],
+    "status": "completed"
+  },
+  {
+    "id": "tool_5",
+    "agent": "congress_member_specialist",
+    "timestamp": "2024-08-16T11:48:50Z",
+    "type": "tool_call",
+    "simplified": "Profiling Congressional members and analyzing industry connections", 
+    "toolCalls": [
+      {
+        "id": "call_member_profile_1",
+        "name": "getCongressMemberProfile",
+        "arguments": {
+          "bioguide_id": "D000610",
+          "congress": 117
+        }
+      },
+      {
+        "id": "call_member_profile_2", 
+        "name": "getCongressMemberVotingRecord",
+        "arguments": {
+          "bioguide_id": "D000610",
+          "topic": "energy"
+        }
+      }
+    ],
+    "results": [
+      {
+        "call_id": "call_member_profile_1",
+        "content": {
+          "member": {
+            "name": "Theodore E. Deutch",
+            "party": "Democratic",
+            "state": "Florida", 
+            "district": "22",
+            "committees": [
+              "House Judiciary Committee",
+              "House Foreign Affairs Committee"
+            ],
+            "leadership_roles": [
+              "Chairman, House Ethics Committee"
+            ]
+          }
+        },
+        "is_error": false
+      },
+      {
+        "call_id": "call_member_profile_2",
+        "content": {
+          "voting_record": [
+            {
+              "bill": "H.R. 9", 
+              "title": "Climate Action Now Act",
+              "vote": "Yes",
+              "date": "2019-05-02"
+            },
+            {
+              "bill": "H.R. 1512",
+              "title": "PFAS Action Act", 
+              "vote": "Yes",
+              "date": "2019-01-10"
+            }
+          ],
+          "environmental_score": 95
+        },
+        "is_error": false
+      }
+    ],
+    "status": "completed"
+  }
+]

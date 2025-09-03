@@ -1,0 +1,299 @@
+[Congressional Bills 117th Congress]
+[From the U.S. Government Publishing Office]
+[H.R. 3826 Introduced in House (IH)]
+<DOC>
+117th CONGRESS
+1st Session
+H. R. 3826
+To promote competition and economic opportunity in digital markets by
+establishing that certain acquisitions by dominant online platforms are
+unlawful.
+_______________________________________________________________________
+IN THE HOUSE OF REPRESENTATIVES
+June 11, 2021
+Mr. Jeffries (for himself, Mr. Buck, Mr. Cicilline, Mr. Nadler, and Mr.
+Gooden of Texas) introduced the following bill; which was referred to
+the Committee on the Judiciary
+_______________________________________________________________________
+A BILL
+To promote competition and economic opportunity in digital markets by
+establishing that certain acquisitions by dominant online platforms are
+unlawful.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Platform Competition and Opportunity
+Act of 2021''.
+SEC. 2. UNLAWFUL ACQUISITIONS.
+(a) Violation.--It shall be unlawful for a covered platform
+operator to acquire directly or indirectly--
+(1) the whole or any part of the stock or other share
+capital of another person engaged in commerce or in any
+activity or affecting commerce; or
+(2) the whole or any part of the assets of another person
+engaged in commerce or in any activity affecting commerce.
+(b) Exclusion.--An acquisition shall not be unlawful under
+subsection (a) if the acquiring covered platform operator demonstrates
+by clear and convincing evidence that--
+(1) the acquisition is a transaction that is described in
+section 7A(c) of the Clayton Act; or
+(2) the acquired assets or the issuer of the acquired stock
+do not--
+(A) compete with the covered platform or with the
+covered platform operator for the sale or provision of
+any product or service;
+(B) constitute nascent or potential competition to
+the covered platform or the covered platform operator
+for the sale or provision of any product or service;
+(C) enhance or increase the covered platform's or
+the covered platform operator's market position with
+respect to the sale or provision of any product or
+service offered on or directly related to the covered
+platform; or
+(D) enhance or increase the covered platform's or
+covered platform operator's ability to maintain its
+market position with respect to the sale or provision
+of any product or service offered on or directly
+related to the covered platform.
+(c) User Attention.--For purposes of this Act, competition, nascent
+competition, or potential competition for ``the sale or provision of
+any product or service'' includes competition for a user's attention.
+(d) Role of Data.--For purposes of this Act, an acquisition that
+results in access to additional data may, without more, enhance,
+increase, or maintain a covered platform's market position.
+SEC. 3. DEFINITIONS.
+(a) Antitrust Laws.--The term ``antitrust laws'' has the meaning
+given the term in subsection (a) of section 1 of the Clayton Act (15
+U.S.C. 12).
+(b) Commission.--The term ``Commission'' means the Federal Trade
+Commission.
+(c) Control.--The term ``control'' with respect to a person means--
+(1) holding 25 percent or more of the stock of the person;
+(2) having the right to 25 percent or more of the profits
+of the person;
+(3) having the right to 25 percent or more of the assets of
+the person, in the event of the person's dissolution;
+(4) if the person is a corporation, having the power to
+designate 25 percent or more of the directors of the person;
+(5) if the person is a trust, having the power to designate
+25 percent or more of the trustees; or
+(6) otherwise exercises substantial control over the
+person.
+(d) Covered Platform.--The term ``covered platform'' means an
+online platform--
+(1) that has been designated as a ``covered platform''
+under section 4(a); or
+(2) that--
+(A) at the time of the Commission's or the
+Department of Justice's designation under section 2(d),
+or any of the twelve months preceding that time, or in
+any of the 12 months preceding the filing of a
+complaint for an alleged violation of this Act--
+(i) has at least 50,000,000 United States-
+based monthly active users on the online
+platform; or
+(ii) has at least 100,000 United States-
+based monthly active business users on the
+platform;
+(B) is owned or controlled by a person with net
+annual sales, or a market capitalization greater than
+$600,000,000,000, adjusted for inflation on the basis
+of the Consumer Price Index, at the time of the
+Commission's or the Department of Justice's designation
+under section 4(a) or any of the two years preceding
+that time, or at any time in the 2 years preceding the
+filing of a complaint for an alleged violation of this
+Act; and
+(C) is a critical trading partner for the sale or
+provision of any product or service offered on or
+directly related to the online platform.
+(e) Covered Platform Operator.--The term ``covered platform
+operator'' means a person that, directly or indirectly, owns or
+controls a covered platform.
+(f) Critical Trading Partner.--The term ``critical trading
+partner'' means an entity that has the ability to restrict or impede--
+(1) the access of a business user to its users or
+customers; or
+(2) the access of a business user to a tool or service that
+needs to effectively serve its users or customers.
+(g) Business User.--The term ``business user'' means a person that
+utilizes or plans to utilize the covered platform for the sale or
+provision of products or services.
+(h) Online Platform.--The term ``online platform'' means a website,
+online or mobile application operating system, digital assistant, or
+online service that--
+(1) enables a user to generate content that can be viewed
+by other users on the platform or to interact with other
+content on the platform;
+(2) facilitates the offering, sale, purchase, payment, or
+shipping of goods or services, including software applications,
+between and among consumers or businesses not controlled by the
+platform; or
+(3) enables user searches or queries that access or display
+a large volume of information.
+(i) Person.--The term ``person'' has the meaning given the term in
+subsection (a) of section 1 of the Clayton Act (15 U.S.C. 12).
+SEC. 4. IMPLEMENTATION.
+(a) Covered Platform Designation.--
+(1) The Federal Trade Commission or Department of Justice
+shall designate whether an entity is a covered platform for the
+purpose of implementing and enforcing this Act. Such
+designation shall--
+(A) be based on a finding that the criteria set
+forth in section 3(d)(2)(A)-(C) are met;
+(B) be issued in writing and published in the
+Federal Register; and
+(C) will apply for 10 years from its issuance
+regardless of whether there is a change in control or
+ownership over the covered platform unless the
+Commission or the Department of Justice removes the
+designation pursuant to subsection (b).
+(b) Removal of Covered Platform Designation.--The Commission and
+the Department of Justice shall--
+(1) consider whether its designation of a covered platform
+pursuant to subsection (a) should be removed prior to the
+expiration of the 10-year period if the covered platform
+operator files a request with the Commission or the Department
+of Justice, which shows that the online platform is no longer a
+critical trading partner;
+(2) determine whether to grant a request submitted under
+paragraph 1 not later than 120 days after the date of the
+filing of such request; and
+(3) obtain the concurrence of the Commission or the
+Department of Justice, as appropriate, before granting a
+request submitted under paragraph (1).
+SEC. 5. ENFORCEMENT.
+(a) Enforcement Proceeding.--The Commission, Department of Justice,
+and any attorney general of a State subject to the requirements in
+subsection (d) shall enforce this Act in the same manner, by the same
+means, and with the same jurisdiction, powers, and duties as though all
+applicable terms and provisions of the Federal Trade Commission Act (15
+U.S.C. 41 et seq.) or the Clayton Act (15 U.S.C. 12 et seq.), as
+appropriate, were incorporated into and made a part of this Act.
+(b) Unfair Methods of Competition.--A violation of this Act shall
+also constitute an unfair method of competition under section 5 of the
+Federal Trade Commission Act (15 U.S.C. 5).
+(c) Commission Independent Litigation Authority.--If the Commission
+has reason to believe that a covered platform violated this Act, the
+Commission may commence a civil action, in its own name by any of its
+attorneys designated by it for such purpose, to recover a civil penalty
+and seek other appropriate relief in a district court of the United
+States against the covered platform operator.
+(d) Parens Patriae.--Any attorney general of a State may bring a
+civil action in the name of such State for a violation of this Act as
+parens patriae on behalf of natural persons residing in such State, in
+any district court of the United States having jurisdiction of the
+defendant, and may secure any form of relief provided for in this
+section.
+SEC. 6. ENFORCEMENT GUIDELINES.
+(a) In General.--Not later than 1 year after the date of enactment
+of this Act, the Commission and the Assistant Attorney General of the
+Antitrust Division shall jointly issue guidelines outlining policies
+and practices, relating to agency enforcement of this Act, with the
+goal of promoting transparency and deterring violations.
+(b) Updates.--The Commission and the Assistant Attorney General of
+the Antitrust Division shall update the joint guidelines issued under
+subsection (a), as needed to reflect current agency policies and
+practices, but not less frequently than once every 4 years beginning on
+the date of enactment of this Act.
+(c) Operation.--The Joint Guidelines issued under this section do
+not confer any rights upon any person, State, or locality, nor shall
+operate to bind the Commission, Department of Justice, or any person,
+State, or locality to the approach recommended in such Guidelines.
+SEC. 7. SUITS BY PERSONS INJURED.
+(a) In General.--Except as provided in subsection (b), any person
+who shall be injured in his business or property by reason of anything
+forbidden in this Act sue therefor in any district court of the United
+States in the district in which the defendant resides or is found or
+has an agent, without respect to the amount in controversy, and shall
+recover threefold the damages by him sustained, and the cost of suit,
+including a reasonable attorney's fee. The court may award under this
+section, pursuant to a motion by such person promptly made, simple
+interest on actual damages for the period beginning on the date of
+service of such person's pleading setting forth a claim under the
+antitrust laws and ending on the date of judgment, or for any shorter
+period therein, if the court finds that the award of such interest for
+such period is just in the circumstances. In determining whether an
+award of interest under this section for any period is just in the
+circumstances, the court shall consider only--
+(1) whether such person or the opposing party, or either
+party's representative, made motions or asserted claims or
+defenses so lacking in merit as to show that such party or
+representative acted intentionally for delay, or otherwise
+acted in bad faith;
+(2) whether, in the course of the action involved, such
+person or the opposing party, or either party's representative,
+violated any applicable rule, statute, or court order providing
+for sanctions for dilatory behavior or otherwise providing for
+expeditious proceedings; and
+(3) whether such person or the opposing party, or either
+party's representative, engaged in conduct primarily for the
+purpose of delaying the litigation or increasing the cost
+thereof.
+(b) Amount of Damages Payable to Foreign States and
+Instrumentalities of Foreign States.--
+(1) Except as provided in paragraph (2), any person who is
+a foreign state may not recover under subsection (a) an amount
+in excess of the actual damages sustained by it and the cost of
+suit, including a reasonable attorney's fee.
+(2) Paragraph (1) shall not apply to a foreign state if--
+(A) such foreign state would be denied, under
+section 1605(a)(2) of title 28, United States Code,
+immunity in a case in which the action is based upon a
+commercial activity, or an act, that is the subject
+matter of its claim under this section;
+(B) such foreign state waives all defenses based
+upon or arising out of its status as a foreign state,
+to any claims brought against it in the same action;
+(C) such foreign state engages primarily in
+commercial activities; and
+(D) such foreign state does not function, with
+respect to the commercial activity, or the act, that is
+the subject matter of its claim under this section as a
+procurement entity for itself or for another foreign
+state.
+SEC. 8. JUDICIAL REVIEW.
+(a) In General.--Any party that is subject to a covered platform
+designation pursuant to section 4(a) of this Act, a decision in
+response to a request to remove a covered platform designation pursuant
+to section 4(b), a final order issued in any district court, or a final
+order of the Commission issued in an administrative adjudicative
+proceeding may within 30 days of the issuance of such designation,
+decision, or order, petition for review of such designation or order in
+the United States Court of Appeals for the District of Columbia
+Circuit.
+(b) Treatment of Findings.--In a proceeding for judicial review of
+a covered platform designation pursuant to section 4(a) of this Act or
+a final order of the Commission, the findings of the Commission or the
+Department of Justice as to the facts, if supported by evidence, shall
+be conclusive.
+(c) Injunctive Relief.--Any person, firm, corporation, or
+association shall be entitled to sue for and have injunctive relief, in
+any court of the United States having jurisdiction over the parties,
+against threatened loss or damage by a violation of this Act, when and
+under the same conditions and principles as injunctive relief against
+threatened conduct that will cause loss or damage is granted by courts
+of equity, under the rules governing such proceedings, and upon the
+execution of proper bond against damages for an injunction
+improvidently granted and a showing that the danger of irreparable loss
+or damage is immediate, a preliminary injunction may issue: Provided,
+That nothing herein contained shall be construed to entitle any person,
+firm, corporation, or association, except the United States, to bring
+suit for injunctive relief against any common carrier subject to the
+jurisdiction of the Surface Transportation Board under subtitle IV of
+title 49. In any action under this section in which the plaintiff
+substantially prevails, the court shall award the cost of suit,
+including a reasonable attorney's fee, to such plaintiff.
+SEC. 9. RULES OF CONSTRUCTION.
+Nothing in this Act shall be construed to limit any authority of
+the Attorney General or the Federal Trade Commission under the
+antitrust laws, the Federal Trade Commission Act (15 U.S.C. 45), or any
+other provision of law or to limit the application of any law.
+SEC. 10. SEVERABILITY.
+If any provision of this Act, an amendment made by this Act, or the
+application of such provision or amendment to any person or
+circumstance is held to be unconstitutional, the remainder of this Act
+and of the amendments made by this Act, and the application of the
+remaining provisions of this Act and amendments to any person or
+circumstance shall not be affected.
+<all>

@@ -102,7 +102,7 @@ class BillTextRAG:
 
         self.generate_queries = (
             self.lobbying_strategy_prompt
-            | ChatOpenAI(model="gpt-4o")
+            | ChatOpenAI(model="gpt-4.1")
             | StrOutputParser()
             | (lambda x: x.split("\n"))
         )
@@ -111,7 +111,7 @@ class BillTextRAG:
 
         self.single_retrieval_chain = get_single_retrieval_chain(self.generate_queries, self.retriever)
 
-        self.llm = ChatOpenAI(model="gpt-4o")
+        self.llm = ChatOpenAI(model="gpt-4.1")
 
 
     def run_relevant_sections(self, company_name: str, bill_text: str, bill_summary_text: str) -> str:

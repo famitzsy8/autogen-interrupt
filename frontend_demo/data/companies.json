@@ -1,0 +1,112 @@
+[
+  {
+    "id": "bp_hr1492-117",
+    "name": "BP",
+    "bill": "hr1492-117",
+    "description": "House Bill on Energy Policy (2021)",
+    "logo": "🛢️",
+    "primaryColor": "#16a34a",
+    "secondaryColor": "#22c55e",
+    "industry": "Petroleum",
+    "billSummary": "Lobbying expenditure: $1,230,000 in 2021"
+  },
+  {
+    "id": "bp_s1276-114",
+    "name": "BP",
+    "bill": "s1276-114",
+    "description": "Senate Bill on Energy Infrastructure (2017)",
+    "logo": "🛢️",
+    "primaryColor": "#16a34a",
+    "secondaryColor": "#22c55e",
+    "industry": "Petroleum",
+    "billSummary": "Lobbying expenditure: $1,720,000 in 2017"
+  },
+  {
+    "id": "shell_s1276-115",
+    "name": "Shell",
+    "bill": "s1276-115",
+    "description": "Senate Bill on Climate and Energy (2017)",
+    "logo": "🐚",
+    "primaryColor": "#dc2626",
+    "secondaryColor": "#ef4444",
+    "industry": "Energy",
+    "billSummary": "Lobbying expenditure: $1,740,000 in 2017"
+  },
+  {
+    "id": "shell_s986-117",
+    "name": "Shell",
+    "bill": "s986-117",
+    "description": "Senate Bill on Climate and Energy (2021)",
+    "logo": "🐚",
+    "primaryColor": "#dc2626",
+    "secondaryColor": "#ef4444",
+    "industry": "Energy",
+    "billSummary": "Lobbying expenditure: $1,740,000 in 2021"
+  },
+  {
+    "id": "exxon_mobil_s3227-116",
+    "name": "Exxon Mobil",
+    "bill": "s3227-116",
+    "description": "Senate Bill on Climate and Energy (2020)",
+    "logo": "⛽",
+    "primaryColor": "#1e40af",
+    "secondaryColor": "#3b82f6",
+    "industry": "Oil & Gas",
+    "billSummary": "Lobbying expenditure: $2,670,000 in 2020"
+  },
+  {
+    "id": "exxon_mobil_s2256-115",
+    "name": "Exxon Mobil",
+    "bill": "s2256-115",
+    "description": "Senate Bill on Climate and Energy (2018)",
+    "logo": "⛽",
+    "primaryColor": "#1e40af",
+    "secondaryColor": "#3b82f6",
+    "industry": "Oil & Gas",
+    "billSummary": "Lobbying expenditure: $3,140,000 in 2018"
+  },
+  {
+    "id": "phillips_66_s365-116",
+    "name": "Phillips 66",
+    "bill": "s365-116",
+    "description": "Senate Bill on Climate and Energy (2019)",
+    "logo": "⚡",
+    "primaryColor": "#7c3aed",
+    "secondaryColor": "#a855f7",
+    "industry": "Refining",
+    "billSummary": "Lobbying expenditure: $1,010,000 in 2019"
+  },
+  {
+    "id": "phillips_66_hr2042-115",
+    "name": "Phillips 66",
+    "bill": "hr2042-115",
+    "description": "House Bill on Energy Policy (2019)",
+    "logo": "⚡",
+    "primaryColor": "#7c3aed",
+    "secondaryColor": "#a855f7",
+    "industry": "Refining",
+    "billSummary": "Lobbying expenditure: $1,010,000 in 2019"
+  },
+  {
+    "id": "conocophillips_hr5120-116",
+    "name": "ConocoPhillips",
+    "bill": "hr5120-116",
+    "description": "House Bill on Energy Policy (2020)",
+    "logo": "🔥",
+    "primaryColor": "#ea580c",
+    "secondaryColor": "#f97316",
+    "industry": "Energy",
+    "billSummary": "Lobbying expenditure: $1,040,000 in 2020"
+  },
+  {
+    "id": "conocophillips_hr133-116",
+    "name": "ConocoPhillips",
+    "bill": "hr133-116",
+    "description": "House Bill on Energy Policy (2020)",
+    "logo": "🔥",
+    "primaryColor": "#ea580c",
+    "secondaryColor": "#f97316",
+    "industry": "Energy",
+    "billSummary": "Lobbying expenditure: $1,040,000 in 2020"
+  }
+]

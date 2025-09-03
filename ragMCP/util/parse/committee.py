@@ -74,3 +74,21 @@ def _get_committee_code(name: str) -> dict:
 
     debug_messages.append("Input did not match any known committee format.")
     return {"committee_code": None, "debug": debug_messages}
+
+def rectify_committee_arguments(committee_name: str) -> str:
+    """
+    Detects committee names of the form 'House XYZ Committee' or 'Senate XYZ Committee'
+    and converts them into the form 'House/Senate Committee on XYZ'.
+    """
+    pattern = r'^(House|Senate)\s+(.+?)\s+Committee$'
+    match = re.match(pattern, committee_name.strip(), flags=re.IGNORECASE)
+    
+    if match:
+        chamber = match.group(1).capitalize()  # Ensure "House" or "Senate"
+        subject = match.group(2).strip()
+        if subject == "Judiciary":
+            subject = "the Judiciary"
+        return f"{chamber} Committee on {subject}"
+    
+    # If no match, return unchanged
+    return committee_name

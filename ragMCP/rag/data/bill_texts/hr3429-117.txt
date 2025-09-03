@@ -1,0 +1,210 @@
+[Congressional Bills 117th Congress]
+[From the U.S. Government Publishing Office]
+[H.R. 3429 Introduced in House (IH)]
+<DOC>
+117th CONGRESS
+1st Session
+H. R. 3429
+To amend the Trademark Act of 1946 to provide for contributory
+liability for certain electronic commerce platforms for use of a
+counterfeit mark by a third party on such platforms, and for other
+purposes.
+_______________________________________________________________________
+IN THE HOUSE OF REPRESENTATIVES
+May 20, 2021
+Mr. Nadler (for himself, Mr. Issa, Mr. Johnson of Georgia, and Mr.
+Cline) introduced the following bill; which was referred to the
+Committee on the Judiciary
+_______________________________________________________________________
+A BILL
+To amend the Trademark Act of 1946 to provide for contributory
+liability for certain electronic commerce platforms for use of a
+counterfeit mark by a third party on such platforms, and for other
+purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Stopping Harmful Offers on Platforms
+by Screening Against Fakes in E-commerce Act of 2021'' or the ``SHOP
+SAFE Act of 2021''.
+SEC. 2. CONTRIBUTORY LIABILITY FOR ELECTRONIC COMMERCE PLATFORMS.
+(a) Platform Liability.--Section 32 of the Act entitled ``An Act to
+provide for the registration and protection of trademarks used in
+commerce, to carry out the provisions of certain international
+conventions, and for other purposes'', approved July 5, 1946 (commonly
+known as the ``Trademark Act of 1946'') (15 U.S.C. 1114), is amended by
+inserting at the end the following:
+``(4)(A) Subject to subparagraph (C), an electronic
+commerce platform shall be deemed contributorily liable in a
+civil action by the registrant for the remedies hereinafter
+provided for a case in which without the consent of the
+registrant, a third-party seller uses in commerce a counterfeit
+mark in connection with the sale, offering for sale,
+distribution, or advertising of goods that implicate health and
+safety on the platform, unless the platform demonstrates that
+the platform took each of the following steps to prevent such
+use on the platform before any infringing act by the third-
+party seller:
+``(i) Determined after a reasonable investigation,
+and reasonably periodically confirmed--
+``(I) that the third-party seller
+designated a registered agent in the United
+States for service of process; or
+``(II) in the case of third-party seller
+located in the United States, and if the seller
+has not designated a registered agent under
+subclause (I), that the third-party seller has
+designated a verified address for service of
+process in the United States.
+``(ii) Verified through governmental identification
+or other reliable documentation the identity, principal
+place of business, and contact information of the
+third-party seller.
+``(iii) Required the third-party seller to--
+``(I) take reasonable steps to verify the
+authenticity of goods on or in connection with
+which a registered mark is used; and
+``(II) attest to the platform that the
+third-party seller has taken reasonable steps
+to verify the authenticity of the goods under
+subclause (I).
+``(iv) Imposed on the third-party seller as a
+condition of participating on the platform contractual
+requirements that--
+``(I) the third-party seller agrees not to
+use a counterfeit mark in connection with the
+sale, offering for sale, distribution, or
+advertising of goods on the platform;
+``(II) the third-party seller consents to
+the jurisdiction of United States courts with
+respect to claims related to the third-party
+seller's participation on the platform; and
+``(III) the third-party seller designates
+an agent for service of process in the United
+States, or, in the case of third-party seller
+located in the United States, the third-party
+seller designates a verified address for
+service of process in the United States.
+``(v) Displayed conspicuously on the platform the
+verified principal place of business, contact
+information, and identity of the third-party seller,
+and the country from which the goods will be shipped,
+except the platform shall not be required to display
+any such information that constitutes the personal
+identity of an individual, a home street address, or
+personal contact information of an individual, and in
+such cases shall instead provide alternative, verified
+means of contacting the third-party seller.
+``(vi) Displayed conspicuously in each listing the
+country of origin and manufacture of the goods, unless
+such information was not reasonably available to the
+third-party seller and the third-party seller had
+identified to the platform the steps it undertook to
+identify the country of origin and manufacture of the
+goods and the reasons it was unable to identify the
+same.
+``(vii) Required each third-party seller to use
+images that the seller owns or has permission to use
+and that accurately depict the actual goods offered for
+sale on the platform.
+``(viii) Implemented at no cost to the registrant
+reasonable proactive technological measures for
+screening goods before displaying the goods to the
+public to prevent any third-party seller's use of a
+counterfeit mark in connection with the sale, offering
+for sale, distribution, or advertising of goods on the
+platform.
+``(ix) Implemented at no cost to the registrant a
+program to expeditiously disable or remove from the
+platform any listing for which a platform has
+reasonable awareness of use of a counterfeit mark in
+connection with the sale, offering for sale,
+distribution, or advertising of goods. Reasonable
+awareness of use of a counterfeit mark may be inferred
+based on information regarding the use of a counterfeit
+mark on the platform generally, general information
+about the third-party seller, identifying
+characteristics of a particular listing, or other
+circumstances as appropriate. A platform may reinstate
+a listing disabled or removed under this clause if,
+after an investigation, the platform reasonably
+determines that a counterfeit mark was not used in the
+listing. A reasonable decision to reinstate a listing
+shall not be a basis for finding that a platform failed
+to comply with this clause.
+``(x) Implemented a policy that requires
+termination of a third-party seller that has reasonably
+been determined to have engaged in repeated use of a
+counterfeit mark in connection with the sale, offering
+for sale, distribution, or advertising of goods on the
+platform. Use of a counterfeit mark by a third-party
+seller in three separate listings within one year shall
+be considered repeated use, except when reasonable
+mitigating circumstances exist. A platform may
+reinstate a third-party seller if, after an
+investigation, the platform reasonably determines that
+the third-party seller did not engage in repeated use
+of a counterfeit mark or that reasonable mitigating
+circumstances existed. A reasonable decision to
+reinstate a third-party seller shall not be a basis for
+finding that a platform failed to comply with this
+clause.
+``(xi) Implemented at no cost to the registrant
+reasonable technological measures for screening third-
+party sellers to ensure that sellers who have been
+terminated do not rejoin or remain on the platform
+under a different seller identity or alias.
+``(xii) Provided a verified basis to contact a
+third-party seller upon request by a registrant that
+has a bona fide belief that the seller has used a
+counterfeit mark in connection with the sale, offering
+for sale, distribution, or advertising of goods on the
+platform except that the platform is not required to
+provide information that constitutes the personal
+identity of an individual, a home street address, or
+personal contact information of an individual (in such
+case, the provider shall provide an alternative means
+of contacting the third-party seller).
+``(B) In this paragraph:
+``(i) The term `counterfeit mark' has the meaning
+given that term in section 34(d)(1)(B).
+``(ii) The term `electronic commerce platform'
+means any electronically accessed platform that
+includes publicly interactive features that allow for
+arranging the sale, purchase, payment, or shipping of
+goods, or that enables a person other than an operator
+of such platform to sell or offer to sell physical
+goods to consumers located in the United States.
+``(iii) The term `goods that implicate health and
+safety' means goods the use of which can lead to
+illness, disease, injury, serious adverse event,
+allergic reaction, or death if produced without
+compliance with all applicable Federal, State, and
+local health and safety regulations and industry-
+designated testing, safety, quality, certification,
+manufacturing, packaging, and labeling standards.
+``(iv) The term `third-party seller' means a person
+other than the electronic commerce platform who uses
+the platform to arrange for the sale, purchase,
+payment, or shipping of goods.
+``(C) This paragraph shall apply--
+``(i) to an electronic commerce platform that has
+annual sales on the platform of $500,000 or more; or
+``(ii) to an electronic commerce platform with less
+than $500,000 in annual sales six months after the
+platform has received ten notices (in which there is a
+reference to this paragraph and an explicit
+notification to the platform of the ten-notice limit),
+in aggregate, identifying listings on the platform that
+reasonably could be determined to have used a
+counterfeit mark in connection with the sale, offering
+for sale, distribution, or advertising of goods that
+implicate health or safety.
+``(D) Nothing in this paragraph may be construed to limit
+liability in a context other than that outlined in this
+paragraph, including any cause of action available under other
+provisions of this Act, notwithstanding that the same facts may
+give rise to a claim under this paragraph.''.
+(b) Effective Date.--This Act and the amendment made by this Act
+shall take effect one year after the date of the enactment of this Act.
+<all>

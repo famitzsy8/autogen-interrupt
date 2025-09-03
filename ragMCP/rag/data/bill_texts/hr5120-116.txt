@@ -1,0 +1,926 @@
+[Congressional Bills 116th Congress]
+[From the U.S. Government Publishing Office]
+[H.R. 5120 Introduced in House (IH)]
+<DOC>
+116th CONGRESS
+1st Session
+H. R. 5120
+To amend title 49, United States Code, to provide enhanced safety and
+environmental protection in pipeline transportation, and for other
+purposes.
+_______________________________________________________________________
+IN THE HOUSE OF REPRESENTATIVES
+November 15, 2019
+Mr. DeFazio (for himself and Mr. Pallone) introduced the following
+bill; which was referred to the Committee on Transportation and
+Infrastructure, and in addition to the Committee on Energy and
+Commerce, for a period to be subsequently determined by the Speaker, in
+each case for consideration of such provisions as fall within the
+jurisdiction of the committee concerned
+_______________________________________________________________________
+A BILL
+To amend title 49, United States Code, to provide enhanced safety and
+environmental protection in pipeline transportation, and for other
+purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE; TABLE OF CONTENTS.
+(a) Short Title.--This Act may be cited as the ``Safe, Accountable,
+Fair, and Environmentally Responsible Pipelines Act of 2019'' or the
+``SAFER Pipelines Act of 2019''.
+(b) Table of Contents.--The table of contents for this Act is as
+follows:
+Sec. 1. Short title; table of contents.
+Sec. 2. Authorization of appropriations.
+Sec. 3. Purpose and general authority.
+Sec. 4. State pipeline safety program certifications.
+Sec. 5. State pipeline safety grants.
+Sec. 6. Inspection and maintenance.
+Sec. 7. Risk analysis and integrity management programs.
+Sec. 8. Community right-to-know and emergency preparedness.
+Sec. 9. Cost recovery for design reviews.
+Sec. 10. Actions by private persons.
+Sec. 11. Civil penalties.
+Sec. 12. Criminal penalties.
+Sec. 13. Emergency response grants.
+Sec. 14. Verification of pipeline qualification programs.
+Sec. 15. National pipeline mapping system.
+Sec. 16. Congressional access to oil spill response plans.
+Sec. 17. Leak detection technology.
+Sec. 18. Gas pipeline repair criteria.
+Sec. 19. Methane release mitigation.
+Sec. 20. Unusually sensitive areas.
+Sec. 21. User fees for underground natural gas storage facilities.
+Sec. 22. Seismicity.
+Sec. 23. Pipeline safety testing.
+Sec. 24. Workforce.
+Sec. 25. Hiring report.
+Sec. 26. Plan to combine State damage prevention and one-call
+notification programs.
+Sec. 27. Gas gathering lines.
+Sec. 28. Regulatory updates.
+Sec. 29. Component verification.
+Sec. 30. Codification of final rule.
+SEC. 2. AUTHORIZATION OF APPROPRIATIONS.
+(a) Operational Expenses.--There are authorized to be appropriated
+to the Secretary of Transportation for the necessary operational
+expenses of the Pipeline and Hazardous Materials Safety Administration
+the following amounts:
+(1) $24,215,000 for fiscal year 2020.
+(2) $24,941,450 for fiscal year 2021.
+(3) $26,460,000 for fiscal year 2022.
+(4) $27,254,000 for fiscal year 2023.
+(b) Gas and Hazardous Liquid.--Section 60125(a) of title 49, United
+States Code, is amended--
+(1) in paragraph (1), by striking subparagraphs (A) through
+(D) and inserting the following:
+``(A) $160,800,000 for fiscal year 2020, of which
+$10,000,000 shall be expended for carrying out such
+section 12 and $60,000,000 shall be expended for making
+grants;
+``(B) $165,624,000 for fiscal year 2021 of which
+$10,000,000 shall be expended for carrying out such
+section 12 and $61,800,000 shall be expended for making
+grants;
+``(C) $170,600,000 for fiscal year 2022, of which
+$10,000,000 shall be expended for carrying out such
+section 12 and $63,650,000 shall be expended for making
+grants; and
+``(D) $175,700,000 for fiscal year 2023, of which
+$10,000,000 shall be expended for carrying out such
+section 12 and $65,560,000 shall be expended for making
+grants.'';
+(2) in paragraph (2), by striking subparagraphs (A) through
+(D) and inserting the following:
+``(A) $25,000,000 for fiscal year 2020, of which
+$5,000,000 shall be expended for carrying out such
+section 12 and $9,000,000 shall be expended for making
+grants;
+``(B) $25,000,000 for fiscal year 2021, of which
+$5,000,000 shall be expended for carrying out such
+section 12 and $9,000,000 shall be expended for making
+grants;
+``(C) $26,000,000 for fiscal year 2022, of which
+$5,000,000 shall be expended for carrying out such
+section 12 and $9,000,000 shall be expended for making
+grants; and
+``(D) $26,000,000 for fiscal year 2023, of which
+$5,000,000 shall be expended for carrying out such
+section 12 and $9,000,000 shall be expended for making
+grants.''; and
+(3) in paragraph (3), by striking ``$8,000,000 for each of
+fiscal years 2017 through 2019'' and inserting ``$9,000,000 for
+each of fiscal years 2020 through 2023''.
+(c) Emergency Response Grants.--Section 60125(b)(2) of title 49,
+United States Code, is amended by striking ``$10,000,000 for each of
+fiscal years 2012 through 2015'' and inserting ``$12,000,000 for each
+of fiscal years 2020 through 2023''.
+(d) Pipeline Safety Information Grants to Communities.--Section
+60130(c) of title 49, United States Code, is amended by striking
+``section 2(b) of the PIPES Act of 2016, the Secretary shall expend
+$1,500,000 for each of fiscal years 2016 through 2019 to carry out this
+section. Such amounts shall not be derived from user fees collected
+under section 60301'' and inserting ``section 2(a) of the SAFER
+Pipelines Act of 2019, the Secretary shall expend $2,000,000 for each
+of fiscal years 2020 through 2023 to carry out this section''.
+(e) State Damage Prevention Programs.--Section 60134(i) of title
+49, United States Code, is amended by striking ``$1,500,000 for each of
+fiscal years 2012 through 2015'' and inserting ``$2,000,000 for each of
+fiscal years 2020 through 2023''.
+(f) One-Call Notification Programs.--Section 6107 of title 49,
+United States Code, is amended by striking ``$1,058,000 for each of
+fiscal years 2016 through 2019'' and inserting ``$2,000,000 for each of
+fiscal years 2020 through 2023''.
+SEC. 3. PURPOSE AND GENERAL AUTHORITY.
+(a) Cost-Benefit Analysis.--Section 60102(b) of title 49, United
+States Code, is amended--
+(1) in paragraph (2)--
+(A) by striking subparagraphs (C) through (E); and
+(B) by redesignating subparagraphs (F) and (G) as
+subparagraphs (C) and (D), respectively; and
+(2) by striking paragraphs (3) through (7).
+(b) Safety-Related Condition Reporting.--
+(1) Availability of information to first responders.--
+Section 60102(h) of title 49, United States Code, is amended--
+(A) in paragraph (2) by striking ``Notice of the
+condition shall be given concurrently to appropriate
+State authorities.''; and
+(B) by adding at the end the following:
+``(3)(A) Notice of the condition of an intrastate or
+interstate pipeline facility shall be given concurrently to
+appropriate State authorities.
+``(B) The Secretary shall require that, upon receipt of a
+report on a safety-related condition submitted under this
+section, a State agency shall provide the report, upon request,
+to any relevant State emergency response commission, tribal
+emergency response commission, tribal emergency planning
+committee, local emergency planning committee, local
+government, or public agency responsible for emergency
+response, including any updates to the report received by the
+State agency.''.
+(2) Exemption removal.--Section 60102(h) of title 49,
+United States Code, is further amended by adding at the end the
+following:
+``(4) Regulations prescribed by the Secretary under this
+section may not exempt a condition from being subject to
+reporting requirements if the exemption of such condition would
+reduce or eliminate the value of the reports as leading
+indicators of safety or environmental hazards.''.
+(c) Automatic or Remote-Controlled Shut-Off Valves.--Section
+60102(n)(1) of title 49, United States Code, is amended to read as
+follows:
+``(1) High consequence areas.--
+``(A) In general.--Not later than 2 years after the
+date of enactment of the SAFER Pipelines Act of 2019,
+the Secretary shall issue regulations to require
+operators of transmission pipeline facilities to
+install and use automatic or remote-controlled shut-off
+valves for such pipeline facilities that are located in
+high consequence areas (as defined in part 192 or 195
+of title 49, Code of Federal Regulations, as
+applicable).
+``(B) Other areas.--The Secretary may issue
+regulations to require operators of transmission
+pipeline facilities to install and use automatic or
+remote-controlled shut-off valves for such pipeline
+facilities that are not located in areas described in
+subparagraph (A).''.
+(d) Crack Management.--Section 60102 of title 49, United States
+Code, is amended by adding at the end the following:
+``(q) Crack Management.--
+``(1) In general.--
+``(A) High consequence areas.--Not later than 2
+years after the date of enactment of this subsection,
+the Secretary shall issue regulations to require
+operators of gas pipeline facilities and hazardous
+liquid pipeline facilities that are located in high
+consequence areas (as defined in part 192 or 195 of
+title 49, Code of Federal Regulations, as applicable)
+to address and repair cracks in such facilities.
+``(B) Other areas.--The Secretary may issue
+regulations to require operators of gas pipeline
+facilities and hazardous liquid pipeline facilities
+that are not located in areas described in subparagraph
+(A) to address and repair cracks in such facilities.
+``(2) Requirements.--Regulations issued under paragraph (1)
+shall specify--
+``(A) under what conditions an engineering
+assessment of cracks, including environmentally
+assisted cracks, must be performed;
+``(B) acceptable methods for performing an
+engineering assessment on a pipeline, including the
+assessment of cracks coinciding with corrosion;
+``(C) criteria for determining whether the
+excavation of a pipeline segment is required due to a
+probable crack, and deadlines for completing any
+excavation so required;
+``(D) pressure restriction limits for pipelines for
+which a determination is made to excavate such pipeline
+pursuant to the requirements of subparagraph (C); and
+``(E) acceptable methods for determining crack
+growth for any cracks not required to be repaired under
+the regulations, including growth caused by fatigue,
+corrosion fatigue, or stress corrosion cracking, as
+applicable.''.
+SEC. 4. STATE PIPELINE SAFETY PROGRAM CERTIFICATIONS.
+Section 60105(e) of title 49, United States Code, is amended--
+(1) by inserting ``In carrying out this subsection, the
+Secretary may request that a State authority provide records of
+any inspection of a pipeline facility made by the State
+authority or any investigation described in subsection
+(c)(1)(B).'' after ``with the certification.''; and
+(2) by inserting after ``under this subsection'' the
+following: ``, including, upon request by the Secretary, by
+authorizing the Secretary to participate in such an inspection
+or investigation''.
+SEC. 5. STATE PIPELINE SAFETY GRANTS.
+Section 60107 of title 49, United States Code, is amended by adding
+at the end the following:
+``(f) Grants for Rendering Aid.--The Secretary may make an
+additional payment, to a State receiving a payment under subsection
+(a), to pay the costs incurred by the State in rendering aid to another
+State to respond to a natural disaster or major pipeline incident.''.
+SEC. 6. INSPECTION AND MAINTENANCE.
+Section 60108 of title 49, United States Code, is amended by adding
+at the end the following:
+``(f) Pipeline Construction Project Data Collection.--The Secretary
+may require the owner or operator of a pipeline facility to provide to
+the Secretary information the Secretary determines appropriate
+regarding construction of the pipeline facility, including relating to
+any shutdown of such construction.''.
+SEC. 7. RISK ANALYSIS AND INTEGRITY MANAGEMENT PROGRAMS.
+Section 60109(c) of title 49, United States Code, is amended by
+adding at the end the following:
+``(12) Use of direct assessments.--
+``(A) Transmission pipeline facilities
+regulation.--Not later than 2 years after the date of
+enactment of this paragraph, the Secretary shall issue
+regulations for appropriate methods of assessment of
+transmission pipeline facilities under paragraph (3)
+that prioritize methods that provide a greater level of
+safety than direct assessment, including the use of
+internal inspection devices or pressure testing.
+``(B) Distribution pipelines study.--Not later than
+2 years after the date of enactment of this paragraph,
+the Secretary shall submit to the Committees on Energy
+and Commerce and Transportation and Infrastructure of
+the House of Representatives and the Committee on
+Commerce, Science, and Transportation of the Senate a
+report containing--
+``(i) the results of a study of methods of
+assessment of distribution pipelines that may
+be used under paragraph (3), other than direct
+assessment, to determine whether any such
+methods--
+``(I) would provide a greater level
+of safety than direct assessment of
+such pipelines; and
+``(II) are feasible; and
+``(ii) any recommendations based on such
+study.''.
+SEC. 8. COMMUNITY RIGHT-TO-KNOW AND EMERGENCY PREPAREDNESS.
+(a) In General.--Section 60116 of title 49, United States Code, is
+amended to read as follows:
+``Sec. 60116. Community right-to-know and emergency preparedness
+``(a) Public Education Programs.--
+``(1) In general.--Each owner or operator of a gas or
+hazardous liquid pipeline facility shall carry out a continuing
+program to educate the public on--
+``(A) the use of a one-call notification system
+prior to excavation and other damage prevention
+activities;
+``(B) the possible hazards associated with
+unintended releases from the pipeline facility; and
+``(C) the physical indications that a release from
+a pipeline facility may have occurred, the steps that
+should be taken for public safety in the event of such
+a release, and how to report such a release.
+``(2) Review and modification of existing programs.--Not
+later than 1 year after the date of enactment of the SAFER
+Pipelines Act of 2019, each owner or operator of a gas or
+hazardous liquid pipeline facility shall--
+``(A) review its existing public education program
+for effectiveness, and modify the program as necessary;
+and
+``(B) submit to the Secretary for review a detailed
+description of its public education program, including
+any modifications made to the program under
+subparagraph (A).
+``(3) Standards; material.--The Secretary may--
+``(A) issue standards for public education programs
+under this subsection, including standards providing
+for periodic review of such programs and modification
+of such programs as needed; and
+``(B) develop material for use in the programs.
+``(b) Liaison With State, Local, and Tribal Emergency Response
+Entities.--
+``(1) In general.--Not later than 1 year after the date of
+enactment of the SAFER Pipelines Act of 2019, an operator of a
+gas or hazardous liquid pipeline facility shall establish
+liaison with--
+``(A) any State entity with responsibility for
+pipeline emergency response in each State in which the
+pipeline facility is located;
+``(B) the appropriate local emergency planning
+entity in each emergency planning district in which the
+pipeline facility is located; and
+``(C) any Tribal entity with responsibility for
+pipeline emergency response or planning in the area in
+which the pipeline facility is located.
+``(2) Communities without local or tribal emergency
+planning or response entities.--In a community for which a
+local or Tribal entity described in paragraph (1) does not
+exist, the operator of a gas or hazardous liquid pipeline
+facility shall liaise, to the extent practicable, with the
+local fire, police, and other emergency response entities.
+``(3) Availability of information.--
+``(A) Evaluation.--Not later than 2 years after the
+date of enactment of the SAFER Pipelines Act of 2019,
+and based on the consultation required under
+subparagraph (C), the Secretary shall conduct an
+evaluation and determine whether State, local, and
+Tribal entities described in paragraphs (1) and (2)
+have sufficient access to pipeline emergency response
+information.
+``(B) Regulation.--If the Secretary determines
+under subparagraph (A) that State, local, and Tribal
+entities described in paragraphs (1) and (2) do not
+have sufficient access to pipeline emergency response
+information, the Secretary shall issue regulations not
+later than 3 years after the date of enactment of the
+SAFER Pipelines Act of 2019 specifying relevant
+emergency response information and requiring each
+operator of a gas or hazardous liquid pipeline facility
+to make such information available to the applicable
+State, local, and Tribal entities described in
+paragraphs (1) and (2).
+``(C) Consultation.--In conducting the evaluation
+under subparagraph (A), the Secretary shall consult
+with national organizations representing State, local,
+and Tribal entities described in paragraphs (1) and (2)
+and the technical safety standards committees described
+in section 60115.''.
+(b) Conforming Amendment.--The table of sections for chapter 601 of
+title 49, United States Code, is amended by striking the item relating
+to section 60116 and inserting the following:
+``60116. Community right-to-know and emergency preparedness.''.
+SEC. 9. COST RECOVERY FOR DESIGN REVIEWS.
+Section 60117(n)(1)(B)(i) of title 49, United States Code, is
+amended by striking ``$2,500,000,000'' and inserting ``$250,000,000''.
+SEC. 10. ACTIONS BY PRIVATE PERSONS.
+Section 60121 of title 49, United States Code, is amended by adding
+at the end the following:
+``(e) Mandamus.--A person may bring a civil action in an
+appropriate district court of the United States to compel the Secretary
+to perform a nondiscretionary duty under this chapter that the
+Secretary has failed to perform.''.
+SEC. 11. CIVIL PENALTIES.
+Section 60122(a) of title 49, United States Code, is amended--
+(1) in paragraph (1)--
+(A) by striking ``$200,000'' and inserting
+``$20,000,000''; and
+(B) by striking ``The maximum civil penalty under
+this paragraph for a related series of violations is
+$2,000,000.''; and
+(2) in paragraph (2) by striking ``$50,000'' and inserting
+``$20,000,000''.
+SEC. 12. CRIMINAL PENALTIES.
+Section 60123(a) of title 49, United States Code, is amended by
+striking ``knowingly and willfully'' and inserting ``knowingly or
+recklessly''.
+SEC. 13. EMERGENCY RESPONSE GRANTS.
+Section 60125(b)(1) of title 49, United States Code, is amended by
+striking ``and local governments in high consequence areas, as defined
+by the Secretary,'' and inserting ``local, and Tribal governments, and
+nonprofit organizations providing pipeline emergency response
+training,''.
+SEC. 14. VERIFICATION OF PIPELINE QUALIFICATION PROGRAMS.
+Section 60131(g) of title 49, United States Code, is amended--
+(1) in paragraph (1), by striking ``; and'' and inserting a
+semicolon;
+(2) in paragraph (2), by striking the period at the end and
+inserting ``; and''; and
+(3) by adding at the end the following paragraph:
+``(3) with respect to any pipeline facility, means a
+construction task that is performed on the pipeline
+facility.''.
+SEC. 15. NATIONAL PIPELINE MAPPING SYSTEM.
+(a) Information To Be Provided.--Section 60132(a) of title 49,
+United States Code, is amended--
+(1) by striking ``Not later than 6 months after the date of
+enactment of this section, the'' and inserting ``The''; and
+(2) by striking ``(except distribution lines and gathering
+lines)'' and inserting ``, including a distribution line or a
+gathering line (but not including any gathering lines that are
+not regulated under part 192 or part 195 of title 49, Code of
+Federal Regulations),''.
+(b) Requirements for Provision of Information.--Section 60132 of
+title 49, United States Code, is amended--
+(1) in subsection (b) by striking ``under subsection (a)''
+and inserting ``under this section for inclusion in the
+National Pipeline Mapping System'';
+(2) in subsection (f), by striking ``to subsection (a)''
+and inserting ``to this section for inclusion in the National
+Pipeline Mapping System''; and
+(3) by adding at the end the following:
+``(g) Requirements for Covered Facilities.--Not later than 1 year
+after a pipeline facility described in subsection (a) becomes covered
+by such subsection, the operator of such facility shall provide to the
+Secretary the information required under paragraphs (1) through (4) of
+such subsection with respect to such facility.
+``(h) Additional Information on Distribution Lines.--Not later than
+2 years after a distribution line becomes covered by subsection (a),
+the operator of such distribution line shall provide to the Secretary,
+in addition to the information required under paragraphs (1) through
+(4) of subsection (a), information on the distribution systems that
+could lead to a point of failure, including--
+``(1) sensing lines;
+``(2) regulator stations;
+``(3) automatic or remote-controlled shut-off valves; and
+``(4) any other distribution pipeline technology or feature
+that the Secretary determines is appropriate to ensure safety.
+``(i) Update to System.--
+``(1) In general.--Not later than 2 years after the date of
+enactment of this subsection--
+``(A) the Secretary shall determine whether the
+inclusion of additional information in the National
+Pipeline Mapping System would improve the preparation
+and response efforts of emergency responders with
+access to the System; and
+``(B) if the Secretary determines under
+subparagraph (A) that inclusion of additional
+information in the National Pipeline Mapping System
+would improve the preparation and response efforts of
+emergency responders with access to the System, the
+Secretary shall issue regulations--
+``(i) identifying such additional
+information as the Secretary determines would
+improve emergency preparedness and response
+efforts; and
+``(ii) requiring each person providing
+information under subsection (a) to provide
+such additional information.
+``(2) Considerations.--In carrying out paragraph (1), the
+Secretary shall consider inclusion, to the extent practicable,
+of the following information:
+``(A) A description of the pipeline facility,
+including the length of the facility and origin and
+termination points.
+``(B) A 5-year incident, and inspection and
+enforcement, history for the pipeline facility.
+``(C) If applicable, a summary of any integrity
+management program activities related to the pipeline
+facility.''.
+(c) Additional Information on Distribution Lines.--Not later than 1
+year after the date of enactment of this Act, the Secretary shall issue
+such regulations as are necessary to specify the information required
+to be provided pursuant to section 60132(h) of title 49, United States
+Code.
+SEC. 16. CONGRESSIONAL ACCESS TO OIL SPILL RESPONSE PLANS.
+Section 60138(a) of title 49, United States Code, is amended--
+(1) in paragraph (1) by striking ``and'';
+(2) in paragraph (2)(D) by striking the period and
+inserting ``; and''; and
+(3) by adding at the end the following:
+``(3) provide to a Member of Congress, upon request from
+such Member, a copy of any such plan, the contents of which the
+Secretary may not redact but may note, as the Secretary
+determines appropriate--
+``(A) proprietary information; and
+``(B) security-sensitive information, including
+information described in section 1520.5(a) of title 49,
+Code of Federal Regulations.''.
+SEC. 17. LEAK DETECTION TECHNOLOGY.
+(a) In General.--Chapter 601 of title 49, United States Code, is
+amended by adding at the end the following:
+``Sec. 60142. Leak detection technology
+``(a) Leak Detection Technology.--Not later than 1 year after the
+date of enactment of this section, the Secretary shall issue
+regulations requiring each operator of a gas pipeline facility to
+install and use advanced leak detection technology on all gas pipelines
+it operates.
+``(b) Requirements.--The advanced leak detection technology
+required under subsection (a) shall, at a minimum--
+``(1) have a high accuracy of identifying leak location;
+``(2) be capable of measuring methane concentrations in
+parts per billion; and
+``(3) be capable of correlating methane concentration
+measurements to data produced by geographic information systems
+technology.''.
+(b) Clerical Amendment.--The table of sections for chapter 601 of
+title 49, United States Code, is amended by adding at the end the
+following new item:
+``60142. Leak detection technology.''.
+SEC. 18. GAS PIPELINE REPAIR CRITERIA.
+(a) In General.--Chapter 601 of title 49, United States Code, is
+further amended by adding at the end the following:
+``Sec. 60143. Gas pipeline repair criteria
+``(a) Leak Repair for Large Loss Event.--Not later than 1 year
+after the date of enactment of this section, the Secretary shall issue
+regulations requiring each operator of a gas pipeline facility to--
+``(1) immediately repair a leak in a gas pipeline facility
+it operates that results in a large loss event; and
+``(2) report information to the Secretary with respect to
+such large loss event, including--
+``(A) the location of such large loss event;
+``(B) the total estimated volume of gas released
+during such event;
+``(C) the cause of the failure; and
+``(D) the time from the detection of a gas leak to
+the completion of the repair of such leak.
+``(b) Large Loss Event Defined.--In this section, the term `large
+loss event' means the loss of 300,000 cubic feet or more of gas.''.
+(b) Clerical Amendment.--The table of sections for chapter 601 of
+title 49, United States Code, is further amended by adding at the end
+the following new item:
+``60143. Gas pipeline repair criteria.''.
+SEC. 19. METHANE RELEASE MITIGATION.
+(a) In General.--Chapter 601 of title 49, United States Code, is
+further amended by adding at the end the following:
+``Sec. 60144. Methane release mitigation
+``(a) Methane Capture From Routine Operations or Maintenance.--Not
+later than 1 year after the date of enactment of this section, the
+Secretary shall issue regulations requiring each operator of a gas
+pipeline facility to use the best available technology to capture gas
+released when performing routine operations or maintenance on the
+pipeline facility.
+``(b) Regulations.--In issuing regulations under subsection (a),
+the Secretary shall establish--
+``(1) requirements for the capture of gas released from
+routine operations, including venting to relieve pressure;
+``(2) requirements for the capture of gas released from
+maintenance operations, including blowdowns; and
+``(3) procedures for emergency situations that result in a
+release of gas.''.
+(b) Clerical Amendment.--The table of sections for chapter 601 of
+title 49, United States Code, is further amended by adding at the end
+the following new item:
+``60144. Methane release mitigation.''.
+SEC. 20. UNUSUALLY SENSITIVE AREAS.
+(a) Coastal Waters; Coastal Beaches.--Section 19 of the PIPES Act
+of 2016 (49 U.S.C. 60109 note) is amended--
+(1) in subsection (b) by striking ``marine coastal waters''
+and inserting ``coastal waters''; and
+(2) by adding at the end the following:
+``(c) Definitions.--In this section, the following definitions
+apply:
+``(1) Coastal beaches.--The term `coastal beaches' means
+the land between high and low water marks of coastal waters.
+``(2) Coastal waters.--The term `coastal waters' has the
+meaning given such term in section 4101 of the Shore Protection
+Act of 1988 (33 U.S.C. 2601).''.
+(b) Coastal Waters.--Section 60109(b)(2) of title 49, United States
+Code, is amended by striking ``marine coastal waters'' and inserting
+``coastal waters''.
+(c) Updates.--Not later than 90 days after the date of enactment of
+this section, the Secretary of Transportation shall complete the
+revision required under section 19(b) of the PIPES Act of 2016 (49
+U.S.C. 60109 note), as amended by this section.
+SEC. 21. USER FEES FOR UNDERGROUND NATURAL GAS STORAGE FACILITIES.
+Section 60302 of title 49, United States Code, is amended--
+(1) in subsection (c)(2)--
+(A) in subparagraph (A) by striking ``and'' at the
+end;
+(B) in subparagraph (B) by striking the period at
+the end and inserting ``; and''; and
+(C) by adding at the end the following:
+``(C) may only be used to the extent provided in
+advance in an appropriations Act.'';
+(2) by striking paragraph (3) of subsection (c); and
+(3) by adding at the end the following:
+``(d) Limitations.--Fees imposed under subsection (a) shall be
+sufficient to pay for the costs of activities described in subsection
+(c), except that the total amount collected for a fiscal year may not
+be more than 105 percent of the total amount of the appropriations made
+for the fiscal year activities to be financed by fees.''.
+SEC. 22. SEISMICITY.
+(a) In General.--Not later than 90 days after the date of enactment
+of this section, the Secretary of Transportation, in consultation with
+the Federal Energy Regulatory Commission, shall enter into an agreement
+with the National Academy of Sciences under which the National Academy
+of Sciences shall prepare a report containing--
+(1) the results of a study that--
+(A) evaluates the current Federal requirements for
+pipeline facility design, siting, construction,
+operation and maintenance, and integrity management,
+relating to seismicity, land subsidence, landslides,
+slope instability, frost heave, soil settlement,
+erosion, and other dynamic geologic conditions that may
+pose a safety risk;
+(B) identifies any discrepancy in such requirements
+that apply to operators of gas pipeline facilities and
+hazardous liquid pipeline facilities; and
+(C) identifies any deficiencies in industry
+practices related to such requirements; and
+(2) any recommendations of the National Academy of Sciences
+based on such results.
+(b) Report to Congress.--Upon completion of the report prepared
+pursuant to subsection (a), the National Academy of Sciences shall
+submit to the Secretary of Transportation, the Committee on
+Transportation and Infrastructure of the House of Representatives, the
+Committee on Energy and Commerce of the House of Representatives, and
+the Committee on Commerce, Science, and Transportation of the Senate
+the report.
+(c) Pipeline Facilities.--In this section, the term ``pipeline
+facility'' has the meaning given that term in section 60101 of title
+49, United States Code.
+SEC. 23. PIPELINE SAFETY TESTING.
+(a) Evaluation.--Not later than 18 months after the date of
+enactment of this Act, the Secretary of Transportation shall submit to
+the Committee on Commerce, Science, and Transportation of the Senate,
+the Committee on Transportation and Infrastructure of the House of
+Representatives, and the Committee on Energy and Commerce of the House
+of Representatives a report that evaluates concepts for the development
+of a pipeline safety research and testing facility under the Department
+of Transportation.
+(b) Purpose.--The purpose of the facility described in subsection
+(a) shall be to support the Department of Transportation and other
+governmental entities in product evaluation, personnel training, and
+research and development of technology and practices to improve the
+safety, security, efficiency, and environmental impact of--
+(1) transporting hazardous liquids and gas by pipeline; and
+(2) storing hazardous liquids or gas for transportation.
+(c) Use of Existing Facilities.--In conducting the evaluation
+pursuant to subsection (a), the Secretary shall examine the opportunity
+to use existing facilities operated by the Department of Transportation
+or other Federal agencies for research and testing.
+(d) Report Contents.--The report described in subsection (a) shall
+include--
+(1) the projected costs to establish such a facility;
+(2) the projected annual costs to operate such a facility;
+(3) recommendations for sharing or recovering any
+establishment and operational expenses from private-sector,
+non-profit, or academic entities that may use the facility;
+(4) an evaluation of the feasibility of a partnership with
+a private-sector, non-profit, or academic entity to manage or
+operate the facility;
+(5) data and information management protocols for test
+results; and
+(6) potential benefits and opportunities for enhancing the
+training and development of pipeline safety personnel.
+SEC. 24. WORKFORCE.
+(a) Staffing.--
+(1) In general.--The Secretary of Transportation shall
+increase the number of full-time equivalent employees (as
+compared to the number of positions on the date of enactment of
+this Act) by--
+(A) 8 full-time employees with subject matter
+expertise in pipeline safety, pipeline facilities, and
+pipeline systems to finalize outstanding rulemakings
+and fulfill mandates for the Office of Pipeline Safety
+of the Pipeline and Hazardous Materials Safety
+Administration; and
+(B) 3 full-time attorneys, with environmental
+expertise, in the Office of Chief Counsel of the
+Pipeline and Hazardous Materials Safety Administration.
+(2) Pipeline inspection and enforcement personnel.--The
+Secretary shall ensure that the number of positions for
+pipeline inspection and enforcement personnel in the Office of
+Pipeline Safety of the Pipeline and Hazardous Materials Safety
+Administration does not fall below the following:
+(A) 222 for fiscal year 2020.
+(B) 233 for fiscal year 2021.
+(C) 245 for fiscal year 2022.
+(D) 258 for fiscal year 2023.
+(E) 272 for fiscal year 2024.
+(b) Recruitment and Retention Authorities.--The Secretary shall
+request authority from the Office of Personnel Management to use
+incentives, as necessary, to recruit and retain a qualified workforce,
+including for inspection and enforcement personnel and subject matter
+experts dedicated to rulemaking activities in the Office of Pipeline
+Safety of the Pipeline and Hazardous Materials Safety Administration--
+(1) special pay rates permitted under section 5305 of title
+5, United States Code; and
+(2) repayment of student loans accompanied by a continued
+service agreement, permitted under section 5379 of title 5,
+United States Code.
+SEC. 25. HIRING REPORT.
+Not later than 180 days after the date of enactment of this Act,
+and annually thereafter through calendar year 2023, the Administrator
+of the Pipeline and Hazardous Materials Safety Administration shall
+submit to Congress a report on the efforts of the Administration to
+hire women, minorities, and veterans as inspectors since January 1,
+2012.
+SEC. 26. PLAN TO COMBINE STATE DAMAGE PREVENTION AND ONE-CALL
+NOTIFICATION PROGRAMS.
+Not later than 1 year after the date of enactment of this Act, the
+Secretary of Transportation shall submit to the Committees on Energy
+and Commerce and Transportation and Infrastructure of the House of
+Representatives and the Committee on Commerce, Science, and
+Transportation of the Senate a plan to combine the activities carried
+out by the Secretary under sections 6106 and 60134 of title 49, United
+States Code.
+SEC. 27. GAS GATHERING LINES.
+(a) In General.--Not later than 90 days after the date of enactment
+of this Act, the Secretary of Transportation shall issue final
+regulations on gas gathering lines based on the notice of proposed
+rulemaking published on April 8, 2016, titled ``Pipeline Safety: Safety
+of Gas Transmission and Gathering Pipelines'' (81 Fed. Reg. 20722).
+(b) Regulations.--The final regulations issued under subsection (a)
+shall cover--
+(1) all gas gathering lines in class 4, class 3, and class
+2 locations, as classified in section 192.5 of title 49, Code
+of Federal Regulations; and
+(2) gas gathering lines with a diameter of at least 8
+inches that are located in a class 1 location, as classified in
+section 192.5 of title 49, Code of Federal Regulations.
+SEC. 28. REGULATORY UPDATES.
+(a) Definition of Outstanding Regulation.--In this section, the
+term ``outstanding regulation'' means--
+(1) a final rule required to be issued under the Pipeline
+Safety, Regulatory Certainty, and Job Creation Act of 2011
+(Public Law 112-90; 125 Stat. 1904) that has not been published
+in the Federal Register;
+(2) a final rule required to be issued under the Protecting
+our Infrastructure of Pipelines and Enhancing Safety Act of
+2016 (Public Law 114-183; 130 Stat. 514) that has not been
+published in the Federal Register; and
+(3) any other final rule regarding gas or hazardous liquid
+pipeline facilities required to be issued under this Act or an
+Act enacted before the date of enactment of this Act that has
+not been published by the date required in such Act in the
+Federal Register.
+(b) Requirement.--Not later than 5 days after the date of enactment
+of this Act, and every 30 days thereafter until an outstanding
+regulation is published in the Federal Register, the Secretary of
+Transportation shall provide an update on the status of each
+outstanding regulation by--
+(1) publishing on a publicly available website of the
+Department of Transportation information regarding the status
+of each outstanding regulation; and
+(2) submitting notification to the Committee on
+Transportation and Infrastructure of the House of
+Representatives, the Committee on Energy and Commerce of the
+House of Representatives, and the Committee on Commerce,
+Science, and Transportation of the Senate.
+(c) Contents.--The information described in section (b)(1) shall
+include--
+(1) with respect to an outstanding regulation under review
+by the Office of the Secretary for not more than 45 days--
+(A) the date that such outstanding regulation was
+submitted to the Office of the Secretary for review;
+and
+(B) the staff allocations within the Office of the
+Secretary with respect to each such outstanding
+regulation and any resource constraints affecting the
+review;
+(2) with respect to an outstanding regulation under review
+by the Office of the Secretary for more than 45 days--
+(A) the information described in paragraph (1);
+(B) a description of why such outstanding
+regulation is under extended review;
+(C) a work plan for finalizing review of such
+outstanding regulation; and
+(D) the date of anticipated completion of such
+review;
+(3) with respect to an outstanding regulation that has been
+transmitted to neither the Office of Management and Budget nor
+the Office of the Secretary--
+(A) a description of the work plan for such
+outstanding regulation;
+(B) the anticipated date on which such regulation
+will be transmitted to the Office of Management and
+Budget and the Office of the Secretary;
+(C) the staff allocations with respect to such
+outstanding regulation;
+(D) any resource constraints affecting the
+rulemaking process for such outstanding regulation; and
+(E) any other details associated with the
+development of such outstanding regulation that affect
+the progress of the rulemaking process with respect to
+such outstanding regulation; and
+(4) with respect to an outstanding regulation that has been
+transmitted to the Office of Management and Budget--
+(A) the date such outstanding regulation was
+submitted to the Office of Management and Budget for
+review; and
+(B) a statement of whether the outstanding
+regulation remains under review by the Office of
+Management and Budget or has been transmitted for
+further review by the Office of the Secretary or the
+Administrator of the Pipeline and Hazardous Materials
+Safety Administration.
+SEC. 29. COMPONENT VERIFICATION.
+(a) In General.--Section 60102(e) of title 49, United States Code,
+is amended--
+(1) by redesignating paragraphs (1) and (2) as
+subparagraphs (A) and (B);
+(2) by striking ``The Secretary shall'' and inserting the
+following:
+``(1) In general.--The Secretary shall'';
+(3) by adding at the end the following:
+``(C) for facilities identified under subparagraphs
+(A) and (B), shall include, for all pipes and related
+components for which the regulations of the Pipeline
+and Hazardous Materials Safety Administration require
+compliance with a standard incorporated by reference
+for such pipe or related component, documentation of
+verification that such pipe or related component meets
+such standard.
+``(2) Verification.--The verification described in
+paragraph (1)(C) shall be conducted by--
+``(A) an independent third party on behalf of the
+operator;
+``(B) the operator, so long as such operator does
+not pay, or receive payment from, a manufacturer,
+distributor, or supplier of a pipe or related component
+described in paragraph (1)(C) for such verification; or
+``(C) a United States manufacturer of a pipe or
+related component described in paragraph (1)(C) that is
+accredited by the International Organization for
+Standardization.
+``(3) Definitions.--In this subsection:
+``(A) Verification.--The term `verification' means
+sufficient testing and auditing to confirm that a
+standard has been met in the production of a pipe or
+related component.
+``(B) Independent third party.--The term
+`independent third party' means an entity that--
+``(i) does not have a commercial
+relationship with the manufacturer or supplier
+of a pipe or related component; and
+``(ii) is accredited by the International
+Organization for Standardization.''; and
+(4) Applicability.--The amendments made by this subsection
+shall only apply to pipes and components that are--
+(A) covered by the amendments made by such
+subsection; and
+(B) purchased on or after the date of enactment of
+this Act.
+(b) Review of Compliance of Flanges and Fittings.--
+(1) In general.--Not later than 180 days after the date of
+enactment of this Act, the Comptroller General of the United
+States shall complete a review of the compliance of flanges and
+fittings of a pipeline facility (as such term is defined in
+section 60101 of title 49, United States Code) with Federal
+requirements.
+(2) Contents of review.--The review required under
+paragraph (1) shall include--
+(A) a compilation of the existing standards that
+are incorporated by reference in regulations of the
+Pipeline and Hazardous Materials Safety Administration
+and apply to the manufacturing, operation, and
+maintenance of such flanges and fittings;
+(B) a review of the existing oversight authority of
+the Secretary of Transportation over manufacturers and
+distributors of such flanges and fittings and any lack
+of oversight authority that could lead to incidents or
+accidents;
+(C) an analysis of the degree of compliance by such
+manufacturers and distributors with the standards
+described in subparagraph (A), the identification of
+any instances of non-compliance with such standards,
+and the form, degree, and scope of such non-compliance;
+(D) a review of the extent to which verification
+(as such term is defined in section 60102(e) of title
+49, United States Code, as added by this section) by
+operators of pipeline facilities of whether such
+flanges and fittings of pipeline facilities meet the
+applicable standards described in subparagraph (A) is
+occurring;
+(E) a review of the safety benefits of requiring
+pipeline incident reports to include the identification
+of the manufacturer of the flanges and fittings
+involved in those incidents; and
+(F) identification and recommendation of any
+additional authorities or responsibilities for the
+Secretary of Transportation, or additional standards,
+necessary to improve the safety and integrity of
+flanges and fittings through manufacturing and
+distribution.
+(3) Report.--Not later than 210 days after the date of
+enactment of this Act, the Comptroller General shall submit to
+the Committee on Commerce, Science, and Transportation of the
+Senate, the Committee on Transportation and Infrastructure of
+the House of Representatives, and the Secretary of
+Transportation a report containing the results of the review
+completed under paragraph (1) and any recommendations for
+legislation or changes to existing regulations.
+(4) Public comment process.--
+(A) In general.--Not later than 30 days after
+submission of the report required under paragraph (3)
+to the Secretary, the Secretary shall provide a period
+of not fewer than 60 days for public comment regarding
+such report.
+(B) Report.--Not later than 180 days after the end
+of the public comment period described in subparagraph
+(A), the Secretary shall publish in the Federal
+Register a report responding to the public comments
+submitted.
+(C) Contents of report.--In the report described in
+subparagraph (B), the Secretary shall indicate any
+anticipated actions the Secretary will take with
+respect to flanges and fittings of a pipeline facility
+based on the comments submitted under this paragraph
+and the report under paragraph (3).
+SEC. 30. CODIFICATION OF FINAL RULE.
+The amendments to the Code of Federal Regulations made pursuant to
+the final rule of the Environmental Protection Agency, titled ``Oil and
+Natural Gas Sector: Emission Standards for New, Reconstructed, and
+Modified Sources'' and published in the Federal Register on June 3,
+2016 (81 Fed. Reg. 35824), shall have the same force and effect of law
+as if such amendments had been enacted by an Act of Congress, except
+that the Administrator of the Environmental Protection Agency may
+revise such regulations, as provided for under the Clean Air Act, if
+such revision would result in a reduction in gas release.
+<all>

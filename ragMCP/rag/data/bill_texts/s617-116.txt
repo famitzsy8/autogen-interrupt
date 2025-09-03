@@ -1,0 +1,912 @@
+[Congressional Bills 116th Congress]
+[From the U.S. Government Publishing Office]
+[S. 617 Placed on Calendar Senate (PCS)]
+<DOC>
+Calendar No. 28
+116th CONGRESS
+1st Session
+S. 617
+To amend the Internal Revenue Code of 1986 to extend certain expiring
+provisions, to provide disaster tax relief, and for other purposes.
+_______________________________________________________________________
+IN THE SENATE OF THE UNITED STATES
+February 28, 2019
+Mr. Grassley (for himself and Mr. Wyden) introduced the following bill;
+which was read the first time
+March 4, 2019
+Read the second time and placed on the calendar
+_______________________________________________________________________
+A BILL
+To amend the Internal Revenue Code of 1986 to extend certain expiring
+provisions, to provide disaster tax relief, and for other purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE, ETC.
+(a) Short Title.--This Act may be cited as the ``Tax Extender and
+Disaster Relief Act of 2019''.
+(b) Amendment of 1986 Code.--Except as otherwise expressly
+provided, whenever in this Act an amendment or repeal is expressed in
+terms of an amendment to, or repeal of, a section or other provision,
+the reference shall be considered to be made to a section or other
+provision of the Internal Revenue Code of 1986.
+(c) Table of Contents.--The table of contents of this Act is as
+follows:
+Sec. 1. Short title, etc.
+TITLE I--EXTENSION OF EXPIRING PROVISIONS
+Subtitle A--Provisions Expiring in 2018
+Sec. 101. Nonbusiness energy property.
+Sec. 102. Qualified fuel cell motor vehicles.
+Sec. 103. Alternative fuel refueling property credit.
+Sec. 104. 2-wheeled plug-in electric vehicle credit.
+Sec. 105. Second generation biofuel producer credit.
+Sec. 106. Biodiesel and renewable diesel incentives.
+Sec. 107. Credit for electricity produced from certain renewable
+resources.
+Sec. 108. Production credit for Indian coal facilities.
+Sec. 109. Railroad track maintenance credit.
+Sec. 110. Energy efficient homes credit.
+Sec. 111. Classification of certain race horses as 3-year property.
+Sec. 112. Special allowance for second generation biofuel plant
+property.
+Sec. 113. Energy efficient commercial buildings deduction.
+Sec. 114. Election to expense advanced mine safety equipment.
+Sec. 115. Extension of special rule for sales or dispositions to
+implement FERC or State electric
+restructuring policy for qualified electric
+utilities.
+Sec. 116. Extension and clarification of excise tax credits relating to
+alternative fuels.
+Sec. 117. 7-year recovery period for motorsports entertainment
+complexes.
+Sec. 118. Accelerated depreciation for business property on Indian
+reservation.
+Sec. 119. Expensing rules for certain productions.
+Sec. 120. Indian employment credit.
+Sec. 121. Mine rescue team training credit.
+Sec. 122. Exclusion from gross income of discharge of qualified
+principal residence indebtedness.
+Sec. 123. Treatment of mortgage insurance premiums as qualified
+residence interest.
+Sec. 124. Deduction of qualified tuition and related expenses.
+Sec. 125. Extension of empowerment zone tax incentives.
+Sec. 126. American Samoa economic development credit.
+Subtitle B--Provisions Expiring in 2019
+Sec. 151. Temporary reduction in medical expense deduction floor.
+Sec. 152. Extension of oil spill liability trust fund rate.
+Sec. 153. Black lung liability trust fund excise tax.
+TITLE II--DISASTER TAX RELIEF
+Sec. 201. Definitions.
+Sec. 202. Special disaster-related rules for use of retirement funds.
+Sec. 203. Employee retention credit for employers affected by qualified
+disasters.
+Sec. 204. Other disaster-related tax relief provisions.
+Sec. 205. Treatment of certain possessions.
+TITLE I--EXTENSION OF EXPIRING PROVISIONS
+Subtitle A--Provisions Expiring in 2018
+SEC. 101. NONBUSINESS ENERGY PROPERTY.
+(a) In General.--Section 25C(g)(2) is amended by striking
+``December 31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to property placed in service after December 31, 2017.
+SEC. 102. QUALIFIED FUEL CELL MOTOR VEHICLES.
+(a) In General.--Section 30B(k)(1) is amended by striking
+``December 31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to property purchased after December 31, 2017.
+SEC. 103. ALTERNATIVE FUEL REFUELING PROPERTY CREDIT.
+(a) In General.--Section 30C(g) is amended by striking ``December
+31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to property placed in service after December 31, 2017.
+SEC. 104. 2-WHEELED PLUG-IN ELECTRIC VEHICLE CREDIT.
+(a) In General.--Section 30D(g)(3)(E)(ii) is amended by striking
+``January 1, 2018'' and inserting ``January 1, 2020''.
+(b) Effective Date.--The amendment made by this section shall apply
+to vehicles acquired after December 31, 2017.
+SEC. 105. SECOND GENERATION BIOFUEL PRODUCER CREDIT.
+(a) In General.--Section 40(b)(6)(J)(i) is amended by striking
+``January 1, 2018'' and inserting ``January 1, 2020''.
+(b) Effective Date.--The amendment made by this section shall apply
+to qualified second generation biofuel production after December 31,
+2017.
+SEC. 106. BIODIESEL AND RENEWABLE DIESEL INCENTIVES.
+(a) Income Tax Credit.--
+(1) In general.--Subsection (g) of section 40A is amended
+by striking ``December 31, 2017'' and inserting ``December 31,
+2019''.
+(2) Effective date.--The amendment made by this subsection
+shall apply to fuel sold or used after December 31, 2017.
+(b) Excise Tax Incentives.--
+(1) In general.--Section 6426(c)(6) is amended by striking
+``December 31, 2017'' and inserting ``December 31, 2019''.
+(2) Payments.--Section 6427(e)(6)(B) is amended by striking
+``December 31, 2017'' and inserting ``December 31, 2019''.
+(3) Effective date.--The amendments made by this subsection
+shall apply to fuel sold or used after December 31, 2017.
+(4) Special rule for 2018.--Notwithstanding any other
+provision of law, in the case of any biodiesel mixture credit
+properly determined under section 6426(c) of the Internal
+Revenue Code of 1986 for the period beginning on January 1,
+2018, and ending on December 31, 2018, such credit shall be
+allowed, and any refund or payment attributable to such credit
+(including any payment under section 6427(e) of such Code)
+shall be made, only in such manner as the Secretary of the
+Treasury (or the Secretary's delegate) shall provide. Such
+Secretary shall issue guidance within 30 days after the date of
+the enactment of this Act providing for a one-time submission
+of claims covering periods described in the preceding sentence.
+Such guidance shall provide for a 180-day period for the
+submission of such claims (in such manner as prescribed by such
+Secretary) to begin not later than 30 days after such guidance
+is issued. Such claims shall be paid by such Secretary not
+later than 60 days after receipt. If such Secretary has not
+paid pursuant to a claim filed under this subsection within 60
+days after the date of the filing of such claim, the claim
+shall be paid with interest from such date determined by using
+the overpayment rate and method under section 6621 of such
+Code.
+SEC. 107. CREDIT FOR ELECTRICITY PRODUCED FROM CERTAIN RENEWABLE
+RESOURCES.
+(a) In General.--The following provisions of section 45(d) are each
+amended by striking ``January 1, 2018'' each place it appears and
+inserting ``January 1, 2020'':
+(1) Paragraph (2)(A).
+(2) Paragraph (3)(A).
+(3) Paragraph (4)(B).
+(4) Paragraph (6).
+(5) Paragraph (7).
+(6) Paragraph (9).
+(7) Paragraph (11)(B).
+(b) Extension of Election to Treat Qualified Facilities as Energy
+Property.--Section 48(a)(5)(C)(ii) is amended by striking ``before
+January 1, 2018 (January 1, 2020, in the case of any facility which is
+described in paragraph (1) of section 45(d)), and'' and inserting
+``before--
+``(I) January 1, 2020, in the case
+of any facility which is described in
+paragraph (1) of section 45(d), and
+``(II) January 1, 2020, in the case
+of any other facility, and''.
+(c) Effective Date.--The amendments made by this section shall take
+effect on January 1, 2018.
+SEC. 108. PRODUCTION CREDIT FOR INDIAN COAL FACILITIES.
+(a) In General.--Section 45(e)(10)(A) is amended by striking ``12-
+year period'' each place it appears and inserting ``14-year period''.
+(b) Effective Date.--The amendment made by this section shall apply
+to coal produced after December 31, 2017.
+SEC. 109. RAILROAD TRACK MAINTENANCE CREDIT.
+(a) In General.--Section 45G((f) is amended by striking ``January
+1, 2018'' and inserting ``January 1, 2020''.
+(b) Effective Date.--
+(1) In general.--The amendment made by this section shall
+apply to expenditures paid or incurred during taxable years
+beginning after December 31, 2017.
+(2) Safe harbor assignments.--Assignments, including
+related expenditures paid or incurred, under paragraph (2) of
+section 45G(b) of the Internal Revenue Code of 1986 for any
+taxable year beginning on or after January 1, 2018, and before
+January 1, 2019, shall be treated as effective as of the close
+of such taxable year if made pursuant to a written agreement
+entered into no later than 90 days following the date of the
+enactment of this Act.
+SEC. 110. ENERGY EFFICIENT HOMES CREDIT.
+(a) In General.--Section 45L(g) is amended by striking ``December
+31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to homes acquired after December 31, 2017.
+SEC. 111. CLASSIFICATION OF CERTAIN RACE HORSES AS 3-YEAR PROPERTY.
+(a) In General.--Section 168(e)(3)(A)(i) is amended--
+(1) by striking ``January 1, 2018'' in subclause (I) and
+inserting ``January 1, 2020'', and
+(2) by striking ``December 31, 2017'' in subclause (II) and
+inserting ``December 31, 2019''.
+(b) Effective Date.--The amendments made by this section shall
+apply to property placed in service after December 31, 2017.
+SEC. 112. SPECIAL ALLOWANCE FOR SECOND GENERATION BIOFUEL PLANT
+PROPERTY.
+(a) In General.--Section 168(l)(2)(D) is amended by striking
+``January 1, 2018'' and inserting ``January 1, 2020''.
+(b) Effective Date.--The amendment made by this section shall apply
+to property placed in service after December 31, 2017.
+SEC. 113. ENERGY EFFICIENT COMMERCIAL BUILDINGS DEDUCTION.
+(a) In General.--Section 179D(h) is amended by striking ``December
+31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to property placed in service after December 31, 2017.
+SEC. 114. ELECTION TO EXPENSE ADVANCED MINE SAFETY EQUIPMENT.
+(a) In General.--Section 179E(g) is amended by striking ``December
+31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to property placed in service after December 31, 2017.
+SEC. 115. EXTENSION OF SPECIAL RULE FOR SALES OR DISPOSITIONS TO
+IMPLEMENT FERC OR STATE ELECTRIC RESTRUCTURING POLICY FOR
+QUALIFIED ELECTRIC UTILITIES.
+(a) In General.--Section 451(k)(3) is amended by striking ``January
+1, 2018'' and inserting ``January 1, 2020''.
+(b) Effective Date.--The amendment made by this section shall apply
+to dispositions after December 31, 2017.
+SEC. 116. EXTENSION AND CLARIFICATION OF EXCISE TAX CREDITS RELATING TO
+ALTERNATIVE FUELS.
+(a) Extension.--
+(1) In general.--Sections 6426(d)(5) and 6426(e)(3) are
+each amended by striking ``December 31, 2017'' and inserting
+``December 31, 2019''.
+(2) Outlay payments for alternative fuels.--Section
+6427(e)(6)(C) is amended by striking ``December 31, 2017'' and
+inserting ``December 31, 2019''.
+(3) Effective date.--The amendments made by this section
+shall apply to fuel sold or used after December 31, 2017.
+(b) Special Rule for 2018.--Notwithstanding any other provision of
+law, in the case of any alternative fuel credit properly determined
+under section 6426(d) of the Internal Revenue Code of 1986 for the
+period beginning on January 1, 2018, and ending on December 31, 2018,
+such credit shall be allowed, and any refund or payment attributable to
+such credit (including any payment under section 6427(e) of such Code)
+shall be made, only in such manner as the Secretary of the Treasury (or
+the Secretary's delegate) shall provide. Such Secretary shall issue
+guidance within 30 days after the date of the enactment of this Act
+providing for a one-time submission of claims covering periods
+described in the preceding sentence. Such guidance shall provide for a
+180-day period for the submission of such claims (in such manner as
+prescribed by such Secretary) to begin not later than 30 days after
+such guidance is issued. Such claims shall be paid by such Secretary
+not later than 60 days after receipt. If such Secretary has not paid
+pursuant to a claim filed under this subsection within 60 days after
+the date of the filing of such claim, the claim shall be paid with
+interest from such date determined by using the overpayment rate and
+method under section 6621 of such Code.
+(c) Clarification of Rules Regarding Alternative Fuel Mixture
+Credit.--
+(1) In general.--Paragraph (2) of section 6426(e) is
+amended by striking ``mixture of alternative fuel'' and
+inserting ``mixture of alternative fuel (other than a fuel
+described in subparagraph (A), (C), or (F) of subsection
+(d)(2))''.
+(2) Effective date.--The amendment made by this subsection
+shall apply to--
+(A) fuel sold or used on or after the date of the
+enactment of this Act, and
+(B) fuel sold or used before such date of
+enactment, but only to the extent that credits and
+claims of credit under section 6426(e) of the Internal
+Revenue Code of 1986 with respect to such sale or use
+have not been paid or allowed as of such date.
+SEC. 117. 7-YEAR RECOVERY PERIOD FOR MOTORSPORTS ENTERTAINMENT
+COMPLEXES.
+(a) In General.--Section 168(i)(15)(D) is amended by striking
+``December 31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to property placed in service after December 31, 2017.
+SEC. 118. ACCELERATED DEPRECIATION FOR BUSINESS PROPERTY ON INDIAN
+RESERVATION.
+(a) In General.--Section 168(j)(9) is amended by striking
+``December 31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to property placed in service after December 31, 2017.
+SEC. 119. EXPENSING RULES FOR CERTAIN PRODUCTIONS.
+(a) In General.--Section 181(g) is amended by striking ``December
+31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to productions commencing after December 31, 2017.
+SEC. 120. INDIAN EMPLOYMENT CREDIT.
+(a) In General.--Section 45A(f) is amended by striking ``December
+31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to taxable years beginning after December 31, 2017.
+SEC. 121. MINE RESCUE TEAM TRAINING CREDIT.
+(a) In General.--Section 45N(e) is amended by striking ``December
+31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to taxable years beginning after December 31, 2017.
+SEC. 122. EXCLUSION FROM GROSS INCOME OF DISCHARGE OF QUALIFIED
+PRINCIPAL RESIDENCE INDEBTEDNESS.
+(a) In General.--Section 108(a)(1)(E) is amended by striking
+``January 1, 2018'' each place it appears and inserting ``January 1,
+2020''.
+(b) Effective Date.--The amendment made by this section shall apply
+to discharges of indebtedness after December 31, 2017.
+SEC. 123. TREATMENT OF MORTGAGE INSURANCE PREMIUMS AS QUALIFIED
+RESIDENCE INTEREST.
+(a) In General.--Section 163(h)(3)(E)(iv)(I) is amended by striking
+``December 31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to amounts paid or accrued after December 31, 2017.
+SEC. 124. DEDUCTION OF QUALIFIED TUITION AND RELATED EXPENSES.
+(a) In General.--Section 222(e) is amended by striking ``December
+31, 2017'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+to taxable years beginning after December 31, 2017.
+SEC. 125. EXTENSION OF EMPOWERMENT ZONE TAX INCENTIVES.
+(a) In General.--Section 1391(d)(1)(A)(i) is amended by striking
+``December 31, 2017'' and inserting ``December 31, 2019''.
+(b) Treatment of Certain Termination Dates Specified in
+Nominations.--In the case of a designation of an empowerment zone the
+nomination for which included a termination date which is
+contemporaneous with the date specified in subparagraph (A)(i) of
+section 1391(d)(1) of the Internal Revenue Code of 1986 (as in effect
+before the enactment of this Act), subparagraph (B) of such section
+shall not apply with respect to such designation if, after the date of
+the enactment of this section, the entity which made such nomination
+amends the nomination to provide for a new termination date in such
+manner as the Secretary of the Treasury (or the Secretary's designee)
+may provide.
+(c) Effective Date.--The amendment made by subsection (a) shall
+apply to taxable years beginning after December 31, 2017.
+SEC. 126. AMERICAN SAMOA ECONOMIC DEVELOPMENT CREDIT.
+(a) In General.--Section 119(d) of division A of the Tax Relief and
+Health Care Act of 2006 is amended--
+(1) by striking ``January 1, 2018'' each place it appears
+and inserting ``January 1, 2020'',
+(2) by striking ``first 12 taxable years'' in paragraph (1)
+and inserting ``first 14 taxable years'',
+(3) by striking ``first 6 taxable years'' in paragraph (2)
+and inserting ``first 8 taxable years'', and
+(4) by adding at the end the following flush sentence:
+``In the case of a corporation described in subsection (a)(2), the
+Internal Revenue Code of 1986 shall be applied and administered without
+regard to the amendments made by section 401(d)(1) of the Tax Technical
+Corrections Act of 2018.''.
+(b) Effective Date.--The amendments made by this section shall
+apply to taxable years beginning after December 31, 2017.
+Subtitle B--Provisions Expiring in 2019
+SEC. 151. TEMPORARY REDUCTION IN MEDICAL EXPENSE DEDUCTION FLOOR.
+(a) In General.--Section 213(f) is amended to read as follows:
+``(f) Special Rule.--In the case of taxable years beginning before
+January 1, 2020, subsection (a) shall be applied by substituting `7.5
+percent' for `10 percent'.''.
+(b) Alternative Minimum Tax.--Section 56(b)(1)(B) is amended by
+striking ``January 1, 2019'' and inserting ``January 1, 2020''.
+(c) Effective Date.--The amendments made by this section shall
+apply to taxable years ending after December 31, 2018.
+SEC. 152. EXTENSION OF OIL SPILL LIABILITY TRUST FUND RATE.
+(a) In General.--Section 4611(f)(2) is amended by striking
+``December 31, 2018'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+on and after the first day of the first calendar month beginning after
+the date of the enactment of this Act.
+SEC. 153. BLACK LUNG LIABILITY TRUST FUND EXCISE TAX.
+(a) In General.--Section 4121(e)(2)(A) is amended by striking
+``December 31, 2018'' and inserting ``December 31, 2019''.
+(b) Effective Date.--The amendment made by this section shall apply
+on and after the first day of the first calendar month beginning after
+the date of the enactment of this Act.
+TITLE II--DISASTER TAX RELIEF
+SEC. 201. DEFINITIONS.
+For purposes of this title--
+(1) Qualified disaster area.--
+(A) In general.--The term ``qualified disaster
+area'' means any area with respect to which a major
+disaster was declared after January 1, 2018, and before
+March 1, 2019, by the President under section 401 of
+the Robert T. Stafford Disaster Relief and Emergency
+Assistance Act if the incident period of the disaster
+with respect to which such declaration is made begins
+before January 1, 2019.
+(B) Exception.--Such term shall not include the
+California wildfire disaster area (as defined in
+section 20101 of subdivision 2 of division B of the
+Bipartisan Budget Act of 2018).
+(2) Qualified disaster zone.--The term ``qualified disaster
+zone'' means that portion of any qualified disaster area which
+was determined by the President after January 1, 2018, and
+before March 1, 2019, to warrant individual or individual and
+public assistance from the Federal Government under the Robert
+T. Stafford Disaster Relief and Emergency Assistance Act by
+reason of the qualified disaster with respect to such disaster
+area.
+(3) Qualified disaster.--The term ``qualified disaster''
+means, with respect to any qualified disaster area, the
+disaster by reason of which a major disaster was declared with
+respect to such area.
+(4) Incident period.--The term ``incident period'' means,
+with respect to any qualified disaster, the period specified by
+the Federal Emergency Management Agency as the period during
+which such disaster occurred (except that for purposes of this
+title such period shall not be treated as beginning before
+January 1, 2018, or ending after December 31, 2018).
+SEC. 202. SPECIAL DISASTER-RELATED RULES FOR USE OF RETIREMENT FUNDS.
+(a) Tax-favored Withdrawals From Retirement Plans.--
+(1) In general.--Section 72(t) of the Internal Revenue Code
+of 1986 shall not apply to any qualified disaster distribution.
+(2) Aggregate dollar limitation.--
+(A) In general.--For purposes of this subsection,
+the aggregate amount of distributions received by an
+individual which may be treated as qualified disaster
+distributions for any taxable year shall not exceed the
+excess (if any) of--
+(i) $100,000, over
+(ii) the aggregate amounts treated as
+qualified disaster distributions received by
+such individual for all prior taxable years.
+(B) Treatment of plan distributions.--If a
+distribution to an individual would (without regard to
+subparagraph (A)) be a qualified disaster distribution,
+a plan shall not be treated as violating any
+requirement of the Internal Revenue Code of 1986 merely
+because the plan treats such distribution as a
+qualified disaster distribution, unless the aggregate
+amount of such distributions from all plans maintained
+by the employer (and any member of any controlled group
+which includes the employer) to such individual exceeds
+$100,000.
+(C) Controlled group.--For purposes of subparagraph
+(B), the term ``controlled group'' means any group
+treated as a single employer under subsection (b), (c),
+(m), or (o) of section 414 of the Internal Revenue Code
+of 1986.
+(D) Special rule for individuals affected by more
+than one disaster.--The limitation of subparagraph (A)
+shall be applied separately with respect to
+distributions made with respect to each qualified
+disaster.
+(3) Amount distributed may be repaid.--
+(A) In general.--Any individual who receives a
+qualified disaster distribution may, at any time during
+the 3-year period beginning on the day after the date
+on which such distribution was received, make 1 or more
+contributions in an aggregate amount not to exceed the
+amount of such distribution to an eligible retirement
+plan of which such individual is a beneficiary and to
+which a rollover contribution of such distribution
+could be made under section 402(c), 403(a)(4),
+403(b)(8), 408(d)(3), or 457(e)(16), of the Internal
+Revenue Code of 1986, as the case may be.
+(B) Treatment of repayments of distributions from
+eligible retirement plans other than iras.--For
+purposes of the Internal Revenue Code of 1986, if a
+contribution is made pursuant to subparagraph (A) with
+respect to a qualified disaster distribution from an
+eligible retirement plan other than an individual
+retirement plan, then the taxpayer shall, to the extent
+of the amount of the contribution, be treated as having
+received the qualified disaster distribution in an
+eligible rollover distribution (as defined in section
+402(c)(4) of such Code) and as having transferred the
+amount to the eligible retirement plan in a direct
+trustee to trustee transfer within 60 days of the
+distribution.
+(C) Treatment of repayments of distributions from
+iras.--For purposes of the Internal Revenue Code of
+1986, if a contribution is made pursuant to
+subparagraph (A) with respect to a qualified disaster
+distribution from an individual retirement plan (as
+defined by section 7701(a)(37) of such Code), then, to
+the extent of the amount of the contribution, the
+qualified disaster distribution shall be treated as a
+distribution described in section 408(d)(3) of such
+Code and as having been transferred to the eligible
+retirement plan in a direct trustee to trustee transfer
+within 60 days of the distribution.
+(4) Definitions.--For purposes of this subsection--
+(A) Qualified disaster distribution.--Except as
+provided in paragraph (2), the term ``qualified
+disaster distribution'' means any distribution from an
+eligible retirement plan made--
+(i) on or after the first day of the
+incident period of a qualified disaster and
+before the date which is 180 days after the
+date of the enactment of this Act, and
+(ii) to an individual whose principal place
+of abode at any time during the incident period
+of such qualified disaster is located in the
+qualified disaster area with respect to such
+qualified disaster and who has sustained an
+economic loss by reason of such qualified
+disaster.
+(B) Eligible retirement plan.--The term ``eligible
+retirement plan'' shall have the meaning given such
+term by section 402(c)(8)(B) of the Internal Revenue
+Code of 1986.
+(5) Income inclusion spread over 3-year period.--
+(A) In general.--In the case of any qualified
+disaster distribution, unless the taxpayer elects not
+to have this paragraph apply for any taxable year, any
+amount required to be included in gross income for such
+taxable year shall be so included ratably over the 3-
+taxable-year period beginning with such taxable year.
+(B) Special rule.--For purposes of subparagraph
+(A), rules similar to the rules of subparagraph (E) of
+section 408A(d)(3) of the Internal Revenue Code of 1986
+shall apply.
+(6) Special rules.--
+(A) Exemption of distributions from trustee to
+trustee transfer and withholding rules.--For purposes
+of sections 401(a)(31), 402(f), and 3405 of the
+Internal Revenue Code of 1986, qualified disaster
+distributions shall not be treated as eligible rollover
+distributions.
+(B) Qualified disaster distributions treated as
+meeting plan distribution requirements.--For purposes
+the Internal Revenue Code of 1986, a qualified disaster
+distribution shall be treated as meeting the
+requirements of sections 401(k)(2)(B)(i),
+403(b)(7)(A)(ii), 403(b)(11), and 457(d)(1)(A) of such
+Code.
+(b) Recontributions of Withdrawals for Home Purchases.--
+(1) Recontributions.--
+(A) In general.--Any individual who received a
+qualified distribution may, during the applicable
+period, make 1 or more contributions in an aggregate
+amount not to exceed the amount of such qualified
+distribution to an eligible retirement plan (as defined
+in section 402(c)(8)(B) of the Internal Revenue Code of
+1986) of which such individual is a beneficiary and to
+which a rollover contribution of such distribution
+could be made under section 402(c), 403(a)(4),
+403(b)(8), or 408(d)(3), of such Code, as the case may
+be.
+(B) Treatment of repayments.--Rules similar to the
+rules of subparagraphs (B) and (C) of subsection (a)(3)
+shall apply for purposes of this subsection.
+(2) Qualified distribution.--For purposes of this
+subsection, the term ``qualified distribution'' means any
+distribution--
+(A) described in section 401(k)(2)(B)(i)(IV),
+403(b)(7)(A)(ii) (but only to the extent such
+distribution relates to financial hardship),
+403(b)(11)(B), or 72(t)(2)(F), of the Internal Revenue
+Code of 1986,
+(B) which was to be used to purchase or construct a
+principal residence in a qualified disaster area, but
+which was not so used on account of the qualified
+disaster with respect to such area, and
+(C) which was received during the period beginning
+on the date which is 180 days before the first day of
+the incident period of such qualified disaster and
+ending on the date which is 30 days after the last day
+of such incident period.
+(3) Applicable period.--For purposes of this subsection,
+the term ``applicable period'' means, in the case of a
+principal residence in a qualified disaster area with respect
+to any qualified disaster, the period beginning on the first
+day of the incident period of such qualified disaster and
+ending on the date which is 180 days after the date of the
+enactment of this Act.
+(c) Loans From Qualified Plans.--
+(1) Increase in limit on loans not treated as
+distributions.--In the case of any loan from a qualified
+employer plan (as defined under section 72(p)(4) of the
+Internal Revenue Code of 1986) to a qualified individual made
+during the 180-day period beginning on the date of the
+enactment of this Act--
+(A) clause (i) of section 72(p)(2)(A) of such Code
+shall be applied by substituting ``$100,000'' for
+``$50,000'', and
+(B) clause (ii) of such section shall be applied by
+substituting ``the present value of the nonforfeitable
+accrued benefit of the employee under the plan'' for
+``one-half of the present value of the nonforfeitable
+accrued benefit of the employee under the plan''.
+(2) Delay of repayment.--In the case of a qualified
+individual (with respect to any qualified disaster) with an
+outstanding loan (on or after the first day of the incident
+period of such qualified disaster) from a qualified employer
+plan (as defined in section 72(p)(4) of the Internal Revenue
+Code of 1986)--
+(A) if the due date pursuant to subparagraph (B) or
+(C) of section 72(p)(2) of such Code for any repayment
+with respect to such loan occurs during the period
+beginning on the first day of the incident period of
+such qualified disaster and ending on the date which is
+180 days after the last day of such incident period,
+such due date shall be delayed for 1 year (or, if
+later, until the date which is 180 days after the date
+of the enactment of this Act),
+(B) any subsequent repayments with respect to any
+such loan shall be appropriately adjusted to reflect
+the delay in the due date under subparagraph (A) and
+any interest accruing during such delay, and
+(C) in determining the 5-year period and the term
+of a loan under subparagraph (B) or (C) of section
+72(p)(2) of such Code, the period described in
+subparagraph (A) of this paragraph shall be
+disregarded.
+(3) Qualified individual.--For purposes of this subsection,
+the term ``qualified individual'' means any individual--
+(A) whose principal place of abode at any time
+during the incident period of any qualified disaster is
+located in the qualified disaster area with respect to
+such qualified disaster, and
+(B) who has sustained an economic loss by reason of
+such qualified disaster.
+(d) Provisions Relating to Plan Amendments.--
+(1) In general.--If this subsection applies to any
+amendment to any plan or annuity contract, such plan or
+contract shall be treated as being operated in accordance with
+the terms of the plan during the period described in paragraph
+(2)(B)(i).
+(2) Amendments to which subsection applies.--
+(A) In general.--This subsection shall apply to any
+amendment to any plan or annuity contract which is
+made--
+(i) pursuant to any provision of this
+section, or pursuant to any regulation issued
+by the Secretary or the Secretary of Labor
+under any provision of this section, and
+(ii) on or before the last day of the first
+plan year beginning on or after January 1,
+2020, or such later date as the Secretary may
+prescribe.
+In the case of a governmental plan (as defined in
+section 414(d) of the Internal Revenue Code of 1986),
+clause (ii) shall be applied by substituting the date
+which is 2 years after the date otherwise applied under
+clause (ii).
+(B) Conditions.--This subsection shall not apply to
+any amendment unless--
+(i) during the period--
+(I) beginning on the date that this
+section or the regulation described in
+subparagraph (A)(i) takes effect (or in
+the case of a plan or contract
+amendment not required by this section
+or such regulation, the effective date
+specified by the plan), and
+(II) ending on the date described
+in subparagraph (A)(ii) (or, if
+earlier, the date the plan or contract
+amendment is adopted),
+the plan or contract is operated as if such plan or
+contract amendment were in effect, and
+(ii) such plan or contract amendment
+applies retroactively for such period.
+SEC. 203. EMPLOYEE RETENTION CREDIT FOR EMPLOYERS AFFECTED BY QUALIFIED
+DISASTERS.
+(a) In General.--For purposes of section 38 of the Internal Revenue
+Code of 1986, in the case of an eligible employer, the 2018 qualified
+disaster employee retention credit shall be treated as a credit listed
+at the end of subsection (b) of such section. For purposes of this
+section, the 2018 qualified disaster employee retention credit for any
+taxable year is an amount equal to 40 percent of the qualified wages
+with respect to each eligible employee of such employer for such
+taxable year. The amount of qualified wages with respect to any
+employee which may be taken into account under this section by the
+employer for any taxable year shall not exceed $6,000 (reduced by the
+amount of qualified wages with respect to such employee which may be so
+taken into account for any prior taxable year).
+(b) Definitions.--For purposes of this section--
+(1) Eligible employer.--The term ``eligible employer''
+means any employer--
+(A) which conducted an active trade or business in
+a qualified disaster zone at any time during the
+incident period of the qualified disaster with respect
+to such qualified disaster zone, and
+(B) with respect to whom the trade or business
+described in subparagraph (A) is inoperable at any time
+on or after the first day of the incident period of
+such qualified disaster, and before January 1, 2019, as
+a result of damage sustained by reason of such
+qualified disaster.
+(2) Eligible employee.--The term ``eligible employee''
+means with respect to an eligible employer an employee whose
+principal place of employment with such eligible employer
+(determined immediately before the qualified disaster referred
+to in paragraph (1)) was in the qualified disaster zone
+referred to in such paragraph.
+(3) Qualified wages.--The term ``qualified wages'' means
+wages (as defined in section 51(c)(1) of the Internal Revenue
+Code of 1986, but without regard to section 3306(b)(2)(B) of
+such Code) paid or incurred by an eligible employer with
+respect to an eligible employee at any time on or after the
+date on which the trade or business described in paragraph (1)
+first became inoperable at the principal place of employment of
+the employee (determined immediately before the qualified
+disaster referred to in such paragraph) and before the earlier
+of--
+(A) the date on which such trade or business has
+resumed significant operations at such principal place
+of employment, or
+(B) the date which is 150 days after the last day
+of the incident period of the qualified disaster
+referred to in paragraph (1).
+Such term shall include wages paid without regard to whether
+the employee performs no services, performs services at a
+different place of employment than such principal place of
+employment, or performs services at such principal place of
+employment before significant operations have resumed.
+(c) Certain Rules to Apply.--For purposes of this section, rules
+similar to the rules of sections 51(i)(1), 52, and 280C(a), of the
+Internal Revenue Code of 1986, shall apply.
+(d) Employee Not Taken Into Account More Than Once.--An employee
+shall not be treated as an eligible employee for purposes of this
+section for any period with respect to any employer if such employer is
+allowed a credit under section 51 of the Internal Revenue Code of 1986
+with respect to such employee for such period.
+SEC. 204. OTHER DISASTER-RELATED TAX RELIEF PROVISIONS.
+(a) Temporary Increase in Limitation on Qualified Contributions.--
+(1) Suspension of current limitation.--Except as otherwise
+provided in paragraph (2), qualified contributions shall be
+disregarded in applying subsections (b) and (d) of section 170
+of the Internal Revenue Code of 1986.
+(2) Application of increased limitation.--For purposes of
+section 170 of the Internal Revenue Code of 1986--
+(A) Individuals.--In the case of an individual--
+(i) Limitation.--Any qualified contribution
+shall be allowed as a deduction only to the
+extent that the aggregate of such contributions
+does not exceed the excess of the taxpayer's
+contribution base (as defined in subparagraph
+(H) of section 170(b)(1) of such Code) over the
+amount of all other charitable contributions
+allowed under section 170(b)(1) of such Code.
+(ii) Carryover.--If the aggregate amount of
+qualified contributions made in the
+contribution year (within the meaning of
+section 170(d)(1) of such Code) exceeds the
+limitation of clause (i), such excess shall be
+added to the excess described in section
+170(b)(1)(G)(ii).
+(B) Corporations.--In the case of a corporation--
+(i) Limitation.--Any qualified contribution
+shall be allowed as a deduction only to the
+extent that the aggregate of such contributions
+does not exceed the excess of the taxpayer's
+taxable income (as determined under paragraph
+(2) of section 170(b) of such Code) over the
+amount of all other charitable contributions
+allowed under such paragraph.
+(ii) Carryover.--If the aggregate amount of
+qualified contributions made in the
+contribution year (within the meaning of
+section 170(d)(2) of such Code) exceeds the
+limitation of clause (i), such excess shall be
+appropriately taken into account under section
+170(d)(2) subject to the limitations thereof.
+(3) Qualified contributions.--
+(A) In general.--For purposes of this subsection,
+the term ``qualified contribution'' means any
+charitable contribution (as defined in section 170(c)
+of the Internal Revenue Code of 1986) if--
+(i) such contribution--
+(I) is paid during 2018 in cash to
+an organization described in section
+170(b)(1)(A) of such Code, and
+(II) is made for relief efforts in
+one or more qualified disaster areas,
+(ii) the taxpayer obtains from such
+organization contemporaneous written
+acknowledgment (within the meaning of section
+170(f)(8) of such Code) that such contribution
+was used (or is to be used) for relief efforts
+described in clause (i)(II), and
+(iii) the taxpayer has elected the
+application of this subsection with respect to
+such contribution.
+(B) Exception.--Such term shall not include a
+contribution by a donor if the contribution is--
+(i) to an organization described in section
+509(a)(3) of the Internal Revenue Code of 1986,
+or
+(ii) for the establishment of a new, or
+maintenance of an existing, donor advised fund
+(as defined in section 4966(d)(2) of such
+Code).
+(C) Application of election to partnerships and s
+corporations.--In the case of a partnership or S
+corporation, the election under subparagraph (A)(iii)
+shall be made separately by each partner or
+shareholder.
+(b) Special Rules for Qualified Disaster-related Personal Casualty
+Losses.--
+(1) In general.--If an individual has a net disaster loss
+for any taxable year--
+(A) the amount determined under section
+165(h)(2)(A)(ii) of the Internal Revenue Code of 1986
+shall be equal to the sum of--
+(i) such net disaster loss, and
+(ii) so much of the excess referred to in
+the matter preceding clause (i) of section
+165(h)(2)(A) of such Code (reduced by the
+amount in clause (i) of this subparagraph) as
+exceeds 10 percent of the adjusted gross income
+of the individual,
+(B) section 165(h)(1) of such Code shall be applied
+by substituting ``$500'' for ``$500 ($100 for taxable
+years beginning after December 31, 2009)'',
+(C) the standard deduction determined under section
+63(c) of such Code shall be increased by the net
+disaster loss, and
+(D) section 56(b)(1)(E) of such Code shall not
+apply to so much of the standard deduction as is
+attributable to the increase under subparagraph (C) of
+this paragraph.
+(2) Net disaster loss.--For purposes of this subsection,
+the term ``net disaster loss'' means the excess of qualified
+disaster-related personal casualty losses over personal
+casualty gains (as defined in section 165(h)(3)(A) of the
+Internal Revenue Code of 1986).
+(3) Qualified disaster-related personal casualty losses.--
+For purposes of this subsection, the term ``qualified disaster-
+related personal casualty losses'' means losses described in
+section 165(c)(3) of the Internal Revenue Code of 1986 which
+arise in a qualified disaster area on or after the first day of
+the incident period of the qualified disaster to which such
+area relates, and which are attributable to such qualified
+disaster.
+(c) Special Rule for Determining Earned Income.--
+(1) In general.--In the case of a qualified individual, if
+the earned income of the taxpayer for the applicable taxable
+year is less than the earned income of the taxpayer for the
+preceding taxable year, the credits allowed under sections
+24(d) and 32 of the Internal Revenue Code of 1986 may, at the
+election of the taxpayer, be determined by substituting--
+(A) such earned income for the preceding taxable
+year, for
+(B) such earned income for the applicable taxable
+year.
+(2) Qualified individual.--For purposes of this subsection,
+the term ``qualified individual'' means any individual whose
+principal place of abode at any time during the incident period
+of any qualified disaster was located--
+(A) in the qualified disaster zone with respect to
+such qualified disaster, or
+(B) in the qualified disaster area with respect to
+such qualified disaster (but outside the qualified
+disaster zone with respect to such qualified disaster)
+and such individual was displaced from such principal
+place of abode by reason of such qualified disaster.
+(3) Applicable taxable year.--The term ``applicable taxable
+year'' means, with respect to any qualified individual, any
+taxable year which includes any portion of the incident period
+of the qualified disaster to which the qualified disaster area
+referred to in paragraph (2) relates.
+(4) Earned income.--For purposes of this subsection, the
+term ``earned income'' has the meaning given such term under
+section 32(c) of the Internal Revenue Code of 1986.
+(5) Special rules.--
+(A) Application to joint returns.--For purposes of
+paragraph (1), in the case of a joint return for an
+applicable taxable year--
+(i) such paragraph shall apply if either
+spouse is a qualified individual, and
+(ii) the earned income of the taxpayer for
+the preceding taxable year shall be the sum of
+the earned income of each spouse for such
+preceding taxable year.
+(B) Uniform application of election.--Any election
+made under paragraph (1) shall apply with respect to
+both sections 24(d) and 32 of the Internal Revenue Code
+of 1986.
+(C) Errors treated as mathematical error.--For
+purposes of section 6213 of the Internal Revenue Code
+of 1986, an incorrect use on a return of earned income
+pursuant to paragraph (1) shall be treated as a
+mathematical or clerical error.
+(D) No effect on determination of gross income,
+etc.--Except as otherwise provided in this subsection,
+the Internal Revenue Code of 1986 shall be applied
+without regard to any substitution under paragraph (1).
+SEC. 205. TREATMENT OF CERTAIN POSSESSIONS.
+(a) Payments to Guam and the Commonwealth of the Northern Mariana
+Islands.--In the case of Guam and the Commonwealth of the Northern
+Mariana Islands, the Secretary of the Treasury shall pay to each such
+possession amounts equal to the loss in revenues (if any) to that
+possession by reason of the application of the provisions of this
+title. Such amounts shall be determined by the Secretary of the
+Treasury based on information provided by the government of the
+respective possession.
+(b) Payments to American Samoa.--The Secretary of the Treasury
+shall pay to American Samoa amounts estimated by the Secretary of the
+Treasury as being equal to the aggregate benefits (if any) that would
+have been provided to residents of American Samoa by reason of the
+provisions of this title if American Samoa had in effect a tax system
+under which the income tax liability of residents of American Samoa
+were determined by reference to the income tax laws of the United
+States. The preceding sentence shall not apply unless American Samoa
+has a plan, which has been approved by the Secretary of the Treasury,
+under which it will promptly distribute such payments to its residents.
+(c) Treatment of Payments.--For purposes of section 1324 of title
+31, United States Code, the payments under this section shall be
+treated in the same manner as a refund due from a credit provision
+referred to in subsection (b)(2) of such section.
+Calendar No. 28
+116th CONGRESS
+1st Session
+S. 617
+_______________________________________________________________________
+A BILL
+To amend the Internal Revenue Code of 1986 to extend certain expiring
+provisions, to provide disaster tax relief, and for other purposes.
+_______________________________________________________________________
+March 4, 2019
+Read the second time and placed on the calendar

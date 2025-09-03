@@ -1,0 +1,433 @@
+[Congressional Bills 116th Congress]
+[From the U.S. Government Publishing Office]
+[S. 2657 Introduced in Senate (IS)]
+<DOC>
+116th CONGRESS
+1st Session
+S. 2657
+To support innovation in advanced geothermal research and development,
+and for other purposes.
+_______________________________________________________________________
+IN THE SENATE OF THE UNITED STATES
+October 22, 2019
+Ms. Murkowski (for herself and Mr. Manchin) introduced the following
+bill; which was read twice and referred to the Committee on Energy and
+Natural Resources
+_______________________________________________________________________
+A BILL
+To support innovation in advanced geothermal research and development,
+and for other purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Advanced Geothermal Innovation
+Leadership Act of 2019'' or the ``AGILE Act of 2019''.
+SEC. 2. UPDATE TO GEOTHERMAL RESOURCE ASSESSMENT.
+Section 2501 of the Energy Policy Act of 1992 (30 U.S.C. 1028) is
+amended--
+(1) by redesignating subsections (a) and (b) as subsections
+(b) and (d), respectively;
+(2) by inserting before subsection (b) (as so redesignated)
+the following:
+``(a) Definition of Enhanced Geothermal Systems.--In this section,
+the term `enhanced geothermal systems' has the meaning given the term
+in section 612 of the Energy Independence and Security Act of 2007 (42
+U.S.C. 17191).'';
+(3) by inserting after subsection (b) (as so redesignated)
+the following:
+``(c) Update to Geothermal Resource Assessment.--The Secretary of
+the Interior, acting through the United States Geological Survey, and
+in consultation with the Secretary of Energy, shall update the United
+States geothermal resource assessment carried out by the United States
+Geological Survey, including by focusing on--
+``(1) with respect to areas previously identified by the
+Department of Energy or the United States Geological Survey as
+having significant potential for hydrothermal energy or
+enhanced geothermal systems energy--
+``(A) improving the resolution of resource
+potential at systematic temperatures and depths,
+including temperatures and depths appropriate for power
+generation and direct use applications;
+``(B) quantifying the total potential to coproduce
+geothermal energy and minerals;
+``(C) incorporating data relevant to underground
+thermal energy storage and exchange, such as aquifer
+and soil properties; and
+``(D) producing high resolution maps, including--
+``(i) maps that indicate key subsurface
+parameters for electric and direct use
+resources; and
+``(ii) risk maps for induced seismicity
+based on geologic, geographic, and operational
+parameters; and
+``(2) to the maximum extent practicable, expanding
+geothermal assessments, including enhanced geothermal systems
+assessments, to include assessments for the Commonwealth of
+Puerto Rico and the States of Alaska and Hawaii.''; and
+(4) in subsection (d) (as so redesignated), by striking
+``necesary'' and inserting ``necessary''.
+SEC. 3. GENERAL GEOTHERMAL RESEARCH AND DEVELOPMENT PROGRAMS.
+Section 614 of the Energy Independence and Security Act of 2007 (42
+U.S.C. 17193) is amended by adding at the end the following:
+``(d) Oil and Gas Technology Transfer Initiative.--
+``(1) In general.--The Secretary shall support an
+initiative among the Office of Fossil Energy, the Office of
+Energy Efficiency and Renewable Energy, and the private sector
+to modify, improve, and demonstrate the use in geothermal
+energy development of relevant advanced technologies and
+operation techniques used in the oil and gas sector.
+``(2) Priorities.--In carrying out paragraph (1), the
+Secretary shall prioritize technologies with the greatest
+potential to significantly increase the use and lower the cost
+of geothermal energy in the United States, including the cost
+and speed of geothermal drilling.
+``(e) Secondary Use Subprogram.--
+``(1) In general.--The Secretary shall support within the
+Geothermal Technologies Office a program of research,
+development, and demonstration in the secondary use of
+geothermal energy other than for electricity, direct use, or
+geothermal exchange heat pumps.
+``(2) Program areas.--The program under paragraph (1) shall
+include the following areas:
+``(A) Minerals recovery, including lithium, silica,
+and rare earth elements.
+``(B) Geothermal-powered desalination.
+``(C) Industrial applications of geothermal energy.
+``(D) The use of geothermal energy as a grid
+management resource or seasonal energy storage.
+``(E) Other cost competitive secondary uses of
+geothermal energy, as determined by the Secretary.
+``(F) Systems that utilize a combination of the
+techniques and uses described in subparagraphs (A)
+through (E) with geothermal heat or power.
+``(3) Coproduction of geothermal energy and minerals
+production prize competition.--
+``(A) In general.--The Secretary shall carry out a
+prize competition under which the Secretary shall award
+prizes to demonstrate the coproduction of critical
+minerals (as defined by the Secretary of the Interior
+on the date of enactment of the AGILE Act of 2019) from
+geothermal resources.
+``(B) Requirements.--A demonstration awarded a
+prize under subparagraph (A) shall--
+``(i) improve the cost-effectiveness of
+removing minerals from geothermal brines as
+part of the coproduction process;
+``(ii) increase recovery rates of the
+targeted mineral commodity;
+``(iii) decrease water use and other
+environmental impacts, as determined by the
+Secretary; and
+``(iv) demonstrate a path to commercial
+viability.
+``(C) Maximum prize amount.--The maximum amount of
+a prize awarded under subparagraph (A) shall be
+$10,000,000.
+``(D) Authorization of appropriations.--There is
+authorized to be appropriated to the Secretary to carry
+out this paragraph $5,000,000 for each of fiscal years
+2020 through 2023.''.
+SEC. 4. MODIFYING THE DEFINITION OF RENEWABLE ENERGY TO INCLUDE THERMAL
+ENERGY.
+(a) In General.--Section 203 of the Energy Policy Act of 2005 (42
+U.S.C. 15852) is amended--
+(1) in subsection (b)--
+(A) by redesignating paragraph (2) as paragraph
+(3);
+(B) by inserting after paragraph (1) the following:
+``(2) Qualified waste heat resource.--The term `qualified
+waste heat resource' means--
+``(A) exhaust heat or flared gas from any
+industrial process;
+``(B) waste gas or industrial tail gas that would
+otherwise be flared, incinerated, or vented;
+``(C) a pressure drop in any gas as part of an
+industrial or commercial process; or
+``(D) such other forms of waste heat as the
+Secretary determines appropriate.''; and
+(C) in paragraph (3) (as so redesignated)--
+(i) by striking ``generated from'' and
+inserting ``produced from, or, in the case of
+thermal energy resulting from a thermal energy
+project placed in service after December 31,
+2018, thermal energy generated from, or avoided
+by,''; and
+(ii) by inserting ``qualified waste heat
+resource,'' before ``or new''; and
+(2) in subsection (c)--
+(A) by redesignating paragraphs (1) through (3) as
+subparagraphs (A) through (C), respectively, and
+indenting appropriately;
+(B) in the matter preceding subparagraph (A) (as so
+redesignated), by striking ``For purposes'' and
+inserting the following:
+``(1) In general.--For purposes''; and
+(C) by adding at the end the following:
+``(2) Separate calculation.--
+``(A) In general.--For purposes of determining
+compliance with the requirement of this section, any
+energy consumption that is avoided through the use of
+renewable energy shall be considered to be renewable
+energy produced.
+``(B) Denial of double benefit.--Avoided energy
+consumption that is considered to be renewable energy
+produced under subparagraph (A) shall not also be
+counted for purposes of achieving compliance with
+another Federal energy efficiency goal.''.
+(b) Conforming Amendment.--Section 2410q(a) of title 10, United
+States Code, is amended by striking ``section 203(b)(2) of the Energy
+Policy Act of 2005 (42 U.S.C. 15852(b)(2))'' and inserting ``section
+203(b) of the Energy Policy Act of 2005 (42 U.S.C. 15852(b))''.
+SEC. 5. ENHANCED GEOTHERMAL RESEARCH AND DEVELOPMENT.
+(a) Definition of Engineered.--Section 612(1) of the Energy
+Independence and Security Act of 2007 (42 U.S.C. 17191(1)) is amended
+in the matter preceding subparagraph (A) by striking ``subjected to
+intervention, including intervention'' and inserting ``designed to
+access subsurface heat, including nonstimulation technologies,''.
+(b) Programs.--Section 615(b) of the Energy Independence and
+Security Act of 2007 (42 U.S.C. 17194(b)) is amended--
+(1) in paragraph (1)--
+(A) in subparagraph (C), by striking ``mapping''
+and inserting ``and fracture mapping, including real-
+time modeling'';
+(B) in subparagraph (E), by striking ``and'' at the
+end;
+(C) by redesignating subparagraph (F) as
+subparagraph (K); and
+(D) by inserting after subparagraph (E) the
+following:
+``(F) well placement and orientation;
+``(G) long-term reservoir management;
+``(H) drilling technologies, methods, and tools;
+``(I) improved exploration tools;
+``(J) zonal isolation; and''; and
+(2) by striking paragraph (2) and inserting the following:
+``(2) Frontier observatories for research in geothermal
+energy.--
+``(A) Program.--The Secretary shall support 2 field
+research sites operated by public or academic entities,
+which shall each be known as a `Frontier Observatory
+for Research in Geothermal Energy' or `FORGE' site, to
+develop, test, and enhance techniques and tools for
+enhanced geothermal energy.
+``(B) Site selection.--Of the FORGE sites referred
+to in subparagraph (A)--
+``(i) 1 shall be the existing research site
+in Milford, Utah; and
+``(ii) 1 shall be selected by the Secretary
+through a competitive selection process.
+``(C) Site duration.--The FORGE site selected under
+subparagraph (B)(ii) shall operate for an initial term
+of not more than 7 years after the date on which site
+preparation is complete.
+``(D) Additional terms.--
+``(i) In general.--At the end of an
+operational term described in clause (ii), a
+FORGE site may--
+``(I) be transferred to the private
+sector for further enhanced geothermal
+testing; or
+``(II) subject to appropriations
+and a merit review by the Secretary,
+operate for an additional term of not
+more than 7 years.
+``(ii) Operational term described.--An
+operational term referred to in clause (i)--
+``(I) in the case of the FORGE site
+designated under subparagraph (B)(i),
+is the existing operational term; and
+``(II) in the case of the FORGE
+site selected under subparagraph
+(B)(ii), is the initial term under
+subparagraph (C) or an additional term
+under clause (i)(II).
+``(3) Enhanced geothermal systems demonstrations.--
+``(A) In general.--Beginning on the date of
+enactment of the AGILE Act of 2019, the Secretary, in
+collaboration with industry partners and institutions
+of higher education, shall support an initiative for
+demonstration of enhanced geothermal systems for power
+production or direct use.
+``(B) Projects.--
+``(i) In general.--Under the initiative
+described in subparagraph (A), not less than 4
+demonstration projects shall be carried out in
+locations that are commercially viable for
+enhanced geothermal systems development, as
+determined by the Secretary.
+``(ii) Requirements.--Demonstration
+projects under clause (i) shall--
+``(I) collectively demonstrate--
+``(aa) different geologic
+settings, such as hot
+sedimentary aquifers, layered
+geologic systems, supercritical
+systems, and basement rock
+systems; and
+``(bb) a variety of
+development techniques,
+including open hole and cased
+hole completions, differing
+well orientations, and
+stimulation mechanisms;
+``(II) to the extent practicable,
+use existing sites where subsurface
+characterization or geothermal energy
+integration analysis has been
+conducted; and
+``(III) each be carried out in
+accordance with section 988 of the
+Energy Policy Act of 2005 (42 U.S.C.
+16352).
+``(iii) Eastern demonstration.--Not less
+than 1 demonstration project under clause (i)
+shall be located in an area east of the
+Mississippi River that is suitable for enhanced
+geothermal demonstration for power, heat, or a
+combination of power and heat.
+``(C) Optional program structure.--
+``(i) In general.--The Secretary may,
+pursuant to section 646(g) of the Department of
+Energy Organization Act (42 U.S.C. 7256(g)),
+structure the initiative described in
+subparagraph (A) as a cost share milestone-
+based payment initiative (similar to the
+National Aeronautics and Space Administration
+Commercial Orbital Transportation Services
+program).
+``(ii) Requirements.--If the Secretary
+elects to carry out clause (i), the Secretary
+shall--
+``(I) request proposals from
+eligible entities, as determined by the
+Secretary, that include--
+``(aa) a business plan;
+``(bb) technical details;
+and
+``(cc) proposed milestones
+and associated payments; and
+``(II) select projects--
+``(aa) based on the
+demonstrated ability of the
+eligible entity to meet the
+milestones and associated
+payments described in the
+proposal of that eligible
+entity; and
+``(bb) that have the
+greatest potential commercial
+applicability.''.
+SEC. 6. AUTHORIZATION OF APPROPRIATIONS.
+Section 623 of the Energy Independence and Security Act of 2007 (42
+U.S.C. 17202) is amended by striking ``$90,000,000'' in the first
+sentence and all that follows through the period at the end of the
+second sentence and inserting ``$150,000,000 for each of fiscal years
+2020 through 2024.''.
+SEC. 7. REAUTHORIZATION OF HIGH COST REGION GEOTHERMAL ENERGY GRANT
+PROGRAM.
+Section 625 of the Energy Independence and Security Act of 2007 (42
+U.S.C. 17204) is amended--
+(1) in subsection (a)(2), by inserting ``or heat'' after
+``electrical power''; and
+(2) by striking subsection (e) and inserting the following:
+``(e) Authorization of Appropriations.--There is authorized to be
+appropriated to carry out this section $5,000,000 for each of fiscal
+years 2020 through 2024.''.
+SEC. 8. PROGRAM TO IMPROVE FEDERAL GEOTHERMAL PERMIT COORDINATION.
+(a) Definitions.--In this section:
+(1) Program.--The term ``Program'' means the Geothermal
+Energy Permitting Coordination Program established under
+subsection (b).
+(2) Secretary.--The term ``Secretary'' means the Secretary
+of the Interior.
+(b) Establishment of Program.--Not later than 90 days after the
+date of enactment of this Act, the Secretary shall establish a program,
+to be known as the ``Geothermal Energy Permitting Coordination
+Program'', to improve Federal permit coordination and reduce regulatory
+timelines with respect to geothermal energy projects on Federal land by
+increasing the expertise of officials administering and approving
+permits.
+(c) Establishment of Program Offices.--To carry out the Program,
+the Secretary shall establish one or more Program offices at State or
+district offices of the Department of the Interior.
+(d) Memorandum of Understanding.--
+(1) In general.--Not later than 90 days after the date of
+enactment of this Act, the Secretary shall enter into a
+memorandum of understanding for purposes of this section with--
+(A) the Secretary of Agriculture;
+(B) the Administrator of the Environmental
+Protection Agency; and
+(C) the Secretary of Defense.
+(2) State participation.--The Secretary may request that
+the Governor of any State be a signatory to the memorandum of
+understanding under paragraph (1).
+(e) Designation of Qualified Staff.--
+(1) In general.--Not later than 30 days after the date on
+which the memorandum of understanding under subsection (d) is
+executed, all Federal signatories, as appropriate, shall assign
+to each Program office established under subsection (c) one or
+more employees who have expertise in the regulatory issues
+relating to the office or agency in which the employee is
+employed, including, as applicable, particular expertise in--
+(A) consultation regarding, and preparation of,
+biological opinions under section 7 of the Endangered
+Species Act of 1973 (16 U.S.C. 1536);
+(B) permits under section 404 of the Federal Water
+Pollution Control Act (33 U.S.C. 1344);
+(C) regulatory matters under the Clean Air Act (42
+U.S.C. 7401 et seq.);
+(D) the Federal Land Policy and Management Act of
+1976 (43 U.S.C. 1701 et seq.);
+(E) planning under section 14 of the National
+Forest Management Act of 1976 (16 U.S.C. 472a);
+(F) developing geothermal resources under the
+Geothermal Steam Act of 1970 (30 U.S.C. 1001 et seq.);
+and
+(G) the preparation of analyses under the National
+Environmental Policy Act of 1969 (42 U.S.C. 4321 et
+seq.).
+(2) Duties.--Each employee assigned under paragraph (1)
+shall--
+(A) not later than 90 days after the date on which
+the employee is assigned, report to the State Director
+of the Bureau of Land Management for the State in which
+the office to which the employee is assigned is
+located;
+(B) be responsible for all issues relating to the
+jurisdiction of the home office or agency of the
+employee; and
+(C) participate as part of the team of personnel
+working on proposed energy projects, planning, and
+environmental analyses.
+(f) Additional Personnel.--The Secretary shall assign to each
+Program office any additional personnel that are necessary to ensure
+the effective implementation of--
+(1) the Program; and
+(2) any program administered by the Program office,
+including inspection and enforcement relating to energy
+development on Federal land, in accordance with the multiple
+use mandate of the Federal Land Policy and Management Act of
+1976 (43 U.S.C. 1701 et seq.).
+(g) Transfer of Funds.--To facilitate the coordination and
+processing of geothermal permits on Federal land under the
+administration of a Program office, the Secretary may authorize the
+expenditure or transfer of any funds that are necessary to--
+(1) the United States Fish and Wildlife Service;
+(2) the Bureau of Indian Affairs;
+(3) the Forest Service;
+(4) the Environmental Protection Agency;
+(5) the Corps of Engineers;
+(6) the Department of Defense; or
+(7) any State in which a geothermal project is located.
+(h) Reports.--Not later than 3 years after the date of enactment of
+this Act, the Secretary shall submit to Congress a report that
+describes--
+(1) the progress of the Program; and
+(2) any problems relating to leasing, permitting, or siting
+with respect to geothermal energy development on Federal land.
+(i) Savings Clause.--Nothing in this section affects--
+(1) the operation of any Federal or State law; or
+(2) any delegation of authority made by the head of a
+Federal agency any employee of which is participating in the
+Program.
+<all>

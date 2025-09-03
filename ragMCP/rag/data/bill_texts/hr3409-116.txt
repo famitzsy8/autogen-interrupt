@@ -1,0 +1,3587 @@
+[Congressional Bills 116th Congress]
+[From the U.S. Government Publishing Office]
+[H.R. 3409 Introduced in House (IH)]
+<DOC>
+116th CONGRESS
+1st Session
+H. R. 3409
+To authorize appropriations for the Coast Guard, and for other
+purposes.
+_______________________________________________________________________
+IN THE HOUSE OF REPRESENTATIVES
+June 21, 2019
+Mr. DeFazio (for himself, Mr. Graves of Missouri, Mr. Sean Patrick
+Maloney of New York, and Mr. Gibbs) introduced the following bill;
+which was referred to the Committee on Transportation and
+Infrastructure
+_______________________________________________________________________
+A BILL
+To authorize appropriations for the Coast Guard, and for other
+purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Coast Guard Authorization Act of
+2019''.
+SEC. 2. TABLE OF CONTENTS.
+The table of contents for this Act is as follows:
+Sec. 1. Short title.
+Sec. 2. Table of contents.
+TITLE I--AUTHORIZATIONS
+Sec. 101. Authorizations of appropriations.
+Sec. 102. Authorized levels of military strength and training.
+TITLE II--COAST GUARD
+Sec. 201. Grade on retirement.
+Sec. 202. Congressional affairs; Director.
+Sec. 203. Limitations on claims.
+Sec. 204. Authority for officers to opt out of promotion board
+consideration.
+Sec. 205. Temporary promotion authority for officers in certain grades
+with critical skills.
+Sec. 206. Career intermission program.
+Sec. 207. Major acquisitions; operation and sustainment costs.
+Sec. 208. Employment assistance.
+Sec. 209. Reports on gender diversity in the Coast Guard.
+Sec. 210. Disposition of infrastructure related to E-LORAN.
+Sec. 211. Positions of importance and responsibility.
+TITLE III--SHIPPING
+Sec. 301. Electronic charts; equivalency.
+Sec. 302. Passenger vessel security and safety requirements;
+application.
+Sec. 303. Non-operating individual.
+Sec. 304. Small passenger vessels and uninspected passenger vessels.
+Sec. 305. Installation Vessels.
+Sec. 306. Advisory committees.
+Sec. 307. Expired maritime liens.
+Sec. 308. Offshore navigation.
+Sec. 309. Training; emergency response providers.
+Sec. 310. Aiming a laser pointer at a vessel.
+Sec. 311. Maritime transportation assessment.
+Sec. 312. Safety of special activities.
+Sec. 313. Engine cut-off switches; use requirement.
+Sec. 314. Exemptions and equivalents.
+TITLE IV--MISCELLANEOUS
+Sec. 401. Coastwise trade.
+Sec. 402. Unmanned maritime systems.
+Sec. 403. Expedited transfer in cases of sexual assault; dependents of
+members of the Coast Guard.
+Sec. 404. Towing vessels; operation outside the boundary line.
+Sec. 405. Coast Guard authorities study.
+Sec. 406. Cloud computing strategy.
+Sec. 407. Report on effects of climate change on Coast Guard.
+Sec. 408. Shore infrastructure.
+Sec. 409. Physical access control system report.
+Sec. 410. Coastwise endorsements.
+Sec. 411. Polar security cutter acquisition report.
+Sec. 412. Sense of the Congress on the need for a new Great Lakes
+icebreaker.
+Sec. 413. Cargo preference study.
+Sec. 414. Insider Threat program.
+Sec. 415. Fishing safety grants.
+Sec. 416. Plans for demonstration programs.
+Sec. 417. Waters deemed not navigable waters of the United States for
+certain purposes.
+Sec. 418. Coast Guard housing; status and authorities briefing.
+Sec. 419. Conveyance of Coast Guard property at Point Spencer, Alaska.
+Sec. 420. Prohibition.
+Sec. 421. Certificate extensions.
+TITLE V--REORGANIZATION
+Sec. 501. Uninspected commercial fishing industry vessels.
+Sec. 502. Transfers.
+Sec. 503. Repeals.
+TITLE VI--TECHNICAL, CONFORMING, AND CLARIFYING AMENDMENTS
+Sec. 601. Maritime transportation system.
+Sec. 602. References to ``persons'' and ``seamen''.
+Sec. 603. Common appropriation structure.
+Sec. 604. References to ``himself'' and ``his''.
+Sec. 605. References to ``motorboats'' and ``yachts''.
+Sec. 606. Miscellaneous technical corrections.
+Sec. 607. Technical corrections relating to codification of Ports and
+Waterways Safety Act.
+TITLE VII--FEDERAL MARITIME COMMISSION
+Sec. 701. Short title.
+Sec. 702. Authorization of appropriations.
+TITLE VIII--COAST GUARD ACADEMY IMPROVEMENT ACT
+Sec. 801. Short title.
+Sec. 802. Coast Guard Academy study.
+Sec. 803. Annual report.
+Sec. 804. Assessment of Coast Guard Academy admission processes.
+Sec. 805. Coast Guard Academy minority outreach team program.
+Sec. 806. Coast Guard college student pre-commissioning initiative.
+Sec. 807. Annual board of visitors.
+TITLE I--AUTHORIZATIONS
+SEC. 101. AUTHORIZATIONS OF APPROPRIATIONS.
+Section 4902 of title 14, United States Code, is amended--
+(1) in the matter preceding paragraph (1), by striking
+``year 2019'' and inserting ``years 2020 and 2021'';
+(2) in paragraph (1)(A), by striking ``provided for,
+$7,914,195,000 for fiscal year 2019.'' and inserting ``provided
+for--
+``(i) $8,122,912,000 for fiscal year 2020;
+and
+``(ii) $8,538,324,000 for fiscal year
+2021.'';
+(3) in paragraph (1)(B), by striking ``subparagraph (A)''
+and inserting ``subparagraph (A)(i), $17,035,000 shall be for
+environmental compliance and restoration.'';
+(4) by striking paragraphs (1)(B)(i) and (1)(B)(ii);
+(5) in paragraph (1), by adding at the end the following:
+``(C) Of the amount authorized under subparagraph
+(A)(ii) $17,376,000 shall be for environmental
+compliance and restoration.'';
+(6) in paragraph (2)--
+(A) by striking ``For the procurement'' and
+inserting ``(A) For the procurement'';
+(B) by striking ``and equipment, $2,694,745,000 for
+fiscal year 2019.'' and inserting ``and equipment--
+``(i) $2,748,640,000 for fiscal year 2020;
+and
+``(ii) $2,803,613,000 for fiscal year
+2021.''.
+(C) by adding at the end the following:
+``(B) Of the amounts authorized under subparagraph
+(A), the following amounts shall be for the alteration
+of bridges:
+``(i) $10,000,000 for fiscal year 2020; and
+``(ii) $20,000,000 for fiscal year 2021.''.
+(7) in paragraph (3), by striking ``and equipment,
+$29,141,000 for fiscal year 2019.'' and inserting ``and
+equipment--
+``(A) $13,834,000 for fiscal year 2020; and
+``(B) $14,111,000 for fiscal year 2021.''; and
+(8) by adding at the end the following:
+``(4) For the Coast Guard's Medicare-eligible retiree
+health care fund contribution to the Department of Defense--
+``(A) $205,107,000 for fiscal year 2020; and
+``(B) $209,209,000 for fiscal year 2021.''.
+SEC. 102. AUTHORIZED LEVELS OF MILITARY STRENGTH AND TRAINING.
+Section 4904 of title 14, United States Code, is amended--
+(1) in subsection (a), by striking ``43,000 for fiscal year
+2018 and 44,500 for fiscal year 2019'' and inserting ``44,500
+for each of fiscal years 2020 and 2021''; and
+(2) in subsection (b), by striking ``fiscal years 2018 and
+2019'' and inserting ``fiscal years 2020 and 2021''.
+TITLE II--COAST GUARD
+SEC. 201. GRADE ON RETIREMENT.
+(a) Commandant or Vice Commandant.--Section 303 of title 14, United
+States Code, is amended--
+(1) in subsections (a) and (b), by striking ``A'' each
+place it appears and inserting ``Subject to section 2501, a'';
+and
+(2) in subsection (c), by striking ``An'' and inserting
+``Subject to section 2501, an''.
+(b) Other Officers.--Section 306 of title 14, United States Code,
+is amended--
+(1) by striking ``An officer'' each place it appears and
+inserting ``Subject to section 2501, an officer''; and
+(2) in subsection (c), by striking ``his'' and inserting
+``the officer's''.
+(c) Commissioned or Warrant Officer.--Section 2501 of title 14,
+United States Code, is amended--
+(1) in subsection (a)--
+(A) by striking ``Any'' and inserting
+``Commissioned Officer.--
+``(1) In general.--Any'';
+(B) by striking ``him'' and inserting ``such
+officer'';
+(C) by striking ``his'' and inserting ``the
+officer's''; and
+(D) by adding at the end the following:
+``(2) Conditional determination.--When an officer is under
+investigation for alleged misconduct at the time of retirement,
+the Secretary may conditionally determine the highest grade of
+satisfactory service of the officer pending completion of the
+investigation. Such grade is subject to resolution under
+subsection (c)(2).'';
+(2) in subsection (b)--
+(A) by striking ``Any'' and inserting ``Warrant
+Officer.--Any'';
+(B) by striking ``him'' and inserting ``such
+warrant officer''; and
+(C) by striking ``his'' and inserting ``the warrant
+officer's''; and
+(3) by adding at the end the following:
+``(c) Retirement in Next Lower Grade.--
+``(1) Misconduct in lower grade.--In the case of an officer
+whom the Secretary determines committed misconduct in a lower
+grade, the Secretary may determine the officer has not served
+satisfactorily in any grade equal to or higher than that lower
+grade.
+``(2) Conditional determination.--A determination of the
+retired grade of an officer shall be resolved following a
+conditional determination under subsection (a)(2) or (b)(2) if
+the investigation of or personnel action against the officer or
+warrant officer, as applicable, results in adverse findings.
+``(3) Retired pay; recalculation.--If the retired grade of
+an officer is reduced, the retired pay of the officer under
+chapter 71 of title 10 shall be recalculated, and any
+modification of the retired pay of the officer shall go into
+effect on the effective date of the reduction in retired grade.
+``(d) Finality of Retired Grade Determinations.--
+``(1) Administrative finality.--Except as otherwise
+provided by law, a determination of the retired grade of an
+officer pursuant to this section is administratively final on
+the day the officer is retired, and may not be reopened.
+``(2) Reopening determination.--A determination of the
+retired grade of an officer may be reopened as follows:
+``(A) If the retirement or retired grade of the
+officer was procured by fraud.
+``(B) If substantial evidence comes to light after
+the retirement that could have led to a lower retired
+grade under this section if known by competent
+authority at the time of retirement.
+``(C) If a mistake of law or calculation was made
+in the determination of the retired grade.
+``(D) In the case of a retired grade following a
+conditional determination under subsection (a)(2) or
+(b)(2), if the investigation of or personnel action
+against the officer, as applicable, results in an
+adverse finding.
+``(E) If the Secretary determines, pursuant to
+regulations prescribed by the Secretary, that good
+cause exists to reopen the determination or
+certification.
+``(3) Notification of reopening.--If a determination or
+certification of the retired grade of an officer is reopened,
+the Secretary--
+``(A) shall notify the officer of the reopening;
+and
+``(B) may not make an adverse determination on the
+retired grade of the officer until the officer has had
+a reasonable opportunity to respond regarding the basis
+of the reopening.
+``(4) Retired pay; recalculation.--If the retired grade of
+an officer is reduced through the reopening of the officer's or
+warrant officer's retired grade, the retired pay of the officer
+under chapter 71 of title 10 shall be recalculated, and any
+modification of the retired pay of the officer shall go into
+effect on the effective date of the reduction of the officer's
+retired grade.''.
+SEC. 202. CONGRESSIONAL AFFAIRS; DIRECTOR.
+(a) In General.--Chapter 3 of title 14, United States Code, as
+amended by this Act, is further amended by adding at the end the
+following:
+``Sec. 320. Congressional affairs; Director
+``The Commandant of the Coast Guard shall appoint a Director of
+Congressional Affairs from among officers of the Coast Guard who are in
+a grade above captain.''.
+(b) Clerical Amendment.--The analysis for chapter 3 of title 14,
+United States Code, as amended by this Act, is further amended by
+adding at the end the following:
+``320. Congressional affairs; Director.''.
+SEC. 203. LIMITATIONS ON CLAIMS.
+(a) Admiralty Claims.--Section 937 of title 14, United States Code,
+is amended in subsection (a) by striking ``$100,000'' and inserting
+``$425,000''.
+(b) Claims for Damage to Property of the United States.--Section
+938 of title 14, United States Code, is amended by striking
+``$100,000'' and inserting ``$425,000''.
+SEC. 204. AUTHORITY FOR OFFICERS TO OPT OUT OF PROMOTION BOARD
+CONSIDERATION.
+(a) Eligibility of Officers for Consideration for Promotion.--
+Section 2113 of title 14, United States Code, is amended by adding at
+the end the following:
+``(g)(1) Notwithstanding subsection (a), the Commandant may provide
+that an officer may, upon the officer's request and with the approval
+of the Commandant, be excluded from consideration by a selection board
+convened under section 2106(a).
+``(2) The Commandant shall approve a request under paragraph (1)
+only if--
+``(A) the basis for the request is to allow the officer to
+complete a broadening assignment, advanced education, another
+assignment of significant value to the Coast Guard, a career
+progression requirement delayed by the assignment or education,
+or a qualifying personal or professional circumstance, as
+determined by the Commandant;
+``(B) the Commandant determines the exclusion from
+consideration is in the best interest of the Coast Guard; and
+``(C) the officer has not previously failed of selection
+for promotion to the grade for which the officer requests the
+exclusion from consideration.''.
+(b) Eligibility of Reserve Officer for Promotion.--Section 3743 of
+title 14, United States Code, is amended to read as follows:
+``Sec. 3743. Eligibility for promotion
+``(a) In General.--Except as provided in subsection (b), a Reserve
+officer is eligible for consideration for promotion and for promotion
+under this subchapter, if that officer is in an active status.
+``(b) Exception.--A Reserve officer who has been considered but not
+recommended for retention in an active status by a board convened under
+subsection 3752(a) of this title, is not eligible for consideration for
+promotion.
+``(c) Request for Exclusion.--
+``(1) In general.--The Commandant may provide that an
+officer may, upon the officer's request and with the approval
+of the Commandant, be excluded from consideration by a
+selection board convened under section 3740(b) of this title to
+consider officers for promotion to the next higher grade.
+``(2) Approval of request.--The Commandant shall approve a
+request under paragraph (1) only if--
+``(A) the basis for the request is to allow an
+officer to complete a broadening assignment, advanced
+education, another assignment of significant value to
+the Coast Guard, a career progression requirement
+delayed by the assignment or education, or a qualifying
+personal or professional circumstance, as determined by
+the Commandant;
+``(B) the Commandant determines the exclusion from
+consideration is in the best interest of the Coast
+Guard; and
+``(C) the officer has not previously failed of
+selection for promotion to the grade for which the
+officer requests the exclusion from consideration.''.
+SEC. 205. TEMPORARY PROMOTION AUTHORITY FOR OFFICERS IN CERTAIN GRADES
+WITH CRITICAL SKILLS.
+(a) In General.--Chapter 21 of title 14, United States Code, is
+amended by inserting after section 2129 the following:
+``Sec. 2130. Promotion to certain grades for officers with critical
+skills: captain, commander, lieutenant commander,
+lieutenant
+``(a) In General.--An officer in the grade of lieutenant (junior
+grade), lieutenant, lieutenant commander, or commander, who is
+described in subsection (b) may be temporarily promoted to the grade of
+lieutenant, lieutenant commander, commander, or captain under
+regulations prescribed by the Secretary. Appointments under this
+section shall be made by the President, by and with the advice and
+consent of the Senate.
+``(b) Covered Officers.--An officer described in this subsection is
+any officer in a grade specified in subsection (a) who--
+``(1) has a skill in which the Coast Guard has a critical
+shortage of personnel (as determined by the Secretary); and
+``(2) is serving in a position (as determined by the
+Secretary) that--
+``(A) is designated to be held by a lieutenant,
+lieutenant commander, commander, or captain; and
+``(B) requires that an officer serving in such
+position have the skill possessed by such officer.
+``(c) Preservation of Position and Status of Officers Appointed.--
+``(1) The temporary positions authorized under this section
+shall not be counted among or included in the list of positions
+on the active duty promotion list.
+``(2) An appointment under this section does not change the
+position on the active-duty list or the permanent,
+probationary, or acting status of the officer so appointed,
+prejudice the officer in regard to other promotions or
+appointments, or abridge the rights or benefits of the officer.
+``(d) Board Recommendation Required.--A temporary promotion under
+this section may be made only upon the recommendation of a board of
+officers convened by the Secretary for the purpose of recommending
+officers for such promotions.
+``(e) Acceptance and Effective Date of Appointment.--Each
+appointment under this section, unless expressly declined, is, without
+formal acceptance, regarded as accepted on the date such appointment is
+made, and a member so appointed is entitled to the pay and allowances
+of the grade of the temporary promotion under this section beginning on
+the date the appointment is made.
+``(f) Termination of Appointment.--Unless sooner terminated, an
+appointment under this section terminates--
+``(1) on the date the officer who received the appointment
+is promoted to the permanent grade of lieutenant, lieutenant
+commander, commander, or captain;
+``(2) on the date the officer is detached from a position
+described in subsection (b)(2), unless the officer is on a
+promotion list to the permanent grade of lieutenant, lieutenant
+commander, commander, or captain, in which case the appointment
+terminates on the date the officer is promoted to that grade;
+or
+``(3) when the appointment officer determines that the
+officer who received the appointment has engaged in misconduct
+or has displayed substandard performance.
+``(g) Limitation on Number of Eligible Positions.--An appointment
+under this section may only be made for service in a position
+designated by the Secretary for the purposes of this section. The
+number of positions so designated may not exceed the following
+percentages of the respective grades:
+``(1) As lieutenant, 0.5 percent.
+``(2) As lieutenant commander, 3.0 percent.
+``(3) As commander, 2.6 percent.
+``(4) As captain, 2.6 percent.''.
+(b) Clerical Amendment.--The analysis at the beginning of such
+chapter is amended by adding at the end the following new item:
+``2130. Promotion to certain grades for officers with critical skills:
+colonel, lieutenant colonel, major,
+captain; captain, commander, lieutenant
+commander, lieutenant.''.
+SEC. 206. CAREER INTERMISSION PROGRAM.
+(a) In General.--Subchapter I of chapter 25 of title 14, United
+States Code, is amended by adding at the end the following:
+``Sec. 2514. Career flexibility to enhance retention of members
+``(a) Programs Authorized.--The Commandant may carry out a program
+under which members of the Coast Guard may be inactivated from active
+service in order to meet personal or professional needs and returned to
+active service at the end of such period of inactivation from active
+service.
+``(b) Period of Inactivation From Active Service; Effect of
+Inactivation.--
+``(1) In general.--The period of inactivation from active
+service under a program under this section of a member
+participating in the program shall be such period as the
+Commandant shall specify in the agreement of the member under
+subsection (c), except that such period may not exceed three
+years.
+``(2) Exclusion from years of service.--Any service by a
+Reserve officer while participating in a program under this
+section shall be excluded from computation of the total years
+of service of that officer pursuant to section 14706(a) of
+title 10.
+``(3) Exclusion from retirement.--Any period of
+participation of a member in a program under this section shall
+not count toward--
+``(A) eligibility for retirement or transfer to the
+Ready Reserve under either chapter 571 or 1223 of title
+10; or
+``(B) computation of retired or retainer pay under
+chapter 71 or 1223 of title 10.
+``(c) Agreement.--Each member of the Coast Guard who participates
+in a program under this section shall enter into a written agreement
+with the Commandant under which that member shall agree as follows:
+``(1) To accept an appointment or enlist, as applicable,
+and serve in the Coast Guard Ready Reserve during the period of
+the inactivation of the member from active service under the
+program.
+``(2) To undergo during the period of the inactivation of
+the member from active service under the program such inactive
+service training as the Commandant shall require in order to
+ensure that the member retains proficiency, at a level
+determined by the Commandant to be sufficient, in the military
+skills, professional qualifications, and physical readiness of
+the member during the inactivation of the member from active
+service.
+``(3) Following completion of the period of the
+inactivation of the member from active service under the
+program, to serve two months as a member of the Coast Guard on
+active service for each month of the period of the inactivation
+of the member from active service under the program.
+``(d) Conditions of Release.--The Commandant shall prescribe
+regulations specifying the guidelines regarding the conditions of
+release that must be considered and addressed in the agreement required
+by subsection (c). At a minimum, the Commandant shall prescribe the
+procedures and standards to be used to instruct a member on the
+obligations to be assumed by the member under paragraph (2) of such
+subsection while the member is released from active service.
+``(e) Order to Active Service.--Under regulations prescribed by the
+Commandant, a member of the Coast Guard participating in a program
+under this section may, in the discretion of the Commandant, be
+required to terminate participation in the program and be ordered to
+active service.
+``(f) Pay and Allowances.--
+``(1) Basic pay.--During each month of participation in a
+program under this section, a member who participates in the
+program shall be paid basic pay in an amount equal to two-
+thirtieths of the amount of monthly basic pay to which the
+member would otherwise be entitled under section 204 of title
+37 as a member of the uniformed services on active service in
+the grade and years of service of the member when the member
+commences participation in the program.
+``(2) Special or incentive pay or bonus.--
+``(A) Prohibition.--A member who participates in
+such a program shall not, while participating in the
+program, be paid any special or incentive pay or bonus
+to which the member is otherwise entitled under an
+agreement under chapter 5 of title 37 or section 1925
+of this title that is in force when the member
+commences participation in the program.
+``(B) Not treated as failure to perform services.--
+The inactivation from active service of a member
+participating in a program shall not be treated as a
+failure of the member to perform any period of service
+required of the member in connection with an agreement
+for a special or incentive pay or bonus under chapter 5
+of title 37 that is in force when the member commences
+participation in the program.
+``(3) Return to active service.--
+``(A) Special or incentive pay or bonus.--Subject
+to subparagraph (B), upon the return of a member to
+active service after completion by the member of
+participation in a program--
+``(i) any agreement entered into by the
+member under chapter 5 of title 37 for the
+payment of a special or incentive pay or bonus
+that was in force when the member commenced
+participation in the program shall be revived,
+with the term of such agreement after revival
+being the period of the agreement remaining to
+run when the member commenced participation in
+the program; and
+``(ii) any special or incentive pay or
+bonus shall be payable to the member in
+accordance with the terms of the agreement
+concerned for the term specified in clause (i).
+``(B) Limitation.--
+``(i) In general.--Subparagraph (A) shall
+not apply to any special or incentive pay or
+bonus otherwise covered by that subparagraph
+with respect to a member if, at the time of the
+return of the member to active service as
+described in that subparagraph--
+``(I) such pay or bonus is no
+longer authorized by law; or
+``(II) the member does not satisfy
+eligibility criteria for such pay or
+bonus as in effect at the time of the
+return of the member to active service.
+``(ii) Pay or bonus ceases being
+authorized.--Subparagraph (A) shall cease to
+apply to any special or incentive pay or bonus
+otherwise covered by that subparagraph with
+respect to a member if, during the term of the
+revived agreement of the member under
+subparagraph (A)(i), such pay or bonus ceases
+being authorized by law.
+``(C) Repayment.--A member who is ineligible for
+payment of a special or incentive pay or bonus
+otherwise covered by this paragraph by reason of
+subparagraph (B)(i)(II) shall be subject to the
+requirements for repayment of such pay or bonus in
+accordance with the terms of the applicable agreement
+of the member under chapter 5 of title 37.
+``(D) Required service is additional.--Any service
+required of a member under an agreement covered by this
+paragraph after the member returns to active service as
+described in subparagraph (A) shall be in addition to
+any service required of the member under an agreement
+under subsection (c).
+``(4) Travel and transportation allowance.--
+``(A) In general.--Subject to subparagraph (B), a
+member who participates in a program is entitled, while
+participating in the program, to the travel and
+transportation allowances authorized by section 474 of
+title 37 for--
+``(i) travel performed from the residence
+of the member, at the time of release from
+active service to participate in the program,
+to the location in the United States designated
+by the member as the member's residence during
+the period of participation in the program; and
+``(ii) travel performed to the residence of
+the member upon return to active service at the
+end of the participation of the member in the
+program.
+``(B) Single residence.--An allowance is payable
+under this paragraph only with respect to travel of a
+member to and from a single residence.
+``(5) Leave balance.--A member who participates in a
+program is entitled to carry forward the leave balance existing
+as of the day on which the member begins participation and
+accumulated in accordance with section 701 of title 10, but not
+to exceed 60 days.
+``(g) Promotion.--
+``(1) Officers.--
+``(A) In general.--An officer participating in a
+program under this section shall not, while
+participating in the program, be eligible for
+consideration for promotion under chapter 21 or 37 of
+this title.
+``(B) Return to service.--Upon the return of an
+officer to active service after completion by the
+officer of participation in a program--
+``(i) the Commandant may adjust the date of
+rank of the officer in such manner as the
+Commandant shall prescribe in regulations for
+purposes of this section; and
+``(ii) the officer shall be eligible for
+consideration for promotion when officers of
+the same competitive category, grade, and
+seniority are eligible for consideration for
+promotion.
+``(2) Enlisted members.--An enlisted member participating
+in a program shall not be eligible for consideration for
+advancement during the period that--
+``(A) begins on the date of the inactivation of the
+member from active service under the program; and
+``(B) ends at such time after the return of the
+member to active service under the program that the
+member is treatable as eligible for promotion by reason
+of time in grade and such other requirements as the
+Commandant shall prescribe in regulations for purposes
+of the program.
+``(h) Continued Entitlements.--A member participating in a program
+under this section shall, while participating in the program, be
+treated as a member of the Armed Forces on active duty for a period of
+more than 30 days for purposes of--
+``(1) the entitlement of the member and of the dependents
+of the member to medical and dental care under the provisions
+of chapter 55 of this title; and
+``(2) retirement or separation for physical disability
+under the provisions of chapter 61 of title 10 and chapters 21
+and 23 of this title.''.
+(b) Clerical Amendment.--The analysis for such chapter is amended
+by inserting after the item relating to section 2513 the following:
+``2514. Career flexibility to enhance retention of members.''.
+SEC. 207. MAJOR ACQUISITIONS; OPERATION AND SUSTAINMENT COSTS.
+Section 5103(e)(3) of title 14, United States Code, is amended--
+(1) by redesignating subparagraphs (B) and (C) as
+subparagraphs (C) and (D) respectively; and
+(2) by inserting after subparagraph (A) the following:
+``(B) operate and sustain the cutters and aircraft
+described under paragraph (2);''.
+SEC. 208. EMPLOYMENT ASSISTANCE.
+(a) In General.--Subchapter I of chapter 27 of title 14, United
+States Code, is amended by adding at the end the following:
+``Sec. 2713. Employment assistance
+``(a) In General.--In order to improve the accuracy and
+completeness of a certification or verification of job skills and
+experience required by section 1143(a)(1) of title 10, the Secretary
+shall--
+``(1) establish a database to record all training performed
+by members of the Coast Guard that may have application to
+employment in the civilian sector; and
+``(2) make unclassified information regarding such
+information available to States and other potential employers
+referred to in section 1143(c) of title 10 so that State and
+other entities may allow military training to satisfy licensing
+or certification requirements to engage in a civilian
+profession.
+``(b) Form of Certification or Verification.--The Secretary shall
+ensure that a certification or verification of job skills and
+experience required by section 1143(a)(1) of title 10 is rendered in
+such a way that States and other potential employers can confirm the
+accuracy and authenticity of the certification or verification.
+``(c) Requests by States.--A State may request that the Secretary
+confirm the accuracy and authenticity of a certification or
+verification of jobs skills and experience provided under section
+1143(c) of title 10.''.
+(b) Clerical Amendment.--The analysis for such chapter is amended
+by inserting after the item relating to section 2712 the following:
+``2713. Employment assistance.''.
+SEC. 209. REPORTS ON GENDER DIVERSITY IN THE COAST GUARD.
+(a) Action Plan.--
+(1) In general.--Not later than 180 days after the date of
+the enactment of this Act, the Commandant of the Coast Guard
+shall--
+(A) determine which recommendations in the RAND
+gender diversity report can practicably be implemented
+to promote gender diversity in the Coast Guard; and
+(B) submit a report to the Committee on
+Transportation and Infrastructure of the House of
+Representatives and the Committee on Commerce, Science,
+and Transportation of the Senate on the actions the
+Coast Guard has taken or plans to take to implement
+such recommendations.
+(2) Definition.--In this subsection, the term ``RAND
+diversity report'' means the RAND Corporation's Homeland
+Security Operational Analysis Center 2019 report entitled
+``Improving Gender Diversity in the U.S. Coast Guard:
+Identifying Barriers to Female Retention''.
+(b) Recurring Report.--Chapter 51 of title 14, United States Code,
+is amended by adding at the end the following:
+``Sec. 5109. Report on Gender Diversity in the Coast Guard
+``(a) In General.--Not later than January 15, 2022, and biennially
+thereafter, the Commandant shall submit a report on gender diversity in
+the Coast Guard to the Committee on Transportation and Infrastructure
+of the House of Representatives and the Committee on Commerce, Science,
+and Transportation of the Senate.
+``(b) Contents.--The report required under subsection (a) shall
+contain the following:
+``(1) Gender diversity overview.--An overview of Coast
+Guard active duty and Reserve members, including the number of
+officers and enlisted members and the percentages of men and
+women in each.
+``(2) Recruitment and retention.--(A) An analysis of the
+changes in the recruitment and retention of women over the
+previous two years.
+``(B) A discussion of any changes to Coast Guard
+recruitment and retention over the previous two years that were
+aimed at increasing the recruitment and retention of female
+members.
+``(3) Parental leave.--(A) The number of men and women who
+took parental leave during each year covered by the report,
+including the average length of such leave periods.
+``(B) A discussion of the ways in which the Coast Guard
+worked to mitigate the impacts of parental leave on Coast Guard
+operations and on the careers of the members taking such leave.
+``(4) Limitations.--An analysis of current gender-based
+limitations on Coast Guard career opportunities, including
+discussion of--
+``(A) shipboard opportunities;
+``(B) opportunities to serve at remote units; and
+``(C) any other limitations on the opportunities of
+female members.
+``(5) Progress update.--An update on the Coast Guard's
+progress on the implementation of the action plan required
+under section 209 of the Coast Guard Authorization Act of
+2019.''.
+(c) Clerical Amendment.--The analysis for chapter 51 of title 14,
+United States Code, is amended by adding at the end the following:
+``5109. Report on gender diversity in the Coast Guard.''.
+SEC. 210. DISPOSITION OF INFRASTRUCTURE RELATED TO E-LORAN.
+Section 914 of title 14, United States Code, is amended--
+(1) in subsection (a)--
+(A) by striking ``date'' and inserting ``later of
+the date of the conveyance of the properties directed
+under section 533(a) of the Coast Guard Authorization
+Act of 2016 (Public Law 114-120) or the date''; and
+(B) by striking ``determination by the Secretary''
+and inserting ``determination by the Secretary of
+Transportation under section 312(d) of title 49''; and
+(2) in subsection (c), by striking paragraph (2) and
+inserting the following:
+``(2) Availability of proceeds.--The proceeds of such
+sales, less the costs of sale incurred by the General Services
+Administration, shall be deposited into the Coast Guard Housing
+Fund and, without further appropriation, shall be available
+until expended for uses authorized under section 2946 of this
+title.''.
+SEC. 211. POSITIONS OF IMPORTANCE AND RESPONSIBILITY.
+Section 2103(c)(3) of title 14, United States Code, is amended by
+striking ``rear admiral (lower half)'' and inserting ``vice admiral''.
+TITLE III--SHIPPING
+SEC. 301. ELECTRONIC CHARTS; EQUIVALENCY.
+(a) Requirements.--Section 3105(a)(1) of title 46, United States
+Code, is amended to read as follows:
+``(1) Electronic charts in lieu of marine charts, charts,
+and maps.--Subject to paragraph (2), the following vessels,
+while operating on the navigable waters of the United States,
+shall be equipped with and operate electronic navigational
+charts conforming to a standard acceptable to the Secretary in
+lieu of any marine charts, charts, and maps required by titles
+33 and 46, Code of Federal Regulations, as in effect on the
+date of the enactment of this paragraph:
+``(A) A self-propelled commercial vessel of at
+least 65 feet overall length.
+``(B) A vessel carrying more than a number of
+passengers for hire determined by the Secretary.
+``(C) A towing vessel of more than 26 feet in
+overall length and 600 horsepower.
+``(D) Any other vessel for which the Secretary
+decides that electronic charts are necessary for the
+safe navigation of the vessel.''.
+(b) Exemptions and Waivers.--Section 3105(a)(2) of title 46, United
+States Code, is amended by--
+(1) in subparagraph (A), by striking ``operates; and'' and
+inserting ``operates;'';
+(2) in subparagraph (B), by striking ``those waters.'' and
+inserting ``those waters; and''; and
+(3) by adding at the end the following:
+``(C) permit vessels that operate solely landward
+of the baseline from which the territorial sea of the
+United States is measured to utilize software-based,
+platform-independent electronic chart systems that the
+Secretary determines are capable of displaying
+electronic navigational charts with necessary scale and
+detail to ensure safe navigation for the intended
+voyage.''.
+SEC. 302. PASSENGER VESSEL SECURITY AND SAFETY REQUIREMENTS;
+APPLICATION.
+Section 3507(k)(1) of title 46, United States Code, is amended--
+(1) in subparagraph (B), by adding ``and'' after the
+semicolon at the end;
+(2) in subparagraph (C), by striking ``; and'' and
+inserting a period; and
+(3) by striking subparagraph (D).
+SEC. 303. NON-OPERATING INDIVIDUAL.
+(a) Definition.--Section 2101 of title 46, United States Code, is
+amended by inserting after paragraph (23) the following:
+``(23a) `non-operating individual' means an individual
+who--
+``(A) does not perform--
+``(i) with respect to the operation of a
+vessel, watchstanding, automated engine room
+duty watch, navigation, or personnel safety
+functions;
+``(ii) with respect to the loading and
+unloading of merchandise, cargo handling
+functions, including any activity relating to
+the loading or unloading of cargo, the
+operation of cargo-related equipment (whether
+or not integral to the vessel), and the
+handling of mooring lines on the dock when the
+vessel is made fast or let go;
+``(iii) vessel maintenance, including any
+repairs that can be performed by the vessel's
+crew or a riding gang; or
+``(iv) safety, security, or environmental
+protection activities directly related to the
+operation of the vessel and normally conducted
+by the vessel's crew;
+``(B) does not serve as part of the crew complement
+required under section 8101;
+``(C) does not serve as a riding gang member;
+``(D) is not a member of the steward's department;
+``(E) is not a citizen or temporary or permanent
+resident of a country designated by the United States
+as a sponsor of terrorism or any other country that the
+Secretary, in consultation with the Secretary of State
+and the heads of other appropriate United States
+agencies, determines to be a security threat to the
+United States;
+``(F) is not specifically exempted from the
+requirement to have a merchant mariner's document under
+section 8701(a);
+``(G) has not been convicted in any jurisdiction of
+an offense described in paragraph (2) or (3) of section
+7703;
+``(H) whose license, certificate of registry, or
+merchant mariner's document has not been suspended or
+revoked under section 7704; and
+``(I) who does not otherwise constitutes a threat
+to the safety of the vessel;''.
+(b) Citizenship and Navy Reserve Requirements.--Section 8103(j) of
+title 46, United States Code, is amended by--
+(1) striking ``Riding Gang Member'' and inserting ``Riding
+Gang Member or Non-Operating Individual''; and
+(2) inserting ``or a non-operating individual'' before the
+period.
+(c) Requirements Relating to Non-Operating Individuals.--
+(1) In general.--Chapter 81 of title 46, United States
+Code, is amended--
+(A) by redesignating section 8107 as section 8108;
+and
+(B) by inserting after section 8106 the following:
+``Sec. 8107. Requirements relating to non-operating individuals
+``(a) In General.--The owner or managing operator of a merchant
+vessel of the United States of at least 100 gross tons as measured
+under section 14502, or an alternate tonnage measured under section
+14302 as prescribed by the Secretary under section 14104 shall--
+``(1) ensure that--
+``(A) each non-operating individual on the vessel--
+``(i) is a United States citizen or an
+alien lawfully admitted to the United States
+for permanent residence; or
+``(ii) possesses a United States non-
+immigrant visa for individuals desiring to
+enter the United States temporarily for
+business, employment-related and personal
+identifying information, and any other
+documentation required by the Secretary;
+``(B) all required documentation for such
+individual is kept on the vessel and available for
+inspection by the Secretary; and
+``(C) each non-operating individual is identified
+on the manifest;
+``(2) ensure that--
+``(A) each non-operating individual possesses--
+``(i) a merchant mariner's document;
+``(ii) a transportation worker
+identification credential under section 70105;
+or
+``(iii) a current security clearance issued
+by a Federal agency; or
+``(B) the employer of such an individual attests in
+a certificate to the owner or managing operator that--
+``(i) the background of such individual has
+been examined and found to be free of any
+credible information indicating a material risk
+to the security of the vessel, the vessel's
+cargo, the ports the vessel visits, or other
+individuals onboard the vessel;;
+``(ii) such examination--
+``(I) met the requirements of
+section 70105(d)(2), for persons
+described in paragraph (1)(A)(i) of
+this subsection; or
+``(II) consisted of a search of all
+information reasonably available to the
+owner or managing operator in the
+individual's country of citizenship and
+any other country in which the
+individual works, receives employment
+referrals, or resides, for persons
+described in paragraph (1)(A)(ii) of
+this subsection; and
+``(iii) the information derived from any
+such examination is made available to the
+Secretary upon request;
+``(3) ensure that each non-operating individual of the
+vessel, while on board the vessel, is subject to the same
+random chemical testing and reporting regimes as crew members;
+``(4) ensure that each such individual employed on the
+vessel receives basic safety familiarization and basic safety
+training approved by the Coast Guard; and
+``(5) ensure that every non-operating individual of the
+vessel is employed on board the vessel under conditions that
+meet or exceed the minimum international standards of all
+applicable international labor conventions to which the United
+States is a party, including all of the merchant seamen
+protection and relief provided under United States law.
+``(b) Recordkeeping.--In addition to the requirements of subsection
+(a), the owner or managing operator of a vessel to which subsection (a)
+applies shall ensure that all information necessary to ensure
+compliance with this section, as determined by the Secretary, is
+entered into the vessel's official logbook required by chapter 113.
+``(c) Civil Penalty.--A person (including an individual) violating
+this section is liable to the United States Government for a civil
+penalty of $1,250.''.
+(2) Clerical amendments.--The analysis for chapter 81 of
+title 46, United States Code, is amended by striking the items
+relating to section 8107 and inserting the following:
+``8107. Non-operating individual
+``8108. Use of force against piracy''.
+(3) Conforming amendments.--
+(A) Merchant mariners' documents required.--Section
+8701 of title 46, United States Code, is amended by
+adding at the end the following:
+``(e) This section does not apply to non-operating individuals.''.
+(B) Training for use of force against piracy.--
+Section 51705(4) of title 46, United States Code, is
+amended by striking ``46 U.S.C. 8107 note'' and
+inserting ``46 U.S.C. 8108 note''.
+SEC. 304. SMALL PASSENGER VESSELS AND UNINSPECTED PASSENGER VESSELS.
+Section 12121 of title 46, United States Code, is amended--
+(1) in subsection (a)(1), by striking subparagraphs (A) and
+(B) and inserting the following:
+``(A) was built in the United States;
+``(B) was not built in the United States and is at
+least 3 years old; or
+``(C) if rebuilt, was rebuilt--
+``(i) in the United States; or
+``(ii) outside the United States at least 3
+years before the certificate requested under
+subsection (b) would take effect.''; and
+(2) in subsection (b), by inserting ``12132,'' after
+``12113,''.
+SEC. 305. INSTALLATION VESSELS.
+(a) In General.--Chapter 551 of title 46, United States Code, is
+amended by adding at the end the following new section:
+``Sec. 55123. Installation vessels
+``(a) Initial Determination of Coastwise Qualified Vessel.--No
+later than 180 days after the date of the enactment of this section,
+the Secretary of Transportation shall determine whether an installation
+vessel exists for which a coastwise endorsement has been issued under
+section 12112.
+``(b) Application.--If the Secretary of Transportation determines
+under subsection (a) that no such coastwise qualified vessel exists,
+then, after the date on which such determination was made, lifting
+operations between a vessel for which a coastwise endorsement has been
+issued under section 12112 and an installation vessel for which no such
+endorsement has been issued is not transportation of merchandise for
+the purposes of section 55102.
+``(c) Requests for Determinations of Coastwise Qualified Vessels.--
+``(1) In general.--After the date on which the
+determination was made under subsection (a), an installation
+vessel for which a coastwise endorsement has been issued under
+section 12112, the owner or operator of such installation
+vessel may seek a new determination from the Secretary of
+Transportation that an installation vessel for which a
+coastwise endorsement has been issued under section 12112
+exists.
+``(2) Application to non-qualified vessels.--If the
+Secretary of Transportation makes a determination under
+paragraph (1) that a coastwise qualified vessel exists, then--
+``(A) the owner or operator of an installation
+vessel for which no coastwise endorsement has been
+issued under section 12112 shall seek a determination
+of the availability of a coastwise qualified vessel
+under paragraph (3) before using such non-coastwise
+qualified vessel for the transportation of a platform
+jacket; and
+``(B) after the date on which such determination is
+made, the owner or operator of an installation vessel
+for which no coastwise endorsement has been issued
+under section 12112 shall not use such non-coastwise
+qualified vessel for the transportation of a platform
+jacket unless the Secretary of Transportation
+determines a coastwise qualified is not available under
+paragraph (4).
+``(3) Criteria for determination of availability.--The
+Secretary of Transportation shall determine a coastwise
+qualified vessel is not available if--
+``(A) the owner or operator of a non-coastwise
+qualified vessel submits to the Secretary of
+Transportation an application for the use of a non-
+coastwise qualified installation vessel for
+transportation of a platform jacket under this section
+that includes all relevant information, including
+engineering details and timing requirements, and such
+application is submitted not less than 1 year before
+the date such vessel is required for such use;
+``(B) the Secretary provides the application made
+under subparagraph (A) to the owner of each coastwise
+qualified vessel listed as an installation vessel in
+the inventory under section 12138(c) and promptly
+publishes in the Federal Register a notice--
+``(i) describing the project and the
+platform jacket involved;
+``(ii) advising that all relevant
+information reasonably needed to assess the
+transportation and installation requirements
+for the platform jacket will be made available
+to an interested person on request; and
+``(iii) requesting that information on the
+availability of coastwise qualified vessels be
+submitted within a 45-day period beginning on
+the date of such publication; and
+``(C)(i) within such 45-day period no information
+is submitted to the Secretary from owners or operators
+of coastwise qualified installation vessels to meet the
+requirements of the application required under
+paragraph (A); or
+``(ii) the owner or operator of a coastwise
+qualified installation vessel submits information to
+the Secretary asserting that the owner or operator has
+a suitable coastwise qualified installation vessel
+available to meet the requirements of the application
+required under paragraph (A), but the Secretary
+determines, within 90 days after the notice is first
+published, that the coastwise qualified installation
+vessel is not suitable or reasonably available for the
+transportation.
+``(d) Definitions.--In this section:
+``(1) Installation vessel.--The term `installation vessel'
+means a vessel using a crane suitable for offshore use that--
+``(A) is used to install platform jackets;
+``(B) has a slewing or luffing capability;
+``(C) has a lifting capacity of at least 1,000
+metric tons; and
+``(D) conducts lifting operations to construct or
+remove offshore facilities or subsea infrastructure or
+to install and uninstall component parts or materials
+from offshore facilities or subsea infrastructure.
+``(2) Lifting operations.--The term `lifting operations'
+means the lifting of platform jackets by crane from the time
+that the lifting activity begins when unlading from a vessel or
+removing offshore facilities or subsea infrastructure until the
+time that the lifting activities are terminated for a
+particular unlading, installation, or removal of offshore
+facilities or subsea infrastructure.
+``(3) Platform jacket.--The term `platform jacket' has the
+meaning given such term in section 55108(a).''.
+(b) Inventory.--Section 12138(b) of title 46, United States Code,
+is amended--
+(1) in subsection (b)--
+(2) in the heading, by striking the period and inserting
+``, and Installation.'';
+(3) by amending paragraph (1) to read as follows:
+``(1) In general.--The Secretary of Transportation shall
+develop, maintain, and periodically update an inventory of
+vessels that are--
+``(A) documented under this chapter;
+``(B) at least 200 feet in length;
+``(C) have the capability to lay, maintain, or
+repair a submarine cable, without regard to whether a
+particular vessel is classed as a cable ship or cable
+vessel; and
+``(D) installation vessels within the meaning of
+such term in section 55123.''; and
+(4) by amending paragraph (2)(B) to read as follows:
+``(B) the abilities and limitations of the vessel
+with respect to--
+``(i) in the case of a vessel required to
+be inventoried under paragraph (1)(A), laying,
+maintaining, and repairing a submarine cable;
+and
+``(ii) in the case of a vessel required to
+be inventoried under paragraph (1)(B),
+installing platform jackets; and''.
+(5) No later than 30 days after the enactment of this Act,
+the Secretary of Homeland Security, acting through the
+Commissioner of Customs and Border Protection, shall issue a
+notice, including an opportunity for public comment, on the
+modification or revocation of Letter Rulings 101925, 108442,
+113841, 114435, 115185, 115218, 115311, 115487, 115522, 115771,
+115938, 116078, H004242 with respect to the application of the
+section 55102 of title 46, Shipping, United States Code, to
+certain offshore operations.
+SEC. 306. ADVISORY COMMITTEES.
+(a) National Offshore Safety Advisory Committee; Representation.--
+Section 15106(c)(3) of title 46, United States Code, is amended--
+(1) in subparagraph (C), by striking ``mineral and oil
+operations, including geophysical services'' and inserting
+``operations'';
+(2) in subparagraph (D), by striking ``exploration and
+recovery'';
+(3) in subparagraph (E), by striking ``engaged in diving
+services related to offshore construction, inspection, and
+maintenance'' and inserting ``providing diving services to the
+offshore industry'';
+(4) in subparagraph (F), by striking ``engaged in safety
+and training services related to offshore exploration and
+construction'' and inserting ``providing safety and training
+services to the offshore industry'';
+(5) in subparagraph (G), by striking ``engaged in
+pipelaying services related to offshore construction'' and
+inserting ``providing subsea engineering, construction, or
+remotely operated vehicle support to the offshore industry'';
+(6) in subparagraph (H), by striking ``mineral and
+energy'';
+(7) in subparagraph (I), by striking ``national
+environmental entities'' and inserting ``entities providing
+environmental protection, compliance, or response services to
+the offshore industry''; and
+(8) in subparagraph (J), by striking ``deepwater ports''
+and inserting ``entities engaged in offshore oil exploration
+and production on the Outer Continental Shelf adjacent to
+Alaska''.
+(b) Advisory Committees; Testimony.--Section 15109(j)(4) of title
+46, United States Code, is amended by adding at the end the following:
+``(C) Testimony.--The members of a committee shall
+be available to testify before appropriate committees
+of the Congress with respect to the advice, reports,
+and recommendations submitted under paragraph (2).''.
+(c) National Maritime Transportation System Advisory Committee.--
+(1) In general.--Chapter 555 of title 46, United States
+Code, is amended by adding at the end the following:
+``Sec. 55502. National Maritime Transportation System Advisory
+Committee
+``(a) Establishment.--There is established a National Maritime
+Transportation System Advisory Committee (in this section referred to
+as the `Committee').
+``(b) Function.--The Committee shall advise the Secretary of
+Transportation on matters relating to the United States maritime
+transportation system and its seamless integration with other segments
+of the transportation system, including the viability of the United
+States Merchant Marine.
+``(c) Membership.--
+``(1) In general.--The Committee shall consist of 25
+members appointed by the Secretary of Transportation in
+accordance with this section and section 15109.
+``(2) Expertise.--Each member of the Committee shall have
+particular expertise, knowledge, and experience in matters
+relating to the function of the Committee.
+``(3) Representation.--Members of the Committee shall be
+appointed as follows:
+``(A) At least 1 member shall represent the
+Environmental Protection Agency.
+``(B) At least 1 member shall represent the
+Department of Commerce.
+``(C) At least 1 member shall represent the Army
+Corps of Engineers.
+``(D) At least 1 member shall represent the Coast
+Guard.
+``(E) At least 1 member shall represent Customs and
+Border Protection.
+``(F) At least 1 member shall represent State and
+local governmental entities.
+``(G) Additional members shall represent private
+sector entities that reflect a cross-section of
+maritime industries, including port and water
+stakeholders, academia, and labor.
+``(H) The Secretary may appoint additional
+representatives from other Federal agencies as the
+Secretary considers appropriate.
+``(4) Administration.--For purposes of section 15109--
+``(A) the Committee shall be treated as a committee
+established under chapter 151; and
+``(B) the Secretary of Transportation shall fulfill
+all duties and responsibilities and have all
+authorities of the Secretary of Homeland Security with
+regard to the Committee.''.
+(2) Treatment of existing committee.--Notwithstanding any
+other provision of law--
+(A) an advisory committee substantially similar to
+the National Maritime Transportation System Advisory
+Committee established by this section and that was in
+force or in effect on the day before the date of the
+enactment of this Act, including the charter,
+membership, and other aspects of such committee, may
+remain in force or in effect for the 2-year period
+beginning on the date of the enactment of this section;
+and
+(B) during such 2-year period--
+(i) requirements relating the National
+Maritime Transportation System Advisory
+Committee established by such section shall be
+treated as satisfied by such substantially
+similar advisory committee; and
+(ii) the enactment of this section shall
+not be the basis--
+(I) to deem, find, or declare such
+committee, including the charter,
+membership, and other aspects thereof,
+void, not in force, or not in effect;
+(II) to suspend the activities of
+such committee; or
+(III) to bar the members of such
+committee from a meeting.
+(3) Clerical amendment.--The analysis at the beginning of
+chapter 555 of title 46, United States Code, is amended by
+adding at the end the following:
+``55502. National Maritime Transportation System Advisory Committee.''.
+(4) Repeal.--Section 55603 of title 46, United States Code,
+and the item relating to that section in the analysis for
+chapter 556 of that title, are repealed.
+(d) Great Lakes Pilotage Advisory Committee.--
+(1) In general.--Title 46, United States Code, is amended
+by striking section 9307 and inserting the following:
+``Sec. 9307. Great Lakes Pilotage Advisory Committee
+``(a) Establishment.--There is established a Great Lakes Pilotage
+Advisory Committee (in this section referred to as the `Committee').
+``(b) Function.--The Committee--
+``(1) may review proposed Great Lakes pilotage regulations
+and policies and make recommendations to the Secretary that the
+Committee considers appropriate; and
+``(2) may advise, consult with, report to, and make
+recommendations to the Secretary on matters relating to Great
+Lakes pilotage.
+``(c) Membership.--
+``(1) In general.--The Committee shall consist of 7 members
+appointed by the Secretary in accordance with this section and
+section 15109.
+``(2) Expertise.--Each member of the Committee shall have
+particular expertise, knowledge, and experience in matters
+relating to the function of the Committee.
+``(3) Representation.--Members of the Committee shall be
+appointed as follows:
+``(A) The President of each of the 3 Great Lakes
+pilotage districts, or the President's representative.
+``(B) At least 1 member shall represent the
+interests of vessel operators that contract for Great
+Lakes pilotage services.
+``(C) At least 1 member shall represent the
+interests of Great Lakes ports.
+``(D) At least 1 member shall represent the
+interests of shippers whose cargoes are transported
+through Great Lakes ports.
+``(E) At least 1 member shall have a background in
+finance or accounting and must have been recommended to
+the Secretary by a unanimous vote of the other members
+of the Committee.
+``(4) Administration.--For purposes of section 15109, the
+Committee shall be treated as a committee established under
+chapter 151.''.
+(2) Treatment of existing committee.--Notwithstanding any
+other provision of law--
+(A) an advisory committee substantially similar to
+the Great Lakes Pilotage Advisory Committee established
+by this section and that was in force or in effect on
+the day before the date of the enactment of this Act,
+including the charter, membership, and other aspects of
+the committee, may remain in force or in effect for a
+period of 2 years from the date of enactment of this
+Act; and
+(B) during such 2-year period--
+(i) requirements relating to the Great
+Lakes Pilotage Advisory Committee established
+by this section shall be treated as satisfied
+by the substantially similar advisory
+committee; and
+(ii) the enactment of this section shall
+not be the basis--
+(I) to deem, find, or declare such
+committee, including the charter,
+membership, and other aspects thereof,
+void, not in force, or not in effect;
+(II) to suspend the activities of
+such committee; or
+(III) to bar the members of such
+committee from a meeting.
+SEC. 307. EXPIRED MARITIME LIENS.
+Section 31343(e) of title 46, United States Code, is amended--
+(1) by inserting ``(1)'' before ``A notice''; and
+(2) by inserting after paragraph (1), as so designated by
+this section, the following:
+``(2) On expiration of a notice of claim of lien under paragraph
+(1), the Secretary shall remove such expired notice.''.
+SEC. 308. OFFSHORE NAVIGATION.
+(a) Port Access Routes.--Section 70003(e) of title 46, United
+States Code, is amended--
+(1) in paragraph (3), by striking ``continues; and'' and
+inserting ``continues;'';
+(2) in paragraph (4), by striking the period at the end and
+inserting ``; and''; and
+(3) by adding at the end the following:
+``(5) shall, unless otherwise authorized by the Secretary,
+and notwithstanding any other provision of this chapter,
+require--
+``(A) a 2-nautical-mile buffer between the parallel
+outer or seaward boundary of a traffic lane and any
+offshore structure affixed to the submerged land of the
+Outer Continental Shelf; and
+``(B) a 5-nautical-mile buffer between the entry or
+exit of any traffic separation scheme and any offshore
+structure.''.
+(b) Navigation; Conflict Mitigation.--Not later than 1 year after
+the date of the enactment of this Act, the Secretary of the department
+in which the Coast Guard is operating shall implement the
+recommendations of the Atlantic Coast Port Access Route Study, docket
+number USCG-2011-0351, dated February 24, 2016, including any
+recommendations in the appendices thereto.
+(c) Fairways.--Not later than July 1, 2021, the Commandant of the
+Coast Guard shall conduct a review of navigation on the East Coast of
+the United States and submit recommendations for new fairways on such
+coast to facilitate commerce to the Committee on Transportation and
+Infrastructure of the House of Representatives and the Committee on
+Commerce, Science, and Transportation of the Senate.
+(d) Port Access Route Studies.--
+(1) Completion dates.--The Commandant of the Coast Guard
+shall complete--
+(A) the Chuckchi Sea, Bering Strait and Bering Sea
+Port Access Route Study not later than 1 year after the
+date of the enactment of this Act; and
+(B) the Alaskan Arctic Coast Port Access Route
+Study not later than 5 years after the date of the
+enactment of this Act.
+SEC. 309. TRAINING; EMERGENCY RESPONSE PROVIDERS.
+(a) Security Plan Implementation Grants.--Section 70107 of title
+46, United States Code, is amended--
+(1) in subsection (a), by striking ``law enforcement
+personnel'' and inserting ``emergency response providers'';
+(2) in subsection (b)(8), by striking ``law enforcement
+personnel--'' and inserting ``emergency response providers--'';
+and
+(3) in subsection (c)(2)(C), by striking ``law enforcement
+agency personnel'' and inserting ``emergency response
+providers''.
+(b) Credentialing for State and Local Support.--Section 70132 of
+title 46, United States Code, is amended--
+(1) in subsection (a), by striking ``law enforcement
+personnel--'' and inserting ``emergency response providers--'';
+(2) in subsection (b), by striking ``law enforcement
+personnel'' each place it appears and inserting ``emergency
+response providers''; and
+(3) by adding at the end the following:
+``(d) Definition.--For the purposes of this section, the term
+`emergency response providers' has the meaning given that term in
+section 2 of the Homeland Security Act of 2002 (6 U.S.C. 101).''.
+SEC. 310. AIMING A LASER POINTER AT A VESSEL.
+(a) In General.--Subchapter II of chapter 700 of title 46, United
+States Code, is amended by adding at the end the following:
+``Sec. 70014. Aiming a laser pointer at a vessel
+``(a) Prohibition.--It shall be unlawful to cause the beam of a
+laser pointer to strike a vessel operating on the navigable waters of
+the United States.
+``(b) Exceptions.--This section shall not apply to a member or
+element of the Department of Defense or Department of Homeland Security
+acting in an official capacity for the purpose of research,
+development, operations, testing, or training.
+``(c) Laser Pointer Defined.--In this section the term `laser
+pointer' means any device designed or used to amplify electromagnetic
+radiation by stimulated emission that emits a beam designed to be used
+by the operator as a pointer or highlighter to indicate, mark, or
+identify a specific position, place, item, or object.''.
+(b) Clerical Amendment.--The analysis for such chapter is amended
+by adding at the end of the items relating to such subchapter the
+following:
+``70014. Aiming a laser pointer at a vessel.''.
+SEC. 311. MARITIME TRANSPORTATION ASSESSMENT.
+Section 55501(e) of title 46, United States Code, is amended--
+(1) in paragraph (2), by striking ``an assessment of the
+condition'' and inserting ``a conditions and performance
+analysis'';
+(2) in paragraph (4), by striking ``; and'' and inserting a
+semicolon;
+(3) in paragraph (5) by striking the period and inserting
+``; and''; and
+(4) by adding at the end the following:
+``(6) a compendium of the Federal programs engaged in the
+maritime transportation system.''.
+SEC. 312. SAFETY OF SPECIAL ACTIVITIES.
+(a) In General.--Title 46, United States Code, is amended by
+inserting after section 70005 the following:
+``Sec. 70006. Safety of special activities
+``(a) In General.--The Secretary may establish a safety zone to
+address special activities in the exclusive economic zone.
+``(b) Definitions.--In this section:
+``(1) The term `safety zone' has the meaning provided in
+section 165.20 of title 33, Code of Federal Regulations.
+``(2) The term `special activities' includes--
+``(A) space activities, including launch and
+reentry, as those terms are defined in section 50902 of
+title 51, carried out by United States citizens; and
+``(B) offshore energy development activities, as
+described in section 8(p)(1)(C) of the Outer
+Continental Shelf Lands Act (43 U.S.C. 1337(p)(1)(C)),
+on or near a fixed platform.
+``(3) The term `United States citizen' has the same meaning
+as the term `eligible owners' in section 12103.
+``(4) The term `fixed platform' means an artificial island,
+installation, or structure permanently attached to the sea-bed
+for the purpose of exploration or exploitation of resources or
+for other economic purposes.''.
+(b) Clerical Amendment.--The analysis for chapter 700 of title 46,
+United States Code, is amended by inserting after the item relating to
+section 70005 the following:
+``70006. Safety of special activities.''.
+(c) Regulations.--
+(1) In general.--Not later than 1 year after the date of
+the enactment of this Act, the Secretary of the department in
+which the Coast Guard is operating shall establish regulations
+to implement this section.
+(2) Alignment with other regulations.--Such regulations
+shall align with subchapter C of chapter III of title 14, Code
+of Federal Regulations.
+SEC. 313. ENGINE CUT-OFF SWITCHES; USE REQUIREMENT.
+(a) In General.--Section 4312 of title 46, United States Code, is
+amended--
+(1) by redesignating subsections (b), (c), and (d) as
+subsections (c), (d), and (e), respectively; and
+(2) by inserting after subsection (a) the following:
+``(b) Use Requirement.--
+``(1) In general.--An individual operating a covered
+recreational vessel shall use an engine cut-off switch link
+while operating on plane or above displacement speed.
+``(2) Exceptions.--The requirement under paragraph (1)
+shall not apply if--
+``(A) the main helm of the covered vessel is
+installed within an enclosed cabin; or
+``(B) the vessel does not have an engine cut-off
+switch and is not required to have one under subsection
+(a).''.
+(b) Civil Penalty.--Section 4311 of title 46, United States Code,
+is amended by--
+(1) redesignating subsections (c), (d), (e), (f), and (g)
+as subsections (d), (e), (f), (g), and (h), respectively; and
+(2) inserting after subsection (b) the following:
+``(c) A person violating section 4312(b) of this title is liable to
+the United States Government for a civil penalty of not more than--
+``(1) $100 for the first offense;
+``(2) $250 for the second offense; and
+``(3) $500 for any subsequent offense.''.
+(c) Effective Date.--The amendments made in subsections (a) and (b)
+shall take effect 90 days after the date of the enactment of this
+section, unless the Commandant of the Coast Guard, prior to the date
+that is 90 days after the date of the enactment of this section,
+determines that the use requirement enacted in subsection (a) would not
+promote recreational boating safety.
+SEC. 314. EXEMPTIONS AND EQUIVALENTS.
+(a) In General.--Section 4305 of title 46, United States Code, is
+amended--
+(1) by striking the heading and inserting the following:
+``Sec. 4305. Exemptions and equivalents'';
+(2) by inserting ``(a) Exemptions.--'' before ``If the
+Secretary'';
+(3) by adding at the end the following:
+``(b) Equivalents.--The Secretary may accept a substitution for
+associated equipment performance or other safety standards for a
+recreational vessel if the substitution provides an equivalent level of
+safety.''.
+(b) Clerical Amendment.--The analysis for chapter 43 of title 46,
+United States Code, is amended by striking the item relating to section
+4305 and inserting the following:
+``4305. Exemptions and equivalents.''.
+TITLE IV--MISCELLANEOUS
+SEC. 401. COASTWISE TRADE.
+(a) In General.--The Commandant of the Coast Guard shall review the
+adequacy of and continuing need for provisions in title 46, Code of
+Federal Regulations, that require a United States vessel documented
+under chapter 121 of title 46, United States Code, possessing a
+coastwise endorsement under that chapter, and engaged in coastwise
+trade to comply with regulations for vessels engaged in an
+international voyage.
+(b) Briefing.--Not later than 180 days after the date of the
+enactment of this Act, the Commandant of the Coast Guard shall provide
+to the Committee on Transportation and Infrastructure of the House of
+Representatives and the Committee on Commerce, Science, and
+Transportation of the Senate a briefing on the findings of the review
+required under subsection (a) and a discussion of how existing laws and
+regulations could be amended to ensure the safety of vessels described
+in subsection (a) while infringing as little as possible on commerce.
+SEC. 402. UNMANNED MARITIME SYSTEMS.
+(a) Assessment.--
+(1) In general.--The Commandant of the Coast Guard, acting
+through the Blue Technology Center of Expertise, shall
+regularly assess available unmanned maritime systems for
+potential use to support missions of the Coast Guard.
+(2) Consultation.--The Commandant shall make the assessment
+required under paragraph (1) after consultation with the
+Department of Defense, other Federal agencies, the academic
+sector, and developers and manufacturers of unmanned maritime
+systems.
+(b) Report.--
+(1) In general.--Not later than one year after the date of
+the enactment of this Act, and biennially thereafter, the
+Commandant shall submit to the Committee on Transportation and
+Infrastructure of the House of Representatives and the
+Committee on Commerce, Science, and Transportation of the
+Senate a report on the actual and potential effects of the use
+of then-existing unmanned maritime systems on the mission
+effectiveness of the Coast Guard.
+(2) Contents.--Each report submitted under paragraph (1)
+shall include the following:
+(A) An inventory of current unmanned maritime
+systems used by the Coast Guard, an overview of such
+usage, and a discussion of the mission effectiveness of
+such systems, including any benefits realized or risks
+or negative aspects of such usage.
+(B) A prioritized list of Coast Guard mission
+requirements that could be met with additional unmanned
+maritime systems, and the estimated costs of acquiring
+and operating such systems.
+(c) Definitions.--In this section:
+(1) Unmanned maritime systems.--
+(A) In general.--The term ``unmanned maritime
+systems'' means remotely operated or autonomous
+vehicles produced by the commercial sector designed to
+travel in the air, on or under the ocean surface, on
+land, or any combination thereof, and that function
+without an on-board human presence.
+(B) Examples.--Such term includes the following:
+(i) Unmanned undersea vehicles.
+(ii) Unmanned surface vehicles.
+(iii) Unmanned aerial vehicles.
+(iv) Autonomous underwater vehicles.
+(v) Autonomous surface vehicles.
+(vi) Autonomous aerial vehicles.
+(2) Available unmanned maritime systems.--The term
+``available unmanned maritime systems'' includes systems that
+can be purchased commercially or are in use by the Department
+of Defense or other Federal agencies.
+SEC. 403. EXPEDITED TRANSFER IN CASES OF SEXUAL ASSAULT; DEPENDENTS OF
+MEMBERS OF THE COAST GUARD.
+Not later than 180 days after the date of the enactment of this
+Act, the Commandant of the Coast Guard shall establish a policy to
+allow the transfer of a member of the Coast Guard whose dependent is
+the victim of sexual assault perpetrated by a member of the Armed
+Forces who is not related to the victim.
+SEC. 404. TOWING VESSELS; OPERATION OUTSIDE THE BOUNDARY LINE.
+(a) Interim Exemption.--A towing vessel to which this section
+applies is exempt from any additional requirements of subtitle II of
+title 46, United States Code, and chapter I of title 33 and chapter I
+of title 46, Code of Federal Regulations that would result solely from
+such vessel operating outside the Boundary Line (as such term is
+defined in section 103 of title 46, United States Code) if such
+vessel--
+(1) is listed as a response vessel on a vessel response
+plan and is operating outside the Boundary Line solely to
+perform duties of a response vessel; or
+(2) is operating outside the Boundary Line solely to
+perform operations necessary to escort a vessel with limited
+maneuverability.
+(b) Applicability.--This section applies to a towing vessel--
+(1) that is subject to inspection under chapter 33 of title
+46, United States Code, and subchapter M of title 46, Code of
+Federal Regulations;
+(2) with only ``Lakes, Bays, and Sounds'' or ``Rivers''
+routes recorded on such vessel's certificate of inspection
+under section 136.230 of title 46, Code of Federal Regulations;
+and
+(3)(A) that, with respect to a vessel that is described in
+subsection (a)(1), is listed--
+(i) on a vessel response plan under part 155 of
+title 33, Code of Federal Regulations, on the date of
+approval of the vessel response plan; or
+(ii) by name or reference in the vessel response
+plan's geographic-specific appendix on the date of
+approval of the vessel response plan; or
+(B) that, with respect to a vessel described in subsection
+(a)(2), is regularly engaged in harbor assist operations,
+including the docking, undocking, mooring, unmooring, and
+escorting of vessels with limited maneuverability.
+(c) Limitations.--A vessel exempted under subsection (a) is subject
+to the following operating limitations:
+(1) Response vessels.--The voyage of a vessel exempted
+under subsection (a)(1) shall--
+(A) be less than 12 hours, or in the case of a
+voyage in the territorial waters of Alaska, Guam,
+Hawaii, and American Samoa, have sufficient manning as
+determined by the Secretary; and
+(B) originate and end in the inspection zone of a
+single Officer In-Charge, Marine Inspection, as defined
+in section 3305(d)(4) of title 46, United States Code.
+(2) Escort vessels.--The voyage of a vessel exempted under
+subsection (a)(2) shall--
+(A) be less than 12 hours in total duration;
+(B) originate and end in the inspection zone of a
+single Officer In-Charge, Marine Inspection, as such
+term is defined in section 3305(d)(4) of title 46,
+United States Code; and
+(C) occur no further than 10 nautical miles from
+the Boundary Line.
+(d) Termination.--The interim exemption provided under subsection
+(a) shall terminate on July 22, 2023.
+(e) Restriction.--The Officer In-Charge, Marine Inspection, as
+defined in section 3305(d)(4) of title 46, United States Code, for an
+inspection zone may restrict operations under the exemptions provided
+under subsection (a) for safety purposes.
+(f) Briefing.--Not later than July 22, 2022, the Commandant of the
+Coast Guard shall brief the Committee on Transportation and
+Infrastructure of the House of Representatives and the Committee on
+Commerce, Science, and Transportation of the Senate regarding the
+following:
+(1) The impacts of the interim exemptions provided under
+this section.
+(2) Any safety concerns regarding the expiration of such
+interim exemptions.
+(3) Whether such interim exemptions should be extended or
+made permanent in the interests of safety.
+SEC. 405. COAST GUARD AUTHORITIES STUDY.
+(a) In General.--The Secretary of the department in which the Coast
+Guard is operating shall seek to enter into an arrangement with the
+National Academy of Sciences not later than 60 days after the date of
+the enactment of this Act under which the Academy shall prepare an
+assessment of Coast Guard authorities.
+(b) Assessment.--The assessment under subsection (a) shall
+provide--
+(1) an examination of emerging issues that may require
+Coast Guard oversight, regulation, or action;
+(2) a description of potential limitations and shortcomings
+of relying on current Coast Guard authorities to address
+emerging issues; and
+(3) an overview of adjustments and additions that could be
+made to existing Coast Guard authorities to fully address
+emerging issues.
+(c) Report to the Congress.--Not later than 1 year after entering
+into an arrangement with the Secretary under subsection (a), the
+National Academy of Sciences shall submit the assessment under this
+section to the Committee on Transportation and Infrastructure of the
+House of Representatives and the Committee on Commerce, Science, and
+Transportation of the Senate.
+(d) Emerging Issues.--In this section, the term ``emerging issues''
+means changes in the maritime industry and environment that in the
+determination of the National Academy of Sciences are reasonably likely
+to occur within 10 years after the date of the enactment of this Act,
+including--
+(1) the introduction of new technologies in the maritime
+domain;
+(2) the advent of new processes or operational activities
+in the maritime domain; and
+(3) changes in the use of navigable waterways.
+SEC. 406. CLOUD COMPUTING STRATEGY.
+Not later than 180 days after the date of the enactment of this
+Act, the Commandant of the Coast Guard shall submit to the Committee on
+Transportation and Infrastructure of the House of Representatives and
+the Committee on Commerce, Science, and Transportation of the Senate a
+detailed description of the Coast Guard's strategy to implement cloud
+computing for the entire Coast Guard, including--
+(1) the goals and acquisition strategies for all proposed
+enterprise-wide cloud computing service procurements;
+(2) a strategy to sustain competition and innovation
+throughout the period of performance of each contract for
+procurement of cloud-computing goods and services for the Coast
+Guard, including defining opportunities for multiple cloud-
+service providers and insertion of new technologies;
+(3) an assessment of potential threats and security
+vulnerabilities of the strategy, and plans to mitigate such
+risks; and
+(4) an estimate of the cost and timeline to implement cloud
+computing service for all Coast Guard computing.
+SEC. 407. REPORT ON EFFECTS OF CLIMATE CHANGE ON COAST GUARD.
+(a) In General.--Not later than 1 year after the date of the
+enactment of this Act, the Commandant of the Coast Guard shall submit
+to the Committee on Transportation and Infrastructure of the House of
+Representatives and the Committee on Commerce, Science, and
+Transportation of the Senate a report on vulnerabilities of Coast Guard
+installations and requirements resulting from climate change over the
+next 20 years.
+(b) Elements.--The report under subsection (a) shall include the
+following:
+(1) A list of the 10 most vulnerable Coast Guard
+installations based on the effects of climate change, including
+rising sea tides, increased flooding, drought, desertification,
+wildfires, thawing permafrost, or any other categories the
+Commandant determines necessary.
+(2) An overview of--
+(A) mitigations that may be necessary to ensure the
+continued operational viability and to increase the
+resiliency of the identified vulnerable installations;
+and
+(B) the cost of such mitigations.
+(3) A discussion of the climate-change-related effects on
+the Coast Guard, including--
+(A) the increase in the frequency of humanitarian
+assistance and disaster relief missions; and
+(B) campaign plans, contingency plans, and
+operational posture of the Coast Guard.
+(4) An overview of mitigations that may be necessary to
+ensure mission resiliency and the cost of such mitigations.
+(c) Form.--The report required under subsection (a) shall be
+submitted in unclassified form, but may contain a classified annex.
+SEC. 408. SHORE INFRASTRUCTURE.
+(a) In General.--Not later than 1 year after the date of the
+enactment of this Act, the Commandant of the Coast Guard shall--
+(1) develop a plan to standardize Coast Guard facility
+condition assessments;
+(2) establish shore infrastructure performance goals,
+measures, and baselines to track the effectiveness of
+maintenance and repair investments and provide feedback on
+progress made;
+(3) develop a process to routinely align the Coast Guard
+shore infrastructure portfolio with mission needs, including
+disposing of unneeded assets;
+(4) establish guidance for planning boards to document
+inputs, deliberations, and project prioritization decisions for
+infrastructure maintenance projects;
+(5) employ models for Coast Guard infrastructure asset
+lines for--
+(A) predicting the outcome of investments in shore
+infrastructure;
+(B) analyzing tradeoffs; and
+(C) optimizing decisions among competing
+investments;
+(6) include supporting details about competing project
+alternatives and report tradeoffs in congressional budget
+requests and related reports; and
+(7) explore the development of real property management
+expertise within the Coast Guard workforce, including members
+of the Senior Executive Service.
+(b) Briefing.--Not later than December 31, 2020, the Commandant of
+the Coast Guard shall brief the Committee on Transportation and
+Infrastructure of the House of Representatives and the Committee on
+Commerce, Science, and Transportation of the Senate on the status of
+the actions required under subsection (a).
+SEC. 409. PHYSICAL ACCESS CONTROL SYSTEM REPORT.
+Not later 180 days after the date of the enactment of this Act and
+annually for each of the 4 years thereafter, the Commandant of the
+Coast Guard shall submit to the Committee on Transportation and
+Infrastructure of the House of Representatives and the Committee on
+Commerce, Science, and Transportation of the Senate a report regarding
+the status of the Coast Guard's compliance with Homeland Security
+Presidential Directive 12 (HSPD-12) and Federal Information Processing
+Standard 201 (FIPS-201), including--
+(1) the status of Coast Guard efforts to field a
+comprehensive Physical Access Control System at Coast Guard
+installations and locations necessary to bring the Service into
+compliance with HSPD-12 and FIPS-201B;
+(2) the status of the selection of a technological
+solution;
+(3) the estimated phases and timeframe to complete the
+implementation of such a system; and
+(4) the estimated cost for each phase of the project.
+SEC. 410. COASTWISE ENDORSEMENTS.
+(a) ``Safari Voyager''.--
+(1) In general.--Notwithstanding sections 12112 and 12132
+of title 46, United States Code, the Secretary of the
+department in which the Coast Guard is operating shall issue a
+certificate of documentation with a coastwise endorsement for
+the vessel Safari Voyager (International Maritime Organization
+number 8963753).
+(2) Revocation of effectiveness of certificate.--A
+certificate of documentation issued under paragraph (1) is
+revoked on the date of the sale of the vessel or the entity
+that owns the vessel.
+(b) ``Pacific Provider''.--
+(1) In general.--Notwithstanding sections 12112 and 12132
+of title 46, United States Code, the Secretary of the
+department in which the Coast Guard is operating may issue a
+certificate of documentation with a coastwise endorsement for
+the vessel Pacific Provider (United States official number
+597967).
+(2) Revocation of effectiveness of certificate.--A
+certificate of documentation issued under paragraph (1) is
+revoked on the date of the sale of the vessel or the entity
+that owns the vessel.
+(c) Documentation of LNG Tankers.--Section 7(b)(3) of the America's
+Cup Act of 2011 (Public Law 112-61) is amended by--
+(1) striking ``The coastwise endorsement issued'' and
+inserting ``No coastwise endorsement shall be issued''; and
+(2) striking ``shall expire on'' and inserting ``after
+the''.
+(d) Replacement Vessel.--Notwithstanding section 208(g)(5) of the
+American Fisheries Act (Public Law 105-277; 16 U.S.C. 1851 note), a
+vessel eligible under section 208(e)(21) of such Act that is replaced
+under section 208(g) of such Act shall be subject to a sideboard
+restriction catch limit of zero metric tons in the Bering Sea and
+Aleutian Islands and in the Gulf of Alaska unless that vessel is also a
+replacement vessel under section 679.4(o)(4) of title 50, Code of
+Federal Regulations, in which case such vessel shall not be eligible to
+be a catcher/processor under section 206(b)(2) of such Act.
+SEC. 411. POLAR SECURITY CUTTER ACQUISITION REPORT.
+Not later than one year after the date of the enactment of this
+Act, the Commandant of the Coast Guard shall submit a report to the
+Committees on Transportation and Infrastructure and Armed Services of
+the House of Representatives, and the Committees on Commerce, Science
+and Transportation and Armed Services of the Senate on--
+(1) the extent to which specifications, key drawings, and
+detail design for the Polar Security Cutter are complete before
+the start of construction;
+(2) the extent to which Polar Security Cutter hulls numbers
+one, two, and three are science ready; and
+(3) what actions will be taken to ensure that Polar
+Security Cutter hull number four is science capable, as
+described in the National Academies of Sciences, Engineering,
+and Medicine's Committee on Polar Icebreaker Cost Assessment
+letter report entitled ``Acquisition and Operation of Polar
+Icebreakers: Fulfilling the Nation's Needs'' and dated July 11,
+2017.
+SEC. 412. SENSE OF THE CONGRESS ON THE NEED FOR A NEW GREAT LAKES
+ICEBREAKER.
+(a) Findings.--The Congress finds the following:
+(1) The Great Lakes shipping industry is crucial to the
+American economy, including the U.S. manufacturing base,
+providing important economic and national security benefits.
+(2) A recent study found that the Great Lakes shipping
+industry supports 237,000 jobs and tens of billions of dollars
+in economic activity.
+(3) United States Coast Guard icebreaking capacity is
+crucial to full utilization of the Great Lakes shipping system,
+as during the winter icebreaking season up to 15 percent of
+annual cargo loads are delivered and many industries would have
+to reduce their production if Coast Guard icebreaking services
+were not provided.
+(4) Six of the Coast Guard's nine icebreaking cutters in
+the Great Lakes are more than 30 years old and are frequently
+inoperable during the winter icebreaking season, including
+those that have completed a recent service life extension
+program.
+(5) During the previous 10 winters, Coast Guard Great Lakes
+icebreaking cutters have been inoperable for an average of 65
+cutter-days during the winter icebreaking season, with this
+annual lost capability exceeding 100 cutter-days, with a high
+of 246 cutter-days during the winter of 2017-2018.
+(6) The 2019 ice season provides further proof that current
+Coast Guard icebreaking capacity is inadequate for the needs of
+the Great Lakes shipping industry, as only six of the nine
+icebreaking cutters are operational and millions of tons of
+cargo was not loaded or was delayed due to inadequate Coast
+Guard icebreaking assets during a historically average winter
+for Great Lakes ice coverage.
+(7) The Congress has authorized the Coast Guard to acquire
+a new Great Lakes icebreaker as capable as Coast Guard Cutter
+MACKINAW (WLBB-30), the most capable Great Lakes icebreaker,
+and $10 million has been appropriated to fund the design and
+initial acquisition work for this icebreaker.
+(8) The Coast Guard has not initiated a new acquisition
+program for this Great Lakes icebreaker.
+(b) Sense of the Congress.--It is the sense of the Congress of the
+United States that a new Coast Guard icebreaker as capable as Coast
+Guard Cutter MACKINAW (WLBB-30) is needed on the Great Lakes and the
+Coast Guard should acquire this icebreaker as soon as possible.
+SEC. 413. CARGO PREFERENCE STUDY.
+(a) In General.--The Comptroller General of the United States shall
+conduct an audit regarding the enforcement of the United States cargo
+preference program under section 55305 of title 46, United States Code.
+(b) Scope.--The audit conducted under subsection (a) shall
+include--
+(1) a description of the agencies and organizations
+required to comply with cargo preference requirements;
+(2) an analysis of the compliance or noncompliance of such
+agencies and organizations with such requirements, including
+details of--
+(A) the total amount of international oceangoing
+cargo shipped by each such agency and organization; and
+(B) the percentage of such cargo shipped on cargo
+preference-compliant vessels; and
+(3) an overview of enforcement activities undertaken by the
+Maritime Administration from October 14, 2008, until the date
+of the enactment of this Act, including a listing of all bills
+of lading collected by the Maritime Administration during that
+period.
+(c) Report.--Not later than one year after the date of enactment of
+this Act, the Comptroller General shall submit to the Committee on
+Transportation and Infrastructure of the House of Representatives and
+the Committee on Commerce, Science, and Transportation of the Senate a
+report detailing the results of the audit and providing recommendations
+related to such results.
+SEC. 414. INSIDER THREAT PROGRAM.
+Not later than 180 days after the date of the enactment of this
+Act, the Commandant of the Coast Guard shall brief the Committee on
+Transportation and Infrastructure of the House of Representatives and
+the Committee on Commerce, Science, and Transportation of the Senate on
+a plan to expand the Coast Guard Insider Threat program to include the
+monitoring of all Coast Guard devices, including mobile devices.
+SEC. 415. FISHING SAFETY GRANTS.
+The cap on the Federal share of the cost of any activity carried
+out with a grant under subsections (i) and (j) of section 4502 of title
+46, United States Code, as in effect prior to the date of enactment of
+the Frank LoBiondo Coast Guard Authorization Act of 2018, shall apply
+to any funds appropriated under the Consolidated Appropriations Act,
+2017 (Public Law 115-31) for the purpose of making such grants.
+SEC. 416. PLANS FOR DEMONSTRATION PROGRAMS.
+(a) In General.--The Commandant of the Coast Guard shall develop
+plans for demonstration programs that will assess the feasibility of
+using unmanned aircraft systems for surveillance of marine protected
+areas, the transit zone, and the Arctic to--
+(1) gather regular maritime domain awareness of such areas;
+(2) ensure sufficient response to illegal activities in
+marine protected areas, the transit zone, and the Arctic; and
+(3) collaborate with local, State, and Tribal authorities
+and international partners for surveillance permissions over
+their waters.
+(b) Requirements.--The plans required under subsection (a) shall
+include--
+(1) discussion of the feasibility, safety, and cost
+effectiveness of using unmanned aerial vehicles for the
+purposes of enhancing maritime domain awareness in marine
+protected areas;
+(2) coordination and communication plans to facilitate
+coordination with other relevant Federal, State, Tribal, and
+local agencies, and international partners;
+(3) consideration of the potential impacts of such a
+demonstration program on the Coast Guard's existing unmanned
+vehicle programs;
+(4) an overview of areas that could be surveilled under
+such program;
+(5) a timeline and technical milestones for the
+implementation of such a program;
+(6) resource requirements to implement and sustain such a
+program; and
+(7) the operational benefits of such a program.
+(c) Report.--Not later than one year after the date of the
+enactment of this Act, the Commandant shall brief the Committee on
+Transportation and Infrastructure of the House of Representatives and
+the Committee on Commerce, Science, and Transportation of the Senate on
+the plans required under subsection (a).
+(d) Definitions.--In this section:
+(1) Arctic.--The term ``Arctic'' has the meaning given that
+term in section 112 of the Arctic Research and Policy Act of
+1984 (15 U.S.C. 4111).
+(2) Marine protected area.--The term ``marine protected
+area'' means any discrete area of the marine environment under
+a Federal statute.
+(3) Transit zone.--The term ``transit zone'' has the
+meaning given that term in section 1092(a)(8) of the National
+Defense Authorization Act for Fiscal Year 2017 (6 U.S.C.
+223(a)(8)).
+(4) Unmanned aircraft system.--The term ``unmanned aircraft
+system'' has the meaning given that term in section 331 of the
+FAA Modernization and Reform Act of 2012 (49 U.S.C. 40101
+note).
+SEC. 417. WATERS DEEMED NOT NAVIGABLE WATERS OF THE UNITED STATES FOR
+CERTAIN PURPOSES.
+The Coalbank Slough in Coos Bay, Oregon, is deemed to not be
+navigable waters of the United States for all purposes of subchapter J
+of Chapter I of title 33, Code of Federal Regulations.
+SEC. 418. COAST GUARD HOUSING; STATUS AND AUTHORITIES BRIEFING.
+Not later than 180 days after the date of the enactment of this
+Act, the Commandant of the Coast Guard shall provide to the Committee
+on Transportation and Infrastructure of the House of Representatives
+and the Committee on Commerce, Science, and Transportation of the
+Senate a briefing on Coast Guard housing, including--
+(1) a description of the material condition of Coast Guard
+housing facilities;
+(2) the amount of current Coast Guard housing construction
+and deferred maintenance backlogs;
+(3) an overview of the manner in which the Coast Guard
+manages and maintains housing facilities;
+(4) a discussion of whether reauthorizing housing
+authorities for the Coast Guard similar to those provided in
+section 208 of the Coast Guard Authorization Act of 1996
+(Public Law 104-324); and
+(5) recommendations regarding how the Congress could adjust
+those authorities to prevent mismanagement of Coast Guard
+housing facilities.
+SEC. 419. CONVEYANCE OF COAST GUARD PROPERTY AT POINT SPENCER, ALASKA.
+(1) Section 533 of the Coast Guard Authorization Act of
+2016 (Public Law 114-120) is amended by adding at the end the
+following:
+``(f) Remedial Actions.--For purposes of the transfers under this
+section, the remedial actions required under section 120(h) of the
+Comprehensive Environmental Response, Compensation, and Liability Act
+of 1980 (42 U.S.C. 9620(h)) may be completed by the United States Coast
+Guard after the date of such transfer and a deed entered into for such
+transfer shall include a clause granting the United States Coast Guard
+access to the property in any case in which remedial action or
+corrective action is found to be necessary after the date of such
+transfer.''.
+(2) Section 534 of the Coast Guard Authorization Act of
+2016 (Public Law 114-120) is amended by--
+(A) striking ``Nothing'' and inserting ``After the
+date on which the Secretary of the Interior conveys
+land under section 533 of this Act, nothing''; and
+(B) by inserting ``, with respect to contaminants
+on such land prior to the date on which the land is
+conveyed'' before the period.
+SEC. 420. PROHIBITION.
+(a) In General.--The Secretary of the department in which the Coast
+Guard is operating shall not establish anchorage grounds on the Hudson
+River between Yonkers, New York, and Kingston, New York, under section
+7 of the Rivers and Harbors Appropriations Act of 1915 (33 U.S.C. 471)
+or chapter 700 of title 46, United States Code, in addition to any
+anchorage grounds in effect in such area on the date of the enactment
+of this Act.
+(b) Restriction.--The Commandant may not establish or expand any
+anchorages, outside of the reach on the Hudson River described in
+subsection (a) without first providing notice to the Committee on
+Transportation and Infrastructure of the House of Representatives and
+the Committee on Commerce, Science, and Transportation of the Senate
+not later than 180 days prior to the establishment or expansion of any
+such anchorages.
+SEC. 421. CERTIFICATE EXTENSIONS.
+Subchapter I of chapter 121 of title 46, United States Code, is
+amended by adding at the end the following new section:
+``Sec. 12108. Authority to extend the duration of vessel certificates
+``(a) Certificates.--Provided a vessel is in compliance with
+inspection requirements in section 3313, the Secretary of the
+Department in which in the Coast Guard is operating may, if he makes
+the determination described in subsection (b), extend for a period of
+not more than one year an expiring---
+``(1) certificate of documentation issued for a vessel
+under Chapter 121; or
+``(2) certificate of financial responsibility required for
+a vessel by Section 1016(a) of the Oil Pollution Act of 1990
+(33 U.S.C. 2716(a)) or Section 108 of the Comprehensive
+Environmental Response, Compensation, and Liability Act of 1980
+(42 U.S.C. 9608).
+``(b) Determination.--The determination referred to in subsection
+(a) is a determination that such extension is required to enable the
+Coast Guard to--
+``(1) eliminate a backlog in processing applications for
+such certificates; or
+``(2) act in response to a national emergency or natural
+disaster.
+``(c) Manner of Extension.--Any extension granted under this
+section may be granted to individual vessels or to a specifically
+identified group of vessels.''.
+TITLE V--REORGANIZATION
+SEC. 501. UNINSPECTED COMMERCIAL FISHING INDUSTRY VESSELS.
+(a) In General.--Subtitle II of title 46, United States Code, is
+amended by striking chapter 45 and inserting the following:
+``CHAPTER 45--UNINSPECTED COMMERCIAL INDUSTRY VESSELS
+``Sec.
+``4501. Application.
+``4502. Definitions.
+``4503. Safety standards.
+``4504. Vessel construction.
+``4505. Operating stability.
+``4506. Training.
+``4507. Vessel certification.
+``4508. Alternate safety compliance program.
+``4509. Substitute safety compliance program.
+``4510. Enhanced substitute safety compliance program.
+``4511. Prohibited acts.
+``4512. Termination of unsafe operations.
+``4513. Penalties.
+``4514. Compliance; Secretary actions.
+``4515. Exemptions.
+``4516. Regulations; considerations and limitations.
+``4517. Fishing safety grants.
+``Sec. 4501. Application
+``(a) In General.--Except as provided in subsection (b), this
+chapter applies to an uninspected vessel that is a fishing vessel, fish
+processing vessel, or fish tender vessel.
+``(b) Carriage of Bulk Dangerous Cargoes.--This chapter does not
+apply to the carriage of bulk dangerous cargoes regulated under chapter
+37.
+``Sec. 4502. Definitions
+``In this chapter:
+``(1) The term `accountable vessel' means a vessel to which
+this chapter applies that--
+``(A)(i) was built after December 31, 1988, or
+undergoes a major conversion completed after that date;
+and
+``(ii) operates with more than 16 individuals on
+board; or
+``(B) in the case of a fish tender vessel, engages
+in the Aleutian trade.
+``(2) The term `auxiliary craft' means a vessel that is
+carried onboard a fishing vessel and is normally used to
+support fishing operations.
+``(3)(A) The term `built' means, with respect to a vessel,
+that the vessel's construction has reached any of the following
+stages:
+``(i) The vessel's keel is laid.
+``(ii) Construction identifiable with the vessel
+has begun and assembly of that vessel has commenced
+comprising of at least 50 metric tons or one percent of
+the estimated mass of all structural material,
+whichever is less.
+``(B) In the case of a vessel greater than 79 feet in
+overall length, for purposes of subparagraph (A)(i), a keel is
+deemed to be laid when a marine surveyor affirms that a
+structure adequate for serving as a keel for such vessel is in
+place and identified for use in the construction of such
+vessel.
+``(4) The term `subject vessel' means a vessel to which
+this chapter applies that--
+``(A) operates beyond 3 nautical miles from the
+baseline from which the territorial sea of the United
+States is measured or beyond 3 nautical miles from the
+coastline of the Great Lakes;
+``(B) operates with more than 16 individuals on
+board; or
+``(C) in the case of a fish tender vessel, engages
+in the Aleutian trade.
+``(5) The term `substitute-eligible vessel' means a fishing
+vessel or fish tender vessel that is--
+``(A) a subject vessel;
+``(B) at least 50 feet overall in length, and not
+more than 180 feet overall in length as listed on the
+vessel's certificate of documentation or certificate of
+number; and
+``(C) built after February 8, 2016.
+``Sec. 4503. Safety standards
+``(a) In General.--The Secretary shall prescribe regulations that
+require that each vessel to which this chapter applies shall be
+equipped with--
+``(1) readily accessible fire extinguishers capable of
+promptly and effectively extinguishing a flammable or
+combustible liquid fuel fire;
+``(2) at least one readily accessible life preserver or
+other lifesaving device for each individual on board;
+``(3) an efficient flame arrestor, backfire trap, or other
+similar device on the carburetors of each inboard engine that
+uses gasoline as fuel;
+``(4) the means to properly and efficiently ventilate
+enclosed spaces, including engine and fuel tank compartments,
+so as to remove explosive or flammable gases;
+``(5) visual distress signals;
+``(6) other equipment required to minimize the risk of
+injury to the crew during vessel operations, if the Secretary
+determines that a risk of serious injury exists that can be
+eliminated or mitigated by that equipment; and
+``(7) a placard as required by regulations prescribed under
+section 10603(b).
+``(b) Subject Vessels.--In addition to the requirements of
+subsection (a), the Secretary shall prescribe regulations requiring
+that subject vessels install, maintain, and use the following
+equipment:
+``(1) Alerting and locating equipment, including emergency
+position indicating radio beacons.
+``(2)(A) Subject to subparagraph (B), a survival craft
+that--
+``(i) ensures that no part of an individual is
+immersed in water; and
+``(ii) is sufficient to accommodate all individuals
+on board.
+``(B) Except for a nonapplicable vessel, an auxiliary craft
+shall satisfy the equipment requirement under paragraph (2)(B)
+if such craft is--
+``(i) necessary for normal fishing operations;
+``(ii) readily accessible during an emergency; and
+``(iii) capable, in accordance with the Coast Guard
+capacity rating, when applicable, of safely holding all
+individuals on board the vessel to which the craft
+functions as an auxiliary.
+``(3) At least one readily accessible immersion suit for
+each individual on board the vessel when operating on the
+waters described in section 3102.
+``(4) Marine radio communications equipment sufficient to
+effectively communicate with a land-based search and rescue
+facility.
+``(5) Navigation equipment, including compasses, nautical
+charts, and publications.
+``(6) First aid equipment and medical supplies sufficient
+for the size and area of operation of the vessel.
+``(7) Ground tackle sufficient for the vessel.
+``(c) Accountable Vessels.--In addition to the requirements
+described in subsections (a) and (b), the Secretary may prescribe
+regulations establishing minimum safety standards for accountable
+vessels, including standards relating to--
+``(1) navigation equipment, including radars and
+fathometers;
+``(2) lifesaving equipment, immersion suits, signaling
+devices, bilge pumps, bilge alarms, life rails, and grab rails;
+``(3) fire protection and firefighting equipment, including
+fire alarms and portable and semiportable fire extinguishing
+equipment;
+``(4) use and installation of insulation material;
+``(5) storage methods for flammable or combustible
+material; and
+``(6) fuel, ventilation, and electrical systems.
+``Sec. 4504. Vessel construction
+``A vessel to which this chapter applies shall be constructed in a
+manner that provides a level of safety equivalent to the minimum safety
+standards the Secretary may establish for recreational vessels under
+section 4302, if the vessel is--
+``(1) is a subject vessel;
+``(2) less than 50 feet overall in length; and
+``(3) built after January 1, 2010.
+``Sec. 4505. Operating stability
+``(a) Regulations.--The Secretary shall prescribe regulations for
+the operating stability of a vessel to which this chapter applies--
+``(1) that was built after December 31, 1989; or
+``(2) the physical characteristics of which are
+substantially altered after December 31, 1989, in a manner that
+affects the vessel's operating stability.
+``(b) Evidence of Compliance.--The Secretary may accept, as
+evidence of compliance with this section, a certification of compliance
+issued by the person providing insurance for the vessel or by another
+qualified person approved by the Secretary.
+``Sec. 4506. Training
+``(a) In General.--The individual in charge of a subject vessel
+must pass a training program approved by the Secretary that meets the
+requirements of subsection (b) and hold a valid certificate issued
+under that program.
+``(b) Training Program Requirements.--The training program shall--
+``(1) be based on professional knowledge and skill obtained
+through sea service and hands-on training, including training
+in seamanship, stability, collision prevention, navigation,
+firefighting and prevention, damage control, personal survival,
+emergency medical care, emergency drills, and weather;
+``(2) require an individual to demonstrate ability to
+communicate in an emergency situation and understand
+information found in navigation publications;
+``(3) recognize and give credit for recent past experience
+in fishing vessel operation; and
+``(4) provide for issuance of a certificate to an
+individual who has successfully completed the program.
+``(c) Regulations.--The Secretary shall prescribe regulations
+implementing this subsection. The regulations shall require that an
+individual who is issued a certificate under subsection (b)(4) must
+complete refresher training at least once every 5 years as a condition
+of maintaining the validity of the certificate.
+``(d) Electronic Database.--The Secretary shall establish an
+electronic database listing the names of individuals who have
+participated in and received a certificate confirming successful
+completion of a training program approved by the Secretary under this
+section.
+``Sec. 4507. Vessel certification
+``(a) In General.--A vessel to which this section applies may not
+be operated unless the vessel--
+``(1) meets all survey and classification requirements
+prescribed by the American Bureau of Shipping or another
+similarly qualified organization approved by the Secretary; and
+``(2) has on board a certificate issued by the American
+Bureau of Shipping or such other organization evidencing
+compliance with this subsection.
+``(b) Application.--
+``(1) Except as provided in section 4509, this section
+applies to a fish processing vessel to which this chapter
+applies that--
+``(A) is built after July 27, 1990; or
+``(B) undergoes a major conversion completed after
+that date.
+``(2)(A) Except as provided in subparagraph (B), this
+section applies to a subject vessel that is at least 50 feet
+overall in length and is built after July 1, 2013.
+``(B) This section does not apply to a substitute-eligible
+vessel if such vessel complies with--
+``(i) the substitute safety compliance program
+established under section 4509; or
+``(ii) the enhanced substitute safety compliance
+program established by the Secretary under section
+4510.
+``Sec. 4508. Alternate safety compliance program
+``(a) In General.--
+``(1) The Secretary shall establish an alternate safety
+compliance program developed in coordination with the
+commercial fishing industry.
+``(2) The program established under paragraph (1) may
+include requirements for--
+``(A) a specific region or fishery (or both); and
+``(B) any combination of regions or fisheries (or
+both).
+``(b) Vessels Required To Comply.--Beginning on the date that is 3
+years after the date the Secretary prescribes an alternate safety
+compliance program, the following vessels shall comply with such
+program:
+``(1) A subject vessel that is--
+``(A) at least 50 feet overall in length;
+``(B) built before July 1, 2013; and
+``(C) 25 years of age or older.
+``(2) A fishing vessel, fish processing vessel, or fish
+tender vessel built before July 1, 2013, that undergoes a major
+conversion completed after the date the Secretary prescribes an
+alternate safety compliance program.
+``(c) Exempt Vessels.--
+``(1) Notwithstanding subsection (b), vessels owned by a
+person that owns more than 30 vessels subject to that
+subsection are not required to comply with alternate safety
+compliance program requirements until January 1, 2030, if that
+owner--
+``(A) enters into a compliance agreement with the
+Secretary that provides for a fixed schedule for all
+such vessels owned by that person to meet requirements
+of such paragraph by such date; and
+``(B) is meeting such schedule.
+``(2) A subject vessel that was classed before July 1,
+2012, is exempt from the requirements of this section if such
+vessel--
+``(A) remains subject to the requirements of a
+classification society approved by the Secretary; and
+``(B) has on board a certificate from that society.
+``Sec. 4509. Substitute safety compliance program
+``(a) In General.--The Secretary shall establish a substitute
+safety compliance program for substitute-eligible vessels that includes
+the following requirements:
+``(1) A substitute-eligible vessel shall be designed by an
+individual licensed by a State as a naval architect or marine
+engineer, and the design shall incorporate standards equivalent
+to those prescribed by a classification society to which the
+Secretary has delegated authority under section 3316 or another
+qualified organization approved by the Secretary for purposes
+of this paragraph.
+``(2) Construction of a substitute-eligible vessel shall be
+overseen and certified as being in accordance with its design
+by a marine surveyor of an organization accepted by the
+Secretary.
+``(3) A substitute-eligible vessel shall--
+``(A) complete a stability test performed by a
+qualified individual;
+``(B) have written stability and loading
+instructions from a qualified individual that are
+provided to the owner or operator; and
+``(C) have an assigned loading mark.
+``(4) A substitute-eligible vessel shall not be
+substantially altered without the review and approval of an
+individual licensed by a State as a naval architect or marine
+engineer before the beginning of such substantial alteration.
+``(5) A substitute-eligible vessel shall undergo a
+condition survey at least twice in 5 years, with not more than
+3 years between surveys, to the satisfaction of a marine
+surveyor of an organization accepted by the Secretary.
+``(6) A substitute-eligible vessel shall undergo an out-of-
+water survey at least once every 5 years to the satisfaction of
+a certified marine surveyor of an organization accepted by the
+Secretary.
+``(7) Once every 5 years, and at the time of a substantial
+alteration to a substitute-eligible vessel, compliance of the
+vessel with the requirements of paragraph (3) is reviewed and
+updated as necessary.
+``(8) For the life of a substitute-eligible vessel, the
+owner of the vessel shall maintain records to demonstrate
+compliance with this subsection and make such records readily
+available for inspection by an official authorized to enforce
+this chapter.
+``(b) Compliance.--Section 4507 of this title shall not apply to a
+substitute-eligible vessel that complies with the requirements of the
+program established under this section.
+``(c) Report.--Not later than February 8, 2026, the Secretary shall
+submit to the Committee on Transportation and Infrastructure of the
+House of Representatives and the Committee on Commerce, Science, and
+Transportation of the Senate a report that provides an analysis of the
+adequacy of the substitute safety compliance program requirements
+established under subsection (a) in maintaining the safety of
+substitute-eligible fishing vessels and fish tender vessels and that
+comply with such requirements.
+``Sec. 4510. Enhanced substitute safety compliance program
+``(a) In General.--If the report required under section 4509(c)
+includes a determination that the substitute safety compliance program
+established under section 4509(a) is not adequate or that additional
+safety measures are necessary, then the Secretary may establish an
+enhanced substitute safety compliance program for fishing vessels or
+fish tender vessels (or both) that are substitute-eligible vessels and
+that comply with the requirements of section 4509.
+``(b) Requirements.--The enhanced substitute safety compliance
+program established under this subsection shall include requirements
+for--
+``(1) vessel construction;
+``(2) a vessel stability test;
+``(3) vessel stability and loading instructions;
+``(4) an assigned vessel loading mark;
+``(5) a vessel condition survey at least twice in 5 years,
+not more than 3 years apart;
+``(6) an out-of-water vessel survey at least once every 5
+years;
+``(7) maintenance of records to demonstrate compliance with
+the program, and the availability of such records for
+inspection; and
+``(8) such other aspects of vessel safety as the Secretary
+considers appropriate.
+``(c) Compliance.--Section 4507 shall not apply to a substitute-
+eligible vessel that complies with the requirements of the program
+established under this section.
+``Sec. 4511. Prohibited acts
+``A person may not operate a vessel in violation of this chapter or
+a regulation prescribed under this chapter.
+``Sec. 4512. Termination of unsafe operations
+``An official authorized to enforce this chapter--
+``(1) may direct the individual in charge of a vessel to
+which this chapter applies to immediately take reasonable steps
+necessary for the safety of individuals on board the vessel if
+the official observes the vessel being operated in an unsafe
+condition that the official believes creates an especially
+hazardous condition, including ordering the individual in
+charge to return the vessel to a mooring and to remain there
+until the situation creating the hazard is corrected or ended;
+and
+``(2) may order the individual in charge of an uninspected
+fish processing vessel that does not have on board the
+certificate required under section 4507 to return the vessel to
+a mooring and to remain there until the vessel is in compliance
+with such section, unless the vessel is required to comply with
+section 4508.
+``Sec. 4513. Penalties
+``(a) Civil Penalty.--The owner, charterer, managing operator,
+agent, master, and individual in charge of a vessel to which this
+chapter applies that is operated in violation of this chapter or a
+regulation prescribed under this chapter may each be assessed a civil
+penalty by the Secretary of not more than $10,260. Any vessel with
+respect to which a penalty is assessed under this subsection is liable
+in rem for the penalty.
+``(b) Criminal Penalties.--An individual willfully violating this
+chapter or a regulation prescribed under this chapter shall be fined
+not more than $5,000, imprisoned for not more than one year, or both.
+``Sec. 4514. Compliance; Secretary actions
+``To ensure compliance with the requirements of this chapter, the
+Secretary--
+``(1) shall require the individual in charge of a subject
+vessel to keep a record of equipment maintenance, and required
+instruction and drills;
+``(2) shall examine at dockside a subject vessel at least
+once every 5 years, but may require an exam at dockside every 2
+years for certain subject vessels if requested by the owner or
+operator; and
+``(3) shall issue a certificate of compliance to a vessel
+meeting the requirements of this chapter and satisfying the
+requirements of paragraph (2).
+``Sec. 4515. Exemptions
+``The Secretary may exempt a vessel from any part of this chapter
+if, under regulations prescribed by the Secretary (including
+regulations on special operating conditions), the Secretary finds
+that--
+``(1) good cause exists for granting an exemption; and
+``(2) the safety of the vessel and those on board will not
+be adversely affected.
+``Sec. 4516. Regulations; considerations and limitations
+``In prescribing a regulation under this chapter, the Secretary--
+``(1) shall consider the specialized nature and economics
+of the operations and the character, design, and construction
+of the vessel; and
+``(2) may not require the alteration of a vessel or
+associated equipment that was constructed or manufactured
+before the effective date of such regulation.
+``Sec. 4517. Fishing safety grants
+``(a) Safety Training Grants.--
+``(1) Establishment.--The Secretary of Health and Human
+Services shall establish a Fishing Safety Training Grant
+Program to provide funding to municipalities, port authorities,
+other appropriate public entities, not-for-profit
+organizations, and other qualified persons that provide
+commercial fishing safety training.
+``(2) Use of funds.--Entities receiving funds under this
+section may use such funds--
+``(A) to conduct fishing vessel safety training for
+vessel operators and crewmembers that--
+``(i) in the case of vessel operators,
+meets the requirements of section 4506; and
+``(ii) in the case of crewmembers, meets
+the requirements of sections 4506(b)(1),
+4506(b)(4), 4506(c), and 4506(d), and such
+requirements of section 4506(b)(2) as are
+appropriate for crewmembers; and
+``(B) for purchase of safety equipment and training
+aids for use in such fishing vessel safety training
+programs.
+``(3) Award criteria.--The Secretary of Health and Human
+Services, in consultation with and based on criteria
+established by the Commandant of the Coast Guard, shall award
+grants under this subsection on a competitive basis.
+``(4) Limitation on federal share of cost.--The Federal
+share of the cost of any activity carried out with a grant
+under this subsection shall not exceed 50 percent.
+``(5) Authorization of appropriations.--There is authorized
+to be appropriated $3,000,000 for each of fiscal years 2020 and
+2021 for grants under this subsection.
+``(b) Research Grant Program.--
+``(1) Establishment.--The Secretary of Health and Human
+Services shall establish a Fishing Safety Research Grant
+Program to provide funding to individuals in academia, not-for-
+profit organizations, businesses involved in fishing and
+maritime matters, and other persons with expertise in fishing
+safety, to conduct research on methods of improving the safety
+of the commercial fishing industry, including vessel design,
+emergency and survival equipment, enhancement of vessel
+monitoring systems, communications devices, de-icing
+technology, and severe weather detection.
+``(2) Award criteria.--The Secretary of Health and Human
+Services, in consultation with and based on criteria
+established by the Commandant of the Coast Guard, shall award
+grants under this subsection on a competitive basis.
+``(3) Limitation on federal share of cost.--The Federal
+share of the cost of any activity carried out with a grant
+under this subsection shall not exceed 50 percent.
+``(4) Authorization of appropriations.--There is authorized
+to be appropriated $3,000,000 for each fiscal year 2020 and
+2021 for activities under this subsection.''.
+(b) Conforming Amendment.--Section 3104(d) of title 46, United
+States Code, is amended by striking ``under section 4503(d)'' and
+inserting ``under section 4502(3)''.
+(c) Safety Standards.--Not later than 90 days after the date of the
+enactment of this Act, and without regard to the provisions of chapters
+5 and 6 of title 5, United States Code, the Secretary of the department
+in which the Coast Guard is operating shall promulgate the regulations
+required by section 4503(b) of title 46, United States Code, as amended
+by this section.
+SEC. 502. TRANSFERS.
+(a) Transfers of Provisions.--
+(1) In general.--
+(A) Section 215 of the Coast Guard and Maritime
+Transportation Act of 2004 (Public Law 108-293; 14
+U.S.C. 504 note) is redesignated as section 321 of
+title 14, United States Code, transferred to appear
+after section 320 of that title, and amended so that
+the enumerator, section heading, typeface, and
+typestyle conform to those appearing in other sections
+in title 14, United States Code.
+(B) Section 406 of the Maritime Transportation
+Security Act of 2002 (Public Law (107-295; 14 U.S.C.
+501 note) is redesignated as section 719 of title 14,
+United States Code, transferred to appear after section
+718 of that title, and amended so that the enumerator,
+section heading, typeface, and typestyle conform to
+those appearing in other sections in title 14, United
+States Code.
+(C) Section 1110 of title 14, United States Code,
+is redesignated as section 5110 of that title, and
+transferred to appear after section 5109 of that title.
+(D) Elevation of disputes to the chief acquisition
+officer.--
+(i) Strike section 401(e) of the Coast
+Guard Authorization Act of 2010 (Public Law
+111-281); and
+(ii) insert after section 1109 of title 14,
+United States Code, the following:
+``Sec. 1110. Elevation of Disputes to the Chief Acquisition Officer
+``If, after 90 days following the elevation to the Chief
+Acquisition Officer of any design or other dispute regarding level 1 or
+level 2 acquisition, the dispute remains unresolved, the Commandant
+shall provide to the appropriate congressional committees a detailed
+description of the issue and the rationale underlying the decision
+taken by the Chief Acquisition Officer to resolve the issue.''.
+(E) Section 217 of the Coast Guard Authorization
+Act of 2010 (Public Law 111-281; 14 U.S.C. 504 note)--
+(i) is redesignated as section 5111 of
+title 14, United States Code, transferred to
+appear after section 5110 of that title, and
+amended so that the enumerator, section
+heading, typeface, and typestyle conform to
+those appearing in other sections in title 14,
+United States Code; and
+(ii) is amended--
+(I) by striking the heading and
+inserting the following:
+``Sec. 5111. Sexual assault and sexual harassment in the Coast Guard'';
+and
+(II) in subsection (b), by adding
+at the end the following:
+``(5)(A) The number of instances in which a covered
+individual was accused of misconduct or crimes considered
+collateral to the investigation of a sexual assault committed
+against the individual.
+``(B) The number of instances in which adverse action was
+taken against a covered individual who was accused of
+collateral misconduct or crimes as described in subparagraph
+(A).
+``(C) The percentage of investigations of sexual assaults
+that involved an accusation or adverse action against a covered
+individual as described in subparagraphs (A) and (B).
+``(D) In this paragraph, the term `covered individual'
+means an individual who is identified as a victim of a sexual
+assault in the case files of a military criminal investigative
+organization.''.
+(F) Section 305 of title 46, United States Code, is
+amended--
+(i) by striking ``The Federal'' and
+inserting ``(a) In General.--The Federal'';
+(ii) by inserting after section (a) the
+following:
+``(b) Transparency.--
+``(1) In general.--Beginning not later than 60 days after
+the date of enactment of this Act, the Federal Maritime
+Commission shall submit to the Committee on Commerce, Science,
+and Transportation of the Senate and the Committee on
+Transportation and Infrastructure of the House of
+Representatives biannual reports that describe the Commission's
+progress toward addressing the issues raised in each unfinished
+regulatory proceeding, regardless of whether the proceeding is
+subject to a statutory or regulatory deadline.
+``(2) Format of reports.--Each report under paragraph (1)
+shall, among other things, clearly identify for each unfinished
+regulatory proceeding--
+``(A) the popular title;
+``(B) the current stage of the proceeding;
+``(C) an abstract of the proceeding;
+``(D) what prompted the action in question;
+``(E) any applicable statutory, regulatory, or
+judicial deadline;
+``(F) the associated docket number;
+``(G) the date the rulemaking was initiated;
+``(H) a date for the next action; and
+``(I) if a date for the next action identified in
+the previous report is not met, the reason for the
+delay.''; and
+(iii) in subsection (b), as so
+redesignated--
+(I) by inserting ``Reports.--''
+before paragraph (1);
+(II) in paragraph (1)--
+(aa) by striking
+``Beginning not later than 60
+days after the date of
+enactment of this Act,'' and
+inserting ``In conjunction with
+the transmittal by the
+President to the Congress of
+the budget of the United States
+for fiscal year 2021 and
+biennially thereafter,''; and
+(bb) by striking ``biannual
+reports'' and inserting
+``reports''; and
+(III) in paragraph (2), by striking
+``subsection (a)'' and inserting
+``paragraph (1)''.
+(G) Section 7 of the Rivers and Harbors
+Appropriations Act of 1915 (33 U.S.C. 471) is
+redesignated as section 70007 of title 46, United
+States Code, transferred to appear after section 70006
+of that title, and amended so that the enumerator,
+section heading, typeface, and typestyle conform to
+those appearing in other sections in title 46, United
+States Code.
+(2) Clerical amendment.--
+(A) The analysis for chapter 3 of title 14, United
+States Code, as amended by this Act, is further amended
+by adding at the end the following:
+``321. Redistricting notification.''.
+(B) The analysis for chapter 7 of title 14, United
+States Code, as amended by this Act, is further amended
+by adding at the end the following:
+``719. VHF communication services.''.
+(C) The analysis for chapter 11 of title 14, United
+States Code, is amended by striking the item relating
+to section 1110 and inserting the following:
+``1110. Elevation of disputes to the Chief Acquisition Officer.''.
+(D) The analysis for chapter 51 of title 14, United
+States Code, is amended by adding at the end the
+following:
+``5110. Mission need statement.
+``5111. Sexual assault and sexual harassment in the Coast Guard.''.
+(E) The analysis for chapter 700 of title 46,
+United States Code, is amended by inserting after the
+item relating to section 70005 the following:
+``70006. Establishment by the Secretary of Homeland Security of
+anchorage grounds and regulations
+generally.''.
+(b) Transfers.--
+(1) Section 204 of the marine transportation security
+act.--
+(A) Strike section 204 of the Maritime
+Transportation Security Act of 2002 (33 U.S.C. 1902a).
+(B) Section 3 of the Act to Prevent Pollution from
+Ships (33 U.S.C. 1902)--
+(i) is amended by redesignating subsections
+(e) through (i) as subsections (f) through (j)
+respectively; and
+(ii) by inserting after subsection (d) the
+following:
+``(e) Discharge of Agricultural Cargo Residue.--Notwithstanding any
+other provision of law, the discharge from a vessel of any agricultural
+cargo residue material in the form of hold washings shall be governed
+exclusively by the provisions of the Act to Prevent Pollution from
+Ships (33 U.S.C. 1901 et seq.) that implement Annex V to the
+International Convention for the Prevention of Pollution from Ships.''.
+(2) LNG tankers.--
+(A) Strike section 304 of the Coast Guard and
+Maritime Transportation Act of 2006 (Public Law 109-
+241; 120 Stat. 527); and
+(B) Amend section 5(i) of the Deepwater Port Act of
+1974 (33 U.S.C. 1504) by adding at the end the
+following:
+``(j) LNG Tankers.--
+``(1) Program.--The Secretary of Transportation shall
+develop and implement a program to promote the transportation
+of liquefied natural gas to the United States on United States
+flag vessels.
+``(2) Information to be provided.--When the Coast Guard is
+operating as a contributing agency in the Federal Energy
+Regulatory Commission's shoreside licensing process for a
+liquefied natural gas or liquefied petroleum gas terminal
+located on shore or within State seaward boundaries, the Coast
+Guard shall provide to the Commission the information described
+in section 5(c)(2)(K) of the Deepwater Port Act of 1974 (33
+U.S.C. 1504(c)(2)(K)) with respect to vessels reasonably
+anticipated to be servicing that port.''.
+SEC. 503. REPEALS.
+(a) License Exemptions; Repeal of Obsolete Provisions.--
+(1) Service under licenses issued without examination.--
+(A) Repeal.--Section 8303 of title 46, United
+States Code, and the item relating to that section in
+the analysis for chapter 83 of that title, are
+repealed.
+(B) Conforming amendment.--Section 14305(a)(10) of
+title 46, United States Code, is amended by striking
+``sections 8303 and 8304'' and inserting ``section
+8304''.
+(2) Standards for tank vessels of the united states.--
+Section 9102 of title 46, United States Code, is amended--
+(A) by striking ``(a)'' before the first sentence;
+and
+(B) by striking subsection (b).
+(b) Repeal.--Section 343 of the Maritime Transportation Security
+Act of 2002 (Public Law 107-295; 116 Stat. 2106) is repealed.
+(c) Accident and Incident Notification.--Subsection (c) of section
+9 of the Pipeline Safety, Regulatory Certainty, and Job Creation Act of
+2011 (Public Law 112-90; 125 Stat 1912)) is repealed and is deemed not
+to have been enacted.
+TITLE VI--TECHNICAL, CONFORMING, AND CLARIFYING AMENDMENTS
+SEC. 601. MARITIME TRANSPORTATION SYSTEM.
+(a) Maritime Transportation System.--Section 312(b)(4) of title 14,
+United States Code, is amended by striking ``marine transportation
+system'' and inserting ``maritime transportation system''.
+(b) Clarification of Reference to Marine Transportation System
+Programs.--Section 50307(a) of title 46, United States Code, is amended
+by striking ``marine transportation'' and inserting ``maritime
+transportation'';
+SEC. 602. REFERENCES TO ``PERSONS'' AND ``SEAMEN''.
+(a) Technical Correction of References to ``Persons''.--Title 14,
+United States Code, is amended as follows:
+(1) In section 312(d), by striking ``persons'' and
+inserting ``individuals''.
+(2) In section 313(d)(2)(B), by striking ``person'' and
+inserting ``individual''.
+(3) In section 504--
+(A) in subsection (a)(19)(B), by striking ``a
+person'' and inserting ``an individual''; and
+(B) in subsection (c)(4), by striking ``seamen;''
+and inserting ``mariners;''.
+(4) In section 521, by striking ``persons'' each place it
+appears and inserting ``individuals''.
+(5) In section 522--
+(A) by striking ``a person'' the first place it
+appears and inserting ``an individual''; and
+(B) by striking ``person'' the second and third
+place it appears and inserting ``individual''.
+(6) In section 525(a)(1)(C)(ii), by striking ``person'' and
+inserting ``individual''.
+(7) In section 526--
+(A) by striking ``person'' each place it appears
+and inserting ``individual''; and
+(B) by striking ``persons'' each place it appears
+and inserting ``individuals''.
+(8) In section 709--
+(A) by striking ``persons'' and inserting
+``individuals''; and
+(B) by striking ``person'' and inserting
+``individual''.
+(9) In section 933(b), by striking ``Every person'' and
+inserting ``An individual''.
+(10) In section 1102(d), by striking ``persons'' and
+inserting ``individuals''.
+(11) In section 1902(b)(3)--
+(A) in subparagraph (A), by striking ``person or
+persons'' and inserting ``individual or individuals'';
+and
+(B) in subparagraph (B), by striking ``person'' and
+inserting ``individual''.
+(12) In section 1941(b), by striking ``persons'' and
+inserting ``individuals''.
+(13) In section 2101(b), by striking ``person'' and
+inserting ``individual''.
+(14) In section 2102(c), by striking ``A person'' and
+inserting ``An individual''.
+(15) In section 2104(b)--
+(A) by striking ``persons'' and inserting
+``individuals''; and
+(B) by striking ``A person'' and inserting ``An
+individual''.
+(16) In section 2118(d), by striking ``person'' and
+inserting ``individual who is''.
+(17) In section 2147(d), by striking ``a person'' and
+inserting ``an individual''.
+(18) In section 2150(f), by striking ``person'' and
+inserting ``individual who is''.
+(19) In section 2161(b), by striking ``person'' and
+inserting ``individual''.
+(20) In section 2317--
+(A) by striking ``persons'' and inserting
+``individuals'';
+(B) by striking ``person'' each place it appears
+and inserting ``individual''; and
+(C) in subsection (c)(2), by striking ``person's''
+and inserting ``individual's''.
+(21) In section 2531--
+(A) by striking ``person'' each place it appears
+and inserting ``individual''; and
+(B) by striking ``persons'' each place it appears
+and inserting ``individuals''.
+(22) In section 2709, by striking ``persons'' and inserting
+``individuals''.
+(23) In section 2710--
+(A) by striking ``persons'' and inserting
+``individuals''; and
+(B) by striking ``person'' each place it appears
+and inserting ``individual''.
+(24) In section 2711(b), by striking ``person'' and
+inserting ``individual''.
+(25) In section 2732, by striking ``a person'' and
+inserting ``an individual''.
+(26) In section 2733--
+(A) by striking ``A person'' and inserting ``An
+individual''; and
+(B) by striking ``that person'' and inserting
+``that individual''.
+(27) In section 2734, by striking ``person'' each place it
+appears and inserting ``individual''.
+(28) In section 2735, by striking ``a person'' and
+inserting ``an individual''.
+(29) In section 2736, by striking ``person'' and inserting
+``individual''.
+(30) In section 2737, by striking ``a person'' and
+inserting ``an individual''.
+(31) In section 2738, by striking ``person'' and inserting
+``individual''.
+(32) In section 2739, by striking ``person'' and inserting
+``individual''.
+(33) In section 2740--
+(A) by striking ``person'' and inserting
+``individual''; and
+(B) by striking ``one'' the second place it
+appears.
+(34) In section 2741--
+(A) in subsection (a), by striking ``a person'' and
+inserting ``an individual'';
+(B) in subsection (b)(1), by striking ``person's''
+and inserting ``individual's''; and
+(C) in subsection (b)(2), by striking ``person''
+and inserting ``individual''.
+(35) In section 2743, by striking ``person'' each place it
+appears and inserting ``individual''.
+(36) In section 2744--
+(A) in subsection (b), by striking ``a person'' and
+inserting ``an individual''; and
+(B) in subsections (a) and (c), by striking
+``person'' each place it appears and inserting
+``individual''.
+(37) In section 2745, by striking ``person'' and inserting
+``individual''.
+(38)(A) In section 2761--
+(i) in the section heading, by striking ``Persons''
+and inserting ``Individuals'';
+(ii) by striking ``persons'' and inserting
+``individuals''; and
+(iii) by striking ``person'' and inserting
+``individual''.
+(B) In the analysis for chapter 27, by striking the item
+relating to section 2761 and inserting the following:
+``2761. Individuals discharged as a result of court-martial; allowances
+to.''.
+(39)(A) In the heading for section 2767, by striking
+``persons'' and inserting ``individuals''.
+(B) In the analysis for chapter 27, by striking the item
+relating to section 2767 and inserting the following:
+``2767. Reimbursement for medical-related travel expenses for certain
+individuals residing on islands in the
+continental United States.''.
+(40) In section 2769--
+(A) by striking ``a person's'' and inserting ``an
+individual's''; and
+(B) in paragraph (1), by striking ``person'' and
+inserting ``individual''.
+(41) In section 2772(a)(2), by striking ``person'' and
+inserting ``individual''.
+(42) In section 2773--
+(A) in subsection (b), by striking ``persons'' each
+place it appears and inserting ``individuals''; and
+(B) in subsection (d), by striking ``a person'' and
+inserting ``an individual''.
+(43) In section 2775, by striking ``person'' each place it
+appears and inserting ``individual''.
+(44) In section 2776, by striking ``person'' and inserting
+``individual''.
+(45)(A) In section 2777 in the heading, by striking
+``persons'' and inserting ``individuals''.
+(B) In the analysis for chapter 27, by striking the item
+relating to in section 2777 and inserting the following:
+``2777. Transportation to and from certain places of employment.''.
+(46) In section 2779, by striking ``persons'' each place it
+appears and inserting ``individuals''.
+(47) In section 2902(c), by striking ``person'' and
+inserting ``individual''.
+(48) In section 2903(b), by striking ``person'' and
+inserting ``individual''.
+(49) In section 2904(b)(1)(B), by striking ``a person'' and
+inserting ``an individual''.
+(50) In section 3706--
+(A) by striking ``a person'' and inserting ``an
+individual''; and
+(B) by striking ``person's'' and inserting
+``individual's''.
+(51) In section 3707--
+(A) in subsection (c)--
+(i) by striking ``person'' and inserting
+``individual''; and
+(ii) by striking ``person's'' and inserting
+``individual's''; and
+(B) in subsection (e), by striking ``a person'' and
+inserting ``an individual''.
+(52) In section 3708, by striking ``person'' each place it
+appears and inserting ``individual''.
+(53) In section 3738--
+(A) by striking ``a person'' each place it appears
+and inserting ``an individual'';
+(B) by striking ``person's'' and inserting
+``individual's''; and
+(C) by striking ``A person'' and inserting ``An
+individual''.
+(b) Correction of References to Persons and Seamen.--
+(1) Section 2303a(a) of title 46, United States Code, is
+amended by striking ``persons'' and inserting ``individuals''.
+(2) Section 2306(a)(3) of title 46, United States Code, is
+amended to read as follows:
+``(3) An owner, charterer, managing operator, or agent of a vessel
+of the United States notifying the Coast Guard under paragraph (1) or
+(2) shall--
+``(A) provide the name and identification number of the
+vessel, the names of individuals on board, and other
+information that may be requested by the Coast Guard; and
+``(B) submit written confirmation to the Coast Guard within
+24 hours after nonwritten notification to the Coast Guard under
+such paragraphs.''.
+(3) Section 7303 of title 46, United States Code, is
+amended by striking ``seaman'' each place it appears and
+inserting ``individual''.
+(4) Section 7319 of title 46, United States Code, is
+amended by striking ``seaman'' each place it appears and
+inserting ``individual''.
+(5) Section 7501(b) of title 46, United States Code, is
+amended by striking ``seaman'' and inserting ``holder''.
+(6) Section 7508(b) of title 46, United States Code, is
+amended by striking ``individual seamen or a specifically
+identified group of seamen'' and inserting ``an individual or a
+specifically identified group of individuals''.
+(7) Section 7510 of title 46, United States Code, is
+amended--
+(A) in subsection (c)(8)(B), by striking ``merchant
+seamen'' and inserting ``merchant mariner''; and
+(B) in subsection (d), by striking ``merchant
+seaman'' and inserting ``merchant mariner''.
+(8) Section 8103 of title 46, United States Code, is
+amended--
+(A) by striking ``seaman'' each place it appears
+and inserting ``individual''; and
+(B) by striking ``seamen'' each place it appears
+and inserting ``individuals;''
+(C) in the headings for paragraphs (2) and (3) of
+subsection (k), by striking ``Seamen'' each place it
+appears and inserting ``Individuals'';
+(D) in subsection (k)(3)(A)(iv)(II), by striking
+``seaman's'' and inserting ``individual's''; and
+(E) in subsection (k)(3)(C), by striking ``merchant
+mariners'' each place it appears and inserting
+``merchant mariner's''.
+(9) Section 8104 of title 46, United States Code, is
+amended--
+(A) in subsection (c), by striking ``a licensed
+individual or seaman'' and inserting ``an individual'';
+(B) in subsection (d), by striking ``A licensed
+individual or seaman'' and inserting ``An individual'';
+(C) in subsection (e), by striking ``a seaman''
+each place it appears and inserting ``an individual'';
+and
+(D) in subsection (j) by striking ``seaman'' and
+inserting ``individual''.
+(10) Section 8302(d) of title 46, United States Code, is
+amended by striking ``3 persons'' and inserting ``3
+individuals''.
+(11) Section 11201 of title 46, United States Code, is
+amended by striking ``a person'' each place it appears and
+inserting ``an individual''.
+(12) Section 11202 of title 46, United States Code, is
+amended--
+(A) by striking ``a person'' and inserting ``an
+individual''; and
+(B) by striking ``the person'' each place it
+appears and inserting ``the individual''.
+(13) Section 11203 of title 46, United States Code, is
+amended--
+(A) by striking ``a person'' each place it appears
+and inserting ``an individual''; and
+(B) in subsection (a)(2), by striking ``that
+person'' and inserting ``that individual''.
+(14) Section 15109(i)(2) of title 46, United States Code,
+is amended by striking ``additional persons'' and inserting
+``additional individuals''.
+SEC. 603. COMMON APPROPRIATION STRUCTURE.
+(a) Amendments To Conform to Common Appropriations Structure.--
+(1) Prospective payment of funds necessary to provide
+medical care.--Section 506 of title 14, United States Code, is
+amended--
+(A) in subsection (a)(1), by inserting
+``established under chapter 56 of title 10, United
+States Code'' after ``Medicare-Eligible Retiree Health
+Care Fund''; and
+(B) in subsection (b)(1), by striking ``operating
+expenses'' and inserting ``operations and support''.
+(2) Use of certain appropriated funds.--Section 903 of
+title 14, United States Code, is amended--
+(A) in subsection (a), by striking ``acquisition,
+construction, and improvement of facilities, for
+research, development, test, and evaluation; and for
+the alteration of bridges over the navigable waters''
+and inserting ``procurement, construction, and
+improvement of facilities and for research and
+development''; and
+(B) in subsection (d)(1), by striking ``operating
+expenses'' and inserting ``operations and support''.
+(3) Disposition of infrastructure related to e-loran.--
+Section 914(c)(2)(A) of title 14, United States Code, is
+amended by striking ``Environmental Compliance and
+Restoration'' and inserting ``Operations and Support''.
+(4) Confidential investigative expenses.--Section 944 of
+title 14, United States Code, is amended by striking
+``necessary expenses for the operation'' and inserting
+``operations and support''.
+(5) Procurement of personnel.--Section 2701 of title 14,
+United States Code, is amended by striking ``operating
+expenses'' and inserting ``operations and support''.
+(6) Coast guard housing fund.--Section 2946(b)(2) of title
+14, United States Code, is amended by striking ``acquisition''
+and inserting ``procurement''.
+(7) Requirement for prior authorization of
+appropriations.--Section 4901 of title 14, United States Code,
+is amended--
+(A) in paragraph (1), by striking ``maintenance''
+and inserting ``support'';
+(B) in paragraph (2), by striking ``acquisition''
+and inserting ``procurement'';
+(C) by striking paragraphs (3), (4), and (6);
+(D) by redesignating paragraph (5) as paragraph
+(3); and
+(E) in paragraph (3), as so redesignated, by
+striking ``research, development, test, and
+evaluation'' and inserting ``research and
+development.''.
+(b) Common Appropriation Structure.--Sections 3317(b), 7504,
+80301(c), and 80505(b)(3) of title 46, United States Code, are each
+amended by striking ``operating expenses'' and inserting ``operations
+and support''.
+(c) Common Appropriation Structure.--
+(1) Oil spill liability trust fund.--Section 1012(a)(5)(A)
+of the Oil Pollution Act of 1990 (33 U.S.C. 2712(a)(5)(A)) is
+amended by striking ``operating expenses'' and inserting
+``operations and support''.
+(2) Historic light station sales.--Section 305106 of title
+54, United States Code, is amended--
+(A) in subsection (b)(1)(B)(i) by striking
+``Operating Expenses'' and inserting ``Operations and
+Support''; and
+(B) in subsection (b)(2) by striking ``Operating
+Expense'' and inserting ``Operations and Support'';
+(3) Bridge permits.--Section 712(a)(2) of the Coast Guard
+and Maritime Transportation Act of 2012 (Public Law 112-213;
+126 Stat. 1582) is amended by striking ``operating expenses''
+and inserting ``operations and support''.
+(4) Contracts.--Section 557(a) of the Consolidated and
+Further Continuing Appropriations Act, 2013 (Public Law 113-6;
+127 Stat. 377) is amended by striking ``Acquisition'' and
+inserting ``Procurement''.
+(5) Child development services.--Section 214(d)(1) of the
+Howard Coble Coast Guard and Maritime Transportation Act of
+2014 (Public Law 113-281; 128 Stat. 3034) is amended by
+striking ``operating expenses'' and inserting ``operations and
+support''.
+SEC. 604. REFERENCES TO ``HIMSELF'' AND ``HIS''.
+(a) Section 1927 of title 14, United States Code, is amended by--
+(1) striking ``of his initial'' and inserting ``of an
+initial''; and
+(2) striking ``from his pay'' and inserting ``from the pay
+of such cadet''.
+(b) Section 2108(b) of title 14, United States Code, is amended by
+striking ``himself'' and inserting ``such officer''.
+(c) Section 2732 of title 14, United States Code, as amended by
+this Act, is further amended--
+(1) by striking ``distinguishes himself conspicuously by''
+and inserting ``displays conspicuous''; and
+(2) by striking ``his'' and inserting ``such
+individual's''.
+(d) Section 2736 of title 14, United States Code, as amended by
+this Act, is further amended by striking ``distinguishes himself by''
+and inserting ``performs''.
+(e) Section 2738 of title 14, United States Code, as amended by
+this Act is further amended by striking ``distinguishes himself by''
+and inserting ``displays''.
+(f) Section 2739 of title 14, United States Code, as amended by
+this Act, is further amended by striking ``distinguishes himself by''
+and inserting ``displays''.
+(g) Section 2742 of title 14, United States Code, is amended by
+striking ``he distinguished himself'' and inserting ``of the acts
+resulting in the consideration of such award''.
+(h) Section 2743 of title 14, United States Code, as amended by
+this Act, is further amended--
+(1) by striking ``distinguishes himself''; and
+(2) by striking ``he'' and inserting ``such individual''.
+SEC. 605. REFERENCES TO ``MOTORBOATS'' AND ``YACHTS''.
+(a) Correction of References to Motorboats and Yachts.--
+(1) Section 3901(d)(4) of title 14, United States Code, is
+amended by striking ``motor boats, yachts,'' and inserting
+``vessels,''.
+(2) Section 3903(1)(A) of title 14, United States Code, is
+amended by striking ``motorboats, yachts'' and inserting
+``vessels,''.
+(3) Section 3907(a) of title 14, United States Code, is
+amended--
+(A) in the heading, by striking ``Motor Boats,
+Yachts,'' and inserting ``Vessels,''; and
+(B) by striking ``motorboat, yacht,'' and inserting
+``vessels,''.
+(4) Section 3908 of title 14, United States Code, is
+amended by striking ``motorboat or yacht'' and inserting
+``vessel''.
+(5) Section 3911(a) of title 14, United States Code, is
+amended by striking ``motorboat, yacht,'' each place it appears
+and inserting ``vessel,''.
+(6) Section 3912 of title 14, United States Code, is
+amended by striking ``motorboat, yacht,'' and inserting
+``vessel,''.
+(7) Section 4101 of title 14, United States Code, is
+amended by striking ``motorboats, yachts,'' and inserting
+``vessels,''.
+(8) Section 4102 of title 14, United States Code, is
+amended by striking ``motorboat, yacht, or any other vessel,''
+and inserting ``or vessel,''.
+(b) Conforming References to Yachts.--Title 46, United States Code,
+is amended--
+(1) in parts F and G of subtitle II, by striking ``yacht''
+each place it appears and inserting ``recreational vessel'';
+(2) in subtitle III, by striking ``pleasure yachts'' each
+place it appears and inserting ``recreational vessels''; and
+(3) in section 60504--
+(A) by striking ``yachts'' each place it appears
+and inserting ``recreational vessels''; and
+(B) by striking ``yacht'' and inserting
+``recreational vessel.''
+(c) Vessels.--Section 352(a)(4) of the Communications Act of 1934
+(47 U.S.C. 352(a)(4)) is amended by striking ``Yachts'' and inserting
+``Recreational vessels, as defined in section 2101(46) of title 46,
+United States Code,''.
+SEC. 606. MISCELLANEOUS TECHNICAL CORRECTIONS.
+(a) Miscellaneous Technical Corrections.--
+(1) Section 3305(d)(3)(B) of title 46, United States Code,
+is amended by striking ``Coast Guard Authorization Act of
+2017'' and inserting ``Frank LoBiondo Coast Guard Authorization
+Act of 2018''.
+(2) Section 4312 of title 46, United States Code, is
+amended by striking ``Coast Guard Authorization Act of 2017''
+each place it appears and inserting ``Frank LoBiondo Coast
+Guard Authorization Act of 2018'' (Public Law 115-282).
+(3) The analysis for chapter 700 of title 46, United States
+Code, is amended--
+(A) by striking the item relating to the heading
+for the first subchapter and inserting the following:
+``subchapter i--vessel operations'';
+(B) by striking the item relating to the heading
+for the second subchapter and inserting the following:
+``subchapter ii--ports and waterways safety'';
+(C) by striking the items relating to the heading
+for the third subchapter and inserting the following:
+``subchapter iii--condition for entry into ports in the united states
+``70021. Conditions for Entry Into Ports in the United States.'';
+(D) by striking the item relating to the heading
+for the fourth subchapter and inserting the following:
+``subchapter iv--definitions regulations, enforcement, investigatory
+powers, applicability'';
+(E) by striking the item relating to the heading
+for the fifth subchapter and inserting the following:
+``subchapter v--regattas and marine parades'';
+and
+(F) by striking the item relating to the heading
+for the sixth subchapter and inserting the following:
+``subchapter vi--regulation of vessels in territorial waters of the
+united states''.
+(4) Section 70031 of title 46, United States Code, is
+amended by striking ``A through C'' and inserting ``I through
+III''.
+(5) Section 70032 of title 46, United States Code, is
+amended by striking ``A through C'' and inserting ``I through
+III''.
+(6) Section 70033 of title 46, United States Code, is
+amended by striking ``A through C'' and inserting ``I through
+III''.
+(7) Section 70034 of title 46, United States Code, is
+amended by striking ``A through C'' each place it appears and
+inserting ``I through III''.
+(8) Section 70035(a) of title 46, United States Code, is
+amended by striking ``A through C'' and inserting ``I through
+III''.
+(9) Section 70036 of title 46, United States Code, is
+amended by--
+(A) striking ``A through C'' each place it appears
+and inserting ``I through III''; and
+(B) striking ``A, B, or C'' each place it appears
+and inserting ``I, II, or III''.
+(b) Alteration of Bridges; Technical Changes.--The Act of June 21,
+1940 (33 U.S.C. 511 et seq.), popularly known as the Truman-Hobbs Act,
+is amended by striking section 12 (33 U.S.C. 522).
+(c) Report of Determination; Technical Correction.--Section
+105(f)(2) of the Pribilof Islands Transition Act (16 U.S.C. 1161 note;
+Public Law 106-562) is amended by striking ``subsection (a),'' and
+inserting ``paragraph (1),''.
+(d) Technical Corrections to Frank LoBiondo Coast Guard
+Authorization Act of 2018.--
+(1) Section 408 of the Frank LoBiondo Coast Guard
+Authorization Act of 2018 (Public Law 115-282) and the item
+relating to such section in section 2 of such Act are repealed,
+and the provisions of law redesignated, transferred, or
+otherwise amended by section 408 are amended to read as if such
+section were not enacted.
+(2) Section 8303 of title 46, United States Code, and the
+item relating to that section in the analysis for chapter 83 of
+that title, are repealed.
+(3) Section 514(b) of the Frank LoBiondo Coast Guard
+Authorization Act of 2018 (Public Law 115-282) is amended by
+striking ``Chapter 30'' and inserting ``Chapter 3''.
+(4) Section 810(d) of the Frank LoBiondo Coast Guard
+Authorization Act of 2018 (Public Law 115-282) is amended by
+striking ``within 30 days after receiving the notice under
+subsection (a)(1), the Secretary shall, by not later than 60
+days after transmitting such notice,'' and inserting ``in
+accordance within subsection (a)(2), the Secretary shall''.
+(5) Section 820(a) of the Frank LoBiondo Coast Guard
+Authorization Act of 2018 (Public Law 115-282) is amended by
+striking ``years 2018 and'' and inserting ``year''.
+(6) Section 820(b)(2) of the Frank LoBiondo Coast Guard
+Authorization Act of 2018 (Public Law 115-282) is amended by
+inserting ``and the Consolidated Appropriations Act, 2018
+(Public Law 115-141)'' after ``(Public Law 115-31)''.
+(7) Section 821(a)(2) of the Frank LoBiondo Coast Guard
+Authorization Act of 2018 (Public Law 115-282) is amended by
+striking ``Coast Guard Authorization Act of 2017'' and
+inserting ``Frank LoBiondo Coast Guard Authorization Act of
+2018''.
+(8) This section shall take effect on the date of the
+enactment of the Frank LoBiondo Coast Guard Authorization Act
+of 2018 (Public Law 115-282) and apply as if included therein.
+(e) Technical Correction.--Section 533(d)(2)(A) of the Coast Guard
+Authorization Act of 2016 (Public Law 114-120) is amended by striking
+``Tract 6'' and inserting ``such Tract''.
+(f) Distant Water Tuna Fleet; Technical Corrections.--Section 421
+of the Coast Guard and Maritime Transportation Act of 2006 (Public Law
+109-241) is amended--
+(1) in subsection (a)--
+(A) by striking ``Notwithstanding'' and inserting
+``(1) In general--Notwithstanding''; and
+(B) by adding at the end the following:
+``(2) Definition.--In this subsection, the term `treaty
+area' has the meaning given the term in the Treaty on Fisheries
+Between the Governments of Certain Pacific Island States and
+the Government of the United States of America as in effect on
+the date of the enactment of the Coast Guard and Maritime
+Transportation Act of 2006 (Public Law 109-241).''; and
+(2) in subsection (c)--
+(A) by striking ``12.6 or 12.7'' and inserting
+``13.6''; and
+(B) by striking ``and Maritime Transportation Act
+of 2012'' and inserting ``Authorization Act of 2019''.
+SEC. 607. TECHNICAL CORRECTIONS RELATING TO CODIFICATION OF PORTS AND
+WATERWAYS SAFETY ACT.
+Effective upon the enactment of section 401 of the Frank LoBiondo
+Coast Guard Authorization Act of 2018 (Public Law 115-282), and
+notwithstanding section 402(e) of such Act--
+(1) section 16 of the Ports and Waterways Safety Act, as
+added by section 315 of the Countering America's Adversaries
+Through Sanctions Act (Public Law 115-44; 131 Stat. 947)--
+(A) is redesignated as section 70022 of title 46,
+United States Code, transferred to appear after section
+70021 of that title, and amended so that the
+enumerator, section heading, typeface, and typestyle
+conform to those appearing in other sections in title
+46, United States Code; and
+(B) as so redesignated and transferred, is
+amended--
+(i) in subsections (b) and (e), by striking
+``section 4(a)(5)'' each place it appears and
+inserting ``section 70001(a)(5)'';
+(ii) in subsection (c)(2), by striking
+``not later than'' and all that follows through
+``thereafter,'' and inserting ``periodically'';
+and
+(iii) by striking subsection (h); and
+(2) chapter 700 of title 46, United States Code, is
+amended--
+(A) in section 70002(2), by inserting ``or 70022''
+after ``section 70021''; and
+(B) in section 70036(e), by inserting ``or 70022''
+after ``section 70021''; and
+(C) in the analysis for such chapter--
+(i) by inserting ``Sec.'' above the section
+items, in accordance with the style and form of
+such an entry in other chapter analyses of such
+title; and
+(ii) by striking the item relating to
+section 70021 and inserting the following:
+``70021. Conditions for entry to ports in the United States
+``70022. Prohibition on entry and operation''.
+TITLE VII--FEDERAL MARITIME COMMISSION
+SEC. 701. SHORT TITLE.
+This title may be cited as the ``Federal Maritime Commission
+Authorization Act of 2019''.
+SEC. 702. AUTHORIZATION OF APPROPRIATIONS.
+Section 308 of title 46, United States Code, is amended by striking
+``$28,012,310 for fiscal year 2018 and $28,544,543 for fiscal year
+2019'' and inserting ``$29,086,888 for fiscal year 2020 and $29,639,538
+for fiscal year 2021''.
+TITLE VIII--COAST GUARD ACADEMY IMPROVEMENT ACT
+SEC. 801. SHORT TITLE.
+This Act may be cited as the ``Coast Guard Academy Improvement
+Act''.
+SEC. 802. COAST GUARD ACADEMY STUDY.
+(a) In General.--The Secretary of the department in which the Coast
+Guard is operating shall seek to enter into an arrangement with the
+National Academy of Public Administration not later than 60 days after
+the date of the enactment of the this Act under which the National
+Academy of Public Administration shall--
+(1) conduct an assessment of the cultural competence of the
+Coast Guard Academy as an organization and of individuals at
+the Coast Guard Academy to carry out effectively the primary
+duties of the United States Coast Guard listed in section 102
+of title 14, United States Code, when interacting with
+individuals of different races, ethnicities, genders,
+religions, sexual orientations, socioeconomic backgrounds, or
+from different geographic origins; and
+(2) issue recommendations based upon the findings in such
+assessment.
+(b) Assessment of Cultural Competence.--
+(1) Cultural competence of the coast guard academy.--The
+arrangement described in subsection (a) shall require the
+National Academy of Public Administration to, not later than 1
+year after entering into an arrangement with the Secretary
+under subsection (a), submit to the Committee on Transportation
+and Infrastructure of the House of Representatives and the
+Committee on Commerce, Science, and Transportation of the
+Senate the assessment described under subsection (a)(1).
+(2) Assessment scope.--the assessment described under
+subsection (a)(1) shall--
+(A) describe the level of cultural competence
+described in subsection (a)(1) based on the National
+Academy of Public Administration's assessment of the
+Coast Guard Academy's relevant practices, policies, and
+structures, including an overview of discussions with
+faculty, staff, students, and relevant Coast Guard
+Academy affiliated organizations;
+(B) examine potential changes which could be used
+to further enhance such cultural competence by--
+(i) modifying institutional practices,
+policies, and structures; and
+(ii) any other changes deemed appropriate
+by the National Academy of Public
+Administration; and
+(C) make recommendations to enhance the cultural
+competence of the Coast Guard Academy described in
+subparagraph (A), including any specific plans,
+policies, milestones, performance measures, or other
+information necessary to implement such
+recommendations.
+(c) Final Action Memorandum.--Not later than three months after
+submission of the assessment under section 802(b)(1), the Commandant of
+the Coast Guard shall submit to the Committee on Transportation and
+Infrastructure of the House of Representatives and the Committee on
+Commerce, Science, and Transportation of the Senate, a final action
+memorandum in response to all recommendations contained in the
+assessment. The Final Action Memorandum shall include the rationale for
+accepting, accepting in part, or rejecting each recommendation, and
+shall specify, where applicable, actions to be taken to implement such
+recommendations, including an explanation of how each action enhances
+the ability of the Coast Guard to carry out the primary duties of the
+United States Coast Guard listed in section 102 of title 14, United
+States Code.
+(d) Plan.--
+(1) In general.--Not later than six months after the date
+of the submission of the final action memorandum required under
+subsection (c), the Commandant of the Coast Guard, in
+coordination with the Chief Human Capital Officer of the
+Department of Homeland Security, shall submit a plan to carry
+out the recommendations or the parts of the recommendations
+accepted in the Final Action Memorandum to the Committee on
+Transportation and Infrastructure of the House of
+Representatives and the Committee on Commerce, Science, and
+Transportation of the Senate.
+(2) Strategy with milestones.--With respect to any actions
+in subparagraphs (A) through (D) to implement recommendations
+or parts of recommendations accepted in the Final Action
+Memorandum, the plan required under paragraph (1) shall set
+forth a strategy with appropriate milestones to carry out such
+actions to--
+(A) improve outreach and recruitment of a more
+diverse Coast Guard Academy cadet candidate pool based
+on race, ethnicity, gender, religion, sexual
+orientation, socioeconomic background, and geographic
+origin;
+(B) modify institutional structures, practices, and
+policies to foster a more diverse cadet corps body,
+faculty, and staff workforce based on race, ethnicity,
+gender, religion, sexual orientation, socioeconomic
+background, and geographic origin;
+(C) modify existing or establish new policies and
+safeguards to foster the retention of cadets, faculty,
+and staff of different races, ethnicities, genders,
+religions, sexual orientations, socioeconomic
+backgrounds, and geographic origins at the Coast Guard
+Academy; and
+(D) restructure the admissions office of the Coast
+Guard Academy to be headed by a civilian with
+significant relevant higher education recruitment
+experience.
+(3) Implementation.--Unless otherwise directed by Congress,
+the Commandant of the Coast Guard shall begin implementation of
+the plan developed under this subsection not later than 180
+days after the submission of such plan to Congress.
+(4) Update.--The Commandant of the Coast Guard shall
+include in the first annual report required under Chapter 51 of
+title 14, United States Code, as amended by this Act, submitted
+after the date of enactment of this section, the strategy with
+milestones required in paragraph (2), and shall report annually
+thereafter on actions taken and progress made in the
+implementation of such plan.
+SEC. 803. ANNUAL REPORT.
+(a) In General.--Chapter 51 of title 14, United States Code, is
+amended by adding at the end the following:
+``Sec. 5112. Report on diversity at the Coast Guard Academy
+``(a) In General.--Not later than January 15, 2021, and annually
+thereafter, the Commandant shall submit a report on diversity at the
+Coast Guard Academy to the Committee on Transportation and
+Infrastructure of the House of Representatives and the Committee on
+Commerce, Science, and Transportation of the Senate.
+``(b) Contents.--The report required under subsection (a) shall
+include--
+``(1) the status of the implementation of the plan required
+section 803 of the Coast Guard Academy Improvement Act;
+``(2) specific information on outreach and recruitment
+activities for the preceding year, including the Coast Guard
+Academy Minority Outreach Team Program described under section
+1905;
+``(3) enrollment information about the incoming class,
+including the gender, race, ethnicity, religion, socioeconomic
+background, and State of residence of Coast Guard Academy
+cadets;
+``(4) information on class retention, outcomes, and
+graduation rates, including the race, gender, ethnicity,
+religion, socioeconomic background, and State of residence of
+Coast Guard Academy cadets; and
+``(5) information on efforts to retain diverse cadets,
+including through professional development and professional
+advancement programs for staff and faculty.''.
+(b) Clerical Amendment.--The analysis for chapter 51 of title 14,
+United States Code, is amended by adding at the end the following:
+``5112. Report on diversity at the Coast Guard Academy.''.
+SEC. 804. ASSESSMENT OF COAST GUARD ACADEMY ADMISSION PROCESSES.
+(a) In General.--The Secretary of the department in which the Coast
+Guard is operating shall seek to enter into an arrangement with the
+National Academy of Public Administration under which the National
+Academy of Public Administration shall, not later than 1 year after
+submitting an assessment under section 801(a)(1), submit an assessment
+of the Coast Guard Academy admissions process to the Committee on
+Transportation and Infrastructure of the House of Representatives and
+the Committee on Commerce, Science, and Transportation of the Senate.
+(b) Assessment Scope.--The assessment required to be sought under
+subsection (a) shall, at a minimum, include--
+(1) a study, or an audit if appropriate, of the process the
+Coast Guard Academy uses to--
+(A) identify candidates for recruitment;
+(B) recruit applicants;
+(C) assist applicants in the application process;
+(D) evaluate applications; and
+(E) make admissions decisions;
+(2) discussion of the consideration during the admissions
+process of diversity, including--
+(A) race;
+(B) ethnicity;
+(C) gender;
+(D) religion;
+(E) sexual orientation;
+(F) socioeconomic background; and
+(G) geographic origin;
+(3) an overview of the admissions processes at other
+Federal service academies, including--
+(A) discussion of consideration of diversity,
+including any efforts to attract a diverse pool of
+applicants, in those processes; and
+(B) an analysis of how the congressional
+nominations requirement in current law related to
+military service academies and the Merchant Marine
+Academy impacts those processes and the overall
+demographics of the student bodies at those academies;
+(4) a determination regarding how a congressional
+nominations requirement for Coast Guard Academy admissions
+could impact diversity among the student body and the ability
+of the Coast Guard to carry out effectively the Service's
+primary duties described in section 102 of title 14, United
+States Code; and
+(5) recommendations for improving Coast Guard Academy
+admissions processes, including whether a congressional
+nominations process should be integrated into such processes.
+SEC. 805. COAST GUARD ACADEMY MINORITY OUTREACH TEAM PROGRAM.
+(a) In General.--Chapter 19 of title 14, United States Code, is
+amended by inserting after section 1904 the following:
+``Sec. 1905. Coast Guard Academy minority outreach program
+``(a) In General.--There is established within the Coast Guard
+Academy a minority outreach team program (in this section referred to
+as the `Program' ) under which officers, including minority officers,
+who are Academy graduates may volunteer their time to recruit minority
+students and strengthen cadet retention through mentorship of cadets.
+``(b) Administration.--Not later than July 15, 2020, the
+Commandant, in consultation with Program volunteers and Academy alumni
+that participated in prior programs at the Academy similar to the
+Program, shall appoint a permanent civilian position at the Academy to
+administer the Program by, among other things--
+``(1) overseeing administration of the Program;
+``(2) serving as a resource to volunteers and outside
+stakeholders;
+``(3) advising Academy leadership on recruitment and
+retention efforts based on recommendations from volunteers and
+outside stakeholders;
+``(4) establishing strategic goals and performance metrics
+for the Program with input from active volunteers and Academy
+leadership; and
+``(5) reporting annually to the Commandant on academic year
+and performance outcomes of the goals for the Program before
+the end of each academic year.''.
+(b) Clerical Amendment.--The analysis for chapter 19 of title 14,
+United States Code, is amended by inserting after the item relating to
+section 1904 the following:
+``1905. Coast Guard Academy minority outreach team program.''.
+SEC. 806. COAST GUARD COLLEGE STUDENT PRE-COMMISSIONING INITIATIVE.
+(a) In General.--Subchapter I of chapter 21 of title 14, United
+States Code, is amended by adding at the end the following:
+``Sec. 2130. College student pre-commissioning initiative
+``(a) In General.--There is authorized within the Coast Guard the
+College Student Pre-Commissioning Initiative program (in this section
+referred to as the `program') for eligible undergraduate students to
+enlist and receive a guaranteed commission as an officer in the Coast
+Guard.
+``(b) Criteria for Selection.--To be eligible for the program a
+student must meet the following requirements:
+``(1) Age.--A student must be not less than 19 years old
+and not more than 27 years old as of September 30 of the fiscal
+year in which the program selection panel convenes.
+``(2) Character.--
+``(A) All applicants.--All applicants must be of
+outstanding moral character and meet other character
+requirements as set forth by the Commandant.
+``(B) Coast guard applicants.--An applicant serving
+in the Coast Guard may not be commissioned if in the 36
+months prior to the first Officer Candidate School
+class convening date in the selection cycle, such
+applicant was convicted by a court-martial or awarded
+non-judicial punishment, or did not meet performance or
+character requirements set forth by the Commandant.
+``(3) Citizenship.--A student must be a United States
+citizen.
+``(4) Clearance.--A student must be eligible for a secret
+clearance.
+``(5) Dependency.--
+``(A) A student may not have more than 2
+dependents; and
+``(B) A student who is single may not have sole or
+primary custody of dependents.
+``(6) Education.--
+``(A) Institution.--A student must be an
+undergraduate sophomore or junior--
+``(i) at a historically Black college or
+university described in section 322(2) of the
+Higher Education Act of 1965 (20 U.S.C.
+1061(2)) or an institution of higher education
+described in section 371(a) of the Higher
+Education Act of 1965 (20 U.S.C. 1067q(a)); or
+``(ii) who is active in minority-serving
+organizations and pursuing a degree in science,
+technology, engineering, or mathematics at an
+institution of higher education described in
+section 101 of the Higher Education Act of 1965
+(20 U.S.C. 1001) that is not a historically
+Black college or university or institution of
+higher education referred to in clause (i) of
+this subparagraph.
+``(B) Location.--The institution at which such
+student is an undergraduate must be within 100 miles of
+a Coast guard unit or Coast Guard Recruiting Office
+unless otherwise approved by the Commandant.
+``(C) Records.--A student must meet credit and
+grade point average requirements set forth by the
+Commandant.
+``(7) Medical and administrative.--A student must meet
+other medical and administrative requirements as set forth by
+the Commandant.
+``(c) Enlistment and Obligation.--Individuals selected and accept
+to participate in the program shall enlist in the Coast Guard in pay
+grade E-3 with a four year duty obligation and four year inactive
+Reserve obligation.
+``(d) Military Activities Prior to Officer Candidate School.--
+Individuals enrolled in the program shall participate military
+activities each month, as required by the Commandant, prior to
+attending Officer Candidate School.
+``(e) Participation in Officer Candidate School.--Each Graduate of
+the program shall attend the first enrollment of Officer Candidate
+School that commences after the date of such graduate's graduation.
+``(f) Commissioning.--Upon graduation from Officer Candidate
+School, program graduates shall be discharged from enlisted status and
+commissioned as an O-1 with an initial three-year duty obligation.
+``(g) Briefing.--
+``(1) In general.--Not later than August 15 of each year,
+the Commandant shall provide a briefing to the Committee on
+Transportation and Infrastructure of the House of
+Representatives and the Committee on Commerce, Science, and
+Transportation of the Senate on the College Student Pre-
+Commissioning Initiative.
+``(2) Contents.--The briefing required under paragraph (1)
+shall describe--
+``(A) outreach and recruitment efforts over the
+previous year; and
+``(B) demographic information of enrollees
+including--
+``(i) race;
+``(ii) ethnicity;
+``(iii) gender;
+``(iv) geographic origin; and
+``(v) educational institution''.
+(b) Clerical Amendment.--The analysis for subchapter I of chapter
+21 of title 14, United States Code, is amended by adding at the end the
+following:
+``2130. College Student Pre-Commissioning Initiative.''.
+SEC. 807. ANNUAL BOARD OF VISITORS.
+Section 1903(d) of title 14, United States Code, is amended--
+(1) by redesignating paragraphs (2) through (6) as
+paragraphs (3) through (7), respectively; and
+(2) by inserting after paragraph (1) the following:
+``(2) recruitment and retention;''.
+<all>

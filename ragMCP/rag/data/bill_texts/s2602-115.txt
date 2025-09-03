@@ -1,0 +1,547 @@
+[Congressional Bills 115th Congress]
+[From the U.S. Government Publishing Office]
+[S. 2602 Introduced in Senate (IS)]
+<DOC>
+115th CONGRESS
+2d Session
+S. 2602
+To support carbon dioxide utilization and direct air capture research,
+to facilitate the permitting and development of carbon capture,
+utilization, and sequestration projects and carbon dioxide pipelines,
+and for other purposes.
+_______________________________________________________________________
+IN THE SENATE OF THE UNITED STATES
+March 22, 2018
+Mr. Barrasso (for himself, Mr. Whitehouse, Mrs. Capito, and Ms.
+Heitkamp) introduced the following bill; which was read twice and
+referred to the Committee on Environment and Public Works
+_______________________________________________________________________
+A BILL
+To support carbon dioxide utilization and direct air capture research,
+to facilitate the permitting and development of carbon capture,
+utilization, and sequestration projects and carbon dioxide pipelines,
+and for other purposes.
+Be it enacted by the Senate and House of Representatives of the
+United States of America in Congress assembled,
+SECTION 1. SHORT TITLE.
+This Act may be cited as the ``Utilizing Significant Emissions with
+Innovative Technologies Act'' or the ``USE IT Act''.
+TITLE I--ENCOURAGING PROJECTS TO REDUCE EMISSIONS
+SEC. 101. RESEARCH, INVESTIGATION, TRAINING, AND OTHER ACTIVITIES.
+Section 103 of the Clean Air Act (42 U.S.C. 7403) is amended--
+(1) in subsection (c)(3), in the first sentence of the
+matter preceding subparagraph (A), by striking ``percursors''
+and inserting ``precursors''; and
+(2) in subsection (g)--
+(A) by redesignating paragraphs (1) through (4) as
+subparagraphs (A) through (D), respectively, and
+indenting appropriately;
+(B) in the undesignated matter following
+subparagraph (D) (as so redesignated)--
+(i) in the second sentence, by striking
+``The Administrator'' and inserting the
+following:
+``(5) Coordination and avoidance of duplication.--The
+Administrator''; and
+(ii) in the first sentence, by striking
+``Nothing'' and inserting the following:
+``(4) Effect of subsection.--Nothing'';
+(C) in the matter preceding subparagraph (A) (as so
+redesignated)--
+(i) in the third sentence, by striking
+``Such program'' and inserting the following:
+``(3) Program inclusions.--The program under this
+subsection'';
+(ii) in the second sentence--
+(I) by inserting ``States,
+institutions of higher education,''
+after ``scientists,''; and
+(II) by striking ``Such strategies
+and technologies shall be developed''
+and inserting the following:
+``(2) Participation requirement.--Such strategies and
+technologies described in paragraph (1) shall be developed'';
+and
+(iii) in the first sentence, by striking
+``In carrying out'' and inserting the
+following:
+``(1) In general.--In carrying out''; and
+(D) by adding at the end the following:
+``(6) Certain carbon dioxide activities.--
+``(A) In general.--In carrying out paragraph (3)(A)
+with respect to carbon dioxide, the Administrator shall
+carry out the activities described in each of
+subparagraphs (B) and (C).
+``(B) Direct air capture research.--
+``(i) Definitions.--In this subparagraph:
+``(I) Board.--The term `Board'
+means the Direct Air Capture Technology
+Advisory Board established by clause
+(iii)(I).
+``(II) Dilute.--The term `dilute'
+means a concentration of less than 1
+percent by volume.
+``(III) Direct air capture.--
+``(aa) In general.--The
+term `direct air capture', with
+respect to a facility,
+technology, or system, means
+that the facility, technology,
+or system uses carbon capture
+equipment to capture carbon
+dioxide directly from the air.
+``(bb) Exclusion.--The term
+`direct air capture' does not
+include any facility,
+technology, or system that
+captures carbon dioxide--
+``(AA) that is
+deliberately released
+from a naturally
+occurring subsurface
+spring; or
+``(BB) using
+natural photosynthesis.
+``(IV) Intellectual property.--The
+term `intellectual property' means--
+``(aa) an invention that is
+patentable under title 35,
+United States Code; and
+``(bb) any patent on an
+invention described in item
+(aa).
+``(ii) Technology prizes.--
+``(I) In general.--Not later than 1
+year after the date of enactment of the
+USE IT Act, the Administrator shall
+establish a program to provide, and
+shall provide, financial awards on a
+competitive basis for direct air
+capture from media in which the
+concentration of carbon dioxide is
+dilute.
+``(II) Duties.--In carrying out
+this clause, the Administrator shall--
+``(aa) subject to subclause
+(III), develop specific
+requirements for--
+``(AA) the
+competition process;
+and
+``(BB) monitoring
+and verification
+procedures for approved
+projects;
+``(bb) offer financial
+awards for a project designed--
+``(AA) to capture
+more than 10,000 tons
+of carbon dioxide per
+year; and
+``(BB) to be
+deployed at a cost of
+less than $200 per ton
+of carbon dioxide
+captured; and
+``(cc) to the maximum
+extent practicable, make
+financial awards to
+geographically diverse
+projects, including at least--
+``(AA) 1 project in
+a coastal State; and
+``(BB) 1 project in
+a rural State.
+``(III) Public participation.--In
+carrying out subclause (II)(aa), the
+Board shall--
+``(aa) provide notice of
+and, for a period of not less
+than 60 days, an opportunity
+for public comment on, any
+draft or proposed version of
+the requirements described in
+subclause (II)(aa); and
+``(bb) take into account
+public comments received in
+developing the final version of
+those requirements.
+``(IV) Peer review.--No financial
+awards may be provided under this
+clause until the proposal for which the
+award is sought has been peer reviewed
+in accordance with such standards for
+peer review as are established by the
+Administrator.
+``(iii) Direct air capture technology
+advisory board.--
+``(I) Establishment.--There is
+established an advisory board to be
+known as the `Direct Air Capture
+Technology Advisory Board'.
+``(II) Composition.--The Board
+shall be composed of 9 members
+appointed by the Administrator, who
+shall provide expertise in--
+``(aa) climate science;
+``(bb) physics;
+``(cc) chemistry;
+``(dd) biology;
+``(ee) engineering;
+``(ff) economics;
+``(gg) business management;
+and
+``(hh) such other
+disciplines as the
+Administrator determines to be
+necessary to achieve the
+purposes of this subparagraph.
+``(III) Term; vacancies.--
+``(aa) Term.--A member of
+the Board shall serve for a
+term of 6 years.
+``(bb) Vacancies.--A
+vacancy on the Board--
+``(AA) shall not
+affect the powers of
+the Board; and
+``(BB) shall be
+filled in the same
+manner as the original
+appointment was made.
+``(IV) Initial meeting.--Not later
+than 30 days after the date on which
+all members of the Board have been
+appointed, the Board shall hold the
+initial meeting of the Board.
+``(V) Meetings.--The Board shall
+meet at the call of the Chairperson.
+``(VI) Quorum.--A majority of the
+members of the Board shall constitute a
+quorum, but a lesser number of members
+may hold hearings.
+``(VII) Chairperson and vice
+chairperson.--The Board shall select a
+Chairperson and Vice Chairperson from
+among the members of the Board.
+``(VIII) Compensation.--Each member
+of the Board may be compensated at not
+to exceed the daily equivalent of the
+annual rate of basic pay in effect for
+a position at level V of the Executive
+Schedule under section 5316 of title 5,
+United States Code, for each day during
+which the member is engaged in the
+actual performance of the duties of the
+Board.
+``(IX) Duties.--The Board shall
+advise the Administrator on carrying
+out the duties of the Administrator
+under this subparagraph.
+``(X) FACA.--The Federal Advisory
+Committee Act (5 U.S.C. App.) shall
+apply to the Board.
+``(iv) Intellectual property.--
+``(I) In general.--As a condition
+of receiving a financial award under
+this subparagraph, an applicant shall
+agree to vest the intellectual property
+of the applicant derived from the
+technology in 1 or more entities that
+are incorporated in the United States.
+``(II) Reservation of license.--The
+United States--
+``(aa) may reserve a
+nonexclusive, nontransferable,
+irrevocable, paid-up license,
+to have practiced for or on
+behalf of the United States, in
+connection with any
+intellectual property described
+in subclause (I); but
+``(bb) shall not, in the
+exercise of a license reserved
+under item (aa), publicly
+disclose proprietary
+information relating to the
+license.
+``(III) Transfer of title.--Title
+to any intellectual property described
+in subclause (I) shall not be
+transferred or passed, except to an
+entity that is incorporated in the
+United States, until the expiration of
+the first patent obtained in connection
+with the intellectual property.
+``(v) Authorization of appropriations.--
+There is authorized to be appropriated to carry
+out this subparagraph $25,000,000, to remain
+available until expended.
+``(vi) Termination of authority.--The Board
+and all authority provided under this
+subparagraph shall terminate on December 31,
+2028.
+``(C) Carbon dioxide utilization research.--
+``(i) Definition of carbon dioxide
+utilization.--In this subparagraph, the term
+`carbon dioxide utilization' refers to
+technologies or approaches that lead to the use
+of carbon dioxide--
+``(I) through the fixation of
+carbon dioxide through photosynthesis
+or chemosynthesis, such as through the
+growing of algae or bacteria;
+``(II) through the chemical
+conversion of carbon dioxide to a
+material or chemical compound in which
+the carbon dioxide is securely stored;
+or
+``(III) through the use of carbon
+dioxide for any other purpose for which
+a commercial market exists, as
+determined by the Administrator.
+``(ii) Program.--The Administrator shall
+carry out a research and development program
+for carbon dioxide utilization to promote
+technologies that transform carbon dioxide
+generated by industrial processes into a
+product of commercial value, or as an input to
+products of commercial value.
+``(iii) Technical and financial
+assistance.--Not later than 2 years after the
+date of enactment of the USE IT Act, in
+carrying out this subsection, the Administrator
+shall support research and infrastructure
+activities relating to carbon dioxide
+utilization by providing technical assistance
+and financial assistance in accordance with
+clause (iv).
+``(iv) Eligibility.--To be eligible to
+receive technical assistance and financial
+assistance under clause (iii), a carbon dioxide
+utilization project shall--
+``(I) have access to an emissions
+stream generated by a stationary source
+within the United States that is
+capable of supplying not less than 250
+metric tons per day of carbon dioxide
+for research;
+``(II) have access to adequate
+space for a laboratory and equipment
+for testing small-scale carbon dioxide
+utilization technologies, with onsite
+access to larger test bays for scale-
+up; and
+``(III) have existing partnerships
+with institutions of higher education,
+private companies, States, or other
+government entities.
+``(v) Coordination.--In supporting carbon
+dioxide utilization projects under this
+paragraph, the Administrator shall collaborate,
+as appropriate, with the head of any relevant
+Federal agency, States, the private sector, and
+institutions of higher education to develop
+methods and technologies to account for the
+carbon dioxide emissions avoided by the carbon
+dioxide utilization projects.
+``(vi) Authorization of appropriations.--
+There is authorized to be appropriated to carry
+out this subparagraph $50,000,000, to remain
+available until expended.
+``(D) Report on carbon dioxide nonregulatory
+strategies and technologies.--
+``(i) In general.--Not less frequently than
+once every 2 years, the Administrator shall
+submit to the Committee on Environment and
+Public Works of the Senate and the Committee on
+Energy and Commerce of the House of
+Representatives a report that describes--
+``(I) the recipients of assistance
+under subparagraphs (B) and (C); and
+``(II) a plan for supporting
+additional nonregulatory strategies and
+technologies that could significantly
+prevent carbon dioxide emissions or
+reduce carbon dioxide levels in the
+air, in conjunction with other Federal
+agencies.
+``(ii) Inclusions.--The plan submitted
+under clause (i) shall include--
+``(I) a methodology for evaluating
+and ranking technologies based on the
+ability of the technologies to cost
+effectively reduce carbon dioxide
+emissions or carbon dioxide levels in
+the air; and
+``(II) a description of any nonair-
+related environmental or energy
+considerations regarding the
+technologies.''.
+TITLE II--IMPROVEMENT OF PERMITTING PROCESS FOR CARBON DIOXIDE CAPTURE
+AND INFRASTRUCTURE PROJECTS
+SEC. 201. INCLUSION OF CARBON CAPTURE INFRASTRUCTURE PROJECTS.
+Section 41001(6) of the FAST Act (42 U.S.C. 4370m(6)) is amended--
+(1) in subparagraph (A)--
+(A) in the matter preceding clause (i), by
+inserting ``carbon capture,'' before ``renewable or
+conventional'';
+(B) in clause (i)(III), by striking ``or'' at the
+end;
+(C) by redesignating clause (ii) as clause (iii);
+and
+(D) by inserting after clause (i) the following:
+``(ii) is covered by a programmatic plan or
+environmental review developed for the primary
+purpose of facilitating development of carbon
+dioxide pipelines; or''; and
+(2) by adding at the end the following:
+``(C) Associated definition.--For purposes of
+subparagraph (A), the term `construction of
+infrastructure for carbon capture' includes
+construction of any facility, technology, or system
+that captures, utilizes, or sequesters carbon dioxide
+emissions and carbon dioxide pipelines.''.
+SEC. 202. DEVELOPMENT OF CARBON CAPTURE, UTILIZATION, AND SEQUESTRATION
+PERMITTING GUIDANCE AND REGIONAL PERMITTING TASK FORCE.
+(a) Development of Guidance.--
+(1) In general.--Not later than 1 year after the date of
+enactment of this Act, the Chair of the Council on
+Environmental Quality (referred to in this section as the
+``Chair''), in consultation with the Administrator of the
+Environmental Protection Agency, the Secretary of Energy, the
+Secretary of the Interior, and the head of any other relevant
+Federal agency (as determined by the President), shall prepare
+guidance--
+(A) to facilitate reviews associated with the
+deployment of carbon capture, utilization, and
+sequestration projects and carbon dioxide pipelines;
+and
+(B) that identifies current or emerging activities
+that transform captured carbon dioxide into a product
+of commercial value, or as an input to products of
+commercial value.
+(2) Requirements.--The guidance under paragraph (1) shall--
+(A) address requirements under--
+(i) the National Environmental Policy Act
+of 1969 (42 U.S.C. 4321 et seq.);
+(ii) the Federal Water Pollution Control
+Act (33 U.S.C. 1251 et seq.);
+(iii) the Clean Air Act (42 U.S.C. 7401 et
+seq.);
+(iv) the Safe Drinking Water Act (42 U.S.C.
+300f et seq.);
+(v) the Endangered Species Act of 1973 (16
+U.S.C. 1531 et seq.);
+(vi) division A of subtitle III of title
+54, United States Code (formerly known as the
+``National Historic Preservation Act'');
+(vii) the Migratory Bird Treaty Act (16
+U.S.C. 703 et seq.);
+(viii) the Act of June 8, 1940 (16 U.S.C.
+668 et seq.) (commonly known as the ``Bald and
+Golden Eagle Protection Act''); and
+(ix) any other Federal law that the Chair
+determines to be appropriate; and
+(B) include guidance to States for the development
+of programmatic environmental reviews under the
+National Environmental Policy Act of 1969 (42 U.S.C.
+4321 et seq.) for siting, analyzing, and authorizing
+carbon dioxide pipeline networks.
+(3) Submission; publication.--The Chair shall--
+(A) submit the guidance under paragraph (1) to the
+Committee on Environment and Public Works of the Senate
+and the Committee on Energy and Commerce of the House
+of Representatives; and
+(B) publish and make publicly available the
+guidance under paragraph (1).
+(b) Task Force.--
+(1) Establishment.--Not later than 18 months after the date
+of enactment of this Act, the Chair shall establish not less
+than 2 task forces, which shall each cover a different
+geographical area that faces differing demographic, land use,
+or geological issues, to identify permitting challenges that
+permitting authorities and project developers and operators
+face.
+(2) Members and selection.--
+(A) In general.--The Chair shall--
+(i) develop criteria for the selection of
+members to each task force; and
+(ii) select members for each task force in
+accordance with clause (i) and subparagraph
+(B).
+(B) Members.--Each task force--
+(i) shall include not less than 1
+representative of each of--
+(I) the Environmental Protection
+Agency;
+(II) the Department of Energy;
+(III) the Department of the
+Interior;
+(IV) any other Federal agency the
+Chair determines to be appropriate;
+(V) any State that requests
+participation in the geographical area
+covered by the task force;
+(VI) industry; and
+(VII) nongovernmental
+organizations; and
+(ii) at the request of a Tribal or local
+government, may include a representative of--
+(I) not less than 1 local
+government in the geographical area
+covered by the task force; and
+(II) not less than 1 Tribal
+government in the geographical area
+covered by the task force.
+(3) Meetings.--
+(A) In general.--Each task force shall meet not
+less than twice each year.
+(B) Joint meeting.--To the maximum extent
+practicable, the task forces shall meet collectively
+not less than once each year.
+(4) Duties.--Each task force shall--
+(A) inventory existing or potential approaches to
+facilitate reviews associated with the deployment of
+carbon capture, utilization, and sequestration projects
+and carbon dioxide pipelines;
+(B) develop common models for State-level carbon
+dioxide pipeline regulation and oversight guidelines
+that can be shared with States in the geographical area
+covered by the task force;
+(C) provide technical assistance to States in the
+geographical area covered by the task force in
+implementing regulatory requirements and any models
+developed under subparagraph (B); and
+(D) develop guidance for relevant Federal agencies
+on how to develop and research technologies that--
+(i) can capture carbon dioxide; and
+(ii) would be able to be deployed within
+the region covered by the task force, including
+any projects that have received technical or
+financial assistance for research under
+paragraph (6) of section 103(g) of the Clean
+Air Act (42 U.S.C. 7403(g)).
+(5) Report.--Each year, each task force shall prepare and
+submit to the Chair and to the other task forces a report that
+includes--
+(A) any recommendations for improvements in the
+issuance or administration of Federal permits and other
+Federal authorizations required under a law described
+in subsection (a)(2)(A); and
+(B) any other nationally relevant information that
+the task force has collected in carrying out the duties
+under paragraph (4).
+(6) Evaluation and revision.--The Chair shall--
+(A) evaluate the reports under paragraph (5) and,
+as necessary, revise the guidance under subsection (a);
+and
+(B) submit to the Committee on Environment and
+Public Works of the Senate, the Committee on Energy and
+Commerce of the House of Representatives, and relevant
+Federal agencies each year any revisions to the
+guidance under subsection (a) and a report that
+describes any recommendations for legislation, rules,
+or revisions to rules that would address the issues
+identified by the task forces under paragraph (5).
+<all>
