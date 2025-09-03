@@ -5,9 +5,7 @@ from datetime import datetime
 from typing import Dict, Set
 import websockets
 from websockets.server import WebSocketServerProtocol
-
-from helper.serverTest import run_investigation
-from autogen5_websocket import run_full_investigation
+from investigation import run_full_investigation
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

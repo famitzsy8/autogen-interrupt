@@ -6,15 +6,14 @@ import openai
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 import os
 from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams, SseServerParams
-from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_agentchat.conditions import TextMentionTermination
 from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
-from util.config_utils import _get_key
+from util.config import _get_key
 
 from util.PlannerAgent import PlannerAgent
-from helper.FilteredWorkbench import FilteredWorkbench
-from helper.stream_accumulator import StreamAccumulator
+from FilteredWorkbench import FilteredWorkbench
+from helper.streamParse import StreamAccumulator
 
 def _append_next_agent_instruction(agents_cfg: dict, agent_names: List[str]) -> None:
     """Mutate the description field of each agent by appending explicit hand-off instructions."""
@@ -257,17 +256,6 @@ class WebSocketStreamingConsole:
                     }
                 })
 
-
-# Configure logging: selector debug to file, only warnings to console
-logging.getLogger().setLevel(logging.WARNING)  # Set default level to WARNING for all loggers
-selector_logger = logging.getLogger("selector")
-selector_logger.setLevel(logging.INFO)
-
-# Create file handler for selector logs
-file_handler = logging.FileHandler("selector_debug.log", mode="w")
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s', datefmt='%H:%M:%S'))
-selector_logger.addHandler(file_handler)
-
 local_path = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -279,9 +267,9 @@ async def run_full_investigation(company_name: str, bill: str, websocket_callbac
 
     # -------------------- Load YAML configs --------------------
     # Updated to use agents_5.yaml and tasks_5.yaml
-    with open(f"{local_path}/config/agents_5.yaml", "r") as f:
+    with open(f"{local_path}/config/agents.yaml", "r") as f:
         agents_cfg = yaml.safe_load(f)
-    with open(f"{local_path}/config/tasks_5.yaml", "r") as f:
+    with open(f"{local_path}/config/tasks.yaml", "r") as f:
         tasks_cfg = yaml.safe_load(f)
     with open(f"{local_path}/config/prompt.yaml", "r") as f:
         prompt_cfg = yaml.safe_load(f)

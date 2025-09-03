@@ -4,7 +4,7 @@ Stream accumulator that collects streaming tokens and creates complete messages
 
 import asyncio
 import time
-from helper.llm_summarizer import LLMSummarizer
+from helper.summarizer import LLMSummarizer
 
 class StreamAccumulator:
     """Accumulates streaming tokens into complete messages"""

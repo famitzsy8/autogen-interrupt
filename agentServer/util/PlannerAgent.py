@@ -14,8 +14,7 @@ import yaml
 import json
 import re
 import openai
-from util.config_utils import _get_key
-from util.api_clients import get_openai_client
+from util.config import _get_key
 import os
 
 local_path = os.path.dirname(os.path.abspath(__file__))

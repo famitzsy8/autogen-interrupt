@@ -22,4 +22,8 @@ secrets.ini
 agentServer/logs
 frontend_demo/node_modules
 ragmcp/rag/vectorstores/
+ragmcp/rag/data/bill_summaries/
+ragmcp/rag/data/bill_texts/
 *.log
+
+frontend_demo/.next/

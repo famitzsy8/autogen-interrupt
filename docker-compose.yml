@@ -41,7 +41,7 @@ services:
     environment:
       - RAGMCP_URL=http://ragmcp:8080
       - SECRETS_INI_FILE=/run/secrets/secrets.ini
-    command: ["python", "start_server_with_logging.py"]
+    command: ["python", "server.py"]
 
   frontend:
     build:

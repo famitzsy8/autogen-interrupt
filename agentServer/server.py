@@ -19,8 +19,8 @@ import logging
 current_dir = Path(__file__).parent
 sys.path.append(str(current_dir))
 
-from websocket_server import WebSocketServer  
-from helper.silent_buffer_logger import setup_silent_logging, shutdown_logging
+from wsServer import WebSocketServer  
+from helper.silentBuffer import setup_silent_logging, shutdown_logging
 
 class LoggingWebSocketServer(WebSocketServer):
     """Enhanced WebSocket server with silent buffer logging"""

@@ -43,7 +43,7 @@ services:
     stdin_open: true
     tty: true
     # Auto-start WebSocket server
-    command: ["python", "start_server_with_logging.py"]
+    command: ["python", "server.py"]
     
   frontend:
     build:
