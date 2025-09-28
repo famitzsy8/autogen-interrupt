@@ -1,0 +1,7 @@
+secrets.ini
+interrupt-cursor-venv/
+.vscode/
+.pytest_cache/
+__pycache__/
+.DS_Store
+
