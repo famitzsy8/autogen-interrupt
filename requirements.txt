@@ -1,5 +1,7 @@
 annotated-types==0.7.0
 anyio==4.10.0
+autogen-agentchat==0.7.4
+autogen-core==0.7.4
 autogen-ext==0.7.4
 certifi==2025.8.3
 charset-normalizer==3.4.3
