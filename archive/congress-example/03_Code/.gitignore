@@ -1,0 +1,29 @@
+# Ignore compiled Python files
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Ignore system files
+.DS_Store
+**/.DS_Store
+
+# Ignore VSCode or IDE stuff
+.vscode/
+.idea/
+
+# Ignore cache directories
+.cache/
+**/.cache/
+
+# Ignore secret configs
+secrets.ini
+
+# Project-specific ignores
+agentServer/logs
+frontend_demo/node_modules
+ragmcp/rag/vectorstores/
+ragmcp/rag/data/bill_summaries/
+ragmcp/rag/data/bill_texts/
+*.log
+
+frontend_demo/.next/

@@ -1,0 +1,74 @@
+services:
+  ragmcp:
+    build:
+      context: ./ragmcp
+      dockerfile: Dockerfile
+    container_name: ragmcp_server
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    volumes:
+      - ./ragmcp:/app
+    stdin_open: true
+    tty: true
+    command: ["python", "main.py"]
+
+    secrets:
+      - source: app_ini
+        target: secrets.ini                 # will appear at /run/secrets/secrets.ini
+    environment:
+      SECRETS_INI_FILE: /run/secrets/secrets.ini
+
+  agentserver:
+    build:
+      context: ./agentServer
+      dockerfile: Dockerfile
+    container_name: agent_server
+    ports:
+      - "8766:8766"
+    networks:
+      - app-network
+    volumes:
+      - ./agentServer:/app
+    stdin_open: true
+    tty: true
+    depends_on:
+      - ragmcp
+    secrets:
+      - source: app_ini
+        target: secrets.ini
+    environment:
+      - RAGMCP_URL=http://ragmcp:8080
+      - SECRETS_INI_FILE=/run/secrets/secrets.ini
+    command: ["python", "server.py"]
+
+  frontend:
+    build:
+      context: ./frontend_demo
+      dockerfile: Dockerfile
+    container_name: frontend_demo
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    volumes:
+      - ./frontend_demo:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    depends_on:
+      - agentserver
+    environment:
+      - NEXT_TELEMETRY_DISABLED=1
+      - NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8766
+      - NEXT_PUBLIC_RAGMCP_URL=http://localhost:8080
+    command: ["npm", "run", "dev"]
+
+networks:
+  app-network:
+    driver: bridge
+
+secrets:
+  app_ini:
+    file: ./secrets.ini 
