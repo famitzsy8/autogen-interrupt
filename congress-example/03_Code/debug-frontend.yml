@@ -1,0 +1,77 @@
+services:
+  ragmcp:
+    build:
+      context: ./ragMCP
+      dockerfile: Dockerfile
+    container_name: ragmcp_server
+    networks:
+      - app-network
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./ragMCP:/app
+    stdin_open: true
+    tty: true
+    # Auto-start MCP server
+    command: ["python", "main.py"]
+
+    secrets:
+      - source: app_ini
+        target: secrets.ini                 # will appear at /run/secrets/secrets.ini
+    environment:
+      SECRETS_INI_FILE: /run/secrets/secrets.ini
+    
+  agentserver:
+    build:
+      context: ./agentServer
+      dockerfile: Dockerfile
+    container_name: agent_server
+    depends_on:
+      - ragmcp
+    networks:
+      - app-network
+    ports:
+      - "8766:8766"
+    secrets:
+      - source: app_ini
+        target: secrets.ini
+    environment:
+      - RAGMCP_URL=http://ragmcp:8080
+      - SECRETS_INI_FILE=/run/secrets/secrets.ini
+    volumes:
+      - ./agentServer:/app
+    stdin_open: true
+    tty: true
+    # Auto-start WebSocket server
+    command: ["python", "server.py"]
+    
+  frontend:
+    build:
+      context: ./frontend_demo
+      dockerfile: Dockerfile
+    container_name: frontend_demo
+    depends_on:
+      - agentserver
+    networks:
+      - app-network
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8766
+      - NEXT_PUBLIC_RAGMCP_URL=http://localhost:8080
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - ./frontend_demo:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    # Keep container running for manual debugging
+    command: ["tail", "-f", "/dev/null"]
+
+networks:
+  app-network:
+    driver: bridge
+
+secrets:
+  app_ini:
+    file: ./secrets.ini 
