@@ -122,3 +122,4 @@ class UserDirectedMessage(BaseModel):
     """A request to send a user message to a specific participant in the group chat."""
     target: str
     message: SerializeAsAny[BaseChatMessage]
+    trim_up: int = 0

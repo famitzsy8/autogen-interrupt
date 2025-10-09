@@ -87,6 +87,7 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         self._emit_team_events = emit_team_events
         self._active_speakers: List[str] = []
         self._interrupted = False
+        self._old_threads: List[List[BaseAgentEvent | BaseChatMessage]] = []
 
     @rpc
     async def handle_user_interrupt(self, message: UserInterrupt, ctx: MessageContext) -> None:
@@ -103,12 +104,16 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         await self._output_message_queue.put(debug_msg)
         stop_message = StopMessage(content="USER_INTERRUPT", source=self._name)
         await self._signal_termination(stop_message)
+        
 
     @rpc
     async def handle_user_directed_message(self, message: UserDirectedMessage, ctx: MessageContext) -> None:
         """Handle a user-directed message by appending it to the thread and triggering only the target participant."""
         self._interrupted = False
         target = message.target
+        trim_up = message.trim_up
+        self._old_threads.append(self._message_thread)
+        self._message_thread = self._message_thread[:-trim_up]
         if target not in self._participant_name_to_topic_type:
             raise ValueError(f"Target {target} not found in participant names {self._participant_names}")
 

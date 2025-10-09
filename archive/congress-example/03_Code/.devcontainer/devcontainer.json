@@ -1,0 +1,14 @@
+{
+  "name": "Project Dev Container",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "congressmcp",
+  "workspaceFolder": "/app",
+  "extensions": [
+    "ms-python.python",
+    "ms-azuretools.vscode-docker"
+  ],
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "shutdownAction": "stopCompose"
+} 
