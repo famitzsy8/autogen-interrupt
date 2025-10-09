@@ -34,8 +34,11 @@ class UserControlAgent(BaseChatAgent):
     async def interrupt(self, team: BaseGroupChat) -> None:
         await team.interrupt()
 
-    async def send(self, team: BaseGroupChat, msg: str, agent: str) -> TaskResult:
-        return await team.send_user_message(TextMessage(content=msg, source=self.name), agent)
+    async def send(self, team: BaseGroupChat, msg: str, agent: str, trim_up: int = 0) -> TaskResult:
+        return await team.send_user_message(TextMessage(content=msg, source=self.name), agent, trim_up=trim_up)
+
+    # async def send_and_trim(self, team: BaseGroupChat, msg: str, agent: str) -> TaskResult:
+    #     return 
 
     async def on_reset(self, cancellation_token: CancellationToken) -> None:
         """Reset method - no-op for control agent as it has no state to reset."""
