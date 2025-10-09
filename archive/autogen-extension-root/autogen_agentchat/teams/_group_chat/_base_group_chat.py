@@ -625,7 +625,8 @@ class BaseGroupChat(Team, ABC, ComponentBase[BaseModel]):
             while not self._output_message_queue.empty():
                 self._output_message_queue.get_nowait()
 
-    async def send_user_message(self, msg: TextMessage, agent_name: str) -> TaskResult:
+
+    async def send_user_message(self, msg: TextMessage, agent_name: str, trim_up: int = 0) -> TaskResult:
         """Send a user message to a specific agent and collect until the target responds or termination.
 
         This method returns once either:
@@ -645,7 +646,7 @@ class BaseGroupChat(Team, ABC, ComponentBase[BaseModel]):
                     raise
 
         await self._runtime.send_message(
-            UserDirectedMessage(target=agent_name, message=msg),
+            UserDirectedMessage(target=agent_name, message=msg, trim_up=trim_up),
             recipient=AgentId(type=self._group_chat_manager_topic_type, key=self._team_id),
         )
 
