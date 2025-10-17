@@ -74,6 +74,7 @@ export function findActivePath(root: D3TreeNode, currentBranchId: string): Set<s
 
 /**
  * Find nodes that should be visible based on max height constraint.
+ * Ensures that all branch points and their children are visible to show full conversation history.
  * @param root - D3 hierarchy root node
  * @param centerNodeId - Node to center the view on
  * @param maxHeight - Maximum height of subtree to show
@@ -95,11 +96,9 @@ export function findVisibleNodes(
   })
 
   if (!centerNode) {
-    // If no center node specified, show from root with max height
+    // If no center node specified, show entire tree (all nodes)
     root.each((node: D3TreeNode) => {
-      if (node.depth <= maxHeight) {
-        visibleNodeIds.add(node.data.id)
-      }
+      visibleNodeIds.add(node.data.id)
     })
     return visibleNodeIds
   }
@@ -110,24 +109,26 @@ export function findVisibleNodes(
   // Add center node
   visibleNodeIds.add(validCenterNode.data.id)
 
-  // Add ancestors up to root
+  // Add ALL ancestors up to root
   let current = validCenterNode.parent
   while (current) {
     const d3Current = current as D3TreeNode
     visibleNodeIds.add(d3Current.data.id)
 
-    // If this node has multiple children (branch point), include all children
+    // If this node has multiple children (branch point), include ALL children and their descendants
+    // This ensures we show all branches, not just the active one
     if (d3Current.children && d3Current.children.length > 1) {
       d3Current.children.forEach((child) => {
         const d3Child = child as D3TreeNode
-        visibleNodeIds.add(d3Child.data.id)
+        // Add all descendants of each branch
+        addAllDescendants(d3Child, visibleNodeIds)
       })
     }
 
     current = d3Current.parent
   }
 
-  // Add descendants up to max height
+  // Add descendants of center node up to max height
   function addDescendants(node: D3TreeNode, remainingHeight: number): void {
     if (remainingHeight <= 0) return
 
@@ -143,6 +144,21 @@ export function findVisibleNodes(
   addDescendants(validCenterNode, maxHeight)
 
   return visibleNodeIds
+}
+
+/**
+ * Helper function to add all descendants of a node recursively.
+ * @param node - Starting node
+ * @param visibleSet - Set to add node IDs to
+ */
+function addAllDescendants(node: D3TreeNode, visibleSet: Set<string>): void {
+  visibleSet.add(node.data.id)
+
+  if (node.children) {
+    node.children.forEach((child) => {
+      addAllDescendants(child as D3TreeNode, visibleSet)
+    })
+  }
 }
 
 /**
