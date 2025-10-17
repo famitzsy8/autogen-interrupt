@@ -122,6 +122,9 @@ class TreeNode(BaseModel):
     )
     branch_id: str = Field(..., description="Identifier for which branch this node belongs to")
     timestamp: datetime = Field(default_factory=datetime.now)
+    gcm_count: int = Field(
+        default=0, description="Number of GroupChatManager messages hidden under this node"
+    )
 
     @field_validator("id")
     @classmethod

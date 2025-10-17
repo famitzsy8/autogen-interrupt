@@ -72,7 +72,7 @@ Keep your responses SHORT (1-2 sentences max). Never say TERMINATE. Reply to the
     )
 
     neural_agent = AssistantAgent(
-        name="Neural_Agent",
+        name="Neural",
         model_client=model_client,
         description="AI agent that observes and asks clarifying questions",
         system_message="""You are an AI observing this political debate. You are a bit confused about human politics but genuinely curious. Your role is to:

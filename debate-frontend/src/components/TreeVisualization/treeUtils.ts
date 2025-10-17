@@ -115,6 +115,15 @@ export function findVisibleNodes(
   while (current) {
     const d3Current = current as D3TreeNode
     visibleNodeIds.add(d3Current.data.id)
+
+    // If this node has multiple children (branch point), include all children
+    if (d3Current.children && d3Current.children.length > 1) {
+      d3Current.children.forEach((child) => {
+        const d3Child = child as D3TreeNode
+        visibleNodeIds.add(d3Child.data.id)
+      })
+    }
+
     current = d3Current.parent
   }
 
@@ -227,6 +236,28 @@ export function calculateTreeBounds(
   })
 
   return { minX, maxX, minY, maxY }
+}
+
+/**
+ * Find the last message node in the active branch.
+ * @param root - D3 hierarchy root node
+ * @param currentBranchId - ID of the active branch
+ * @returns The last message node in the active branch or null
+ */
+export function findLastMessageNode(root: D3TreeNode, currentBranchId: string): D3TreeNode | null {
+    let lastNode: D3TreeNode | null = null;
+    let latestTimestamp = '';
+
+    root.each((node) => {
+        if (node.data.branch_id === currentBranchId && node.data.is_active) {
+            if (node.data.timestamp > latestTimestamp) {
+                latestTimestamp = node.data.timestamp;
+                lastNode = node;
+            }
+        }
+    });
+
+    return lastNode;
 }
 
 /**

@@ -54,22 +54,28 @@ class StateManager:
         self.node_map[node_id] = self.root
         return self.root
 
-    def add_node(self, agent_name: str, message: str) -> TreeNode:
+    def add_node(self, agent_name: str, message: str) -> TreeNode | None:
         """
         Add a node to the current active branch.
+        If the agent is a GroupChatManager, increment a counter on the current node
+        instead of adding a new node.
 
         Args:
             agent_name: Name of the agent sending the message
             message: Content of the message
 
         Returns:
-            The created node
+            The created node, or None if a counter was incremented instead
 
         Raises:
             RuntimeError: If tree has not been initialized
         """
         if self.current_node is None:
             raise RuntimeError("Tree not initialized. Call initialize_root() first.")
+
+        if "GroupChatManager" in agent_name:
+            self.current_node.gcm_count += 1
+            return None
 
         node_id = self._generate_node_id()
         new_node = TreeNode(
@@ -106,17 +112,37 @@ class StateManager:
         if self.current_node is None or self.root is None:
             raise RuntimeError("Tree not initialized. Call initialize_root() first.")
 
-        # Traverse up the tree by trim_count steps
-        branch_point = self.current_node
+        # Store reference to current node before traversing
+        old_current = self.current_node
+
+        # Calculate effective trim_count including hidden GCM messages
+        effective_trim_count = trim_count
+        temp_node = self.current_node
         for _ in range(trim_count):
+            if temp_node.parent:
+                parent_node = self.node_map.get(temp_node.parent)
+                if parent_node:
+                    effective_trim_count += temp_node.gcm_count
+                    temp_node = parent_node
+                else:
+                    break
+            else:
+                break
+        
+        # Traverse up the tree by the effective_trim_count
+        branch_point = self.current_node
+        for _ in range(effective_trim_count):
             if branch_point.parent is None:
                 raise RuntimeError(
-                    f"trim_count {trim_count} exceeds tree depth. Cannot traverse beyond root."
+                    f"trim_count {trim_count} (effective: {effective_trim_count}) exceeds tree depth."
                 )
             branch_point = self.node_map[branch_point.parent]
 
-        # Mark all descendants of the current branch as inactive
-        self._mark_descendants_inactive(self.current_node)
+        # Mark all descendants of the old branch as inactive
+        # Find which child of branch_point leads to the old current node
+        old_branch_child = self._find_old_branch_child(branch_point, old_current)
+        if old_branch_child is not None:
+            self._mark_descendants_inactive(old_branch_child)
 
         # Generate new branch ID
         self.current_branch_id = self._generate_branch_id()
@@ -149,6 +175,52 @@ class StateManager:
         node.is_active = False
         for child in node.children:
             self._mark_descendants_inactive(child)
+
+    def _find_old_branch_child(self, branch_point: TreeNode, target_node: TreeNode) -> TreeNode | None:
+        """
+        Find which child of branch_point is an ancestor of target_node.
+
+        This is used during branching to identify the old branch that should be marked inactive.
+
+        Args:
+            branch_point: The node we're branching from
+            target_node: The node we're trying to reach (old current_node)
+
+        Returns:
+            The child of branch_point that leads to target_node, or None if not found
+        """
+        # If branch_point has no children, there's no old branch
+        if not branch_point.children:
+            return None
+
+        # Check each child of branch_point
+        for child in branch_point.children:
+            # If this child is the target, or is an ancestor of the target, this is the old branch
+            if child.id == target_node.id or self._is_ancestor_of(child, target_node):
+                return child
+
+        return None
+
+    def _is_ancestor_of(self, potential_ancestor: TreeNode, descendant: TreeNode) -> bool:
+        """
+        Check if potential_ancestor is an ancestor of descendant.
+
+        Args:
+            potential_ancestor: The node that might be an ancestor
+            descendant: The node to check
+
+        Returns:
+            True if potential_ancestor is an ancestor of descendant, False otherwise
+        """
+        current = descendant
+        while current.parent is not None:
+            parent = self.node_map.get(current.parent)
+            if parent is None:
+                break
+            if parent.id == potential_ancestor.id:
+                return True
+            current = parent
+        return False
 
     def get_tree_dict(self) -> dict[str, Any]:
         """
@@ -187,6 +259,7 @@ class StateManager:
             "is_active": node.is_active,
             "branch_id": node.branch_id,
             "timestamp": node.timestamp.isoformat(),
+            "gcm_count": node.gcm_count,
         }
 
     def save_to_file(self) -> None:
@@ -260,6 +333,7 @@ class StateManager:
             is_active=data.get("is_active", True),
             branch_id=data.get("branch_id", "main"),
             timestamp=datetime.fromisoformat(data["timestamp"]),
+            gcm_count=data.get("gcm_count", 0),
         )
 
     def _build_node_map(self, node: TreeNode) -> None:

@@ -156,6 +156,9 @@ class WebSocketHandler:
                 # Handle client message (mirrors lines 197-200)
                 if client_task is not None and client_task in done:
                     client_task = await self._process_client_command(client_task)
+                    # If client disconnected, exit loop
+                    if client_task is None:
+                        break
 
         except asyncio.CancelledError:
             raise
@@ -290,6 +293,9 @@ class WebSocketHandler:
                             print(f"[{response.source}]: {response.content}")
                             await self._process_agent_message(response)
 
+            # Note: The team automatically resumes after user_control.send()
+            # The stream will continue naturally from where it left off
+
         except Exception as e:
             print(f"⚠️ Failed to deliver message: {e}")
             import traceback
@@ -315,6 +321,11 @@ class WebSocketHandler:
 
         # Add node to conversation tree
         node = self.state_manager.add_node(agent_name=agent_name, message=content)
+
+        # If node is None, it means this was a GroupChatManager message (just a counter increment)
+        # Don't send message to client or tree update for these internal messages
+        if node is None:
+            return
 
         # Save state to file
         self.state_manager.save_to_file()

@@ -18,7 +18,7 @@ import {
   findActivePath,
   findVisibleNodes,
   collapseInvisibleNodes,
-  findLastUserMessageNode,
+  findLastMessageNode,
   DEFAULT_TREE_CONFIG,
 } from './treeUtils'
 
@@ -118,9 +118,17 @@ export function useD3Tree(
     setActiveNodeIds(activePath)
 
     // Find last user message node to center on
-    const lastUserNode = findLastUserMessageNode(hierarchy)
-    if (lastUserNode) {
-      setCenterNodeId(lastUserNode.data.id)
+    const lastMessageNode = findLastMessageNode(hierarchy, currentBranchId)
+    if (lastMessageNode) {
+      setCenterNodeId(lastMessageNode.data.id)
+      console.log('lastMessageNode', lastMessageNode)
+      console.log('lastMessageNode.data.id', lastMessageNode.data.id)
+      console.log('lastMessageNode.data.agent_name', lastMessageNode.data.agent_name)
+      console.log('lastMessageNode.data.is_active', lastMessageNode.data.is_active)
+      console.log('lastMessageNode.data.timestamp', lastMessageNode.data.timestamp)
+      console.log('lastMessageNode.data.message', lastMessageNode.data.message)
+      console.log('lastMessageNode.data.parent', lastMessageNode.data.parent)
+      console.log('lastMessageNode.data.children', lastMessageNode.data.children)
     }
   }, [treeData, currentBranchId, width, height])
 
@@ -146,11 +154,11 @@ export function useD3Tree(
   useEffect(() => {
     if (!root) return
 
-    const lastUserNode = findLastUserMessageNode(root)
-    if (lastUserNode && lastUserNode.data.id !== centerNodeId) {
-      setCenterNodeId(lastUserNode.data.id)
+    const lastMessageNode = findLastMessageNode(root, currentBranchId)
+    if (lastMessageNode && lastMessageNode.data.id !== centerNodeId) {
+      setCenterNodeId(lastMessageNode.data.id)
     }
-  }, [root, centerNodeId])
+  }, [root, centerNodeId, currentBranchId])
 
   /**
    * Recenter the view on the last user message or root.
@@ -158,12 +166,10 @@ export function useD3Tree(
   const recenter = useCallback(() => {
     if (!root || !svgRef.current || !zoomRef.current) return
 
-    const lastUserNode = findLastUserMessageNode(root)
-    const targetNode = lastUserNode || root
+    const lastMessageNode = findLastMessageNode(root, currentBranchId)
+    const targetNode = lastMessageNode || root
 
     if (targetNode) {
-      setCenterNodeId(targetNode.data.id)
-
       // Calculate transform to center the node
       const svg = d3.select(svgRef.current)
       const scale = transformRef.current.k
@@ -175,7 +181,16 @@ export function useD3Tree(
         .duration(ANIMATION_DURATION)
         .call(zoomRef.current.transform, d3.zoomIdentity.translate(x, y).scale(scale))
     }
-  }, [root, width, height])
+  }, [root, width, height, currentBranchId])
+
+  /**
+   * Automatically recenter the view when the centerNodeId changes.
+   */
+  useEffect(() => {
+    if (centerNodeId) {
+      recenter()
+    }
+  }, [centerNodeId, recenter])
 
   /**
    * Zoom in on the tree.
@@ -324,30 +339,47 @@ function updateTree(
   // Add circles to nodes
   nodeEnter
     .append('circle')
-    .attr('r', 8)
+    .attr('r', 10)
     .attr('fill', (d) => {
       const agentName = d.data.agent_name
       return getAgentColor(agentName)
     })
-    .attr('stroke', '#c9d1d9')
-    .attr('stroke-width', 2)
+    .attr('stroke', '#ffffff')
+    .attr('stroke-width', 1.5)
     .style('cursor', 'pointer')
 
   // Add labels to nodes
-  nodeEnter
+  const label = nodeEnter.append('g').attr('class', 'label')
+
+  // Add a background rect for the text
+  label
+    .append('rect')
+    .style('fill', '#2a2a2e')
+    .style('stroke', '#444')
+    .style('stroke-width', 1)
+    .style('rx', 3)
+    .style('ry', 3)
+
+  label
     .append('text')
     .attr('dy', '0.31em')
-    .attr('x', (d) => (d.children || d._children ? -12 : 12))
+    .attr('x', (d) => (d.children || d._children ? -25 : 25))
     .attr('text-anchor', (d) => (d.children || d._children ? 'end' : 'start'))
     .text((d) => d.data.agent_name)
     .style('fill', '#c9d1d9')
     .style('font-size', '12px')
-    .style('font-family', 'sans-serif')
-    .clone(true)
-    .lower()
-    .attr('stroke', '#0d1117')
-    .attr('stroke-width', 3)
-
+    .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
+    .each(function () {
+      const bbox = this.getBBox()
+      const padding = 5
+      const rect = d3.select(this.parentNode as SVGGElement).select('rect')
+      rect
+        .attr('x', bbox.x - padding)
+        .attr('y', bbox.y - padding)
+        .attr('width', bbox.width + padding * 2)
+        .attr('height', bbox.height + padding * 2)
+    })
+    
   // Update existing nodes
   const nodeUpdate = nodeEnter.merge(node)
 
