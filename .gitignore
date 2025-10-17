@@ -5,3 +5,6 @@ interrupt-cursor-venv/
 __pycache__/
 .DS_Store
 
+.docs/
+archive/
+debug/

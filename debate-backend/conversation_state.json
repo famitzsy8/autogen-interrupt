@@ -1,0 +1,24 @@
+{
+  "root": {
+    "id": "node_0906074a95c2",
+    "agent_name": "System",
+    "message": "Simple debate: Who should win the 2025 Chilean presidential election - a left-wing candidate like Jara or a right-wing candidate like Kast?\n\nTake turns, one sentence each. NO long explanations!",
+    "parent": null,
+    "children": [
+      {
+        "id": "node_148dbe1286dc",
+        "agent_name": "user",
+        "message": "Simple debate: Who should win the 2025 Chilean presidential election - a left-wing candidate like Jara or a right-wing candidate like Kast?\n\nTake turns, one sentence each. NO long explanations!",
+        "parent": "node_0906074a95c2",
+        "children": [],
+        "is_active": true,
+        "branch_id": "main",
+        "timestamp": "2025-10-14T16:44:10.100690"
+      }
+    ],
+    "is_active": true,
+    "branch_id": "main",
+    "timestamp": "2025-10-14T16:44:10.096181"
+  },
+  "current_branch_id": "main"
+}
