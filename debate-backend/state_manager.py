@@ -116,6 +116,12 @@ class StateManager:
         old_current = self.current_node
 
         # Calculate effective trim_count including hidden GCM messages
+        # Note: trim_count represents how many messages BACK from current to branch AT
+        # If trim_count=0, branch at current_node
+        # If trim_count=1, branch at the node 1 back (current_node itself stays, we branch from its parent but keep it visible)
+        # But we want the VISUAL branch to happen AT the message we're trimming to, not its parent
+        # So we need to traverse trim_count-1 steps up (not trim_count steps)
+
         effective_trim_count = trim_count
         temp_node = self.current_node
         for _ in range(trim_count):
@@ -128,10 +134,13 @@ class StateManager:
                     break
             else:
                 break
-        
-        # Traverse up the tree by the effective_trim_count
+
+        # Traverse up the tree by (effective_trim_count - 1) to branch AT the correct node
+        # Exception: if trim_count is 0, don't traverse at all
         branch_point = self.current_node
-        for _ in range(effective_trim_count):
+        steps_to_traverse = max(0, effective_trim_count - 1) if trim_count > 0 else 0
+
+        for _ in range(steps_to_traverse):
             if branch_point.parent is None:
                 raise RuntimeError(
                     f"trim_count {trim_count} (effective: {effective_trim_count}) exceeds tree depth."

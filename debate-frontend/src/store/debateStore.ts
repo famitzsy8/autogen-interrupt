@@ -469,6 +469,7 @@ export const useDebateStore = create<DebateState>()(
 
       /**
        * Send an agent input response to the backend.
+       * Note: Empty strings are allowed (e.g., when user cancels the input request).
        */
       sendAgentInputResponse: (requestId: string, userInput: string) => {
         const { wsConnection, connectionState } = get()
@@ -477,10 +478,7 @@ export const useDebateStore = create<DebateState>()(
           throw new Error('WebSocket is not connected')
         }
 
-        if (!userInput.trim()) {
-          throw new Error('Agent input response cannot be empty')
-        }
-
+        // Allow empty strings for cancel functionality
         const message: AgentInputResponse = {
           type: 'agent_input_response' as MessageType.AGENT_INPUT_RESPONSE,
           request_id: requestId,

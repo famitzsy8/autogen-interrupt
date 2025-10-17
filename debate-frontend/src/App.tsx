@@ -18,7 +18,7 @@ function App(): React.ReactElement {
   const conversationTree = useConversationTree()
   const currentBranchId = useCurrentBranchId()
   const agentInputRequest = useAgentInputRequest()
-  const { sendAgentInputResponse, clearAgentInputRequest } = useAgentInputActions()
+  const { sendAgentInputResponse } = useAgentInputActions()
 
   // Connect to WebSocket on mount
   useEffect(() => {
@@ -78,7 +78,10 @@ function App(): React.ReactElement {
           onSubmit={(userInput) => {
             sendAgentInputResponse(agentInputRequest.request_id, userInput)
           }}
-          onCancel={clearAgentInputRequest}
+          onCancel={() => {
+            // Send empty string when user cancels
+            sendAgentInputResponse(agentInputRequest.request_id, 'continue')
+          }}
         />
       )}
     </div>
