@@ -22,9 +22,9 @@ export const AGENT_CONFIGS: Record<AgentName, AgentConfig> = {
     color: 'rgba(59, 130, 246, 0.4)', // blue
     description: 'Supporter of José Antonio Kast/right-wing candidate',
   },
-  [AgentName.NEURAL_AGENT]: {
-    name: AgentName.NEURAL_AGENT,
-    displayName: 'Neural Agent',
+  [AgentName.NEUTRAL_AGENT]: {
+    name: AgentName.NEUTRAL_AGENT,
+    displayName: 'Neutral Agent',
     color: 'rgba(168, 85, 247, 0.4)', // purple
     description: 'AI agent that observes and asks clarifying questions',
   },
@@ -39,6 +39,12 @@ export const AGENT_CONFIGS: Record<AgentName, AgentConfig> = {
     displayName: 'Moderate Right',
     color: 'rgba(251, 146, 60, 0.4)', // orange
     description: 'Moderate center-right supporter with business-friendly views',
+  },
+  [AgentName.FACT_CHECKER]: {
+    name: AgentName.FACT_CHECKER,
+    displayName: 'Fact Checker',
+    color: 'rgba(34, 197, 94, 0.4)', // green
+    description: 'Human fact-checker who verifies claims',
   },
   [AgentName.USER]: {
     name: AgentName.USER,
@@ -55,12 +61,13 @@ export const AGENT_CONFIGS: Record<AgentName, AgentConfig> = {
 }
 
 /**
- * List of debate participant agent names (excludes User and System).
+ * List of debate participant agent names (excludes User, System, and Fact_Checker).
+ * Note: Fact_Checker is excluded because users send messages TO agents, not to the fact checker.
  */
 export const DEBATE_PARTICIPANTS: AgentName[] = [
   AgentName.JARA_SUPPORTER,
   AgentName.KAST_SUPPORTER,
-  AgentName.NEURAL_AGENT,
+  AgentName.NEUTRAL_AGENT,
   AgentName.MODERATE_LEFT,
   AgentName.MODERATE_RIGHT,
 ]

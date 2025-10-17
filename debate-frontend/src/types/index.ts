@@ -16,6 +16,8 @@ export enum MessageType {
   STREAM_END = 'stream_end',
   ERROR = 'error',
   TREE_UPDATE = 'tree_update',
+  AGENT_INPUT_REQUEST = 'agent_input_request',
+  AGENT_INPUT_RESPONSE = 'agent_input_response',
 }
 
 /**
@@ -102,6 +104,26 @@ export interface TreeUpdate extends BaseMessage {
 }
 
 /**
+ * Request from backend when an agent needs human input.
+ * Role-agnostic: can be used for any agent type (UserProxyAgent, fact-checkers, etc.)
+ */
+export interface AgentInputRequest extends BaseMessage {
+  type: MessageType.AGENT_INPUT_REQUEST
+  request_id: string
+  prompt: string
+  agent_name: string
+}
+
+/**
+ * Response from frontend with user's input to an agent request.
+ */
+export interface AgentInputResponse extends BaseMessage {
+  type: MessageType.AGENT_INPUT_RESPONSE
+  request_id: string
+  user_input: string
+}
+
+/**
  * Union type of all possible WebSocket messages from server.
  */
 export type ServerMessage =
@@ -110,11 +132,12 @@ export type ServerMessage =
   | StreamEnd
   | ErrorMessage
   | TreeUpdate
+  | AgentInputRequest
 
 /**
  * Union type of all possible WebSocket messages sent to server.
  */
-export type ClientMessage = UserInterrupt | UserDirectedMessage
+export type ClientMessage = UserInterrupt | UserDirectedMessage | AgentInputResponse
 
 /**
  * WebSocket connection state.
@@ -134,18 +157,21 @@ export enum StreamState {
   IDLE = 'idle',
   STREAMING = 'streaming',
   INTERRUPTED = 'interrupted',
+  WAITING_FOR_AGENT_INPUT = 'waiting_for_agent_input',
   ENDED = 'ended',
 }
 
 /**
  * Agent names from the debate team.
+ * IMPORTANT: These must exactly match the agent names in debate-backend/debate_team.py
  */
 export enum AgentName {
   JARA_SUPPORTER = 'Jara_Supporter',
   KAST_SUPPORTER = 'Kast_Supporter',
-  NEURAL_AGENT = 'Neural_Agent',
+  NEUTRAL_AGENT = 'Neutral_Agent',
   MODERATE_LEFT = 'Moderate_Left',
   MODERATE_RIGHT = 'Moderate_Right',
+  FACT_CHECKER = 'Fact_Checker',
   USER = 'User',
   SYSTEM = 'System',
 }

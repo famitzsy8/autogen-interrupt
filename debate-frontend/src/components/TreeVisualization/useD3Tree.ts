@@ -446,9 +446,10 @@ function getAgentColor(agentName: string): string {
   const colorMap: Record<string, string> = {
     Jara_Supporter: 'rgba(239, 68, 68, 0.4)',
     Kast_Supporter: 'rgba(59, 130, 246, 0.4)',
-    Neural_Agent: 'rgba(168, 85, 247, 0.4)',
+    Neutral_Agent: 'rgba(168, 85, 247, 0.4)',
     Moderate_Left: 'rgba(125, 211, 252, 0.4)',
     Moderate_Right: 'rgba(251, 146, 60, 0.4)',
+    Fact_Checker: 'rgba(34, 197, 94, 0.4)',
     User: 'rgba(255, 255, 255, 0.4)',
     System: 'rgba(156, 163, 175, 0.4)',
   }

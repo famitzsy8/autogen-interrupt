@@ -1,7 +1,10 @@
 import React, { useEffect } from 'react'
 import { ChatDisplay } from './components/ChatDisplay'
 import { TreeVisualization } from './components/TreeVisualization'
+import AgentInputModal from './components/AgentInputModal'
 import {
+  useAgentInputActions,
+  useAgentInputRequest,
   useConnectionActions,
   useConnectionState,
   useConversationTree,
@@ -14,6 +17,8 @@ function App(): React.ReactElement {
   const connectionState = useConnectionState()
   const conversationTree = useConversationTree()
   const currentBranchId = useCurrentBranchId()
+  const agentInputRequest = useAgentInputRequest()
+  const { sendAgentInputResponse, clearAgentInputRequest } = useAgentInputActions()
 
   // Connect to WebSocket on mount
   useEffect(() => {
@@ -65,6 +70,17 @@ function App(): React.ReactElement {
           <span className="font-medium">{connectionState}</span>
         </div>
       </div>
+
+      {/* Agent Input Modal */}
+      {agentInputRequest && (
+        <AgentInputModal
+          request={agentInputRequest}
+          onSubmit={(userInput) => {
+            sendAgentInputResponse(agentInputRequest.request_id, userInput)
+          }}
+          onCancel={clearAgentInputRequest}
+        />
+      )}
     </div>
   )
 }

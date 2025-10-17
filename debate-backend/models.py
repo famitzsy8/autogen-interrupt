@@ -19,6 +19,8 @@ class MessageType(str, Enum):
     STREAM_END = "stream_end"
     ERROR = "error"
     TREE_UPDATE = "tree_update"
+    AGENT_INPUT_REQUEST = "agent_input_request"
+    AGENT_INPUT_RESPONSE = "agent_input_response"
 
 
 class AgentMessage(BaseModel):
@@ -152,3 +154,72 @@ class TreeUpdate(BaseModel):
     root: TreeNode = Field(..., description="Root node of the conversation tree")
     current_branch_id: str = Field(..., description="ID of the currently active branch")
     timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class AgentInputRequest(BaseModel):
+    """
+    Request sent from backend to frontend when an agent needs human input.
+
+    This is role-agnostic and can be used for any agent type (UserProxyAgent,
+    fact-checkers, approval agents, etc.) that requires human interaction.
+    """
+
+    type: Literal[MessageType.AGENT_INPUT_REQUEST] = MessageType.AGENT_INPUT_REQUEST
+    request_id: str = Field(..., description="Unique identifier for this input request")
+    prompt: str = Field(..., description="The question/prompt to display to the human user")
+    agent_name: str = Field(..., description="Name of the agent requesting input")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("request_id")
+    @classmethod
+    def validate_request_id(cls, v: str) -> str:
+        """Ensure request ID is not empty."""
+        if not v or not v.strip():
+            raise ValueError("request_id cannot be empty")
+        return v.strip()
+
+    @field_validator("prompt")
+    @classmethod
+    def validate_prompt(cls, v: str) -> str:
+        """Ensure prompt is not empty."""
+        if not v or not v.strip():
+            raise ValueError("prompt cannot be empty")
+        return v
+
+    @field_validator("agent_name")
+    @classmethod
+    def validate_agent_name(cls, v: str) -> str:
+        """Ensure agent name is not empty."""
+        if not v or not v.strip():
+            raise ValueError("agent_name cannot be empty")
+        return v.strip()
+
+
+class AgentInputResponse(BaseModel):
+    """
+    Response sent from frontend to backend with the human user's input.
+
+    This is the user's response to an AgentInputRequest, providing the
+    answer/approval that the agent was waiting for.
+    """
+
+    type: Literal[MessageType.AGENT_INPUT_RESPONSE] = MessageType.AGENT_INPUT_RESPONSE
+    request_id: str = Field(..., description="ID matching the original AgentInputRequest")
+    user_input: str = Field(..., description="The human user's response to the prompt")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("request_id")
+    @classmethod
+    def validate_request_id(cls, v: str) -> str:
+        """Ensure request ID is not empty."""
+        if not v or not v.strip():
+            raise ValueError("request_id cannot be empty")
+        return v.strip()
+
+    @field_validator("user_input")
+    @classmethod
+    def validate_user_input(cls, v: str) -> str:
+        """Ensure user input is not empty."""
+        if not v or not v.strip():
+            raise ValueError("user_input cannot be empty")
+        return v

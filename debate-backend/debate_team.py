@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from autogen_agentchat.agents import AssistantAgent
+from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_agentchat.agents._user_control_agent import UserControlAgent
 from autogen_agentchat.conditions import MaxMessageTermination
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_ext.models.openai import OpenAIChatCompletionClient
+
+if TYPE_CHECKING:
+    from agent_input_queue import AgentInputQueue
 
 
 INITIAL_TOPIC = """
@@ -27,7 +31,11 @@ class DebateContext:
     participant_names: list[str]
 
 
-def build_debate(api_key: str, max_messages: int = 20) -> DebateContext:
+def build_debate(
+    api_key: str,
+    max_messages: int = 40,
+    agent_input_queue: AgentInputQueue | None = None
+) -> DebateContext:
     """
     Create the debate agents, group chat, and control helpers.
 
@@ -36,6 +44,7 @@ def build_debate(api_key: str, max_messages: int = 20) -> DebateContext:
     Args:
         api_key: OpenAI API key for model client
         max_messages: Maximum number of messages before termination (default: 20)
+        agent_input_queue: Optional input queue for agents requiring human input (UserProxyAgent)
 
     Returns:
         DebateContext containing team, user control, and participant names
@@ -44,6 +53,26 @@ def build_debate(api_key: str, max_messages: int = 20) -> DebateContext:
         model="gpt-4o-mini",
         api_key=api_key,
     )
+
+    # Optional: Human fact-checker agent (only included if input_queue provided)
+    fact_checker = None
+    if agent_input_queue is not None:
+        # Create a wrapper that includes agent name in the input request
+        async def fact_checker_input(prompt: str, cancellation_token=None) -> str:
+            return await agent_input_queue.get_input(
+                prompt=prompt,
+                cancellation_token=cancellation_token,
+                agent_name="Fact_Checker"
+            )
+
+        fact_checker = UserProxyAgent(
+            name="Fact_Checker",
+            description=(
+                "A human fact-checker who verifies outrageous or questionable claims. "
+                "Call this agent when statements seem incorrect, exaggerated, or need verification."
+            ),
+            input_func=fact_checker_input,  # WebSocket input instead of stdin
+        )
 
     communist_agent = AssistantAgent(
         name="Jara_Supporter",
@@ -71,8 +100,8 @@ Keep your responses SHORT (1-2 sentences max). Never say TERMINATE. Reply to the
 Keep your responses SHORT (1-2 sentences max). Never say TERMINATE. Reply to the others' comments. Start polite but become more aggressive and witty.""",
     )
 
-    neural_agent = AssistantAgent(
-        name="Neural",
+    neutral_agent = AssistantAgent(
+        name="Neutral_Agent",
         model_client=model_client,
         description="AI agent that observes and asks clarifying questions",
         system_message="""You are an AI observing this political debate. You are a bit confused about human politics but genuinely curious. Your role is to:
@@ -110,13 +139,17 @@ Keep your responses SHORT (1-2 sentences max). Never say TERMINATE. Aim for dipl
 Keep your responses SHORT (1-2 sentences max). Never say TERMINATE. Offer reasonable, stability-focused proposals.""",
     )
 
+    # Build participants list (conditionally include fact_checker if provided)
     participants = [
         communist_agent,
         liberal_agent,
-        neural_agent,
+        neutral_agent,
         moderate_left_agent,
         moderate_right_agent,
     ]
+
+    if fact_checker is not None:
+        participants.append(fact_checker)
 
     team = RoundRobinGroupChat(
         participants=participants,

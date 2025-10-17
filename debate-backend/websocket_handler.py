@@ -21,8 +21,11 @@ from autogen_agentchat.base import TaskResult
 from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocket, WebSocketState
 
+from agent_input_queue import AgentInputQueue
 from debate_team import DebateContext, build_debate, get_initial_topic
 from models import (
+    AgentInputRequest,
+    AgentInputResponse,
     AgentMessage,
     ErrorMessage,
     InterruptAcknowledged,
@@ -48,6 +51,8 @@ class WebSocketHandler:
         self.websocket = websocket
         self.state_manager: StateManager | None = None
         self.debate_context: DebateContext | None = None
+        self.agent_input_queue = AgentInputQueue()
+        self.agent_input_queue.websocket_handler = self
 
     async def handle_connection(self) -> None:
         """
@@ -96,8 +101,12 @@ class WebSocketHandler:
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY not set in environment")
 
-        # Build debate team
-        self.debate_context = build_debate(api_key=api_key, max_messages=20)
+        # Build debate team with agent input queue support
+        self.debate_context = build_debate(
+            api_key=api_key,
+            max_messages=40,
+            agent_input_queue=self.agent_input_queue
+        )
 
         # Initialize state manager
         state_file = Path(os.getenv("STATE_FILE_PATH", "conversation_state.json"))
@@ -199,6 +208,8 @@ class WebSocketHandler:
                 await self._handle_interrupt(message_dict)
             elif message_type == MessageType.USER_DIRECTED_MESSAGE:
                 await self._handle_user_message(message_dict)
+            elif message_type == MessageType.AGENT_INPUT_RESPONSE:
+                await self._handle_agent_input_response(message_dict)
             else:
                 await self._send_error(
                     "INVALID_MESSAGE_TYPE", f"Unknown message type: {message_type}"
@@ -402,8 +413,64 @@ class WebSocketHandler:
             except Exception as e:
                 print(f"Failed to send error message: {e}")
 
+    async def send_agent_input_request(
+        self, request_id: str, prompt: str, agent_name: str
+    ) -> None:
+        """
+        Send agent input request to frontend.
+
+        Called by AgentInputQueue when an agent (like UserProxyAgent) needs human input.
+
+        Args:
+            request_id: Unique identifier for this request
+            prompt: The question/prompt for the human user
+            agent_name: Name of the agent requesting input
+        """
+        request = AgentInputRequest(
+            request_id=request_id,
+            prompt=prompt,
+            agent_name=agent_name
+        )
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(request.model_dump_json())
+            print(f"📨 Sent input request to frontend: {agent_name} - {request_id}")
+
+    async def _handle_agent_input_response(self, message_dict: dict) -> None:
+        """
+        Handle human user's response to an agent input request.
+
+        Called when frontend sends the user's answer to an AgentInputRequest.
+
+        Args:
+            message_dict: Raw message dictionary from client
+        """
+        try:
+            response = AgentInputResponse(**message_dict)
+            success = self.agent_input_queue.provide_input(
+                response.request_id,
+                response.user_input
+            )
+
+            if not success:
+                await self._send_error(
+                    "INVALID_REQUEST_ID",
+                    f"No pending input request found for ID: {response.request_id}"
+                )
+            else:
+                print(f"✓ Provided input for request: {response.request_id}")
+
+        except Exception as e:
+            print(f"⚠️ Failed to handle agent input response: {e}")
+            import traceback
+            traceback.print_exc()
+            await self._send_error("AGENT_INPUT_RESPONSE_ERROR", str(e))
+
     async def _cleanup(self) -> None:
         """Clean up resources on connection close."""
+        # Cancel any pending agent input requests
+        if self.agent_input_queue:
+            self.agent_input_queue.cancel_all_pending()
+
         # Close WebSocket if still open
         if self.websocket.client_state == WebSocketState.CONNECTED:
             try:

@@ -12,6 +12,8 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import type {
+  AgentInputRequest,
+  AgentInputResponse,
   AgentMessage,
   AppError,
   ConnectionState,
@@ -60,6 +62,10 @@ interface DebateState {
   trimCount: number
   userMessageDraft: string
 
+  // Agent input request state
+  agentInputRequest: AgentInputRequest | null
+  agentInputDraft: string
+
   // Error state
   error: AppError | null
 
@@ -79,6 +85,11 @@ interface DebateState {
   setSelectedAgent: (agentName: string | null) => void
   setTrimCount: (count: number) => void
   setUserMessageDraft: (draft: string) => void
+
+  // Actions: Agent input
+  sendAgentInputResponse: (requestId: string, userInput: string) => void
+  setAgentInputDraft: (draft: string) => void
+  clearAgentInputRequest: () => void
 
   // Actions: State management
   setStreamState: (state: StreamState) => void
@@ -107,6 +118,8 @@ const initialState = {
   selectedAgent: null,
   trimCount: 0,
   userMessageDraft: '',
+  agentInputRequest: null,
+  agentInputDraft: '',
   error: null,
 }
 
@@ -318,6 +331,14 @@ export const useDebateStore = create<DebateState>()(
             })
             break
 
+          case 'agent_input_request':
+            console.log('=== Agent input request received ===')
+            set({
+              agentInputRequest: message,
+              streamState: StreamStateEnum.WAITING_FOR_AGENT_INPUT,
+            })
+            break
+
           case 'error':
             console.log('=== Error message received ===')
             set({
@@ -444,6 +465,54 @@ export const useDebateStore = create<DebateState>()(
        */
       setUserMessageDraft: (draft: string) => {
         set({ userMessageDraft: draft })
+      },
+
+      /**
+       * Send an agent input response to the backend.
+       */
+      sendAgentInputResponse: (requestId: string, userInput: string) => {
+        const { wsConnection, connectionState } = get()
+
+        if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
+          throw new Error('WebSocket is not connected')
+        }
+
+        if (!userInput.trim()) {
+          throw new Error('Agent input response cannot be empty')
+        }
+
+        const message: AgentInputResponse = {
+          type: 'agent_input_response' as MessageType.AGENT_INPUT_RESPONSE,
+          request_id: requestId,
+          user_input: userInput.trim(),
+          timestamp: new Date().toISOString(),
+        }
+
+        wsConnection.ws.send(JSON.stringify(message))
+
+        // Clear agent input state and resume streaming
+        set({
+          agentInputRequest: null,
+          agentInputDraft: '',
+          streamState: StreamStateEnum.STREAMING,
+        })
+      },
+
+      /**
+       * Set the agent input draft.
+       */
+      setAgentInputDraft: (draft: string) => {
+        set({ agentInputDraft: draft })
+      },
+
+      /**
+       * Clear the agent input request (e.g., on cancel).
+       */
+      clearAgentInputRequest: () => {
+        set({
+          agentInputRequest: null,
+          agentInputDraft: '',
+        })
       },
 
       /**

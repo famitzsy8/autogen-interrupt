@@ -193,3 +193,28 @@ export function useDebateStoreActions() {
     reset: state.reset,
   }))
 }
+
+/**
+ * Hook to access agent input request state.
+ */
+export function useAgentInputRequest() {
+  return useDebateStore((state) => state.agentInputRequest)
+}
+
+/**
+ * Hook to access agent input draft.
+ */
+export function useAgentInputDraft() {
+  return useDebateStore((state) => state.agentInputDraft)
+}
+
+/**
+ * Hook to access agent input actions.
+ */
+export function useAgentInputActions() {
+  return useDebateStore((state) => ({
+    sendAgentInputResponse: state.sendAgentInputResponse,
+    setAgentInputDraft: state.setAgentInputDraft,
+    clearAgentInputRequest: state.clearAgentInputRequest,
+  }))
+}
