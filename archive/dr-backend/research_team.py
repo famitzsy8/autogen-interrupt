@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -17,12 +18,70 @@ from openai import AsyncOpenAI
 
 from _hierarchical_groupchat import HierarchicalGroupChat
 
+# Configure logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 if TYPE_CHECKING:
     from agent_input_queue import AgentInputQueue
 
 INITIAL_TOPIC = """
 I want to know which professors are most key in the selection process for the Cogmaster in Paris.
 """.strip()
+
+
+async def enhance_selector_prompt(
+    user_selector_prompt: str, model_client: AsyncOpenAI
+) -> str:
+    """
+    Enhance user-provided selector prompt using LLM.
+
+    Takes a user input selector prompt and enhances it with structured information about:
+    - Participant names and roles
+    - When to call User_proxy for feedback
+    - Message history context
+
+    Args:
+        user_selector_prompt: Raw selector prompt from user
+        model_client: OpenAI model client for LLM call
+
+    Returns:
+        Enhanced selector prompt with proper structure
+    """
+    logger.info("Starting selector prompt enhancement")
+    logger.debug(f"Original user selector prompt:\n{user_selector_prompt}")
+
+    enhancement_prompt = f"""You are helping optimize an agent selector prompt for a multi-agent system.
+
+The user has provided this selector prompt: "{user_selector_prompt}"
+
+Your task is to enhance this prompt to be clear and structured. The enhanced prompt MUST include:
+
+1. A clear reference to {{participants}} - the list of available agents
+2. A clear reference to {{roles}} - what each agent does
+3. Clear guidance on when to call the User_proxy agent (when user feedback or approval is needed)
+4. A reference to {{history}} - the conversation history for context
+
+The enhanced prompt should:
+- Be concise but complete
+- Use the template variables: {{participants}}, {{roles}}, {{history}}, User_proxy
+- Maintain the user's intent while adding structure
+- Make it clear that User_proxy should only be called when user feedback/approval is truly needed
+
+Provide ONLY the enhanced selector prompt, no additional text."""
+
+    response = await model_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": enhancement_prompt}],
+    )
+
+    enhanced_prompt = response.content if hasattr(response, "content") else str(response)
+
+    logger.info("Selector prompt enhancement completed")
+    logger.info(f"Enhanced selector prompt:\n{enhanced_prompt}")
+    logger.debug(f"Original prompt:\n{user_selector_prompt}")
+
+    return enhanced_prompt
 
 
 @dataclass
@@ -34,10 +93,11 @@ class ResearchContext:
     participant_names: list[str]
 
 
-def build_research_team(
+async def build_research_team(
     api_key: str,
     max_messages: int = 60,
     agent_input_queue: AgentInputQueue | None = None,
+    selector_prompt: str | None = None,
 ) -> ResearchContext:
     """
     Create the research agents, hierarchical group chat, and control helpers.
@@ -58,6 +118,8 @@ def build_research_team(
     )
 
     web_search_client = AsyncOpenAI(api_key=api_key)
+
+    enhance_prompt_client = AsyncOpenAI(api_key=api_key)
 
     # Human-in-the-loop admin using UserProxyAgent with WebSocket input
     user_proxy = None
@@ -210,18 +272,26 @@ def build_research_team(
     if user_proxy is not None:
         participants.insert(0, user_proxy)  # Add at beginning for priority
 
-    selector_prompt = (
-        "These are the participants: {participants}. "
-        "The history of the conversation is: {history}. "
-        "ONLY call the User_proxy when all the agents agree that the task has been completed."
-    )
+    # Use enhanced selector prompt if user provided one, otherwise use default
+    if selector_prompt:
+        logger.info("User provided custom selector prompt, enhancing via LLM")
+        selector_prompt_final = await enhance_selector_prompt(selector_prompt, enhance_prompt_client)
+    else:
+        logger.info("Using default selector prompt")
+        selector_prompt_final = (
+            "These are the participants: {participants}. "
+            "The history of the conversation is: {history}. "
+            "ONLY call the User_proxy when all the agents agree that the task has been completed."
+        )
+
+    logger.info(f"Final selector prompt to be used:\n{selector_prompt_final}")
 
     team = HierarchicalGroupChat(
         allowed_transitions=allowed_transitions,
         participants=participants,
         termination_condition=MaxMessageTermination(max_messages=max_messages),
         model_client=model_client,
-        selector_prompt=selector_prompt,
+        selector_prompt=selector_prompt_final,
     )
 
     user_control = UserControlAgent(name="UserController")
@@ -233,6 +303,8 @@ def build_research_team(
     )
 
 
-def get_initial_topic() -> str:
-    """Get the initial research topic."""
+def get_initial_topic(custom_topic: str | None = None) -> str:
+    """Get the initial research topic, optionally override with custom."""
+    if custom_topic:
+        return custom_topic.strip()
     return INITIAL_TOPIC

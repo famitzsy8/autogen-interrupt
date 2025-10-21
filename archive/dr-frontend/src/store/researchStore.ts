@@ -18,6 +18,7 @@ import type {
   AppError,
   ConnectionState,
   MessageType,
+  ResearchConfig,
   ServerMessage,
   StreamState,
   TreeNode,
@@ -144,7 +145,7 @@ export const useResearchStore = create<ResearchState>()(
       /**
        * Connect to the WebSocket server.
        */
-      connect: (url: string) => {
+      connect: (url: string, config?: ResearchConfig) => {
         const { wsConnection, disconnect } = get()
 
         // Close existing connection if any
@@ -158,6 +159,12 @@ export const useResearchStore = create<ResearchState>()(
           const ws = new WebSocket(url)
 
           ws.onopen = () => {
+            // Send config immediately after connection establishes
+            if (config) {
+              console.log('=== Sending research config ===')
+              ws.send(JSON.stringify(config))
+            }
+
             set({
               connectionState: ConnectionStateEnum.CONNECTED,
               wsConnection: {

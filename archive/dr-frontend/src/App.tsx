@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useState } from 'react'
 import { ChatDisplay } from './components/ChatDisplay'
 import { TreeVisualization } from './components/TreeVisualization'
 import AgentInputModal from './components/AgentInputModal'
+import { ResearchConfigForm } from './components/ResearchConfigForm'
+import type { ResearchConfig } from './types'
 import {
   useAgentInputActions,
   useAgentInputRequest,
@@ -12,7 +14,10 @@ import {
 } from './hooks/useResearchStore'
 
 function App(): React.ReactElement {
+  const [isConfigured, setIsConfigured] = useState(false)
+  const [isStarting, setIsStarting] = useState(false)
   const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8001/ws/research'
+
   const { connect, disconnect } = useConnectionActions()
   const connectionState = useConnectionState()
   const conversationTree = useConversationTree()
@@ -20,15 +25,22 @@ function App(): React.ReactElement {
   const agentInputRequest = useAgentInputRequest()
   const { sendAgentInputResponse } = useAgentInputActions()
 
-  // Connect to WebSocket on mount
-  useEffect(() => {
-    connect(wsUrl)
-
-    // Cleanup on unmount
-    return () => {
-      disconnect()
+  const handleConfigSubmit = async (config: ResearchConfig) => {
+    try {
+      setIsStarting(true)
+      console.log('=== Config submitted, connecting to backend ===')
+      connect(wsUrl, config)
+      setIsConfigured(true)
+    } catch (error) {
+      console.error('Failed to start research:', error)
+      setIsStarting(false)
     }
-  }, [wsUrl, connect, disconnect])
+  }
+
+  // Show config form before research starts
+  if (!isConfigured) {
+    return <ResearchConfigForm onSubmit={handleConfigSubmit} isLoading={isStarting} />
+  }
 
   return (
     <div className="min-h-screen bg-dark-bg text-dark-text">
