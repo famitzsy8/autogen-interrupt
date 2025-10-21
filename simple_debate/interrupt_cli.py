@@ -26,6 +26,7 @@ from autogen_agentchat.agents._user_control_agent import UserControlAgent
 from autogen_agentchat.conditions import MaxMessageTermination
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen_agentchat.agents import UserProxyAgent
 
 
 # Read API key from secrets.ini (keeps parity with the existing examples)
@@ -127,7 +128,6 @@ Keep your responses SHORT (1-2 sentences max). Never say TERMINATE. Aim for dipl
 
 Keep your responses SHORT (1-2 sentences max). Never say TERMINATE. Offer reasonable, stability-focused proposals.""",
     )
-
     participants = [
         communist_agent,
         liberal_agent,
