@@ -14,6 +14,7 @@ class MessageType(str, Enum):
 
     START_RESEARCH = "start_research"
     AGENT_MESSAGE = "agent_message"
+    STREAMING_CHUNK = "streaming_chunk"
     USER_INTERRUPT = "user_interrupt"
     USER_DIRECTED_MESSAGE = "user_directed_message"
     INTERRUPT_ACKNOWLEDGED = "interrupt_acknowledged"
@@ -48,6 +49,38 @@ class AgentMessage(BaseModel):
         if not v or not v.strip():
             raise ValueError("content cannot be empty")
         return v
+
+
+class StreamingChunk(BaseModel):
+    """Represents a partial streaming chunk from an agent's response."""
+
+    type: Literal[MessageType.STREAMING_CHUNK] = MessageType.STREAMING_CHUNK
+    agent_name: str = Field(..., description="Name of the agent currently streaming")
+    content: str = Field(..., description="Partial text chunk (may have incomplete markdown)")
+    node_id: str = Field(..., description="Node ID this chunk belongs to")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("agent_name")
+    @classmethod
+    def validate_agent_name(cls, v: str) -> str:
+        """Ensure agent name is not empty."""
+        if not v or not v.strip():
+            raise ValueError("agent_name cannot be empty")
+        return v.strip()
+
+    @field_validator("content")
+    @classmethod
+    def validate_content(cls, v: str) -> str:
+        """Content can be empty (e.g., just whitespace chunks)."""
+        return v
+
+    @field_validator("node_id")
+    @classmethod
+    def validate_node_id(cls, v: str) -> str:
+        """Ensure node ID is not empty."""
+        if not v or not v.strip():
+            raise ValueError("node_id cannot be empty")
+        return v.strip()
 
 
 class UserInterrupt(BaseModel):

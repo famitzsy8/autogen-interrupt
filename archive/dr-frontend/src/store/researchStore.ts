@@ -20,6 +20,7 @@ import type {
   MessageType,
   ResearchConfig,
   ServerMessage,
+  StreamingChunk,
   StreamState,
   TreeNode,
   TreeUpdate,
@@ -67,6 +68,10 @@ interface ResearchState {
   agentInputRequest: AgentInputRequest | null
   agentInputDraft: string
 
+  // Streaming chunks accumulation
+  streamingChunksByNodeId: Record<string, string>
+  currentStreamingNodeId: string | null
+
   // Error state
   error: AppError | null
 
@@ -78,6 +83,7 @@ interface ResearchState {
   // Actions: Message handling
   handleServerMessage: (message: ServerMessage) => void
   addMessage: (message: AgentMessage) => void
+  appendStreamingChunk: (chunk: StreamingChunk) => void
   updateConversationTree: (treeUpdate: TreeUpdate) => void
 
   // Actions: User interactions
@@ -121,6 +127,8 @@ const initialState = {
   userMessageDraft: '',
   agentInputRequest: null,
   agentInputDraft: '',
+  streamingChunksByNodeId: {},
+  currentStreamingNodeId: null,
   error: null,
 }
 
@@ -153,7 +161,26 @@ export const useResearchStore = create<ResearchState>()(
           disconnect()
         }
 
-        set({ connectionState: ConnectionStateEnum.CONNECTING })
+        // Clear all previous conversation data when starting a new session
+        // But keep user interaction state (selectedAgent, trimCount, userMessageDraft)
+        set({
+          connectionState: ConnectionStateEnum.CONNECTING,
+          messages: [],
+          conversationTree: null,
+          currentBranchId: 'main',
+          activeNodeId: null,
+          streamingChunksByNodeId: {},
+          currentStreamingNodeId: null,
+          isInterrupted: false,
+          streamState: StreamStateEnum.IDLE,
+          agentInputRequest: null,
+          agentInputDraft: '',
+          error: null,
+          // Keep user interaction state
+          selectedAgent: get().selectedAgent,
+          trimCount: 0,
+          userMessageDraft: get().userMessageDraft,
+        })
 
         try {
           const ws = new WebSocket(url)
@@ -313,6 +340,11 @@ export const useResearchStore = create<ResearchState>()(
       handleServerMessage: (message: ServerMessage) => {
         console.log('=== Handling server message:', message.type, '===')
         switch (message.type) {
+          case 'streaming_chunk':
+            console.log('=== Accumulating streaming chunk ===')
+            get().appendStreamingChunk(message)
+            break
+
           case 'agent_message':
             console.log('=== Adding agent message ===')
             get().addMessage(message)
@@ -372,13 +404,104 @@ export const useResearchStore = create<ResearchState>()(
 
       /**
        * Add a new agent message to the messages array.
+       * Handles the transition from streaming to final message.
+       * Replaces temporary streaming message with final message.
        */
       addMessage: (message: AgentMessage) => {
-        set((state) => ({
-          messages: [...state.messages, message],
-          activeNodeId: message.node_id,
-          streamState: StreamStateEnum.STREAMING,
-        }))
+        set((state) => {
+          // Don't merge chunks - the final message already contains complete content
+          const finalMessage = { ...message }
+
+          // Find and replace any temporary streaming message from this agent
+          // Streaming messages use temporary node IDs like "node_stream_xxx"
+          const streamingMsgIndex = state.messages.findIndex(
+            (msg) =>
+              msg.agent_name === message.agent_name &&
+              msg.node_id.startsWith('node_stream_')
+          )
+
+          let updatedMessages = state.messages
+          if (streamingMsgIndex !== -1) {
+            // Replace the temporary streaming message with the final message
+            updatedMessages = [...state.messages]
+            updatedMessages[streamingMsgIndex] = finalMessage
+          } else {
+            // Check if message with same node_id already exists (shouldn't happen)
+            const existingIndex = state.messages.findIndex(
+              (msg) => msg.node_id === message.node_id
+            )
+            if (existingIndex === -1) {
+              // Add new message
+              updatedMessages = [...state.messages, finalMessage]
+            } else {
+              // Update existing message (edge case)
+              updatedMessages = [...state.messages]
+              updatedMessages[existingIndex] = finalMessage
+            }
+          }
+
+          // Clear streaming state for this agent
+          const updatedChunks = { ...state.streamingChunksByNodeId }
+          // Clear any temporary streaming node IDs for this agent
+          Object.keys(updatedChunks).forEach((nodeId) => {
+            if (nodeId.startsWith('node_stream_')) {
+              delete updatedChunks[nodeId]
+            }
+          })
+
+          return {
+            messages: updatedMessages,
+            activeNodeId: message.node_id,
+            streamState: StreamStateEnum.STREAMING,
+            streamingChunksByNodeId: updatedChunks,
+            currentStreamingNodeId: null,
+          }
+        })
+      },
+
+      /**
+       * Append a streaming chunk to the current node's accumulated text.
+       * Creates or updates a message as chunks accumulate for live display.
+       * Works with temporary node IDs (node_stream_xxx) during streaming.
+       */
+      appendStreamingChunk: (chunk: StreamingChunk) => {
+        set((state) => {
+          const nodeId = chunk.node_id
+          const currentText = state.streamingChunksByNodeId[nodeId] || ''
+          const newText = currentText + chunk.content
+
+          // Check if we already have a message for this node (temporary or otherwise)
+          const existingMessageIndex = state.messages.findIndex((msg) => msg.node_id === nodeId)
+
+          let updatedMessages = state.messages
+          if (existingMessageIndex === -1) {
+            // Create a new temporary message for streaming display
+            const temporaryMessage: AgentMessage = {
+              type: 'agent_message' as const,
+              agent_name: chunk.agent_name,
+              content: newText,
+              node_id: nodeId, // This will be a temporary ID like node_stream_xxx
+              timestamp: new Date().toISOString(),
+            }
+            updatedMessages = [...state.messages, temporaryMessage]
+          } else {
+            // Update existing message with new chunks
+            updatedMessages = state.messages.map((msg) =>
+              msg.node_id === nodeId ? { ...msg, content: newText } : msg
+            )
+          }
+
+          return {
+            messages: updatedMessages,
+            streamingChunksByNodeId: {
+              ...state.streamingChunksByNodeId,
+              [nodeId]: newText,
+            },
+            currentStreamingNodeId: nodeId,
+            activeNodeId: nodeId,
+            streamState: StreamStateEnum.STREAMING,
+          }
+        })
       },
 
       /**

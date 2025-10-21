@@ -218,3 +218,24 @@ export function useAgentInputActions() {
     clearAgentInputRequest: state.clearAgentInputRequest,
   }))
 }
+
+/**
+ * Hook to access streaming chunks accumulated for a specific node.
+ */
+export function useStreamingChunksForNode(nodeId: string): string {
+  return useResearchStore((state) => state.streamingChunksByNodeId[nodeId] || '')
+}
+
+/**
+ * Hook to access all streaming chunks buffer.
+ */
+export function useStreamingChunksBuffer(): Record<string, string> {
+  return useResearchStore((state) => state.streamingChunksByNodeId)
+}
+
+/**
+ * Hook to access current streaming node ID.
+ */
+export function useCurrentStreamingNodeId(): string | null {
+  return useResearchStore((state) => state.currentStreamingNodeId)
+}

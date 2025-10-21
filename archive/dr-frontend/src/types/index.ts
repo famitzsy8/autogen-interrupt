@@ -11,6 +11,7 @@
 export enum MessageType {
   START_RESEARCH = 'start_research',
   AGENT_MESSAGE = 'agent_message',
+  STREAMING_CHUNK = 'streaming_chunk',
   USER_INTERRUPT = 'user_interrupt',
   USER_DIRECTED_MESSAGE = 'user_directed_message',
   INTERRUPT_ACKNOWLEDGED = 'interrupt_acknowledged',
@@ -43,6 +44,16 @@ export interface ResearchConfig extends BaseMessage {
  */
 export interface AgentMessage extends BaseMessage {
   type: MessageType.AGENT_MESSAGE
+  agent_name: string
+  content: string
+  node_id: string
+}
+
+/**
+ * Partial streaming chunk from an agent during message generation.
+ */
+export interface StreamingChunk extends BaseMessage {
+  type: MessageType.STREAMING_CHUNK
   agent_name: string
   content: string
   node_id: string
@@ -138,6 +149,7 @@ export interface AgentInputResponse extends BaseMessage {
  */
 export type ServerMessage =
   | AgentMessage
+  | StreamingChunk
   | InterruptAcknowledged
   | StreamEnd
   | ErrorMessage
