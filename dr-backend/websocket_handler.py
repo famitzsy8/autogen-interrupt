@@ -41,6 +41,7 @@ from models import (
     MessageType,
     ResearchConfig,
     StreamEnd,
+    StreamingChunk,
     TreeUpdate,
     UserDirectedMessage,
     UserInterrupt,
@@ -70,6 +71,8 @@ class WebSocketHandler:
         self.agent_input_queue.websocket_handler = self
         self.streaming_chunks: list[str] = []  # Track streaming chunks
         self.research_config: ResearchConfig | None = None
+        self.current_streaming_agent: str | None = None
+        self.current_streaming_node_id: str | None = None
 
     async def handle_connection(self) -> None:
         """
@@ -191,8 +194,25 @@ class WebSocketHandler:
 
                     # Handle streaming chunks
                     if isinstance(message, ModelClientStreamingChunkEvent):
-                        # Stream chunks directly to frontend (no newline)
-                        await self._send_streaming_chunk(message.content)
+                        # Get agent name from the chunk's source field
+                        chunk_agent = message.source if hasattr(message, "source") else None
+
+                        # If this is a new agent, generate a new node ID for the upcoming message
+                        if chunk_agent and chunk_agent != self.current_streaming_agent:
+                            self.current_streaming_agent = chunk_agent
+                            # Generate a temporary node ID for this streaming session
+                            # This will be replaced when the final message arrives
+                            import uuid
+                            self.current_streaming_node_id = f"node_stream_{uuid.uuid4().hex[:12]}"
+
+                        # Stream chunks to frontend with correct agent context
+                        if self.current_streaming_agent and self.current_streaming_node_id:
+                            await self._send_streaming_chunk(
+                                agent_name=self.current_streaming_agent,
+                                chunk=message.content,
+                                node_id=self.current_streaming_node_id,
+                            )
+
                         self.streaming_chunks.append(message.content)
                         message_task = asyncio.create_task(stream.__anext__())
                         continue
@@ -434,6 +454,10 @@ class WebSocketHandler:
         agent_name = message.source if hasattr(message, "source") else "Unknown"
         content = str(message.content)
 
+        # IMPORTANT: Update streaming context BEFORE adding node
+        # This ensures subsequent chunks know which agent/node they belong to
+        self.current_streaming_agent = agent_name
+
         # Add node to conversation tree
         node = self.state_manager.add_node(agent_name=agent_name, message=content)
 
@@ -441,6 +465,9 @@ class WebSocketHandler:
         # Don't send message to client or tree update for these internal messages
         if node is None:
             return
+
+        # NOW set the node_id for future chunks
+        self.current_streaming_node_id = node.id
 
         # Save state to file
         self.state_manager.save_to_file()
@@ -464,17 +491,22 @@ class WebSocketHandler:
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(message.model_dump_json())
 
-    async def _send_streaming_chunk(self, chunk: str) -> None:
+    async def _send_streaming_chunk(
+        self, agent_name: str, chunk: str, node_id: str
+    ) -> None:
         """
         Send a streaming chunk to the WebSocket client.
 
         Args:
+            agent_name: Name of the agent currently streaming
             chunk: Streaming text chunk to send
+            node_id: Node ID this chunk belongs to
         """
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            # TODO: Consider creating a StreamingChunk message type if frontend needs it
-            # For now, just print to backend console as streaming happens on backend
-            pass
+            streaming_chunk = StreamingChunk(
+                agent_name=agent_name, content=chunk, node_id=node_id
+            )
+            await self.websocket.send_text(streaming_chunk.model_dump_json())
 
     async def _send_tree_update(self) -> None:
         """Send tree update to client."""

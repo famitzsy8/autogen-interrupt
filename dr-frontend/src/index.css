@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Streamdown markdown rendering styles */
+@source "../node_modules/streamdown/dist/index.js";
+
 /* Base styles for dark theme */
 :root {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;

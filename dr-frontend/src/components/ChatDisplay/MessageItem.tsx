@@ -3,14 +3,17 @@
  *
  * Features:
  * - Displays agent name with configured color
- * - Shows message content
+ * - Shows message content with live markdown rendering via Streamdown
  * - Provides chat icon for setting trim count
  * - Calculates message index for trim count functionality
+ * - Streams markdown content character-by-character without eye strain
  */
 
 import React from 'react'
 import { MessageCircle } from 'lucide-react'
+import { Streamdown } from 'streamdown'
 import { getAgentColor, getAgentDisplayName } from '../../constants/agents'
+import { useCurrentStreamingNodeId } from '../../hooks/useResearchStore'
 import type { AgentMessage } from '../../types'
 
 interface MessageItemProps {
@@ -30,6 +33,8 @@ export function MessageItem({
 }: MessageItemProps): React.ReactElement {
   const agentColor = getAgentColor(message.agent_name)
   const displayName = getAgentDisplayName(message.agent_name)
+  const currentStreamingNodeId = useCurrentStreamingNodeId()
+  const isStreaming = currentStreamingNodeId === message.node_id
 
   // Calculate trim count: number of messages from this point to the end
   const trimCount = totalMessages - messageIndex - 1
@@ -52,7 +57,7 @@ export function MessageItem({
         <span className="text-sm font-medium text-dark-text">{displayName}</span>
       </div>
 
-      {/* Message content */}
+      {/* Message content - rendered with Streamdown for markdown support */}
       <div
         className="pl-5 py-2 px-3 rounded border border-dark-border bg-dark-hover"
         style={{
@@ -60,9 +65,19 @@ export function MessageItem({
           borderLeftWidth: '3px',
         }}
       >
-        <p className="text-dark-text text-sm leading-relaxed whitespace-pre-wrap">
-          {message.content}
-        </p>
+        <div className="text-dark-text text-sm leading-relaxed [&>*]:my-0 [&>p]:my-2 [&>pre]:my-2">
+          <Streamdown parseIncompleteMarkdown={true} controls={true} shikiTheme={['github-dark-default']}>
+            {message.content}
+          </Streamdown>
+        </div>
+
+        {/* Streaming indicator - shown while message is actively streaming */}
+        {isStreaming && (
+          <div className="mt-2 flex items-center gap-1 text-xs text-gray-400">
+            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
+            <span>Streaming...</span>
+          </div>
+        )}
       </div>
 
       {/* Chat icon for trim point selection - only show when interrupted */}
