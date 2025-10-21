@@ -9,6 +9,7 @@
  * WebSocket message types for client-server communication.
  */
 export enum MessageType {
+  START_RESEARCH = 'start_research',
   AGENT_MESSAGE = 'agent_message',
   USER_INTERRUPT = 'user_interrupt',
   USER_DIRECTED_MESSAGE = 'user_directed_message',
@@ -26,6 +27,15 @@ export enum MessageType {
 interface BaseMessage {
   type: MessageType
   timestamp: string
+}
+
+/**
+ * Configuration sent from frontend to start research.
+ */
+export interface ResearchConfig extends BaseMessage {
+  type: MessageType.START_RESEARCH
+  initial_topic: string
+  selector_prompt?: string
 }
 
 /**
@@ -137,7 +147,7 @@ export type ServerMessage =
 /**
  * Union type of all possible WebSocket messages sent to server.
  */
-export type ClientMessage = UserInterrupt | UserDirectedMessage | AgentInputResponse
+export type ClientMessage = ResearchConfig | UserInterrupt | UserDirectedMessage | AgentInputResponse
 
 /**
  * WebSocket connection state.

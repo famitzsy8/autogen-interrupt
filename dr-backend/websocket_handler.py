@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any
@@ -38,6 +39,7 @@ from models import (
     ErrorMessage,
     InterruptAcknowledged,
     MessageType,
+    ResearchConfig,
     StreamEnd,
     TreeUpdate,
     UserDirectedMessage,
@@ -45,6 +47,10 @@ from models import (
 )
 from research_team import ResearchContext, build_research_team, get_initial_topic
 from state_manager import StateManager
+
+# Configure logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class WebSocketHandler:
@@ -63,6 +69,7 @@ class WebSocketHandler:
         self.agent_input_queue = AgentInputQueue()
         self.agent_input_queue.websocket_handler = self
         self.streaming_chunks: list[str] = []  # Track streaming chunks
+        self.research_config: ResearchConfig | None = None
 
     async def handle_connection(self) -> None:
         """
@@ -74,37 +81,60 @@ class WebSocketHandler:
         print("=== WebSocket connection accepted ===")
 
         try:
-            # Initialize research team and state manager
-            print("=== Initializing research team... ===")
-            await self._initialize_research()
-            print("=== Research team initialized ===")
+            # STEP 1: Wait for research config from frontend
+            logger.info("Waiting for research configuration from frontend...")
+            config_data = await self.websocket.receive_text()
+            config_dict = json.loads(config_data)
+            self.research_config = ResearchConfig(**config_dict)
+            logger.info("Research configuration received successfully")
+            logger.debug(f"Initial topic: {self.research_config.initial_topic[:100]}...")
 
-            # Get initial topic
-            initial_topic = get_initial_topic()
+            if self.research_config.selector_prompt:
+                logger.info("Custom selector prompt provided by user")
+                logger.debug(f"User selector prompt:\n{self.research_config.selector_prompt}")
+            else:
+                logger.info("No custom selector prompt provided, will use default")
 
-            # Initialize conversation tree with root node
-            root_node = self.state_manager.initialize_root(
+            # STEP 2: Initialize research team with config
+            logger.info("Initializing research team with provided configuration...")
+            await self._initialize_research(
+                selector_prompt=self.research_config.selector_prompt
+            )
+            logger.info("Research team initialized successfully")
+
+            # STEP 3: Get initial topic from config
+            initial_topic = self.research_config.initial_topic
+            logger.debug(f"Initial research topic: {initial_topic}")
+
+            # STEP 4: Initialize conversation tree with custom topic
+            logger.info("Initializing conversation tree with custom topic")
+            self.state_manager.initialize_root(
                 agent_name="System", message=initial_topic
             )
             await self._send_tree_update()
+            logger.info("Conversation tree initialized and sent to frontend")
 
-            # Start the conversation stream
-            print("🔬 Starting research stream...")
+            # STEP 5: Start the conversation stream
+            logger.info("Starting research conversation stream...")
             await self._conversation_stream(initial_topic)
 
+        except json.JSONDecodeError as e:
+            logger.error(f"Config JSON parse error: {str(e)}")
+            await self._send_error("CONFIG_JSON_ERROR", f"Invalid JSON: {str(e)}")
+        except ValueError as e:
+            logger.error(f"Config validation error: {str(e)}")
+            await self._send_error("CONFIG_VALIDATION_ERROR", str(e))
         except WebSocketDisconnect as e:
-            print(f"=== WebSocket client disconnected: {e} ===")
+            logger.warning(f"WebSocket client disconnected: {e}")
         except Exception as e:
-            print(f"=== Error in WebSocket handler: {e} ===")
-            import traceback
-            traceback.print_exc()
+            logger.error(f"Error in WebSocket handler: {str(e)}", exc_info=True)
             await self._send_error("HANDLER_ERROR", str(e))
         finally:
             print("=== Cleaning up WebSocket connection ===")
             await self._cleanup()
             print("=== WebSocket handler finished ===")
 
-    async def _initialize_research(self) -> None:
+    async def _initialize_research(self, selector_prompt: str | None = None) -> None:
         """Initialize research team and state manager."""
         # Get API key from environment
         api_key = os.getenv("OPENAI_API_KEY")
@@ -112,10 +142,11 @@ class WebSocketHandler:
             raise RuntimeError("OPENAI_API_KEY not set in environment")
 
         # Build research team with agent input queue support
-        self.research_context = build_research_team(
+        self.research_context = await build_research_team(
             api_key=api_key,
             max_messages=60,
             agent_input_queue=self.agent_input_queue,
+            selector_prompt=selector_prompt,
         )
 
         # Initialize state manager

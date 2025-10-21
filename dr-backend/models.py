@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, field_validator
 class MessageType(str, Enum):
     """WebSocket message types for client-server communication."""
 
+    START_RESEARCH = "start_research"
     AGENT_MESSAGE = "agent_message"
     USER_INTERRUPT = "user_interrupt"
     USER_DIRECTED_MESSAGE = "user_directed_message"
@@ -223,3 +224,30 @@ class AgentInputResponse(BaseModel):
         if not v or not v.strip():
             raise ValueError("user_input cannot be empty")
         return v
+
+
+class ResearchConfig(BaseModel):
+    """
+    Configuration sent from frontend to start research session.
+
+    This message is sent immediately after WebSocket connection to configure
+    the research team with custom parameters.
+    """
+
+    type: Literal[MessageType.START_RESEARCH] = MessageType.START_RESEARCH
+    initial_topic: str = Field(
+        ..., min_length=1, description="The research task/question for agents"
+    )
+    selector_prompt: str | None = Field(
+        default=None,
+        description="Optional custom selector prompt for agent selection logic",
+    )
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("initial_topic")
+    @classmethod
+    def validate_initial_topic(cls, v: str) -> str:
+        """Ensure initial topic is not empty."""
+        if not v or not v.strip():
+            raise ValueError("initial_topic cannot be empty")
+        return v.strip()

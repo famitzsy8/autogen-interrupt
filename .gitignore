@@ -47,3 +47,5 @@ congress-example/**/autogen_core-*.dist-info/
 # Large data/vectorstores under congress example
 congress-example/**/ragMCP/rag/vectorstores/
 congress-example/**/ragMCP/rag/data/tmp_sections/
+
+dr-backend/research_state.json
