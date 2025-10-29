@@ -22,6 +22,8 @@ import type {
   ServerMessage,
   StreamingChunk,
   StreamState,
+  ToolCall,
+  ToolExecution,
   TreeNode,
   TreeUpdate,
   UserDirectedMessage,
@@ -71,6 +73,10 @@ interface ResearchState {
   // Streaming chunks accumulation
   streamingChunksByNodeId: Record<string, string>
   currentStreamingNodeId: string | null
+
+  // Tool call tracking
+  toolCallsByNodeId: Record<string, ToolCall>
+  toolExecutionsByNodeId: Record<string, ToolExecution>
 
   // Error state
   error: AppError | null
@@ -129,6 +135,8 @@ const initialState = {
   agentInputDraft: '',
   streamingChunksByNodeId: {},
   currentStreamingNodeId: null,
+  toolCallsByNodeId: {},
+  toolExecutionsByNodeId: {},
   error: null,
 }
 
@@ -171,6 +179,8 @@ export const useResearchStore = create<ResearchState>()(
           activeNodeId: null,
           streamingChunksByNodeId: {},
           currentStreamingNodeId: null,
+          toolCallsByNodeId: {},
+          toolExecutionsByNodeId: {},
           isInterrupted: false,
           streamState: StreamStateEnum.IDLE,
           agentInputRequest: null,
@@ -387,6 +397,26 @@ export const useResearchStore = create<ResearchState>()(
                 timestamp: message.timestamp,
               },
             })
+            break
+
+          case 'tool_call':
+            console.log('=== Tool call received ===', message)
+            set((state) => ({
+              toolCallsByNodeId: {
+                ...state.toolCallsByNodeId,
+                [message.node_id]: message,
+              },
+            }))
+            break
+
+          case 'tool_execution':
+            console.log('=== Tool execution received ===', message)
+            set((state) => ({
+              toolExecutionsByNodeId: {
+                ...state.toolExecutionsByNodeId,
+                [message.node_id]: message,
+              },
+            }))
             break
 
           default:

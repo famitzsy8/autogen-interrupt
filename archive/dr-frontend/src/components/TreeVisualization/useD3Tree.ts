@@ -11,7 +11,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as d3 from 'd3'
-import type { TreeNode } from '../../types'
+import type { TreeNode, ToolCall, ToolExecution, ToolExecutionResult } from '../../types'
 import type { D3TreeNode, TreeConfig } from './treeUtils'
 import {
   convertToD3Hierarchy,
@@ -30,6 +30,8 @@ interface UseD3TreeOptions {
   height: number
   config?: Partial<TreeConfig>
   maxVisibleHeight?: number
+  toolCallsByNodeId?: Record<string, ToolCall>
+  toolExecutionsByNodeId?: Record<string, ToolExecution>
 }
 
 /**
@@ -52,6 +54,72 @@ interface UseD3TreeReturn {
 const ANIMATION_DURATION = 300
 
 /**
+ * Apply pulsing animation to a badge while it's executing.
+ */
+function applyPulsingAnimation(
+  badge: d3.Selection<SVGGElement, unknown, null, undefined>,
+  isExecuting: boolean
+): void {
+  if (isExecuting) {
+    // Start pulsing animation
+    function pulse(this: SVGGElement) {
+      d3.select(this)
+        .transition()
+        .duration(800)
+        .style('opacity', 0.4)
+        .transition()
+        .duration(800)
+        .style('opacity', 1)
+        .on('end', function() {
+          // Check if badge still exists and should continue pulsing
+          const element = d3.select(this)
+          if (element.node() && element.attr('data-pulsing') === 'true') {
+            pulse.call(this)
+          }
+        })
+    }
+
+    badge.attr('data-pulsing', 'true')
+    pulse.call(badge.node() as SVGGElement)
+  } else {
+    // Stop pulsing, ensure full opacity
+    badge.attr('data-pulsing', 'false')
+    badge.interrupt() // Stop any ongoing transitions
+    badge.style('opacity', 1)
+  }
+}
+
+/**
+ * Get color for tool based on type.
+ */
+function getToolColor(toolName: string): { bg: string; border: string } {
+  const name = toolName.toLowerCase()
+
+  // Web/network tools
+  if (name.includes('web') || name.includes('search') || name.includes('browse')) {
+    return { bg: '#1f6feb', border: '#58a6ff' }
+  }
+
+  // File/code tools
+  if (name.includes('file') || name.includes('read') || name.includes('write') || name.includes('code')) {
+    return { bg: '#8b5cf6', border: '#a78bfa' }
+  }
+
+  // Math/calculation tools
+  if (name.includes('calc') || name.includes('math') || name.includes('compute')) {
+    return { bg: '#10b981', border: '#34d399' }
+  }
+
+  // Database/data tools
+  if (name.includes('db') || name.includes('database') || name.includes('query')) {
+    return { bg: '#f59e0b', border: '#fbbf24' }
+  }
+
+  // Default color
+  return { bg: '#6b7280', border: '#9ca3af' }
+}
+
+/**
  * Custom hook for D3 tree visualization.
  * @param treeData - Root node of the conversation tree
  * @param currentBranchId - Current active branch ID
@@ -63,7 +131,7 @@ export function useD3Tree(
   currentBranchId: string,
   options: UseD3TreeOptions
 ): UseD3TreeReturn {
-  const { width, height, config = {}, maxVisibleHeight = 30 } = options
+  const { width, height, config = {}, maxVisibleHeight = 30, toolCallsByNodeId = {}, toolExecutionsByNodeId = {} } = options
 
   const svgRef = useRef<SVGSVGElement>(null)
   const gRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null)
@@ -145,8 +213,10 @@ export function useD3Tree(
       activeNodeIds,
       centerNodeId,
       maxVisibleHeight,
+      toolCallsByNodeId,
+      toolExecutionsByNodeId,
     })
-  }, [root, activeNodeIds, centerNodeId, width, height, maxVisibleHeight, treeConfig])
+  }, [root, activeNodeIds, centerNodeId, width, height, maxVisibleHeight, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId])
 
   /**
    * Update center node when tree data changes to keep view on latest messages.
@@ -247,6 +317,8 @@ interface UpdateTreeOptions {
   activeNodeIds: Set<string>
   centerNodeId: string | null
   maxVisibleHeight: number
+  toolCallsByNodeId: Record<string, ToolCall>
+  toolExecutionsByNodeId: Record<string, ToolExecution>
 }
 
 function updateTree(
@@ -254,7 +326,7 @@ function updateTree(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   options: UpdateTreeOptions
 ): void {
-  const { width, height, config, activeNodeIds, centerNodeId, maxVisibleHeight } = options
+  const { width, height, config, activeNodeIds, centerNodeId, maxVisibleHeight, toolCallsByNodeId, toolExecutionsByNodeId } = options
 
   // Find visible nodes based on center and max height
   const visibleNodeIds = findVisibleNodes(root, centerNodeId, maxVisibleHeight)
@@ -379,7 +451,97 @@ function updateTree(
         .attr('width', bbox.width + padding * 2)
         .attr('height', bbox.height + padding * 2)
     })
-    
+
+  // Add tool badges
+  const toolBadgeContainer = nodeEnter
+    .append('g')
+    .attr('class', 'tool-badges')
+    .attr('transform', (d) => {
+      const isLeft = d.children || d._children
+      // Position below the agent name label (y=20 for below)
+      const xOffset = isLeft ? -25 : 25
+      return `translate(${xOffset}, 20)`
+    })
+
+  // For each node, check if it has tool calls
+  toolBadgeContainer.each(function(d) {
+    const container = d3.select(this)
+    const toolCall = toolCallsByNodeId[d.data.id]
+
+    if (toolCall && toolCall.tools && toolCall.tools.length > 0) {
+      // Check if tool execution has completed
+      const toolExecution = toolExecutionsByNodeId[d.data.id]
+      const isExecuting = !toolExecution
+
+      // Create badges for each tool
+      toolCall.tools.forEach((tool, index) => {
+        const colors = getToolColor(tool.name)
+        const badge = container.append('g')
+          .attr('transform', `translate(0, ${index * 20})`)
+
+        // Add background rect for the badge
+        const badgeRect = badge
+          .append('rect')
+          .attr('rx', 8)
+          .attr('ry', 8)
+          .style('fill', colors.bg)
+          .style('opacity', 0.9)
+          .style('stroke', colors.border)
+          .style('stroke-width', 1)
+
+        // Add tool name
+        const toolText = badge
+          .append('text')
+          .attr('text-anchor', 'start')
+          .attr('dominant-baseline', 'middle')
+          .style('fill', '#ffffff')
+          .style('font-size', '10px')
+          .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
+          .style('font-weight', '500')
+          .text(tool.name)
+
+        // Get text dimensions and position rect around it
+        const bbox = (toolText.node() as SVGTextElement).getBBox()
+        const padding = 4
+
+        // Position text with padding
+        toolText
+          .attr('x', padding)
+          .attr('y', bbox.height / 2 + padding)
+
+        // Size and position rect to contain text
+        badgeRect
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', bbox.width + padding * 2)
+          .attr('height', bbox.height + padding * 2)
+
+        // Apply pulsing animation if still executing
+        applyPulsingAnimation(badge, isExecuting)
+
+        // Add click handler to show results when execution is complete
+        if (!isExecuting) {
+          badge
+            .style('cursor', 'pointer')
+            .on('click', function(event: MouseEvent) {
+              event.stopPropagation()
+              const execution = toolExecutionsByNodeId[d.data.id]
+              if (execution && execution.results) {
+                // Show results in console for now (will add modal later)
+                console.log('=== Tool Execution Results ===')
+                console.log('Agent:', execution.agent_name)
+                execution.results.forEach((result: ToolExecutionResult, idx: number) => {
+                  console.log(`\nTool ${idx + 1}: ${result.tool_name}`)
+                  console.log('Success:', result.success)
+                  console.log('Result:', result.result)
+                })
+              }
+            })
+        }
+      })
+    }
+  })
+
   // Update existing nodes
   const nodeUpdate = nodeEnter.merge(node)
 
@@ -403,6 +565,86 @@ function updateTree(
       const isActive = activeNodeIds.has(d.data.id)
       return isActive ? 3 : 2
     })
+
+  // Update tool badges for existing nodes
+  nodeUpdate.each(function(d) {
+    const nodeElement = d3.select(this)
+    const existingBadges = nodeElement.select('.tool-badges')
+
+    // Clear existing badges
+    existingBadges.selectAll('*').remove()
+
+    // Re-add badges if tools exist
+    const toolCall = toolCallsByNodeId[d.data.id]
+    if (toolCall && toolCall.tools && toolCall.tools.length > 0) {
+      // Check if tool execution has completed
+      const toolExecution = toolExecutionsByNodeId[d.data.id]
+      const isExecuting = !toolExecution
+
+      toolCall.tools.forEach((tool, index) => {
+        const colors = getToolColor(tool.name)
+        const badge = existingBadges.append('g')
+          .attr('transform', `translate(0, ${index * 20})`)
+
+        const badgeRect = badge
+          .append('rect')
+          .attr('rx', 8)
+          .attr('ry', 8)
+          .style('fill', colors.bg)
+          .style('opacity', 0.9)
+          .style('stroke', colors.border)
+          .style('stroke-width', 1)
+
+        const toolText = badge
+          .append('text')
+          .attr('text-anchor', 'start')
+          .attr('dominant-baseline', 'middle')
+          .style('fill', '#ffffff')
+          .style('font-size', '10px')
+          .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
+          .style('font-weight', '500')
+          .text(tool.name)
+
+        const bbox = (toolText.node() as SVGTextElement).getBBox()
+        const padding = 4
+
+        // Position text with padding
+        toolText
+          .attr('x', padding)
+          .attr('y', bbox.height / 2 + padding)
+
+        // Size and position rect to contain text
+        badgeRect
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', bbox.width + padding * 2)
+          .attr('height', bbox.height + padding * 2)
+
+        // Apply pulsing animation if still executing
+        applyPulsingAnimation(badge, isExecuting)
+
+        // Add click handler to show results when execution is complete
+        if (!isExecuting) {
+          badge
+            .style('cursor', 'pointer')
+            .on('click', function(event: MouseEvent) {
+              event.stopPropagation()
+              const execution = toolExecutionsByNodeId[d.data.id]
+              if (execution && execution.results) {
+                // Show results in console for now (will add modal later)
+                console.log('=== Tool Execution Results ===')
+                console.log('Agent:', execution.agent_name)
+                execution.results.forEach((result: ToolExecutionResult, idx: number) => {
+                  console.log(`\nTool ${idx + 1}: ${result.tool_name}`)
+                  console.log('Success:', result.success)
+                  console.log('Result:', result.result)
+                })
+              }
+            })
+        }
+      })
+    }
+  })
 
   // Remove old nodes
   const nodeExit = node.exit()

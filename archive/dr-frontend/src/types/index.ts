@@ -20,6 +20,8 @@ export enum MessageType {
   TREE_UPDATE = 'tree_update',
   AGENT_INPUT_REQUEST = 'agent_input_request',
   AGENT_INPUT_RESPONSE = 'agent_input_response',
+  TOOL_CALL = 'tool_call',
+  TOOL_EXECUTION = 'tool_execution',
 }
 
 /**
@@ -145,6 +147,45 @@ export interface AgentInputResponse extends BaseMessage {
 }
 
 /**
+ * Information about a single tool/function call.
+ */
+export interface ToolCallInfo {
+  id: string
+  name: string
+  arguments: string
+}
+
+/**
+ * Message sent when an agent requests tool/function calls.
+ */
+export interface ToolCall extends BaseMessage {
+  type: MessageType.TOOL_CALL
+  agent_name: string
+  tools: ToolCallInfo[]
+  node_id: string
+}
+
+/**
+ * Information about tool execution result.
+ */
+export interface ToolExecutionResult {
+  tool_call_id: string
+  tool_name: string
+  success: boolean
+  result: string | null
+}
+
+/**
+ * Message sent when tool execution completes.
+ */
+export interface ToolExecution extends BaseMessage {
+  type: MessageType.TOOL_EXECUTION
+  agent_name: string
+  results: ToolExecutionResult[]
+  node_id: string
+}
+
+/**
  * Union type of all possible WebSocket messages from server.
  */
 export type ServerMessage =
@@ -155,6 +196,8 @@ export type ServerMessage =
   | ErrorMessage
   | TreeUpdate
   | AgentInputRequest
+  | ToolCall
+  | ToolExecution
 
 /**
  * Union type of all possible WebSocket messages sent to server.
