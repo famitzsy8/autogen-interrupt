@@ -239,3 +239,17 @@ export function useStreamingChunksBuffer(): Record<string, string> {
 export function useCurrentStreamingNodeId(): string | null {
   return useResearchStore((state) => state.currentStreamingNodeId)
 }
+
+/**
+ * Hook to access tool calls by node ID.
+ */
+export function useToolCallsByNodeId(): Record<string, import('../types').ToolCall> {
+  return useResearchStore((state) => state.toolCallsByNodeId)
+}
+
+/**
+ * Hook to access tool executions by node ID.
+ */
+export function useToolExecutionsByNodeId(): Record<string, import('../types').ToolExecution> {
+  return useResearchStore((state) => state.toolExecutionsByNodeId)
+}

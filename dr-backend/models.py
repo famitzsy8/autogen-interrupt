@@ -23,6 +23,8 @@ class MessageType(str, Enum):
     TREE_UPDATE = "tree_update"
     AGENT_INPUT_REQUEST = "agent_input_request"
     AGENT_INPUT_RESPONSE = "agent_input_response"
+    TOOL_CALL = "tool_call"
+    TOOL_EXECUTION = "tool_execution"
 
 
 class AgentMessage(BaseModel):
@@ -277,10 +279,55 @@ class ResearchConfig(BaseModel):
     )
     timestamp: datetime = Field(default_factory=datetime.now)
 
-    @field_validator("initial_topic")
+
+class ToolCallInfo(BaseModel):
+    """Information about a single tool/function call."""
+
+    id: str = Field(..., description="Unique identifier for this tool call")
+    name: str = Field(..., description="Name of the tool/function being called")
+    arguments: str = Field(..., description="JSON string of arguments passed to the tool")
+
+
+class ToolCall(BaseModel):
+    """Message sent when an agent requests tool/function calls."""
+
+    type: Literal[MessageType.TOOL_CALL] = MessageType.TOOL_CALL
+    agent_name: str = Field(..., description="Name of the agent making tool calls")
+    tools: list[ToolCallInfo] = Field(..., description="List of tool calls requested")
+    node_id: str = Field(..., description="Node ID associated with this tool call")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("agent_name")
     @classmethod
-    def validate_initial_topic(cls, v: str) -> str:
-        """Ensure initial topic is not empty."""
+    def validate_agent_name(cls, v: str) -> str:
+        """Ensure agent name is not empty."""
         if not v or not v.strip():
-            raise ValueError("initial_topic cannot be empty")
+            raise ValueError("agent_name cannot be empty")
+        return v.strip()
+
+
+class ToolExecutionResult(BaseModel):
+    """Information about tool execution result."""
+
+    tool_call_id: str = Field(..., description="ID of the tool call this result belongs to")
+    tool_name: str = Field(..., description="Name of the executed tool")
+    success: bool = Field(..., description="Whether the tool executed successfully")
+    result: str | None = Field(default=None, description="Result or error message from tool execution")
+
+
+class ToolExecution(BaseModel):
+    """Message sent when tool execution completes."""
+
+    type: Literal[MessageType.TOOL_EXECUTION] = MessageType.TOOL_EXECUTION
+    agent_name: str = Field(..., description="Name of the agent that executed tools")
+    results: list[ToolExecutionResult] = Field(..., description="List of execution results")
+    node_id: str = Field(..., description="Node ID associated with this execution")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("agent_name")
+    @classmethod
+    def validate_agent_name(cls, v: str) -> str:
+        """Ensure agent name is not empty."""
+        if not v or not v.strip():
+            raise ValueError("agent_name cannot be empty")
         return v.strip()

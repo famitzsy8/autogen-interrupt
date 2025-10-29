@@ -15,6 +15,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { TreeControls, useTreeKeyboardShortcuts } from './TreeControls'
 import { useD3Tree } from './useD3Tree'
 import { countNodes, getTreeDepth } from './treeUtils'
+import { useToolCallsByNodeId, useToolExecutionsByNodeId } from '../../hooks/useResearchStore'
 import type { TreeNode } from '../../types'
 
 /**
@@ -36,6 +37,8 @@ export function TreeVisualization({
 }: TreeVisualizationProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
+  const toolCallsByNodeId = useToolCallsByNodeId()
+  const toolExecutionsByNodeId = useToolExecutionsByNodeId()
 
   // Update dimensions on resize
   useEffect(() => {
@@ -66,6 +69,8 @@ export function TreeVisualization({
       width: dimensions.width,
       height: dimensions.height,
       maxVisibleHeight: 10,
+      toolCallsByNodeId,
+      toolExecutionsByNodeId,
     }
   )
 
