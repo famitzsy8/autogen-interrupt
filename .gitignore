@@ -8,3 +8,44 @@ __pycache__/
 .docs/
 archive/
 debug/
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+debate-backend/venv/
+
+# Node / Frontend
+node_modules/
+debate-frontend/node_modules/
+deepresearch-frontend/node_modules/
+debate-frontend/dist/
+deepresearch-frontend/dist/
+debate-frontend/.vite/
+deepresearch-frontend/.vite/
+
+# Secrets
+*.env
+.env
+.env.*
+debate-backend/.env
+
+# Logs and caches
+*.log
+nohup.out
+
+# IDE
+.idea/
+
+# Autogen extension build metadata
+congress-example/**/autogen_agentchat-*.dist-info/
+congress-example/**/autogen_core-*.dist-info/
+
+# Large data/vectorstores under congress example
+congress-example/**/ragMCP/rag/vectorstores/
+congress-example/**/ragMCP/rag/data/tmp_sections/
+
+dr-backend/research_state.json

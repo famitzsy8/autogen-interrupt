@@ -233,9 +233,12 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         model_context_messages = await self._model_context.get_messages()
         model_context_history = self.construct_message_history(model_context_messages)
 
-        select_speaker_prompt = self._selector_prompt.format(
-            roles=roles, participants=str(participants), history=model_context_history
-        )
+        select_speaker_prompt = self._selector_prompt.format(**{
+            "roles": roles,
+            "participants": str(participants),
+            "history": model_context_history
+        })
+        
 
         select_speaker_messages: List[SystemMessage | UserMessage | AssistantMessage]
         if ModelFamily.is_openai(self._model_client.model_info["family"]):
