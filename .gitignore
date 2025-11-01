@@ -26,7 +26,10 @@ debate-frontend/dist/
 deepresearch-frontend/dist/
 debate-frontend/.vite/
 deepresearch-frontend/.vite/
+*.vite/
 
+dr-backend/research_workspace/
+dr-frontend/tests/
 # Secrets
 *.env
 .env
@@ -49,3 +52,6 @@ congress-example/**/ragMCP/rag/vectorstores/
 congress-example/**/ragMCP/rag/data/tmp_sections/
 
 dr-backend/research_state.json
+
+rewrite/node_modules
+rewrite/dist
