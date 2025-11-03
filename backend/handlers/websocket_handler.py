@@ -7,6 +7,7 @@ import logging
 import os
 from pathlib import Path
 from typing import Any
+import uuid
 
 from autogen_agentchat.base import TaskResult
 from generic.backend.models import AgentInputRequest, AgentMessage, AgentTeamNames, InterruptAcknowledged, StreamEnd, StreamingChunk, UserDirectedMessage, UserInterrupt
@@ -64,6 +65,7 @@ class WebSocketHandler:
         # TODO: look at how "context" (ResearchContext in dr-backdend) fits into the YAML implementation
         self.agent_input_queue = self
         self.agent_input_queue.websocket_handler = self
+        self.streaming_chunks: list[str] = []
         self.agent_team_context: AgentTeamContext | None = None
         self.agent_team_config = RunConfig | None = None
         self.current_streaming_agent: str | None = None
@@ -163,31 +165,55 @@ class WebSocketHandler:
                         break
                     
                     if isinstance(message, ModelClientStreamingChunkEvent):
-                        ...
+                        chunk_agent = message.source if hasattr(message, "source") else None
+                        if chunk_agent and chunk_agent != self.current_streaming_agent:
+                            self.current_streaming_agent = chunk_agent
+                            self.current_streaming_node_id = f"node_stream_{uuid.uuid4().hex[:12]}"
+                        
+                        if self.current_streaming_agent and self.current_streaming_node_id:
+                            await self._send_streaming_chunk(
+                                agent_name=self.current_streaming_agent,
+                                chunk=message.content,
+                                node_id=self.current_streaming_node_id
+                            )
+
+                        self.streaming_chunks.append(message.content)
+                        message_task = asyncio.create_task(stream.__anext__())
+                        continue
                     
                     if self.streaming_chunks:
                         self.streaming_chunks.clear()
                     
                     if isinstance(message, BaseChatMessage):
-                        ...
+                        total_messages += 1
+                        print(f"[{total_messages}] [{message.source}]: {message.content}")
+                        await self._process_agent_message(message)
                     
                     elif isinstance(message, ToolCallRequestEvent):
-                        ...
+                        print(f"\n[{message.source}] Tool calls:")
+                        for tool_call in message.content:
+                            print(f"  - {tool_call.name}({tool_call.arguments})")
                     
                     elif isinstance(message, ToolCallExecutionEvent):
-                        ...
+                        print(f"\n[{message.source}] ✓ Tool execution results")
                     
                     elif isinstance(message, SelectorEvent):
-                        ...
+                        print(f"\n[{message.source}] 🎯 Selector: {message.content}")
                     
                     elif isinstance(message, UserInputRequestedEvent):
-                        ...
+                        print(
+                            f"\n💬 [{message.source}] is requesting input from the human user."
+                        )
                     
                     elif hasattr(message, "stop_reason"):
-                        ...
+                        print(f"🏁 Stream ended: {message.stop_reason}")
+                        await self._send_stream_end(str(message.stop_reason))
+                        break
                     
                     elif hasattr(message, BaseAgentEvent):
-                        ...
+                        print(
+                            f"\n[{message.source}] {type(message).__name__}: {message.to_text()[:200]}"
+                        )
                     
                     message_task = asyncio.create_task(stream.__anext__())
                 
@@ -326,35 +352,120 @@ class WebSocketHandler:
                 await self.agent_team_context.team.resume() # just resume talking when there is an error with the User send message
     
     async def _process_agent_message(self, message: ChatMessage) -> None:
-        ...
+        
+        if not self.state_manager:
+            raise RuntimeError("State manager not initialized")
+
+        agent_name = message.source if hasattr(message, "source") else "Unknown"
+        content = str(message.content)
+
+        self.current_streaming_agent = agent_name
+
+        node = self.state_manager.add_node(agent_name=agent_name, message=content)
+
+        if node is None:
+            return
+
+        self.current_streaming_node_id = node.id
+        self.state_manager.save_to_file()
+
+        agent_msg = AgentMessage(
+            agent_name=agent_name,
+            content=content,
+            node_id=node.id
+        )
+
+        await self._send_message(agent_msg)
+
+        # and also send a tree update with the new message
+        await self._send_tree_update()
     
     async def _send_message(self, message: AgentMessage) -> None:
-        ...
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(message.model_dump_json())
     
     async def _send_streaming_chunk(self, agent_name: str, chunk: str, node_id: str) -> None:
-        ...
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            streaming_chunk = StreamingChunk(
+                agent_name = agent_name, content = chunk, node_id = node_id
+            )
+            await self.websocket.send_text(streaming_chunk.model_dump_json())
     
     async def _send_tree_update(self) -> None:
-        ...
+        if not self.state_manager:
+            raise RuntimeError("State manager not initialized")
+        if self.state_manager.root is None:
+            raise RuntimeError("State manager root node is None")
+            return
+        
+        tree_update = TreeUpdate(
+            root=self.state_manager.root,
+            current_branch_id=self.state_manager.current_branch_id
+        )
+
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            try:
+                await self.websocket.send_text(tree_update.model_dump_json())
+            except Exception as e:
+                print(f"Error sending tree update: {e}")
+                raise
 
     async def _send_interrupt_acknowledged(self) -> None:
-        ...
+        ack = InterruptAcknowledged()
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(ack.model_dump_json())
     
     async def _send_stream_end(self, reason: str) -> None:
-        ...
+        stream_end = StreamEnd(reason=reason)
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(stream_end.model_dump_json())
     
     async def _send_error(self, error_code: str, message: str) -> None:
-        ...
+        error = ErrorMessage(error_code=error_code, message=message)
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            try:
+                await self.websocket.send_text(error.model_dump_json())
+            except Exception as e:
+                print(f"Error sending error message: {e}")
     
-    async def _send_agent_input_request(
+    async def send_agent_input_request(
         self, request_id: str, prompt: str, agent_name: str
     ) -> None:
-        ...
+        
+        request = AgentInputRequest(
+            request_id=request_id,
+            prompt=prompt,
+            agent_name=agent_name
+        )
+
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(request.model_dump_json())
     
-    async def _handle_agent_input_response(self, message_dict: dict) -> None:
-        ...
+    
+    async def _handle_human_input_response(self, message_dict: dict) -> None:
+        try:
+            response = HumanInputResponse(**message_dict)
+            success = self.agent_input_queue.provide_input(
+                response.request_id,
+                response.user_input
+            )
+
+            if not success:
+                await self._send_error(
+                    "INVALID_REQUEST_ID",
+                    f"No pending input request found for ID: {response.request_id}"
+                )
+            else:
+                print(f"Received human input response for request ID: {response.request_id}")
+            
+        except Exception as e:
+            await self._send_error("HUMAN_INPUT_RESPONSE_ERROR", str(e))
     
     async def _cleanup(self) -> None:
-        ...
+        if self.agent_input_queue:
+            self.agent_input_queue.cancel_all_pending()
+
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.close()
 
 
