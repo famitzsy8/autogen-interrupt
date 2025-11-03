@@ -12,7 +12,7 @@ class MessageType(str, Enum):
 
     # WebSocket message types (equal in frontend src/types/index.ts)
     AGENT_TEAM_NAMES = 'agent_team_names'
-    AGENT_TEAM_CONFIG = 'agent_team_config'
+    RUN_CONFIG = 'RUN_CONFIG'
     START_RUN = 'start_run'
     AGENT_MESSAGE = 'agent_message'
     STREAMING_CHUNK = 'streaming_chunk'
@@ -255,11 +255,13 @@ class HumanInputResponse(BaseModel):
             raise ValueError("user_input cannot be empty")
         return v
 
-class AgentTeamConfig(BaseModel):
+class RunConfig(BaseModel):
     # Configuration of agent team: prompt to select next agent and initial task
     # Open to be expanded with more variables
 
-    type: Literal[MessageType.AGENT_TEAM_CONFIG] = MessageType.AGENT_TEAM_CONFIG
+    type: Literal[MessageType.RUN_CONFIG] = MessageType.RUN_CONFIG
+
+    run_id: str = Field(..., "Unique ID for the run that we do")
 
     initial_topic: str = Field(
         ...,

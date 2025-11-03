@@ -6,7 +6,7 @@
 
 export enum MessageType {
     AGENT_TEAM_NAMES = 'agent_team_names',
-    AGENT_TEAM_CONFIG = 'agent_team_config',
+    RUN_CONFIG = 'RUN_CONFIG',
     START_RUN = 'start_run',
     AGENT_MESSAGE = 'agent_message',
     STREAMING_CHUNK = 'streaming_chunk',
@@ -41,20 +41,11 @@ export interface AgentTeamNames extends BaseMessage {
 /**
  * Agent team configuration that we set here in the frontend
  */
-export interface AgentTeamConfig extends BaseMessage {
-    type: MessageType.AGENT_TEAM_CONFIG
-    agent_team_config: string
-}
-
-/**
- * Start a new run of the agent team.
- */
-export interface StartRun extends BaseMessage {
-    type: MessageType.START_RUN,
-    run_id: string,
+export interface RunConfig extends BaseMessage {
+    type: MessageType.START_RUN
+    run_id: string, // MARKER: this is a field that I am not sure we set in the backend
     initial_topic: string,
     selector_prompt?: string,
-    agent_team_config: string,
 }
 
 /**
@@ -207,6 +198,8 @@ export interface ToolExecution extends BaseMessage {
  * We declare this to do neat case distinction when the frontend recieves a message from the agent team.
  */
 export type ServerMessage =
+  | AgentTeamNames
+  | StartRun
   | AgentMessage
   | StreamingChunk
   | InterruptAcknowledged
@@ -221,7 +214,7 @@ export type ServerMessage =
  * Union type of all possible WebSocket messages sent to server.
  * We declare this to do neat case distinction when the frontend sends a message to the agent team.
  */
-export type ClientMessage = ResearchConfig | UserInterrupt | UserDirectedMessage | HumanInputResponse
+export type ClientMessage = RunConfig | UserInterrupt | UserDirectedMessage | HumanInputResponse
 
 /**
  * State of the WebSocket connection between frontend and backend.
@@ -244,3 +237,13 @@ export enum StreamState {
     WAITING_FOR_AGENT_INPUT = 'waiting_for_agent_input',
     ENDED = 'ended',
 }
+
+/**
+ * Error state for the application.
+ */
+export interface AppError {
+    code: string
+    message: string
+    timestamp: string
+  }
+  
