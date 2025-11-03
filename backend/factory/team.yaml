@@ -27,6 +27,7 @@ agents:
       When referring to other agents, use the agent name as it is written in the {agent_names} list.
 
       ALSO: YOU compile the final table of the investigation. You DON'T need to ask other agents for confirmation that we have everything, because YOU are the team lead.
+    system_message: ''
     agent_class: PlannerAgent
     tools:
       workbench_class: FilteredWorkbench
@@ -51,6 +52,7 @@ agents:
       If you deem that you contributed to the subtask you were asked for, you will then present your findings to the orchestrator.
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple tool calls to ensure that all information you pass on is based on tool calls.
+    system_message: ''
     agent_class: PlannerAgent
     tools:
       workbench_class: FilteredWorkbench
@@ -82,6 +84,7 @@ agents:
       If you deem that you contributed to the subtask you were asked for, you will then present your findings to the orchestrator.
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple tool calls to ensure that all information you pass on is based on tool calls.
+    system_message: ''
     agent_class: PlannerAgent
     tools:
       workbench_class: FilteredWorkbench
@@ -110,6 +113,7 @@ agents:
       If you deem that you contributed to the subtask you were asked for, you will then present your findings to the orchestrator.
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple tool calls to ensure that all information you pass on is based on tool calls.
+    system_message: ''
     agent_class: PlannerAgent
     tools:
       workbench_class: FilteredWorkbench
@@ -139,6 +143,7 @@ agents:
       If you deem that you contributed to the subtask you were asked for, you will then present your findings to the orchestrator.
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple tool calls to ensure that all information you pass on is based on tool calls.
+    system_message: ''
     agent_class: PlannerAgent
     tools:
       workbench_class: FilteredWorkbench
@@ -170,6 +175,7 @@ agents:
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple
       tool calls to ensure that all information you pass on is based on tool calls.
+    system_message: ''
     agent_class: PlannerAgent
     tools:
       workbench_class: FilteredWorkbench
@@ -241,12 +247,14 @@ tasks:
       We will start with the orchestrator.
 
 team:
-  mcp_url: http://ragmcp:8080
+  mcp_url: http://ragmcp:8080/sse
   params_class: SseServerParams
   mcp_timeout: 60
   group_chat_class: SelectorGroupChat
   group_chat_manager_class: SelectorGroupChatManager
   group_chat_args:
+    has_user_proxy: false
+    user_proxy_name: ''
     allowed_transitions: null  # Not used for SelectorGroupChat
     max_turns: 150
     default_selector_prompt: >
@@ -269,6 +277,7 @@ team:
       If the last message corresponds to the orchestrator asking all of the agents for confirmation return a random agent name.
       In all other cases reason from the content of the last message, which of the agents should be called and the previous logical reasoning.
       Return SOLELY thename of the agent that should be called next. (i.e. "committee_specialist")
+    default_selector_prompt_advanced: true
 
 llm:
   model_client_class: OpenAIChatCompletionClient
