@@ -19,6 +19,7 @@ from autogen_core.tools import FunctionTool
 from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_agentchat.teams import BaseGroupChat
+from autogen_agentchat.teams._group_chat._selector_group_chat import SelectorGroupChat
 from openai import AsyncOpenAI
 
 from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
@@ -27,6 +28,8 @@ from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
 # from _hierarchical_groupchat import HierarchicalGroupChat # TODO: handle the allowedTransitions field for the general factory of Group Chats
 
 from handlers.agent_input_queue import AgentInputQueue
+from agents.PlannerAgent import PlannerAgent
+from tools.FilteredWorkbench import FilteredWorkbench
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -88,7 +91,8 @@ Provide ONLY the enhanced selector prompt, no additional text."""
 
 
 def load_data():
-    config_path = Path("/backend/agents/data/team.yaml")
+    # Use relative path - team.yaml is in the same factory directory
+    config_path = Path(__file__).parent / "team.yaml"
 
     with open(config_path, 'r', encoding='utf-8') as f:
         data = yaml.safe_load(f)
@@ -96,7 +100,6 @@ def load_data():
         return data
 
 config_data = load_data()
-
 
 @dataclass
 class AgentTeamContext:
@@ -113,7 +116,7 @@ async def init_team(
 ) -> AgentTeamContext:
 
     model_client = OpenAIChatCompletionClient(
-        model=config_data["llm"]["model"],
+        model=config_data["llm"]["model_client_args"]["model"],
         api_key=api_key
     )
 
@@ -182,7 +185,7 @@ async def build_agents(workbench: McpWorkbench | None, model_client: OpenAIChatC
 
     agents = []
 
-    for agent_cfg in config_data["agents"]:
+    for agent_name, agent_cfg in config_data["agents"].items():
 
         if workbench is None:
             a = globals()[agent_cfg["agent_class"]](

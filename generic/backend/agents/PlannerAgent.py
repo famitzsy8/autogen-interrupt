@@ -15,7 +15,6 @@ import yaml
 import json
 import re
 import openai
-from util.config import _get_key
 import os
 
 local_path = os.path.dirname(os.path.abspath(__file__))
@@ -107,7 +106,7 @@ class PlannerAgent(AssistantAgent):
         last_message_text = await _get_last_other_message_text()
 
         # Prepare OpenAI client
-        oai_key = _get_key("OPENAI_API_KEY")
+        oai_key = os.getenv("OPENAI_API_KEY")
         openai.api_key = oai_key
 
         # Helper to extract JSON from a string robustly
@@ -231,7 +230,10 @@ class PlannerAgent(AssistantAgent):
                     description_args = _parse_json_maybe(description)
                     sent_arguments = _parse_json_maybe(sent_arguments)
                     if sent_arguments == {} or not _json_structures_equal(sent_arguments, description_args):
-                        model_context.add_message(AssistantMessage(f"INCORRECT ARGUMENTS TO TOOL CALL: {call.name}"))
+                        model_context.add_message(AssistantMessage(
+                            content=f"INCORRECT ARGUMENTS TO TOOL CALL: {call.name}",
+                            source=agent_name
+                        ))
 
 
         # Delegate to parent with updated arguments

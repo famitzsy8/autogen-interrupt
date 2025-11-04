@@ -1,0 +1,65 @@
+services:
+  ragmcp:
+    build:
+      context: ./mcp/ragMCP
+      dockerfile: Dockerfile
+    container_name: ragmcp_server
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    volumes:
+      - ./mcp/ragMCP:/app
+    stdin_open: true
+    tty: true
+    command: ["python", "main.py"]
+    env_file:
+      - .env
+    environment:
+      - SECRETS_INI_FILE=/app/secrets.ini
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_server
+    ports:
+      - "8001:8001"
+    networks:
+      - app-network
+    volumes:
+      - ./backend:/app
+    stdin_open: true
+    tty: true
+    depends_on:
+      - ragmcp
+    env_file:
+      - ./backend/.env
+    environment:
+      - RAGMCP_URL=http://ragmcp:8080
+    command: ["tail", "-f", "/dev/null"]
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: frontend_app
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - app-network
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   stdin_open: true
+  #   tty: true
+  #   depends_on:
+  #     - backend
+  #   environment:
+  #     - NEXT_TELEMETRY_DISABLED=1
+  #     - NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8001
+  #   command: ["npm", "run", "dev"]
+
+networks:
+  app-network:
+    driver: bridge
