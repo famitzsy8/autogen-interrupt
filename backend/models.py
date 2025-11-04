@@ -68,6 +68,14 @@ class AgentMessage(BaseModel):
             raise ValueError("content cannot be empty")
         return v.strip()
 
+    @field_validator("node_id")
+    @classmethod
+    def validate_node_id(cls, v: str) -> str:
+        # Node ID must not be empty
+        if not v or not v.strip():
+            raise ValueError("node_id cannot be empty")
+        return v.strip()
+
 
 class StreamingChunk(BaseModel):
     # Represents a streaming chunk from an agent's response.
@@ -261,7 +269,7 @@ class RunConfig(BaseModel):
 
     type: Literal[MessageType.RUN_CONFIG] = MessageType.RUN_CONFIG
 
-    run_id: str = Field(..., "Unique ID for the run that we do")
+    run_id: str = Field(..., description="Unique ID for the run that we do")
 
     initial_topic: str = Field(
         ...,

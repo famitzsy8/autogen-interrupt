@@ -179,7 +179,7 @@ agents:
     agent_class: PlannerAgent
     tools:
       workbench_class: FilteredWorkbench
-      allowed_tool_names: ["getCongressMemberName", "getCongressMemberParty", "getCongressMemberState", "getBillSponsors", "getBillCoSponsors"]
+      allowed_tool_names: ["getCongressMemberName", "getCongressMembersByState", "getCongressMemberParty", "getCongressMemberState", "getBillSponsors", "getBillCoSponsors"]
     name: congress_member_specialist
     model_client_stream: true
     reflect_on_tool_use: true
