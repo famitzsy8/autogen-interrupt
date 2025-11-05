@@ -1,23 +1,23 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as d3 from 'd3'
 import type { TreeNode, ToolCall, ToolExecution, ToolExecutionResult} from "../../types"
-import type { D3TreeNode, TreeConfig } from './util/treeUtils'
+import type { D3TreeNode, TreeConfig } from './utils/treeUtils'
 import {
     convertToD3Hierarchy,
     findActivePath,
     findVisibleNodes,
-    collapseInvisibleNodes,
+    expandAllNodes,
     findLastMessageNode,
     DEFAULT_TREE_CONFIG,
-  } from 'util/treeUtils'
+  } from './utils/treeUtils'
 
 interface UseD3TreeOptions {
     width: number
     height: number
     config?: Partial<TreeConfig>
-    maxVisibleHeight?: number
     toolCallsByNodeId?: Record<string, ToolCall>
     toolExecutionsByNodeId?: Record<string, ToolExecution>
+    isInterrupted?: boolean
 }
 
 interface UseD3TreeReturn {
@@ -38,9 +38,6 @@ const ANIMATION_DURATION = 300
 /**
  * Apply pulsing animation to a badge while it's executing.
  */
-
-// TODO: debug the reason why the pulsation isn't removed after the tool call executed
-//      will probably have to look at how we handle the toolcall result messages
 function applyPulsingAnimation(
     badge: d3.Selection<SVGGElement, unknown, null, undefined>,
     isExecuting: boolean
@@ -74,17 +71,12 @@ function applyPulsingAnimation(
     }
 }
 
-// TODO: set a unique colour for all the tool calls -- in dr-backend we have an unnecessary function called `getToolColor`
-//      get rid of that
-
-
 /**
- * Custom hook for D3 tree visualization.
- * @param treeData - Root node of the conversation tree
- * @param currentBranchId - Current active branch ID
- * @param options - Configuration options
- * @returns Tree state and control functions
+ * Get fixed color for tool badges.
  */
+function getToolColor(): { bg: string; border: string } {
+  return { bg: '#1f6feb', border: '#58a6ff' }
+}
 
 /**
  * Custom hook for D3 tree visualization.
@@ -98,16 +90,18 @@ export function useD3Tree(
     currentBranchId: string,
     options: UseD3TreeOptions
   ): UseD3TreeReturn {
-    const { width, height, config = {}, maxVisibleHeight = 30, toolCallsByNodeId = {}, toolExecutionsByNodeId = {} } = options // TODO: get rid of the maxHeight
-  
+    const { width, height, config = {}, toolCallsByNodeId = {}, toolExecutionsByNodeId = {}, isInterrupted = false } = options
+
     const svgRef = useRef<SVGSVGElement>(null)
     const gRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null)
     const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
     const transformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity)
-  
+    const userInteractionTimeoutRef = useRef<number | null>(null)
+
     const [root, setRoot] = useState<D3TreeNode | null>(null)
     const [activeNodeIds, setActiveNodeIds] = useState<Set<string>>(new Set())
     const [centerNodeId, setCenterNodeId] = useState<string | null>(null)
+    const [autoCenterEnabled, setAutoCenterEnabled] = useState<boolean>(true)
   
     const treeConfig: TreeConfig = { ...DEFAULT_TREE_CONFIG, ...config }
   
@@ -126,7 +120,7 @@ export function useD3Tree(
       const g = svg.append('g').attr('class', 'tree-container')
       gRef.current = g
   
-      // Setup zoom behavior
+      // Setup zoom behavior with user interaction tracking
       const zoom = d3
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.1, 3])
@@ -134,7 +128,22 @@ export function useD3Tree(
           g.attr('transform', event.transform.toString())
           transformRef.current = event.transform
         })
-  
+        .on('start', () => {
+          // User started interacting with the tree (pan/zoom)
+          // Disable auto-centering
+          setAutoCenterEnabled(false)
+
+          // Clear any existing timeout
+          if (userInteractionTimeoutRef.current) {
+            clearTimeout(userInteractionTimeoutRef.current)
+          }
+
+          // Set a 15-second timeout to re-enable auto-centering
+          userInteractionTimeoutRef.current = setTimeout(() => {
+            setAutoCenterEnabled(true)
+          }, 15000)
+        })
+
       svg.call(zoom)
       zoomRef.current = zoom
   
@@ -152,18 +161,10 @@ export function useD3Tree(
       const activePath = findActivePath(hierarchy, currentBranchId)
       setActiveNodeIds(activePath)
   
-      // Find last user message node to center on
+      // Find last message node to center on
       const lastMessageNode = findLastMessageNode(hierarchy, currentBranchId)
       if (lastMessageNode) {
         setCenterNodeId(lastMessageNode.data.id)
-        console.log('lastMessageNode', lastMessageNode)
-        console.log('lastMessageNode.data.id', lastMessageNode.data.id)
-        console.log('lastMessageNode.data.agent_name', lastMessageNode.data.agent_name)
-        console.log('lastMessageNode.data.is_active', lastMessageNode.data.is_active)
-        console.log('lastMessageNode.data.timestamp', lastMessageNode.data.timestamp)
-        console.log('lastMessageNode.data.message', lastMessageNode.data.message)
-        console.log('lastMessageNode.data.parent', lastMessageNode.data.parent)
-        console.log('lastMessageNode.data.children', lastMessageNode.data.children)
       }
     }, [treeData, currentBranchId, width, height])
   
@@ -178,56 +179,95 @@ export function useD3Tree(
         height,
         config: treeConfig,
         activeNodeIds,
-        centerNodeId,
-        maxVisibleHeight,
         toolCallsByNodeId,
         toolExecutionsByNodeId,
       })
-    }, [root, activeNodeIds, centerNodeId, width, height, maxVisibleHeight, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId])
+    }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId])
   
     /**
      * Update center node when tree data changes to keep view on latest messages.
+     * Only auto-center if:
+     * - Not interrupted
+     * - Auto-centering is enabled (user hasn't interacted recently)
      */
     useEffect(() => {
-      if (!root) return
-  
+      console.log('[useD3Tree] Recentering effect triggered', {
+        hasRoot: !!root,
+        isInterrupted,
+        autoCenterEnabled,
+        currentCenterNodeId: centerNodeId
+      })
+
+      if (!root || isInterrupted || !autoCenterEnabled) {
+        console.log('[useD3Tree] Skipping recenter - conditions not met')
+        return
+      }
+
       const lastMessageNode = findLastMessageNode(root, currentBranchId)
       if (lastMessageNode && lastMessageNode.data.id !== centerNodeId) {
+        console.log(`[useD3Tree] Updating center node to: ${lastMessageNode.data.id} (type: ${lastMessageNode.data.node_type})`)
         setCenterNodeId(lastMessageNode.data.id)
+      } else {
+        console.log('[useD3Tree] No center node update needed')
       }
-    }, [root, centerNodeId, currentBranchId])
+    }, [root, centerNodeId, currentBranchId, isInterrupted, autoCenterEnabled])
   
     /**
-     * Recenter the view on the last user message or root.
+     * Recenter the view on the specified center node or root.
      */
     const recenter = useCallback(() => {
       if (!root || !svgRef.current || !zoomRef.current) return
-  
-      const lastMessageNode = findLastMessageNode(root, currentBranchId)
-      const targetNode = lastMessageNode || root
-  
+
+      // Find the target node by centerNodeId if provided
+      let targetNode: D3TreeNode | null = null
+      if (centerNodeId) {
+        root.each((node) => {
+          if (node.data.id === centerNodeId) {
+            targetNode = node
+          }
+        })
+      }
+
+      // Fallback to root if node not found
+      if (!targetNode) {
+        targetNode = root
+      }
+
       if (targetNode) {
+        console.log(`[useD3Tree] Recentering view to node: ${targetNode.data.id} at (${targetNode.x}, ${targetNode.y})`)
         // Calculate transform to center the node
         const svg = d3.select(svgRef.current)
         const scale = transformRef.current.k
         const x = -targetNode.x! * scale + width / 2
         const y = -targetNode.y! * scale + height / 3
-  
+
         svg
           .transition()
           .duration(ANIMATION_DURATION)
           .call(zoomRef.current.transform, d3.zoomIdentity.translate(x, y).scale(scale))
       }
-    }, [root, width, height, currentBranchId])
+    }, [root, width, height, centerNodeId])
   
     /**
      * Automatically recenter the view when the centerNodeId changes.
+     * Only if auto-centering is enabled and not interrupted.
      */
     useEffect(() => {
-      if (centerNodeId) {
+      if (centerNodeId && autoCenterEnabled && !isInterrupted) {
         recenter()
       }
-    }, [centerNodeId, recenter])
+    }, [centerNodeId, recenter, autoCenterEnabled, isInterrupted])
+
+    /**
+     * Cleanup timeout on unmount.
+     */
+    useEffect(() => {
+      return () => {
+        if (userInteractionTimeoutRef.current) {
+          clearTimeout(userInteractionTimeoutRef.current)
+        }
+      }
+    }, [])
   
     /**
      * Zoom in on the tree.
@@ -282,8 +322,6 @@ export function useD3Tree(
     height: number
     config: TreeConfig
     activeNodeIds: Set<string>
-    centerNodeId: string | null
-    maxVisibleHeight: number
     toolCallsByNodeId: Record<string, ToolCall>
     toolExecutionsByNodeId: Record<string, ToolExecution>
   }
@@ -293,13 +331,10 @@ export function useD3Tree(
     g: d3.Selection<SVGGElement, unknown, null, undefined>,
     options: UpdateTreeOptions
   ): void {
-    const { width, height, config, activeNodeIds, centerNodeId, maxVisibleHeight, toolCallsByNodeId, toolExecutionsByNodeId } = options
-  
-    // Find visible nodes based on center and max height
-    const visibleNodeIds = findVisibleNodes(root, centerNodeId, maxVisibleHeight)
-  
-    // Collapse nodes that shouldn't be visible
-    collapseInvisibleNodes(root, visibleNodeIds)
+    const { width, height, config, activeNodeIds, toolCallsByNodeId, toolExecutionsByNodeId } = options
+
+    // Expand all nodes to show full tree
+    expandAllNodes(root)
   
     // Create tree layout
     const treeLayout = d3
@@ -442,7 +477,7 @@ export function useD3Tree(
   
         // Create badges for each tool
         toolCall.tools.forEach((tool, index) => {
-          const colors = getToolColor(tool.name)
+          const colors = getToolColor()
           const badge = container.append('g')
             .attr('transform', `translate(0, ${index * 20})`)
   
@@ -549,7 +584,7 @@ export function useD3Tree(
         const isExecuting = !toolExecution
   
         toolCall.tools.forEach((tool, index) => {
-          const colors = getToolColor(tool.name)
+          const colors = getToolColor()
           const badge = existingBadges.append('g')
             .attr('transform', `translate(0, ${index * 20})`)
   
