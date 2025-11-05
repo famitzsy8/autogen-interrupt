@@ -47,8 +47,8 @@ interface State {
     connectionState: ConnectionState
     wsConnection: WebSocketConnection
 
-    // Agent Team Names
-    agent_names: AgentTeamNames // Note: we for now only store the names of the agents, no descriptions or colors to display
+    // Agent Team Names received from backend
+    agent_names: AgentTeamNames | null
 
     // Conversation data
     messages: AgentMessage[]
@@ -86,6 +86,7 @@ interface State {
 
     // Actions: WebSocket management
     connect: (url: string) => void
+    sendConfig: (config: RunConfig) => void
     disconnect: () => void
     reconnect: () => void
 
@@ -125,6 +126,7 @@ const initialState = {
         reconnectAttempts: 0,
         reconnectTimeout: null,
     },
+    agent_names: null as AgentTeamNames | null,
     messages: [],
     conversationTree: null,
     currentBranchId: 'main',
@@ -152,18 +154,18 @@ export const useStore = create<State>()(
         (set, get) => ({
             ...initialState,
 
-            // logic to connect to the WebSocket server
-            connect: (url: string, config?: RunConfig) => {
+            // Connect to WebSocket server (does NOT send config - that comes later)
+            connect: (url: string) => {
                 const {wsConnection, disconnect} = get()
 
                 // If there is already an existing connection: close it
                 if (wsConnection.ws) {
                     disconnect()
                 }
-                
-                // 
+
                 set({
                     connectionState: ConnectionStateEnum.CONNECTING,
+                    agent_names: null,
                     messages: [],
                     conversationTree: null,
                     currentBranchId: 'main',
@@ -177,20 +179,16 @@ export const useStore = create<State>()(
                     agentInputRequest: null,
                     humanInputDraft: '',
                     error: null,
-                    // Keep user interaction state
-                    selectedAgent: get().selectedAgent, // TODO: look at where this selectedAgent is set in the frontend
+                    selectedAgent: null,
                     trimCount: 0,
-                    userMessageDraft: get().userMessageDraft,
+                    userMessageDraft: '',
                 })
 
                 try {
                     const ws = new WebSocket(url)
 
                     ws.onopen = () => {
-                        if (config) {
-                            console.log('Sending the config for this run: selector prompt and task...')
-                            ws.send(JSON.stringify(config))
-                        }
+                        console.log('=== WebSocket connected, waiting for agent team names ===')
 
                         set({
                             connectionState: ConnectionStateEnum.CONNECTED,
@@ -238,8 +236,7 @@ export const useStore = create<State>()(
                         })
                     }
 
-                    ws.onclose = () => {
-
+                    ws.onclose = (event) => {
                         const {wsConnection, reconnect} = get()
                         set({ connectionState: ConnectionStateEnum.DISCONNECTED})
 
@@ -272,6 +269,17 @@ export const useStore = create<State>()(
                 }
             },
 
+            // Send config to backend after receiving agent team names
+            sendConfig: (config: RunConfig) => {
+                const {wsConnection, connectionState} = get()
+
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
+                    throw new Error('WebSocket is not connected')
+                }
+
+                console.log('=== Sending config to backend ===', config)
+                wsConnection.ws.send(JSON.stringify(config))
+            },
 
             // disconnecting
             disconnect: () => {
@@ -281,17 +289,21 @@ export const useStore = create<State>()(
                     clearTimeout(wsConnection.reconnectTimeout)
                 }
 
+                // Set reconnectAttempts to MAX to prevent auto-reconnection
+                set({
+                    wsConnection: {
+                        ...wsConnection,
+                        reconnectAttempts: MAX_RECONNECT_ATTEMPTS,
+                        reconnectTimeout: null,
+                    },
+                })
+
                 if (wsConnection.ws) {
                     wsConnection.ws.close()
                 }
 
                 set({
                     connectionState: ConnectionStateEnum.DISCONNECTED,
-                    wsConnection: {
-                        ws: null,
-                        reconnectAttempts: 0,
-                        reconnectTimeout: null,
-                    },
                 })
             },
 
@@ -417,48 +429,48 @@ export const useStore = create<State>()(
             },
 
             addMessage: (message: AgentMessage) => {
-                set((state) => {
+                console.log('[Store] addMessage called', {
+                    node_id: message.node_id,
+                    agent_name: message.agent_name,
+                    content_length: message.content.length,
+                    content_preview: message.content.substring(0, 100)
+                })
 
+                set((state) => {
                     const finalMessage = { ...message}
 
-                    const streamingMsgIndex = state.messages.findIndex(
-                        (msg) => 
-                            msg.agent_name === message.agent_name &&
-                            msg.node_id.startsWith('node_stream_')
+                    // Check if we already have a message with this node_id (from streaming)
+                    const existingIndex = state.messages.findIndex(
+                        (msg) => msg.node_id === message.node_id
                     )
 
-                    let updatedMessages = state.messages
-                    if (streamingMsgIndex !== -1) {
-                        updatedMessages = [...state.messages]
-                        updatedMessages[streamingMsgIndex] = finalMessage
-                    } else {
-                        const existingIndex = state.messages.findIndex(
-                            (msg) => msg.node_id === message.node_id
-                        )
+                    console.log('[Store] Existing message index:', existingIndex)
+                    console.log('[Store] Current messages count:', state.messages.length)
 
-                        if (existingIndex === -1) {
-                            updatedMessages = [...state.messages, finalMessage]
-                        } else {
-                            updatedMessages = [...state.messages]
-                            updatedMessages[existingIndex] = finalMessage
-                        }
+                    let updatedMessages = state.messages
+                    if (existingIndex !== -1) {
+                        // Replace the streaming message with the final complete message
+                        console.log('[Store] Replacing existing message at index', existingIndex)
+                        updatedMessages = [...state.messages]
+                        updatedMessages[existingIndex] = finalMessage
+                    } else {
+                        // Add as new message if it doesn't exist yet
+                        console.log('[Store] Adding new message')
+                        updatedMessages = [...state.messages, finalMessage]
                     }
 
-                    // clear streaming state for this agent
-                    const updatedChunks = { ...state.streamingChunksByNodeId}
+                    console.log('[Store] Updated messages count:', updatedMessages.length)
 
-                    Object.keys(updatedChunks).forEach((nodeId) => {
-                        if (nodeId.startsWith('node_stream_')) {
-                            delete updatedChunks[nodeId]
-                        }
-                    })
+                    // Clear streaming state for this node
+                    const updatedChunks = { ...state.streamingChunksByNodeId}
+                    delete updatedChunks[message.node_id]
 
                     return {
                         messages: updatedMessages,
                         activeNodeId: message.node_id,
                         streamState: StreamStateEnum.STREAMING,
                         streamingChunksByNodeId: updatedChunks,
-                        currentSteramingNodeId: null
+                        currentStreamingNodeId: null
                     }
                 })
             },

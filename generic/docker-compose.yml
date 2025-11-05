@@ -37,28 +37,23 @@ services:
       - ./backend/.env
     environment:
       - RAGMCP_URL=http://ragmcp:8080
-    command: ["tail", "-f", "/dev/null"]
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: frontend_app
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - app-network
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   stdin_open: true
-  #   tty: true
-  #   depends_on:
-  #     - backend
-  #   environment:
-  #     - NEXT_TELEMETRY_DISABLED=1
-  #     - NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8001
-  #   command: ["npm", "run", "dev"]
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_app
+    ports:
+      - "5173:5173"
+    networks:
+      - app-network
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+    environment:
+      - VITE_WS_URL=ws://localhost:8001/ws/agent
 
 networks:
   app-network:

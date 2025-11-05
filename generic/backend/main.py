@@ -60,8 +60,8 @@ async def health() -> dict[str, str]:
     return {"status": "healthy"}
 
 
-# TODO: parametrize this too in the team.yaml file. For now this is constant for the Congress example
-@app.websocket("ws/congress")
-async def websocket_research(websocket: WebSocket) -> None:
+@app.websocket("/ws/agent")
+async def websocket_agent(websocket: WebSocket) -> None:
+    """WebSocket endpoint for agent team communication."""
     handler = WebSocketHandler(websocket)
     await handler.handle_connection()

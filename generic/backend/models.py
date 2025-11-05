@@ -36,10 +36,10 @@ class AgentTeamNames(BaseModel):
     @field_validator("agent_team_names")
     @classmethod
     def validate_agent_team_names(cls, v: list[str]) -> list[str]:
-        # Agent team names must not be empty
-        if not v or not v.strip():
+        # Agent team names list must not be empty
+        if not v:
             raise ValueError("agent_team_names cannot be empty")
-        return v.strip()
+        return v
 
 class AgentMessage(BaseModel):
 
@@ -181,6 +181,10 @@ class TreeNode(BaseModel):
     )
     branch_id: str = Field(..., description="Identifier for which branch this node belongs to")
     timestamp: datetime = Field(default_factory=datetime.now)
+    node_type: str = Field(
+        default="message",
+        description="Type of node: 'message' (counts in trim), 'tool_call' (doesn't count), 'tool_execution' (doesn't count)"
+    )
     # don't know if we need gcm_count (GroupChatManager messages hidden under this node)
 
     @field_validator("id")
@@ -200,6 +204,23 @@ class TreeNode(BaseModel):
         return v.strip()
 
     # model_config = {"from_attributes": True} --> don't know if we need this
+
+
+class TreeUpdate(BaseModel):
+    # Complete tree structure update sent to client.
+
+    type: Literal[MessageType.TREE_UPDATE] = MessageType.TREE_UPDATE
+    root: TreeNode = Field(..., description="Root node of the conversation tree")
+    current_branch_id: str = Field(..., description="ID of the currently active branch")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("current_branch_id")
+    @classmethod
+    def validate_current_branch_id(cls, v: str) -> str:
+        # Current branch ID must not be empty
+        if not v or not v.strip():
+            raise ValueError("current_branch_id cannot be empty")
+        return v.strip()
 
 
 class AgentInputRequest(BaseModel):
@@ -267,14 +288,13 @@ class RunConfig(BaseModel):
     # Configuration of agent team: prompt to select next agent and initial task
     # Open to be expanded with more variables
 
-    type: Literal[MessageType.RUN_CONFIG] = MessageType.RUN_CONFIG
+    type: Literal[MessageType.START_RUN] = MessageType.START_RUN
 
-    run_id: str = Field(..., description="Unique ID for the run that we do")
+    session_id: str = Field(..., description="Unique session ID for this conversation (enables multi-tab support)")
 
-    initial_topic: str = Field(
-        ...,
-        min_length=1,
-        description="The task of the agent team",
+    initial_topic: str | None = Field(
+        default=None,
+        description="The task of the agent team (optional, uses backend default if not provided)",
     )
     selector_prompt: str | None = Field(
         default=None,

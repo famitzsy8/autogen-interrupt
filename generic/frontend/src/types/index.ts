@@ -43,8 +43,8 @@ export interface AgentTeamNames extends BaseMessage {
  */
 export interface RunConfig extends BaseMessage {
     type: MessageType.START_RUN
-    run_id: string, // MARKER: this is a field that I am not sure we set in the backend
-    initial_topic: string,
+    session_id: string, // Unique session ID for this conversation (enables multi-tab support)
+    initial_topic?: string, // Optional: uses backend default if not provided
     selector_prompt?: string,
 }
 
@@ -116,13 +116,14 @@ export interface ErrorMessage extends BaseMessage {
  */
 export interface TreeNode {
     id: string,
-    agent_name: string, 
-    message: string,    
+    agent_name: string,
+    message: string,
     parent: string | null,
     children: TreeNode[],
     is_active: boolean,
     branch_id: string,
     timestamp: string,
+    node_type: string,
 }
 
 /**
@@ -199,7 +200,7 @@ export interface ToolExecution extends BaseMessage {
  */
 export type ServerMessage =
   | AgentTeamNames
-  | StartRun
+  | RunConfig
   | AgentMessage
   | StreamingChunk
   | InterruptAcknowledged

@@ -18,40 +18,41 @@ class StateManager:
 
         self.file_path = Path(file_path)
         self.root: TreeNode | None = None
-        self.current_node = TreeNode | None = None
+        self.current_node: TreeNode | None = None
         self.current_branch_id: str = "main"
         self.node_map: dict[str, TreeNode] = {}
 
     def initialize_root(self, agent_name: str, message: str) -> TreeNode:
 
-        node_id = self.generate_node_id()
+        node_id = self._generate_node_id()
         new_node = TreeNode(
             id=node_id,
             agent_name=agent_name,
             message=message,
-            parent=self.current_node.id,
+            parent=None,
             children=[],
             is_active=True,
             branch_id=self.current_branch_id,
             timestamp=datetime.now(),
+            node_type="message",
         )
 
-        self.current_node.children.append(new_node)
+        self.root = new_node
         self.current_node = new_node
         self.node_map[node_id] = new_node
 
         return new_node
 
-    def add_node(self, agent_name: str, message: str) -> TreeNode | None:
+    def add_node(self, agent_name: str, message: str, node_type: str = "message") -> TreeNode | None:
 
         # TODO: This is the function where we can filter the addition of a message node based on the user
 
         if self.current_node is None:
             raise RuntimeError("Tree not initialized. Call initialize_root() first.")
-        
+
         if "GroupChatManager" in agent_name:
             return None # TODO: make sure we don't use the gcm_count across the code and we ignore GCM messages overall
-        
+
         node_id = self._generate_node_id()
         new_node = TreeNode(
             id=node_id,
@@ -62,12 +63,17 @@ class StateManager:
             is_active=True,
             branch_id=self.current_branch_id,
             timestamp=datetime.now(),
+            node_type=node_type,
         )
 
         self.current_node.children.append(new_node)
         self.current_node = new_node
         self.node_map[node_id] = new_node
         return new_node
+
+    def get_node_by_id(self, node_id: str) -> TreeNode | None:
+        """Get a node by its ID from the node map."""
+        return self.node_map.get(node_id)
 
     def create_branch(self, trim_count: int, user_message: str) -> TreeNode:
 
@@ -76,18 +82,29 @@ class StateManager:
         
         old_current = self.current_node
 
+        # Count only "message" type nodes when trimming
         branch_point = self.current_node
-        steps_to_traverse = max(0, trim_count - 1) if trim_count > 0 else 0
+        message_nodes_to_skip = max(0, trim_count)
+        message_nodes_skipped = 0
 
-        for _ in range(steps_to_traverse):
+        while message_nodes_skipped < message_nodes_to_skip:
             if branch_point.parent is None:
                 raise RuntimeError(
-                    f"trim_count {trim_count} exceeds tree depth."
+                    f"trim_count {trim_count} exceeds available message nodes."
                 )
+            parent = self.node_map.get(branch_point.parent)
+            if parent is None:
+                raise RuntimeError(
+                    f"trim_count {trim_count} exceeds available message nodes."
+                )
+            branch_point = parent
+            # Only count "message" nodes, skip "tool_call" and "tool_execution"
+            if branch_point.node_type == "message":
+                message_nodes_skipped += 1
         
         old_branch_child = self._find_old_branch_child(branch_point=branch_point, branch_leaf=old_current)
         if old_branch_child is not None:
-            self._mark_descnedants_inactive(old_branch_child)
+            self._mark_descendants_inactive(old_branch_child)
 
         node_id = self._generate_node_id()
         user_node = TreeNode(
@@ -99,6 +116,7 @@ class StateManager:
             is_active=True,
             branch_id=self.current_branch_id,
             timestamp=datetime.now(),
+            node_type="message",
         )
 
         branch_point.children.append(user_node)
@@ -112,7 +130,7 @@ class StateManager:
             return None
         
         for child in branch_point.children:
-            if child == branch_leaf.id or self._is_ancestor_of(child, branch_leaf):
+            if child.id == branch_leaf.id or self._is_ancestor_of(child, branch_leaf):
                 return child
         return None
     

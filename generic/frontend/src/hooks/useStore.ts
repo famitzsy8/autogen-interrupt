@@ -111,6 +111,7 @@ export function useIsStreaming(): boolean {
   export function useConnectionActions() {
     return useStore((state) => ({
       connect: state.connect,
+      sendConfig: state.sendConfig,
       disconnect: state.disconnect,
       reconnect: state.reconnect,
     }))
@@ -212,6 +213,13 @@ export function useIsStreaming(): boolean {
    * Hook to access agent input draft.
    */
   export function useHumanInputDraft() {
+    return useStore((state) => state.humanInputDraft)
+  }
+
+  /**
+   * Hook to access agent input draft (alias for useHumanInputDraft).
+   */
+  export function useAgentInputDraft() {
     return useStore((state) => state.humanInputDraft)
   }
   

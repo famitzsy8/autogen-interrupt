@@ -2,7 +2,7 @@ secrets.ini
 interrupt-cursor-venv/
 .vscode/
 .pytest_cache/
-__pycache__/
+**/__pycache__/
 .DS_Store
 
 .docs/
@@ -53,5 +53,7 @@ congress-example/**/ragMCP/rag/data/tmp_sections/
 
 dr-backend/research_state.json
 
-rewrite/node_modules
-rewrite/dist
+
+generic/mcp/ragMCP/rag/vectorstores/
+generic/mcp/ragMCP/rag/data/bill_texts/
+generic/mcp/ragMCP/rag/data/bill_summaries/

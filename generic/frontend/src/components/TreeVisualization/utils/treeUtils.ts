@@ -43,34 +43,35 @@ export function findActivePath(root: D3TreeNode, currentBranchId: string): Set<s
     return activeNodeIds
 }
 
-// TODO: get rid of the height constraint:
-// In this function equivalent in dr-frontend we set the policy on how to
-// display the entire tree based on the maxHeight policy. I want to get rid of this maxHeight constraint
-// such that we really have a very simple display logic that doesn't need to factor in the maxHeight:
+/**
+ * Find all visible nodes in the tree.
+ * Shows the entire tree without any height constraints.
+ */
+export function findVisibleNodes(root: D3TreeNode): Set<string> {
+    const visibleNodeIds = new Set<string>()
 
-// when streaming: per default center into the latest node that has been added to the conversation tree
-// when streaming but navigating the conversation tree with the mouse: disable automatic re-centering with a no activity timeout of 15 seconds
-//      after which we re-center on the stream
-// when interrupted: don't recenter at all (dr-backend has this already implemented)
+    // Show all nodes in the tree
+    root.each((node: D3TreeNode) => {
+        visibleNodeIds.add(node.data.id)
+    })
 
-export function findVisibleNodes(
-    root: D3TreeNode,
-    centerNodeId: string | null,
-    maxHeight: number
-): Set<string> {
-    
+    return visibleNodeIds
 }
 
-function addAllDescendants(node: D3TreeNode, visibleSet: Set<string>): void {
-
-}
-
-export function collapseInvisibleNodes(node: D3TreeNode, visibleNodeIds: Set<string>): void {
-
-}
-
+/**
+ * Expand all collapsed nodes to show the full tree.
+ */
 export function expandAllNodes(node: D3TreeNode): void {
+    if (node._children) {
+        node.children = node._children as unknown as d3.HierarchyPointNode<TreeNode>[]
+        node._children = undefined
+    }
 
+    if (node.children) {
+        node.children.forEach((child) => {
+            expandAllNodes(child as unknown as D3TreeNode)
+        })
+    }
 }
 
 export function calculateNodeOpacity(node: TreeNode, isInActivePath: boolean): number {
@@ -123,43 +124,56 @@ export function calculateTreeBounds(
 }
 
 /**
- * Find the last message node in the active branch.
+ * Find the last active node in the current branch (regardless of node type).
+ * This function finds the most recently created node in the active branch,
+ * which could be a message, tool_call, or tool_execution node.
+ *
  * @param root - D3 hierarchy root node
  * @param currentBranchId - ID of the active branch
- * @returns The last message node in the active branch or null
+ * @returns The last active node in the current branch or null
  */
 export function findLastMessageNode(root: D3TreeNode, currentBranchId: string): D3TreeNode | null {
     let lastNode: D3TreeNode | null = null;
     let latestTimestamp = '';
 
+    console.log('[treeUtils] Finding last active node in branch:', currentBranchId)
+
     root.each((node) => {
         if (node.data.branch_id === currentBranchId && node.data.is_active) {
             if (node.data.timestamp > latestTimestamp) {
+                console.log(`[treeUtils]   Found newer node: id=${node.data.id}, type=${node.data.node_type}, timestamp=${node.data.timestamp}`)
                 latestTimestamp = node.data.timestamp;
                 lastNode = node;
             }
         }
     });
 
+    if (lastNode) {
+        console.log(`[treeUtils] Last active node: id=${lastNode.data.id}, type=${lastNode.data.node_type}`)
+    } else {
+        console.log('[treeUtils] No active node found!')
+    }
+
     return lastNode;
 }
 
 /**
  * Find the last user message node in the tree.
+ * User messages have agent_name "You" as set by the backend UserControlAgent.
  * @param root - D3 hierarchy root node
  * @returns The last user message node or null
  */
 export function findLastUserMessageNode(root: D3TreeNode): D3TreeNode | null {
     let lastUserNode: D3TreeNode | null = null
     let latestTimestamp = ''
-  
+
     root.each((node) => {
-      if (node.data.agent_name === 'You' && node.data.timestamp > latestTimestamp) { // TODO: make sure this is consistent with the rest of the user agent messages (all should be named "You")
+      if (node.data.agent_name === 'You' && node.data.timestamp > latestTimestamp) {
         lastUserNode = node
         latestTimestamp = node.data.timestamp
       }
     })
-  
+
     return lastUserNode
 }
 
