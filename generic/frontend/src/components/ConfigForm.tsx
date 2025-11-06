@@ -13,16 +13,38 @@ interface ConfigFormProps {
   onSubmit: (config: RunConfig) => void
   isLoading?: boolean
   agentTeamNames: string[] | null
+  participantNames: string[] | null
 }
+
+// Company-Bill investigation pairs
+interface CompanyBillPair {
+  id: string
+  company_name: string
+  bill_name: string
+  congress: string
+  label: string
+}
+
+const COMPANY_BILL_PAIRS: CompanyBillPair[] = [
+  {
+    id: 'exxonmobil-s1593-116th',
+    company_name: 'ExxonMobil',
+    bill_name: 'S.1593',
+    congress: '116th',
+    label: 'ExxonMobil - S.1593 (116th Congress)'
+  }
+]
 
 export function ConfigForm({
   onSubmit,
   isLoading = false,
   agentTeamNames,
+  participantNames,
 }: ConfigFormProps): React.ReactElement {
   const [topic, setTopic] = useState('')
   const [selectorPrompt, setSelectorPrompt] = useState('')
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [selectedPairId, setSelectedPairId] = useState<string>(COMPANY_BILL_PAIRS[0].id)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,11 +54,17 @@ export function ConfigForm({
       return
     }
 
+    // Find the selected company-bill pair
+    const selectedPair = COMPANY_BILL_PAIRS.find(pair => pair.id === selectedPairId)
+
     const config: RunConfig = {
       type: 'start_run',
       session_id: getOrCreateSessionId(),
       initial_topic: topic.trim() || undefined,
       selector_prompt: selectorPrompt.trim() || undefined,
+      company_name: selectedPair?.company_name,
+      bill_name: selectedPair?.bill_name,
+      congress: selectedPair?.congress,
       timestamp: new Date().toISOString(),
     }
 
@@ -76,6 +104,47 @@ export function ConfigForm({
             <span className="text-yellow-400">⏳ Waiting for agent team names from backend...</span>
           </div>
         )}
+
+        {/* Participant Names Display */}
+        {participantNames && participantNames.length > 0 && (
+          <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-blue-400 font-semibold">👥 Team Members:</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {participantNames.map((name) => (
+                <span
+                  key={name}
+                  className="bg-blue-800/50 text-blue-300 px-3 py-1 rounded-md text-sm"
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Company-Bill Investigation Pair Dropdown */}
+        <div>
+          <label className="block text-sm font-semibold mb-2">
+            Company-Bill Investigation Pair
+          </label>
+          <select
+            value={selectedPairId}
+            onChange={(e) => setSelectedPairId(e.target.value)}
+            className="w-full bg-gray-900 text-dark-text border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={isLoading}
+          >
+            {COMPANY_BILL_PAIRS.map((pair) => (
+              <option key={pair.id} value={pair.id}>
+                {pair.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Select the company and bill to investigate
+          </p>
+        </div>
 
         {/* Task Input */}
         <div>

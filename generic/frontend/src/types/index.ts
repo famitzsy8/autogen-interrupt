@@ -6,6 +6,7 @@
 
 export enum MessageType {
     AGENT_TEAM_NAMES = 'agent_team_names',
+    PARTICIPANT_NAMES = 'participant_names',
     RUN_CONFIG = 'RUN_CONFIG',
     START_RUN = 'start_run',
     AGENT_MESSAGE = 'agent_message',
@@ -38,6 +39,14 @@ export interface AgentTeamNames extends BaseMessage {
 }
 
 /**
+ * Individual agent participant names in the initialized team
+ */
+export interface ParticipantNames extends BaseMessage {
+    type: MessageType.PARTICIPANT_NAMES
+    participant_names: string[]
+}
+
+/**
  * Agent team configuration that we set here in the frontend
  */
 export interface RunConfig extends BaseMessage {
@@ -45,6 +54,10 @@ export interface RunConfig extends BaseMessage {
     session_id: string, // Unique session ID for this conversation (enables multi-tab support)
     initial_topic?: string, // Optional: uses backend default if not provided
     selector_prompt?: string,
+    // Company-bill investigation parameters
+    company_name?: string,
+    bill_name?: string,
+    congress?: string,
 }
 
 /**
@@ -188,6 +201,7 @@ export interface ToolExecution extends BaseMessage {
  */
 export type ServerMessage =
   | AgentTeamNames
+  | ParticipantNames
   | RunConfig
   | AgentMessage
   | InterruptAcknowledged

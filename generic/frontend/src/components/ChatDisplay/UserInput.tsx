@@ -12,7 +12,7 @@
 import React, { useState } from 'react'
 import { Send, ChevronDown } from 'lucide-react'
 import { getAgentDisplayName } from '../../constants/agents'
-import { useAgentTeamNames } from '../../hooks/useStore'
+import { useParticipantNames } from '../../hooks/useStore'
 
 interface UserInputProps {
   onSendMessage: (content: string, targetAgent: string, trimCount: number) => void
@@ -32,9 +32,9 @@ export function UserInput({
   const [messageContent, setMessageContent] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
-  // Get agent names dynamically from team configuration
-  const agentTeamNames = useAgentTeamNames()
-  const availableAgents = agentTeamNames?.agent_team_names || []
+  // Get participant names (individual agents) from backend
+  const participantNames = useParticipantNames()
+  const availableAgents = participantNames?.participant_names || []
 
   const handleSend = (): void => {
     if (!isInterrupted || !messageContent.trim() || !selectedAgent) {

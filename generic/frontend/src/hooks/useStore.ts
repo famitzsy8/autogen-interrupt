@@ -123,7 +123,14 @@ export function useIsStreaming(): boolean {
   export function useAgentTeamNames() {
     return useStore((state) => state.agent_names)
   }
-  
+
+  /**
+   * Hook to access the participant names (individual agents)
+   */
+  export function useParticipantNames() {
+    return useStore((state) => state.participant_names)
+  }
+
   /**
    * Hook to access message sending actions.
    */

@@ -14,12 +14,12 @@ import {devtools} from 'zustand/middleware'
 import type {
     RunConfig,
     AgentTeamNames,
+    ParticipantNames,
     AgentInputRequest,
     HumanInputResponse,
     AgentMessage,
     ConnectionState,
     ServerMessage,
-    StreamingChunk,
     StreamState,
     ToolCall,
     ToolExecution,
@@ -50,6 +50,9 @@ interface State {
     // Agent Team Names received from backend
     agent_names: AgentTeamNames | null
 
+    // Participant Names (individual agents) received from backend
+    participant_names: ParticipantNames | null
+
     // Conversation data
     messages: AgentMessage[]
     conversationTree: TreeNode | null
@@ -68,10 +71,6 @@ interface State {
     // Agent input request state
     agentInputRequest: AgentInputRequest | null
     humanInputDraft: string
-
-    // Streaming chunks accumulation
-    streamingChunksByNodeId: Record<string, string>
-    currentStreamingNodeId: string | null
 
     // Tool call tracking
     toolCallsByNodeId: Record<string, ToolCall>
@@ -92,11 +91,11 @@ interface State {
 
     // Actions: Agent Team Name Setting
     setAgentTeamNames: (agentTeamNames: AgentTeamNames) => void
+    setParticipantNames: (participantNames: ParticipantNames) => void
 
     // Actions: Message handling
     handleServerMessage: (message: ServerMessage) => void // this is where we do case distinction on the aggregate type ServerMessage
     addMessage: (message: AgentMessage) => void
-    appendStreamingChunk: (chunk: StreamingChunk) => void
     updateConversationTree: (treeUpdate: TreeUpdate) => void
 
     // Actions: Human-Agent interaction (UserControlAgent)
@@ -127,6 +126,7 @@ const initialState = {
         reconnectTimeout: null,
     },
     agent_names: null as AgentTeamNames | null,
+    participant_names: null as ParticipantNames | null,
     messages: [],
     conversationTree: null,
     currentBranchId: 'main',
@@ -138,8 +138,6 @@ const initialState = {
     userMessageDraft: '',
     agentInputRequest: null,
     humanInputDraft: '',
-    streamingChunksByNodeId: {},
-    currentStreamingNodeId: null,
     toolCallsByNodeId: {},
     toolExecutionsByNodeId: {},
     error: null
@@ -170,8 +168,6 @@ export const useStore = create<State>()(
                     conversationTree: null,
                     currentBranchId: 'main',
                     activeNodeId: null,
-                    streamingChunksByNodeId: {},
-                    currentStreamingNodeId: null,
                     toolCallsByNodeId: {},
                     toolExecutionsByNodeId: {},
                     isInterrupted: false,
@@ -352,10 +348,10 @@ export const useStore = create<State>()(
                         get().setAgentTeamNames(message)
                         break
 
-                    case 'streaming_chunk':
-                        get().appendStreamingChunk(message)
+                    case 'participant_names':
+                        get().setParticipantNames(message)
                         break
-                    
+
                     case 'agent_message':
                         get().addMessage(message)
                         break
@@ -428,6 +424,10 @@ export const useStore = create<State>()(
                 set({agent_names: agentTeamNames})
             },
 
+            setParticipantNames: (participantNames: ParticipantNames) => {
+                set({participant_names: participantNames})
+            },
+
             addMessage: (message: AgentMessage) => {
                 console.log('[Store] addMessage called', {
                     node_id: message.node_id,
@@ -436,82 +436,11 @@ export const useStore = create<State>()(
                     content_preview: message.content.substring(0, 100)
                 })
 
-                set((state) => {
-                    const finalMessage = { ...message}
-
-                    // Check if we already have a message with this node_id (from streaming)
-                    const existingIndex = state.messages.findIndex(
-                        (msg) => msg.node_id === message.node_id
-                    )
-
-                    console.log('[Store] Existing message index:', existingIndex)
-                    console.log('[Store] Current messages count:', state.messages.length)
-
-                    let updatedMessages = state.messages
-                    if (existingIndex !== -1) {
-                        // Replace the streaming message with the final complete message
-                        console.log('[Store] Replacing existing message at index', existingIndex)
-                        updatedMessages = [...state.messages]
-                        updatedMessages[existingIndex] = finalMessage
-                    } else {
-                        // Add as new message if it doesn't exist yet
-                        console.log('[Store] Adding new message')
-                        updatedMessages = [...state.messages, finalMessage]
-                    }
-
-                    console.log('[Store] Updated messages count:', updatedMessages.length)
-
-                    // Clear streaming state for this node
-                    const updatedChunks = { ...state.streamingChunksByNodeId}
-                    delete updatedChunks[message.node_id]
-
-                    return {
-                        messages: updatedMessages,
-                        activeNodeId: message.node_id,
-                        streamState: StreamStateEnum.STREAMING,
-                        streamingChunksByNodeId: updatedChunks,
-                        currentStreamingNodeId: null
-                    }
-                })
-            },
-
-            appendStreamingChunk: (chunk: StreamingChunk) => {
-                set((state) => {
-                    const nodeId = chunk.node_id
-                    const currentText = state.streamingChunksByNodeId[nodeId] || ''
-                    const newText = currentText + chunk.content
-
-                    // lets see if we have a message already for this message node
-                    const existingMessageIndex = state.messages.findIndex((msg) => msg.node_id === nodeId)
-
-                    let updatedMessages = state.messages
-                    if (existingMessageIndex === -1) {
-
-                        const temporaryMessage: AgentMessage = {
-                            type: MessageType.AGENT_MESSAGE as const,
-                            agent_name: chunk.agent_name,
-                            content: newText,
-                            node_id: nodeId,
-                            timestamp: new Date().toISOString(),
-                        }
-                        updatedMessages = [...state.messages, temporaryMessage]
-                    } else {
-                        updatedMessages = state.messages.map((msg) => 
-                            msg.node_id === nodeId ? { ...msg, content: newText} : msg
-                        )
-                    }
-
-                    return {
-                        messages: updatedMessages,
-                        streamingChunksByNodeId: {
-                            ...state.streamingChunksByNodeId,
-                            [nodeId]: newText,
-                        },
-                        currentStreamingNodeId: nodeId,
-                        activeNodeId: nodeId,
-                        streamState: StreamStateEnum.STREAMING
-                    }
-                })
+                set((state) => ({
+                    messages: [...state.messages, message],
+                    activeNodeId: message.node_id,
+                    streamState: StreamStateEnum.STREAMING,
+                }))
             },
 
             updateConversationTree: (treeUpdate: TreeUpdate) => {
