@@ -9,7 +9,6 @@ export enum MessageType {
     RUN_CONFIG = 'RUN_CONFIG',
     START_RUN = 'start_run',
     AGENT_MESSAGE = 'agent_message',
-    STREAMING_CHUNK = 'streaming_chunk',
     USER_INTERRUPT = 'user_interrupt',
     USER_DIRECTED_MESSAGE = 'user_directed_message',
     INTERRUPT_ACKNOWLEDGED = 'interrupt_acknowledged',
@@ -58,17 +57,6 @@ export interface AgentMessage extends BaseMessage {
     node_id: string,
 }
 
-
-/**
- * Partial streaming chunk from an agent during message generation.
- */
-export interface StreamingChunk extends BaseMessage {
-    type: MessageType.STREAMING_CHUNK
-    agent_name: string
-    content: string
-    node_id: string
-  }
-  
 /**
  * Request from client to interrupt the agent conversation stream.
  */
@@ -202,7 +190,6 @@ export type ServerMessage =
   | AgentTeamNames
   | RunConfig
   | AgentMessage
-  | StreamingChunk
   | InterruptAcknowledged
   | StreamEnd
   | ErrorMessage
