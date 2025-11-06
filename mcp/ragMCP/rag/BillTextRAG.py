@@ -58,7 +58,7 @@ class BillTextRAG:
 
         loader = TextLoader(f"{self.path}/data/bill_texts/{self.bill_name}.txt")
         docs = loader.load()
-        text_splitter = CongressBillTextSplitter(chunk_size=250, chunk_overlap=200)
+        text_splitter = CongressBillTextSplitter(bill_name=self.bill_name, chunk_size=250, chunk_overlap=200)
         chunks = text_splitter.split_documents(docs)
 
         if not chunks:
@@ -128,7 +128,7 @@ class BillTextRAG:
                 "bill_name": self.bill_name
             }
         )
-        return _complete_docs(docs)
+        return _complete_docs(docs, bill_name=self.bill_name)
         
 
     def run_report(self, company_name: str, bill_text: str, bill_summary_text: str) -> str:
@@ -138,7 +138,7 @@ class BillTextRAG:
         final_rag_chain = (
             {
                 "context": lambda x: build_full_section_context(
-                    self.single_retrieval_chain, x
+                    self.single_retrieval_chain, x, bill_name=self.bill_name
                 ),
                 "company_name": itemgetter("company_name"),
                 "summary": itemgetter("summary"),
