@@ -7,7 +7,7 @@ from langchain.load import dumps
 from langchain_core.documents import Document
 
 
-def build_full_section_context(single_retrieval_chain: RunnableSerializable[dict, Any], input_payload: dict) -> str:
+def build_full_section_context(single_retrieval_chain: RunnableSerializable[dict, Any], input_payload: dict, bill_name: str = None) -> str:
     """
     Run retrieval, extract unique section numbers, fetch full section texts, and format as a single context string.
     """
@@ -22,9 +22,9 @@ def build_full_section_context(single_retrieval_chain: RunnableSerializable[dict
 
 
     # Extract and de-duplicate section numbers while preserving order
-    return _complete_docs(retrieved_docs)
+    return _complete_docs(retrieved_docs, bill_name=bill_name)
 
-def _complete_docs(docs: list[Document]) -> str:
+def _complete_docs(docs: list[Document], bill_name: str = None) -> str:
 
     section_numbers_in_order = []
 
@@ -33,10 +33,10 @@ def _complete_docs(docs: list[Document]) -> str:
         if num:
             section_numbers_in_order.append(num)
     unique_numbers = list(dict.fromkeys(section_numbers_in_order))
-    
+
     sections_text_blocks = []
     for num in unique_numbers:
-        full_text = get_section_text(num)
+        full_text = get_section_text(num, bill_name=bill_name)
         if full_text:
             sections_text_blocks.append(f"SEC. {num}\n{full_text}")
     return "\n\n---\n\n".join(sections_text_blocks)

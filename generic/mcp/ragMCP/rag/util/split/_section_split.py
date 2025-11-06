@@ -5,7 +5,7 @@ from typing import Dict, List
 from rag.util.parse.text_parse import remove_deleted_text, _fixed_size_chunk, _token_count, _compress_numbers
 
 local_path = os.path.dirname(os.path.abspath(__file__))
-def chunk_bill(bill_text:str, max_tokens:int=1000) -> List[Dict]:
+def chunk_bill(bill_text:str, max_tokens:int=1000, bill_name:str=None) -> List[Dict]:
 
     cleaned_text = remove_deleted_text(bill_text)
     # This pattern allows the section header to span multiple lines and is resilient to the case where the next section starts immediately (no blank lines required).
@@ -80,8 +80,28 @@ def chunk_bill(bill_text:str, max_tokens:int=1000) -> List[Dict]:
         # At the end of the outermost loop (after all sections processed), write to file.
         # (This should be moved outside the loop in the main function, but for inline use, check if last section)
         if len(all_sections_for_json) == len(section_texts):
-            with open(f"{local_path}/../../data/tmp_sections/sections_for_edit.json", "w", encoding="utf-8") as f:
-                json.dump(all_sections_for_json, f, ensure_ascii=False, indent=2)
+            sections_file_path = f"{local_path}/../../data/tmp_sections/sections_for_edit.json"
+
+            # Load existing sections dict or create new one
+            try:
+                with open(sections_file_path, "r", encoding="utf-8") as f:
+                    all_bills_sections = json.load(f)
+                    # Handle old format (list) - convert to dict
+                    if isinstance(all_bills_sections, list):
+                        all_bills_sections = {}
+            except (FileNotFoundError, json.JSONDecodeError):
+                all_bills_sections = {}
+
+            # Store sections under bill_name key if provided
+            if bill_name:
+                all_bills_sections[bill_name] = all_sections_for_json
+            else:
+                # Fallback: store under "default" key
+                all_bills_sections["default"] = all_sections_for_json
+
+            # Write back the entire dict
+            with open(sections_file_path, "w", encoding="utf-8") as f:
+                json.dump(all_bills_sections, f, ensure_ascii=False, indent=2)
                 
         sub_chunks = _fixed_size_chunk(sec_text, max_tokens, overlap=max_tokens*0.05)
         for i, chunk_text in enumerate(sub_chunks):
