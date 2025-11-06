@@ -233,28 +233,7 @@ export function useIsStreaming(): boolean {
       clearAgentInputRequest: state.clearAgentInputRequest,
     }))
   }
-  
-  /**
-   * Hook to access streaming chunks accumulated for a specific node.
-   */
-  export function useStreamingChunksForNode(nodeId: string): string {
-    return useStore((state) => state.streamingChunksByNodeId[nodeId] || '')
-  }
-  
-  /**
-   * Hook to access all streaming chunks buffer.
-   */
-  export function useStreamingChunksBuffer(): Record<string, string> {
-    return useStore((state) => state.streamingChunksByNodeId)
-  }
-  
-  /**
-   * Hook to access current streaming node ID.
-   */
-  export function useCurrentStreamingNodeId(): string | null {
-    return useStore((state) => state.currentStreamingNodeId)
-  }
-  
+
   /**
    * Hook to access tool calls by node ID.
    */

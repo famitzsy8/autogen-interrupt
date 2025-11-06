@@ -13,7 +13,6 @@ import React from 'react'
 import { MessageCircle } from 'lucide-react'
 import { Streamdown } from 'streamdown'
 import { getAgentColor, getAgentDisplayName } from '../../constants/agents'
-import { useCurrentStreamingNodeId } from '../../hooks/useStore'
 import type { AgentMessage } from '../../types'
 
 interface MessageItemProps {
@@ -33,8 +32,6 @@ export function MessageItem({
 }: MessageItemProps): React.ReactElement {
   const agentColor = getAgentColor(message.agent_name)
   const displayName = getAgentDisplayName(message.agent_name)
-  const currentStreamingNodeId = useCurrentStreamingNodeId()
-  const isStreaming = currentStreamingNodeId === message.node_id
 
   // Calculate trim count: number of messages from this point to the end
   const trimCount = totalMessages - messageIndex - 1
@@ -70,14 +67,6 @@ export function MessageItem({
             {message.content}
           </Streamdown>
         </div>
-
-        {/* Streaming indicator - shown while message is actively streaming */}
-        {isStreaming && (
-          <div className="mt-2 flex items-center gap-1 text-xs text-gray-400">
-            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-            <span>Streaming...</span>
-          </div>
-        )}
       </div>
 
       {/* Chat icon for trim point selection - only show when interrupted */}
