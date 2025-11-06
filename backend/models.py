@@ -12,10 +12,10 @@ class MessageType(str, Enum):
 
     # WebSocket message types (equal in frontend src/types/index.ts)
     AGENT_TEAM_NAMES = 'agent_team_names'
+    PARTICIPANT_NAMES = 'participant_names'
     RUN_CONFIG = 'RUN_CONFIG'
     START_RUN = 'start_run'
     AGENT_MESSAGE = 'agent_message'
-    STREAMING_CHUNK = 'streaming_chunk'
     USER_INTERRUPT = 'user_interrupt'
     USER_DIRECTED_MESSAGE = 'user_directed_message'
     INTERRUPT_ACKNOWLEDGED = 'interrupt_acknowledged'
@@ -39,6 +39,20 @@ class AgentTeamNames(BaseModel):
         # Agent team names list must not be empty
         if not v:
             raise ValueError("agent_team_names cannot be empty")
+        return v
+
+class ParticipantNames(BaseModel):
+    # Individual agent participant names in the initialized team
+    type: Literal[MessageType.PARTICIPANT_NAMES] = MessageType.PARTICIPANT_NAMES
+    participant_names: list[str] = Field(..., description="List of agent participant names")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("participant_names")
+    @classmethod
+    def validate_participant_names(cls, v: list[str]) -> list[str]:
+        # Participant names list must not be empty
+        if not v:
+            raise ValueError("participant_names cannot be empty")
         return v
 
 class AgentMessage(BaseModel):
@@ -76,38 +90,6 @@ class AgentMessage(BaseModel):
             raise ValueError("node_id cannot be empty")
         return v.strip()
 
-
-class StreamingChunk(BaseModel):
-    # Represents a streaming chunk from an agent's response.
-
-    type: Literal[MessageType.STREAMING_CHUNK] = MessageType.STREAMING_CHUNK
-
-    agent_name: str = Field(..., description="Name of the agent currently streaming")
-    content: str = Field(..., description="Partial text chunk (may have incomplete markdown)")
-    node_id: str = Field(..., description="Node ID this chunk belongs to")
-    timestamp: datetime = Field(default_factory=datetime.now)
-
-    @field_validator("agent_name")
-    @classmethod
-    def validate_agent_name(cls, v: str) -> str:
-        # Agent name must not be empty
-        if not v or not v.strip():
-            raise ValueError("agent_name cannot be empty")
-        return v.strip()
-
-    @field_validator("content")
-    @classmethod
-    def validate_content(cls, v: str) -> str:
-        # Content can be empty (e.g., just whitespace chunks)
-        return v
-
-    @field_validator("node_id")
-    @classmethod
-    def validate_node_id(cls, v: str) -> str:
-        # Node ID must not be empty
-        if not v or not v.strip():
-            raise ValueError("node_id cannot be empty")
-        return v.strip()
 
 class UserInterrupt(BaseModel):
     # A user-sent interrupt request to interrupt the agent conversation stream.
@@ -300,6 +282,21 @@ class RunConfig(BaseModel):
         default=None,
         description="Prompt to set the next agent selection policy in the agent team",
     )
+
+    # Company-bill investigation parameters
+    company_name: str | None = Field(
+        default=None,
+        description="Name of the company being investigated"
+    )
+    bill_name: str | None = Field(
+        default=None,
+        description="Bill identifier (e.g., S.1593)"
+    )
+    congress: str | None = Field(
+        default=None,
+        description="Congress number (e.g., 116th, 117th)"
+    )
+
     timestamp: datetime = Field(default_factory=datetime.now)
 
 class ToolCallInfo(BaseModel): # corresponds to ToolCallRequestEvent in autogen

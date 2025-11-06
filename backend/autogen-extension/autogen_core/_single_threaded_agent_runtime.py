@@ -687,6 +687,11 @@ class SingleThreadedAgentRuntime(AgentRuntime):
                                         message_envelope.message,
                                         ctx=message_context,
                                     )
+                                except asyncio.CancelledError:
+                                    # Graceful handling of cancellation - don't log as error or re-raise
+                                    # This is expected during interrupts when tasks are signaled to stop
+                                    logger.info(f"Message processing cancelled for {agent.id} (interrupt)")
+                                    return None  # Return gracefully instead of propagating
                                 except BaseException as e:
                                     logger.error(f"Error processing publish message for {agent.id}", exc_info=True)
                                     event_logger.info(
@@ -947,11 +952,15 @@ class SingleThreadedAgentRuntime(AgentRuntime):
             for work in running:
                 work.status = "cancelled"
                 self._cancelled_ids.add(work.envelope_id)
+                # SOFT CANCELLATION: Signal via token but don't hard-cancel the task
+                # This allows code to check cancellation_token and exit gracefully
+                # Without hard-cancelling in-flight LLM/API calls that would crash
                 if work.cancellation_token is not None:
                     work.cancellation_token.cancel()
-                if work.task is not None and not work.task.done():
-                    work.task.cancel()
-                    tasks_to_wait.append(work.task)
+                # Don't hard-cancel running tasks - let them finish or check token
+                # if work.task is not None and not work.task.done():
+                #     work.task.cancel()
+                #     tasks_to_wait.append(work.task)
 
         if tasks_to_wait:
             await asyncio.gather(*tasks_to_wait, return_exceptions=True)

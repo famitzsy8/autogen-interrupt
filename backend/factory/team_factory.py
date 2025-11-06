@@ -112,7 +112,10 @@ async def init_team(
     api_key: str,
     agent_input_queue: AgentInputQueue,
     max_messages: int = 60,
-    selector_prompt: str | None = None
+    selector_prompt: str | None = None,
+    company_name: str | None = None,
+    bill_name: str | None = None,
+    congress: str | None = None
 ) -> AgentTeamContext:
 
     model_client = OpenAIChatCompletionClient(
@@ -135,10 +138,24 @@ async def init_team(
                 cancellation_token=cancellation_token,
                 agent_name=user_proxy_agent_name
             )
-        
+
+        # Format user_proxy description with config values if available
+        user_proxy_description = config_data["agents"][user_proxy_agent_name]["description"]
+        if company_name and bill_name and congress:
+            all_agent_names = list(config_data["agents"].keys())
+            agent_names_str = ", ".join(all_agent_names)
+            user_proxy_description = user_proxy_description.format(
+                company_name=company_name,
+                bill_name=bill_name,
+                bill=bill_name,
+                year=congress,
+                congress=congress,
+                agent_names=agent_names_str
+            )
+
         user_proxy = UserProxyAgent(
             name=user_proxy_agent_name,
-            description=config_data["agents"][user_proxy_agent_name]["description"],
+            description=user_proxy_description,
             input_func=user_proxy_input, # This listens to the WebSocket input configured in agent_input_queue
         )
 
@@ -148,9 +165,21 @@ async def init_team(
             timeout = config_data["team"].get("mcp_timeout", 60)
         )
         async with McpWorkbench(server_params = params) as workbench:
-            agents = await build_agents(workbench, model_client=model_client)
+            agents = await build_agents(
+                workbench,
+                model_client=model_client,
+                company_name=company_name,
+                bill_name=bill_name,
+                congress=congress
+            )
     else:
-        agents = build_agents(None, model_client=model_client)
+        agents = await build_agents(
+            None,
+            model_client=model_client,
+            company_name=company_name,
+            bill_name=bill_name,
+            congress=congress
+        )
     
 
     if selector_prompt is not None:
@@ -181,18 +210,39 @@ async def init_team(
     )
 
 
-async def build_agents(workbench: McpWorkbench | None, model_client: OpenAIChatCompletionClient):
+async def build_agents(
+    workbench: McpWorkbench | None,
+    model_client: OpenAIChatCompletionClient,
+    company_name: str | None = None,
+    bill_name: str | None = None,
+    congress: str | None = None
+):
 
     agents = []
 
     for agent_name, agent_cfg in config_data["agents"].items():
+        # Format agent description with config values if available
+        description = agent_cfg["description"]
+        if company_name and bill_name and congress:
+            # Get all agent names for {agent_names} placeholder
+            all_agent_names = list(config_data["agents"].keys())
+            agent_names_str = ", ".join(all_agent_names)
+
+            description = description.format(
+                company_name=company_name,
+                bill_name=bill_name,
+                bill=bill_name,  # {bill} is same as {bill_name}
+                year=congress,    # {year} maps to congress
+                congress=congress,
+                agent_names=agent_names_str
+            )
 
         if workbench is None:
             a = globals()[agent_cfg["agent_class"]](
                 name = agent_cfg["name"],
                 model_client = model_client,
                 system_message = agent_cfg["system_message"], # TODO: check if including a '' system message affects behavior of the agents
-                description = agent_cfg["description"],
+                description = description,
                 model_client_stream = agent_cfg.get("model_client_stream", False),
                 reflect_on_tool_use = agent_cfg.get("reflect_on_tool_use", False)
             )
@@ -202,7 +252,7 @@ async def build_agents(workbench: McpWorkbench | None, model_client: OpenAIChatC
                 name = agent_cfg["name"],
                 model_client = model_client,
                 system_message = agent_cfg["system_message"], # TODO: check if including a '' system message affects behavior of the agents
-                description = agent_cfg["description"],
+                description = description,
                 model_client_stream = agent_cfg.get("model_client_stream", False),
                 workbench = globals()[agent_cfg["tools"]["workbench_class"]](
                     workbench,

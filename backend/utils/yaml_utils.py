@@ -39,3 +39,31 @@ def load_team_config_by_name(team_name: str) -> dict:
     # Team not found
     available = get_agent_team_names()
     raise ValueError(f"Team '{team_name}' not found. Available: {available}")
+
+def get_team_main_tasks() -> str:
+    """
+    Scan factory directory for .yaml files and return the main_task description string.
+    Only includes yaml files with both 'team_name' and 'tasks.main_task.description' present.
+    """
+    factory_dir = Path(__file__).parent.parent / "factory"
+    print("Trying to get initial task")
+    for yaml_file in factory_dir.glob("*.yaml"):
+        try:
+            with open(yaml_file, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+                if (
+                    data
+                    and "team_name" in data
+                    and "tasks" in data
+                    and isinstance(data["tasks"], dict)
+                    and "main_task" in data["tasks"]
+                ):
+                    main_task = data["tasks"]["main_task"]
+                    return main_task["description"]
+                    
+        except Exception as e:
+            print(f"Warning: Could not read main_task from {yaml_file}: {e}")
+            continue
+
+    raise ValueError("Task extraction failed")
+
