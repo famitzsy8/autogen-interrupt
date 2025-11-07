@@ -21,6 +21,6 @@ RUN SITE_PACKAGES=$(python -c "import sysconfig; print(sysconfig.get_paths()['pu
 # Copy application code
 COPY . .
 
-EXPOSE 8001
+EXPOSE 8004
 
 CMD ["tail", "-f", "/dev/null"]
