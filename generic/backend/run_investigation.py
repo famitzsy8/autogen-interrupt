@@ -12,7 +12,7 @@ Example:
     python run_investigation.py "Maersk" "HR 1" "2023"
 
 Or in Docker:
-    docker exec -it backend_server python run_investigation.py "Maersk" "HR 1" "2023"
+    docker exec -it backend-proxy python run_investigation.py "Maersk" "HR 1" "2023"
 """
 
 import asyncio
@@ -220,7 +220,7 @@ def main():
         print('  python run_investigation.py "Maersk" "HR 1" "2023"')
         print()
         print("Or in Docker:")
-        print('  docker exec backend_server python run_investigation.py "Maersk" "HR 1" "2023"')
+        print('  docker exec backend-proxy python run_investigation.py "Maersk" "HR 1" "2023"')
         sys.exit(1)
 
     company_name = sys.argv[1]
