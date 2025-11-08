@@ -14,13 +14,18 @@ from models import TreeNode
 
 class StateManager:
 
-    def __init__(self, file_path: str | Path) -> None:
+    def __init__(self, file_path: str | Path, display_names: dict[str, str] | None = None) -> None:
 
         self.file_path = Path(file_path)
         self.root: TreeNode | None = None
         self.current_node: TreeNode | None = None
         self.current_branch_id: str = "main"
         self.node_map: dict[str, TreeNode] = {}
+        self.display_names = display_names or {}
+
+    def _get_display_name(self, agent_name: str) -> str:
+        """Get display name for an agent, falling back to agent_name if not found."""
+        return self.display_names.get(agent_name, agent_name)
 
     def initialize_root(self, agent_name: str, message: str) -> TreeNode:
 
@@ -28,6 +33,7 @@ class StateManager:
         new_node = TreeNode(
             id=node_id,
             agent_name=agent_name,
+            display_name=self._get_display_name(agent_name),
             message=message,
             parent=None,
             children=[],
@@ -57,6 +63,7 @@ class StateManager:
         new_node = TreeNode(
             id=node_id,
             agent_name=agent_name,
+            display_name=self._get_display_name(agent_name),
             message=message,
             parent=self.current_node.id,
             children=[],
@@ -110,6 +117,7 @@ class StateManager:
         user_node = TreeNode(
             id=node_id,
             agent_name="You",
+            display_name=self._get_display_name("You"),
             message=user_message,
             parent=branch_point.id,
             children=[],
@@ -242,6 +250,7 @@ class StateManager:
         return TreeNode(
             id=data["id"],
             agent_name=data["agent_name"],
+            display_name=data.get("display_name", self._get_display_name(data["agent_name"])),
             message=data["message"],
             parent=data.get("parent"),
             children=children,
@@ -322,6 +331,7 @@ class StateManager:
             return TreeNode(
                 id=node.id,
                 agent_name=node.agent_name,
+                display_name=node.display_name,
                 message=node.message,
                 parent=node.parent,
                 children=[],
@@ -340,6 +350,7 @@ class StateManager:
                 return TreeNode(
                     id=n.id,
                     agent_name=n.agent_name,
+                    display_name=n.display_name,
                     message=n.message,
                     parent=n.parent,
                     children=[],
@@ -350,6 +361,7 @@ class StateManager:
             return TreeNode(
                 id=n.id,
                 agent_name=n.agent_name,
+                display_name=n.display_name,
                 message=n.message,
                 parent=n.parent,
                 children=[limit_depth(child, depth - 1) for child in n.children],
