@@ -169,7 +169,10 @@ class WebSocketHandler:
             bill_name=self.agent_team_config.bill_name,
             congress=self.agent_team_config.congress
         )
-    
+
+        # Update StateManager with display_names from agent team context
+        self.session.state_manager.display_names = self.session.agent_team_context.display_names
+
     async def _conversation_stream(self, initial_topic: str) -> None:
 
         if not self.session or not self.session.agent_team_context or not self.session.state_manager:
