@@ -18,6 +18,8 @@ interface UseD3TreeOptions {
     toolCallsByNodeId?: Record<string, ToolCall>
     toolExecutionsByNodeId?: Record<string, ToolExecution>
     isInterrupted?: boolean
+    edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null
+    onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }) => void
 }
 
 interface UseD3TreeReturn {
@@ -29,6 +31,8 @@ interface UseD3TreeReturn {
     zoomIn: () => void
     zoomOut: () => void
     resetZoom: () => void
+    isNavigationMode: boolean
+    enableAutoCenter: () => void
 }
 
 
@@ -90,7 +94,16 @@ export function useD3Tree(
     currentBranchId: string,
     options: UseD3TreeOptions
   ): UseD3TreeReturn {
-    const { width, height, config = {}, toolCallsByNodeId = {}, toolExecutionsByNodeId = {}, isInterrupted = false } = options
+    const {
+      width,
+      height,
+      config = {},
+      toolCallsByNodeId = {},
+      toolExecutionsByNodeId = {},
+      isInterrupted = false,
+      edgeInterrupt = null,
+      onEdgeClick,
+    } = options
 
     const svgRef = useRef<SVGSVGElement>(null)
     const gRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null)
@@ -102,25 +115,67 @@ export function useD3Tree(
     const [activeNodeIds, setActiveNodeIds] = useState<Set<string>>(new Set())
     const [centerNodeId, setCenterNodeId] = useState<string | null>(null)
     const [autoCenterEnabled, setAutoCenterEnabled] = useState<boolean>(true)
-  
+    const lastMouseActivityRef = useRef<number>(Date.now())
+    const throttleTimeoutRef = useRef<number | null>(null)
+
     const treeConfig: TreeConfig = { ...DEFAULT_TREE_CONFIG, ...config }
+
+    /**
+     * Reset the auto-center timeout whenever user interacts with the tree.
+     * This ensures auto-centering is disabled during active interaction
+     * and only re-enables after 15 seconds of inactivity.
+     * Throttled to avoid excessive calls during continuous movement.
+     */
+    const handleUserActivity = useCallback(() => {
+      console.log('[useD3Tree] ⚠️ handleUserActivity called')
+      const now = Date.now()
+
+      // Throttle to max once per 100ms to avoid excessive state updates
+      if (throttleTimeoutRef.current && now - lastMouseActivityRef.current < 100) {
+        console.log('[useD3Tree] Throttled - ignoring')
+        return
+      }
+
+      lastMouseActivityRef.current = now
+
+      // Disable auto-centering immediately (only if not already disabled)
+      setAutoCenterEnabled(prev => {
+        if (prev) {
+          console.log('[useD3Tree] 🔴 User activity detected - DISABLING auto-center')
+          return false
+        }
+        console.log('[useD3Tree] Auto-center already disabled')
+        return prev
+      })
+
+      // Clear any existing timeout
+      if (userInteractionTimeoutRef.current) {
+        clearTimeout(userInteractionTimeoutRef.current)
+      }
+
+      // Set a 15-second timeout to re-enable auto-centering
+      userInteractionTimeoutRef.current = window.setTimeout(() => {
+        console.log('[useD3Tree] 🟢 15 seconds of inactivity - re-enabling auto-center')
+        setAutoCenterEnabled(true)
+      }, 15000)
+    }, [])
   
     /**
      * Initialize D3 tree and setup zoom behavior.
      */
     useEffect(() => {
       if (!svgRef.current || !treeData) return
-  
+
       const svg = d3.select(svgRef.current)
-  
+
       // Clear existing content
       svg.selectAll('*').remove()
-  
+
       // Create main group for tree content
       const g = svg.append('g').attr('class', 'tree-container')
       gRef.current = g
-  
-      // Setup zoom behavior with user interaction tracking
+
+      // Setup zoom behavior - only track zoom START for user interaction
       const zoom = d3
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.1, 3])
@@ -128,52 +183,82 @@ export function useD3Tree(
           g.attr('transform', event.transform.toString())
           transformRef.current = event.transform
         })
-        .on('start', () => {
-          // User started interacting with the tree (pan/zoom)
-          // Disable auto-centering
-          setAutoCenterEnabled(false)
-
-          // Clear any existing timeout
-          if (userInteractionTimeoutRef.current) {
-            clearTimeout(userInteractionTimeoutRef.current)
+        .on('start', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+          // Only trigger user activity if it's an actual user interaction (not programmatic)
+          if (event.sourceEvent) {
+            handleUserActivity()
           }
-
-          // Set a 15-second timeout to re-enable auto-centering
-          userInteractionTimeoutRef.current = setTimeout(() => {
-            setAutoCenterEnabled(true)
-          }, 15000)
         })
 
       svg.call(zoom)
       zoomRef.current = zoom
-  
+
       // Convert tree data to D3 hierarchy
       const hierarchy = convertToD3Hierarchy(treeData)
-  
+
       // Initialize node positions
       hierarchy.x0 = width / 2
       hierarchy.y0 = 0
-  
+
       // Store hierarchy in state
       setRoot(hierarchy)
-  
+
       // Find active path
       const activePath = findActivePath(hierarchy, currentBranchId)
       setActiveNodeIds(activePath)
-  
+
       // Find last message node to center on
       const lastMessageNode = findLastMessageNode(hierarchy, currentBranchId)
       if (lastMessageNode) {
         setCenterNodeId(lastMessageNode.data.id)
       }
-    }, [treeData, currentBranchId, width, height])
+
+      // Track mouse drag specifically (mousedown + mousemove = drag)
+      const svgElement = svgRef.current
+      let isDragging = false
+
+      const handleMouseDown = () => {
+        isDragging = true
+      }
+
+      const handleMouseMove = () => {
+        if (isDragging) {
+          handleUserActivity()
+        }
+      }
+
+      const handleMouseUp = () => {
+        isDragging = false
+      }
+
+      // Only track wheel events (scroll to zoom)
+      const handleWheel = () => {
+        handleUserActivity()
+      }
+
+      svgElement.addEventListener('mousedown', handleMouseDown)
+      svgElement.addEventListener('mousemove', handleMouseMove)
+      svgElement.addEventListener('mouseup', handleMouseUp)
+      svgElement.addEventListener('wheel', handleWheel)
+
+      // Cleanup function - runs when component unmounts or dependencies change
+      return () => {
+        if (userInteractionTimeoutRef.current) {
+          clearTimeout(userInteractionTimeoutRef.current)
+        }
+        svgElement.removeEventListener('mousedown', handleMouseDown)
+        svgElement.removeEventListener('mousemove', handleMouseMove)
+        svgElement.removeEventListener('mouseup', handleMouseUp)
+        svgElement.removeEventListener('wheel', handleWheel)
+      }
+    }, [treeData, currentBranchId, width, height, handleUserActivity])
   
     /**
      * Update tree visualization when data or configuration changes.
      */
     useEffect(() => {
       if (!root || !gRef.current) return
-  
+
       updateTree(root, gRef.current, {
         width,
         height,
@@ -181,8 +266,20 @@ export function useD3Tree(
         activeNodeIds,
         toolCallsByNodeId,
         toolExecutionsByNodeId,
+        edgeInterrupt,
+        onEdgeClick,
       })
-    }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId])
+
+      // After tree updates, preserve transform in navigation mode
+      if (!autoCenterEnabled && svgRef.current && zoomRef.current) {
+        console.log('[useD3Tree] Tree updated in navigation mode - re-applying transform')
+        const svg = d3.select(svgRef.current)
+        // Use a very short timeout to let D3 finish its update first
+        setTimeout(() => {
+          svg.call(zoomRef.current!.transform, transformRef.current)
+        }, 0)
+      }
+    }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled])
   
     /**
      * Update center node when tree data changes to keep view on latest messages.
@@ -235,11 +332,19 @@ export function useD3Tree(
 
       if (targetNode) {
         console.log(`[useD3Tree] Recentering view to node: ${targetNode.data.id} at (${targetNode.x}, ${targetNode.y})`)
-        // Calculate transform to center the node
+        // Calculate transform to position the node optimally
         const svg = d3.select(svgRef.current)
         const scale = transformRef.current.k
+
+        // Center horizontally
         const x = -targetNode.x! * scale + width / 2
-        const y = -targetNode.y! * scale + height / 3
+
+        // Position vertically at 1/3 from bottom (2/3 from top)
+        // This shows more tree context above the new node, which is better
+        // for viewing new messages at the bottom of the tree
+        const y = -targetNode.y! * scale + (height * 2 / 3)
+
+        console.log(`[useD3Tree] Centering to position: x=${x}, y=${y}, scale=${scale}`)
 
         svg
           .transition()
@@ -251,10 +356,19 @@ export function useD3Tree(
     /**
      * Automatically recenter the view when the centerNodeId changes.
      * Only if auto-centering is enabled and not interrupted.
+     * If in navigation mode, preserve the current transform.
      */
     useEffect(() => {
       if (centerNodeId && autoCenterEnabled && !isInterrupted) {
         recenter()
+      } else if (!autoCenterEnabled && svgRef.current && zoomRef.current) {
+        // In navigation mode: preserve the current transform when tree updates
+        console.log('[useD3Tree] Navigation mode - preserving current transform')
+        const svg = d3.select(svgRef.current)
+        const currentTransform = transformRef.current
+
+        // Re-apply the current transform (without animation to avoid jarring movement)
+        svg.call(zoomRef.current.transform, currentTransform)
       }
     }, [centerNodeId, recenter, autoCenterEnabled, isInterrupted])
 
@@ -294,14 +408,42 @@ export function useD3Tree(
      */
     const resetZoom = useCallback(() => {
       if (!svgRef.current || !zoomRef.current) return
-  
+
       const svg = d3.select(svgRef.current)
       svg
         .transition()
         .duration(ANIMATION_DURATION)
         .call(zoomRef.current.transform, d3.zoomIdentity.translate(50, height / 2))
     }, [height])
-  
+
+    /**
+     * Manually enable auto-centering (exit navigation mode).
+     */
+    const enableAutoCenter = useCallback(() => {
+      console.log('[useD3Tree] Manually enabling auto-center')
+
+      // Clear any existing timeout
+      if (userInteractionTimeoutRef.current) {
+        clearTimeout(userInteractionTimeoutRef.current)
+        userInteractionTimeoutRef.current = null
+      }
+
+      // Enable auto-centering
+      setAutoCenterEnabled(true)
+
+      // Immediately recenter to the last message node
+      if (centerNodeId) {
+        setTimeout(() => recenter(), 0)
+      }
+    }, [centerNodeId, recenter])
+
+    // Log navigation mode state for debugging
+    console.log('[useD3Tree] Current state:', {
+      autoCenterEnabled,
+      isNavigationMode: !autoCenterEnabled,
+      centerNodeId
+    })
+
     return {
       svgRef,
       root,
@@ -311,6 +453,8 @@ export function useD3Tree(
       zoomIn,
       zoomOut,
       resetZoom,
+      isNavigationMode: !autoCenterEnabled,
+      enableAutoCenter,
     }
   }
   
@@ -324,6 +468,8 @@ export function useD3Tree(
     activeNodeIds: Set<string>
     toolCallsByNodeId: Record<string, ToolCall>
     toolExecutionsByNodeId: Record<string, ToolExecution>
+    edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number } } | null
+    onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }) => void
   }
   
   function updateTree(
@@ -331,7 +477,16 @@ export function useD3Tree(
     g: d3.Selection<SVGGElement, unknown, null, undefined>,
     options: UpdateTreeOptions
   ): void {
-    const { width, height, config, activeNodeIds, toolCallsByNodeId, toolExecutionsByNodeId } = options
+    const {
+      width,
+      height,
+      config,
+      activeNodeIds,
+      toolCallsByNodeId,
+      toolExecutionsByNodeId,
+      edgeInterrupt,
+      onEdgeClick,
+    } = options
 
     // Expand all nodes to show full tree
     expandAllNodes(root)
@@ -364,16 +519,42 @@ export function useD3Tree(
       .attr('class', 'link')
       .attr('fill', 'none')
       .attr('stroke', '#30363d')
-      .attr('stroke-width', 2)
+      .attr('stroke-width', 3)
+      .style('cursor', 'pointer')
       .attr('d', (d) => {
         const source = d.source as D3TreeNode
         const o = { x: source.x0 ?? source.x, y: source.y0 ?? source.y }
         return createCurvedPath(o, o)
       })
+      .on('click', function(event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
+        if (onEdgeClick) {
+          event.stopPropagation()
+          const target = d.target as D3TreeNode
+
+          // Use the mouse event position directly - these are screen coordinates
+          // which we'll convert to container-relative coordinates in the handler
+          onEdgeClick(target.data.id, { x: event.clientX, y: event.clientY })
+        }
+      })
   
     // Update existing links
     const linkUpdate = linkEnter.merge(link)
-  
+
+    // Apply non-animated styles and event handlers BEFORE transition
+    linkUpdate
+      .style('cursor', 'pointer')
+      .on('click', function(event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
+        if (onEdgeClick) {
+          event.stopPropagation()
+          const target = d.target as D3TreeNode
+
+          // Use the mouse event position directly - these are screen coordinates
+          // which we'll convert to container-relative coordinates in the handler
+          onEdgeClick(target.data.id, { x: event.clientX, y: event.clientY })
+        }
+      })
+
+    // Apply animated attributes with transition
     linkUpdate
       .transition()
       .duration(ANIMATION_DURATION)
@@ -389,10 +570,65 @@ export function useD3Tree(
         const target = d.target as D3TreeNode
         return target.data.is_active ? 1 : 0.3
       })
+      .attr('stroke', (d) => {
+        const target = d.target as D3TreeNode
+        // If this edge is being interrupted, color it red
+        if (edgeInterrupt && edgeInterrupt.targetNodeId === target.data.id) {
+          return '#ef4444' // red color for interrupting edge
+        }
+        return '#30363d' // default color
+      })
+      .attr('stroke-width', (d) => {
+        const target = d.target as D3TreeNode
+        // If this edge is being interrupted, make it thicker
+        if (edgeInterrupt && edgeInterrupt.targetNodeId === target.data.id) {
+          return 4
+        }
+        return 3
+      })
   
     // Remove old links
     link.exit().transition().duration(ANIMATION_DURATION).attr('opacity', 0).remove()
-  
+
+    // Add "interrupting..." label to the edge being interrupted
+    const interruptLabel = g
+      .selectAll<SVGTextElement, d3.HierarchyPointLink<TreeNode>>('.interrupt-label')
+      .data(
+        edgeInterrupt
+          ? links.filter((d) => (d.target as D3TreeNode).data.id === edgeInterrupt.targetNodeId)
+          : [],
+        (d: d3.HierarchyPointLink<TreeNode>) => (d.target as D3TreeNode).data.id
+      )
+
+    // Enter new labels
+    const interruptLabelEnter = interruptLabel
+      .enter()
+      .append('text')
+      .attr('class', 'interrupt-label')
+      .style('fill', '#ef4444')
+      .style('font-size', '12px')
+      .style('font-weight', 'bold')
+      .style('pointer-events', 'none')
+      .text('interrupting...')
+
+    // Update existing labels
+    const interruptLabelUpdate = interruptLabelEnter.merge(interruptLabel)
+
+    interruptLabelUpdate
+      .attr('x', (d: d3.HierarchyPointLink<TreeNode>) => {
+        const source = d.source as D3TreeNode
+        const target = d.target as D3TreeNode
+        return (source.x + target.x) / 2 + 10
+      })
+      .attr('y', (d: d3.HierarchyPointLink<TreeNode>) => {
+        const source = d.source as D3TreeNode
+        const target = d.target as D3TreeNode
+        return (source.y + target.y) / 2
+      })
+
+    // Remove old labels
+    interruptLabel.exit().remove()
+
     // Update nodes
     const node = g
       .selectAll<SVGGElement, D3TreeNode>('.node')
