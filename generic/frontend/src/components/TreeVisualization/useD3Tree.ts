@@ -117,6 +117,7 @@ export function useD3Tree(
     const [autoCenterEnabled, setAutoCenterEnabled] = useState<boolean>(true)
     const lastMouseActivityRef = useRef<number>(Date.now())
     const throttleTimeoutRef = useRef<number | null>(null)
+    const isInitializedRef = useRef<boolean>(false)
 
     const treeConfig: TreeConfig = { ...DEFAULT_TREE_CONFIG, ...config }
 
@@ -127,6 +128,12 @@ export function useD3Tree(
      * Throttled to avoid excessive calls during continuous movement.
      */
     const handleUserActivity = useCallback(() => {
+      // Ignore activity during initial setup
+      if (!isInitializedRef.current) {
+        console.log('[useD3Tree] Ignoring activity during initialization')
+        return
+      }
+
       console.log('[useD3Tree] ⚠️ handleUserActivity called')
       const now = Date.now()
 
@@ -241,6 +248,12 @@ export function useD3Tree(
       svgElement.addEventListener('mouseup', handleMouseUp)
       svgElement.addEventListener('wheel', handleWheel)
 
+      // Mark as initialized after a short delay to avoid capturing setup events
+      setTimeout(() => {
+        isInitializedRef.current = true
+        console.log('[useD3Tree] ✅ Initialization complete - user activity tracking enabled')
+      }, 500)
+
       // Cleanup function - runs when component unmounts or dependencies change
       return () => {
         if (userInteractionTimeoutRef.current) {
@@ -250,6 +263,7 @@ export function useD3Tree(
         svgElement.removeEventListener('mousemove', handleMouseMove)
         svgElement.removeEventListener('mouseup', handleMouseUp)
         svgElement.removeEventListener('wheel', handleWheel)
+        isInitializedRef.current = false
       }
     }, [treeData, currentBranchId, width, height, handleUserActivity])
   
@@ -520,16 +534,41 @@ export function useD3Tree(
       .attr('fill', 'none')
       .attr('stroke', '#30363d')
       .attr('stroke-width', 3)
-      .style('cursor', 'pointer')
+      .style('cursor', (d) => {
+        const target = d.target as D3TreeNode
+        return target.data.is_active ? 'pointer' : 'default'
+      })
+      .style('transition', 'stroke-width 0.2s ease-in-out')
       .attr('d', (d) => {
         const source = d.source as D3TreeNode
         const o = { x: source.x0 ?? source.x, y: source.y0 ?? source.y }
         return createCurvedPath(o, o)
       })
+      .on('mouseenter', function(this: SVGPathElement, event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
+        const target = d.target as D3TreeNode
+        if (target.data.is_active) {
+          // Immediate jump to 4px
+          d3.select(this).attr('stroke-width', 4)
+          // Then smoothly transition to 6px
+          d3.select(this)
+            .transition()
+            .duration(150)
+            .attr('stroke-width', 6)
+        }
+      })
+      .on('mouseleave', function(this: SVGPathElement, event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
+        const target = d.target as D3TreeNode
+        const isInterrupting = edgeInterrupt && edgeInterrupt.targetNodeId === target.data.id
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr('stroke-width', isInterrupting ? 4 : 3)
+      })
       .on('click', function(event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
-        if (onEdgeClick) {
+        const target = d.target as D3TreeNode
+        // Only allow clicking on active branch edges
+        if (onEdgeClick && target.data.is_active) {
           event.stopPropagation()
-          const target = d.target as D3TreeNode
 
           // Use the mouse event position directly - these are screen coordinates
           // which we'll convert to container-relative coordinates in the handler
@@ -542,11 +581,35 @@ export function useD3Tree(
 
     // Apply non-animated styles and event handlers BEFORE transition
     linkUpdate
-      .style('cursor', 'pointer')
+      .style('cursor', (d) => {
+        const target = d.target as D3TreeNode
+        return target.data.is_active ? 'pointer' : 'default'
+      })
+      .on('mouseenter', function(this: SVGPathElement, event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
+        const target = d.target as D3TreeNode
+        if (target.data.is_active) {
+          // Immediate jump to 4px
+          d3.select(this).attr('stroke-width', 4)
+          // Then smoothly transition to 6px
+          d3.select(this)
+            .transition()
+            .duration(150)
+            .attr('stroke-width', 6)
+        }
+      })
+      .on('mouseleave', function(this: SVGPathElement, event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
+        const target = d.target as D3TreeNode
+        const isInterrupting = edgeInterrupt && edgeInterrupt.targetNodeId === target.data.id
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr('stroke-width', isInterrupting ? 4 : 3)
+      })
       .on('click', function(event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
-        if (onEdgeClick) {
+        const target = d.target as D3TreeNode
+        // Only allow clicking on active branch edges
+        if (onEdgeClick && target.data.is_active) {
           event.stopPropagation()
-          const target = d.target as D3TreeNode
 
           // Use the mouse event position directly - these are screen coordinates
           // which we'll convert to container-relative coordinates in the handler
