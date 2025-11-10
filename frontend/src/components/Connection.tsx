@@ -19,7 +19,7 @@ export function Connection(): React.ReactElement {
   const error = useError()
   const { clearError } = useErrorActions()
 
-  const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8001/ws/agent'
+  const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8006/ws/agent'
 
   useEffect(() => {
     // Connect when component mounts

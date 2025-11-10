@@ -63,6 +63,7 @@ class AgentMessage(BaseModel):
 
     agent_name: str = Field(..., description="Name of the agent sending the message")
     content: str = Field(..., description="Message content from the agent")
+    summary: str = Field(..., description="AI-generated summary of the message content")
     timestamp: datetime = Field(default_factory=datetime.now)
     node_id: str = Field(..., description="Unique identifier for this message node in the tree")
 
@@ -156,6 +157,7 @@ class TreeNode(BaseModel):
     agent_name: str = Field(..., description="Name of the agent who sent this message")
     display_name: str = Field(..., description="Display name of the agent (human-readable)")
     message: str = Field(..., description="Message content")
+    summary: str = Field(default="", description="AI-generated summary of the message content")
     parent: str | None = Field(default=None, description="ID of the parent node (None for root)")
     children: list[TreeNode] = Field(default_factory=list, description="Child nodes")
 

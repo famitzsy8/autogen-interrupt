@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react'
 import type { RunConfig } from '../types'
+import { MessageType } from '../types'
 import { getOrCreateSessionId } from '../utils/session'
 
 interface ConfigFormProps {
@@ -58,7 +59,7 @@ export function ConfigForm({
     const selectedPair = COMPANY_BILL_PAIRS.find(pair => pair.id === selectedPairId)
 
     const config: RunConfig = {
-      type: 'start_run',
+      type: MessageType.START_RUN,
       session_id: getOrCreateSessionId(),
       initial_topic: topic.trim() || undefined,
       selector_prompt: selectorPrompt.trim() || undefined,
