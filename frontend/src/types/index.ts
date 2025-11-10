@@ -118,6 +118,7 @@ export interface ErrorMessage extends BaseMessage {
 export interface TreeNode {
     id: string,
     agent_name: string,
+    display_name: string,
     message: string,
     parent: string | null,
     children: TreeNode[],
