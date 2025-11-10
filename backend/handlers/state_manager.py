@@ -22,13 +22,14 @@ class StateManager:
         self.current_branch_id: str = "main"
         self.node_map: dict[str, TreeNode] = {}
 
-    def initialize_root(self, agent_name: str, message: str) -> TreeNode:
+    def initialize_root(self, agent_name: str, message: str, summary: str = "") -> TreeNode:
 
         node_id = self._generate_node_id()
         new_node = TreeNode(
             id=node_id,
             agent_name=agent_name,
             message=message,
+            summary=summary,
             parent=None,
             children=[],
             is_active=True,
@@ -43,7 +44,7 @@ class StateManager:
 
         return new_node
 
-    def add_node(self, agent_name: str, message: str, node_type: str = "message") -> TreeNode | None:
+    def add_node(self, agent_name: str, message: str, summary: str = "", node_type: str = "message") -> TreeNode | None:
 
         # TODO: This is the function where we can filter the addition of a message node based on the user
 
@@ -58,6 +59,7 @@ class StateManager:
             id=node_id,
             agent_name=agent_name,
             message=message,
+            summary=summary,
             parent=self.current_node.id,
             children=[],
             is_active=True,
@@ -111,6 +113,7 @@ class StateManager:
             id=node_id,
             agent_name="You",
             message=user_message,
+            summary="",  # User messages don't need summaries
             parent=branch_point.id,
             children=[],
             is_active=True,
@@ -194,6 +197,7 @@ class StateManager:
             "id": node.id,
             "agent_name": node.agent_name,
             "message": node.message,
+            "summary": node.summary,
             "parent": node.parent,
             "children": [self._node_to_dict(child) for child in node.children],
             "is_active": node.is_active,
@@ -243,6 +247,7 @@ class StateManager:
             id=data["id"],
             agent_name=data["agent_name"],
             message=data["message"],
+            summary=data.get("summary", ""),  # Default to empty string for backward compatibility
             parent=data.get("parent"),
             children=children,
             is_active=data.get("is_active", True),
@@ -323,6 +328,7 @@ class StateManager:
                 id=node.id,
                 agent_name=node.agent_name,
                 message=node.message,
+                summary=node.summary,
                 parent=node.parent,
                 children=[],
                 is_active=node.is_active,
@@ -341,6 +347,7 @@ class StateManager:
                     id=n.id,
                     agent_name=n.agent_name,
                     message=n.message,
+                    summary=n.summary,
                     parent=n.parent,
                     children=[],
                     is_active=n.is_active,
@@ -351,6 +358,7 @@ class StateManager:
                 id=n.id,
                 agent_name=n.agent_name,
                 message=n.message,
+                summary=n.summary,
                 parent=n.parent,
                 children=[limit_depth(child, depth - 1) for child in n.children],
                 is_active=n.is_active,

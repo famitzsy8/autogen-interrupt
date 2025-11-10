@@ -67,6 +67,7 @@ export interface AgentMessage extends BaseMessage {
     type: MessageType.AGENT_MESSAGE,
     agent_name: string,
     content: string,
+    summary: string,
     node_id: string,
 }
 
@@ -119,6 +120,7 @@ export interface TreeNode {
     id: string,
     agent_name: string,
     message: string,
+    summary: string,
     parent: string | null,
     children: TreeNode[],
     is_active: boolean,
