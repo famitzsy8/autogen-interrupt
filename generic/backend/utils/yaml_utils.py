@@ -67,3 +67,30 @@ def get_team_main_tasks() -> str:
 
     raise ValueError("Task extraction failed")
 
+
+def get_summarization_system_prompt() -> str:
+    """
+    Scan factory directory for .yaml files and return the summarization_system_prompt string.
+    Only includes yaml files with both 'team_name' and 'prompts.summarization_system_prompt' present.
+    """
+    factory_dir = Path(__file__).parent.parent / "factory"
+
+    for yaml_file in factory_dir.glob("*.yaml"):
+        try:
+            with open(yaml_file, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+                if (
+                    data
+                    and "team_name" in data
+                    and "prompts" in data
+                    and isinstance(data["prompts"], dict)
+                    and "summarization_system_prompt" in data["prompts"]
+                ):
+                    return data["prompts"]["summarization_system_prompt"]
+
+        except Exception as e:
+            print(f"Warning: Could not read summarization_system_prompt from {yaml_file}: {e}")
+            continue
+
+    raise ValueError("Summarization system prompt extraction failed")
+
