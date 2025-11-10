@@ -67,6 +67,7 @@ export interface AgentMessage extends BaseMessage {
     type: MessageType.AGENT_MESSAGE,
     agent_name: string,
     content: string,
+    summary: string,
     node_id: string,
 }
 
@@ -120,6 +121,7 @@ export interface TreeNode {
     agent_name: string,
     display_name: string,
     message: string,
+    summary: string,
     parent: string | null,
     children: TreeNode[],
     is_active: boolean,
@@ -249,4 +251,10 @@ export interface AppError {
     message: string
     timestamp: string
   }
-  
+
+export type ConversationItemType = 'message' | 'tool_call' | 'tool_execution'
+
+export interface ChatFocusTarget {
+  nodeId: string
+  itemType: ConversationItemType
+}

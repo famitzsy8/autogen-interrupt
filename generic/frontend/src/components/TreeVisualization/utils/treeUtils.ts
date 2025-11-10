@@ -133,12 +133,12 @@ export function calculateTreeBounds(
  * @returns The last active node in the current branch or null
  */
 export function findLastMessageNode(root: D3TreeNode, currentBranchId: string): D3TreeNode | null {
-    let lastNode: D3TreeNode | null = null;
+    let lastNode: D3TreeNode | null = null
     let latestTimestamp = '';
 
     console.log('[treeUtils] Finding last active node in branch:', currentBranchId)
 
-    root.each((node) => {
+    root.each((node: D3TreeNode) => {
         if (node.data.branch_id === currentBranchId && node.data.is_active) {
             if (node.data.timestamp > latestTimestamp) {
                 console.log(`[treeUtils]   Found newer node: id=${node.data.id}, type=${node.data.node_type}, timestamp=${node.data.timestamp}`)
@@ -149,12 +149,13 @@ export function findLastMessageNode(root: D3TreeNode, currentBranchId: string): 
     });
 
     if (lastNode) {
-        console.log(`[treeUtils] Last active node: id=${lastNode.data.id}, type=${lastNode.data.node_type}`)
+        const activeNode = lastNode as D3TreeNode
+        console.log(`[treeUtils] Last active node: id=${activeNode.data.id}, type=${activeNode.data.node_type}`)
     } else {
         console.log('[treeUtils] No active node found!')
     }
 
-    return lastNode;
+    return lastNode
 }
 
 /**
@@ -167,7 +168,7 @@ export function findLastUserMessageNode(root: D3TreeNode): D3TreeNode | null {
     let lastUserNode: D3TreeNode | null = null
     let latestTimestamp = ''
 
-    root.each((node) => {
+    root.each((node: D3TreeNode) => {
       if (node.data.agent_name === 'You' && node.data.timestamp > latestTimestamp) {
         lastUserNode = node
         latestTimestamp = node.data.timestamp
@@ -186,7 +187,7 @@ export function findLastUserMessageNode(root: D3TreeNode): D3TreeNode | null {
 export function getTreeDepth(root: D3TreeNode): number {
     let maxDepth = 0
   
-    root.each((node) => {
+    root.each((node: D3TreeNode) => {
       if (node.depth > maxDepth) {
         maxDepth = node.depth
       }
@@ -202,7 +203,9 @@ export function getTreeDepth(root: D3TreeNode): number {
  */
 export function countNodes(root: D3TreeNode): number {
     let count = 0
-    root.each(() => count++)
+    root.each(() => {
+      count++
+    })
     return count
 }
   

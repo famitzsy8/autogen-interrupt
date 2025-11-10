@@ -19,12 +19,13 @@ import {
   useToolCallsByNodeId,
   useToolExecutionsByNodeId,
   useIsInterrupted,
+  useChatDisplayActions
   useEdgeInterrupt,
   useEdgeInterruptActions,
   useMessageActions,
 } from '../../hooks/useStore'
 import { EdgeInterruptPopup } from './EdgeInterruptPopup'
-import type { TreeNode } from '../../types'
+import type { ConversationItemType, TreeNode } from '../../types'
 
 /**
  * Props for TreeVisualization component.
@@ -49,6 +50,13 @@ export function TreeVisualization({
   const toolCallsByNodeId = useToolCallsByNodeId()
   const toolExecutionsByNodeId = useToolExecutionsByNodeId()
   const isInterrupted = useIsInterrupted()
+  const { setChatDisplayVisible, setChatFocusTarget } = useChatDisplayActions()
+
+  // Handler for node clicks - shows chat display and selects the node
+  const handleNodeClick = (nodeId: string, itemType: ConversationItemType) => {
+    setChatFocusTarget({ nodeId, itemType })
+    setChatDisplayVisible(true)
+  }
   const edgeInterrupt = useEdgeInterrupt()
   const { setEdgeInterrupt, clearEdgeInterrupt } = useEdgeInterruptActions()
   const { sendInterrupt, sendUserMessage } = useMessageActions()
@@ -139,6 +147,7 @@ export function TreeVisualization({
       toolCallsByNodeId,
       toolExecutionsByNodeId,
       isInterrupted,
+      onNodeClick: handleNodeClick,
       edgeInterrupt,
       onEdgeClick: handleEdgeClick,
     }

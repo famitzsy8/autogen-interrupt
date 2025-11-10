@@ -51,7 +51,8 @@ from models import (
     UserDirectedMessage,
     UserInterrupt
 )
-from utils.yaml_utils import get_agent_team_names, get_team_main_tasks
+from utils.yaml_utils import get_agent_team_names, get_team_main_tasks, get_summarization_system_prompt
+from utils.summarization import init_summarizer, summarize_message
 
 # we need to implement an autogen agent team factory
 from handlers.state_manager import StateManager
@@ -159,6 +160,12 @@ class WebSocketHandler:
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY not set in environment")
+
+        # Get summarization system prompt from yaml
+        summarization_prompt = get_summarization_system_prompt()
+
+        # Initialize the summarizer with system prompt from yaml
+        init_summarizer(api_key=api_key, model="gpt-4o-mini", system_prompt=summarization_prompt)
 
         # Initialize agent team and store in session (shared across all connections)
         self.session.agent_team_context = await init_team(
@@ -417,8 +424,17 @@ class WebSocketHandler:
         agent_name = message.source if hasattr(message, "source") else "Unknown"
         content = str(message.content)
 
-        # Create a new node for this message
-        node = self.session.state_manager.add_node(agent_name=agent_name, message=content)
+        # Generate summary for the message
+        logger.info(f"Generating summary for message from {agent_name}")
+        summary = await summarize_message(agent_name=agent_name, message_content=content)
+        logger.info(f"Summary generated: {summary[:100]}...")
+
+        # Create a new node for this message with summary
+        node = self.session.state_manager.add_node(
+            agent_name=agent_name,
+            message=content,
+            summary=summary
+        )
         if node is None:
             return
 
@@ -428,6 +444,7 @@ class WebSocketHandler:
         agent_msg = AgentMessage(
             agent_name=agent_name,
             content=content,
+            summary=summary,
             node_id=node_id
         )
 

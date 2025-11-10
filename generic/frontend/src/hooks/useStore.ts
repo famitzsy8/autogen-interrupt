@@ -256,6 +256,31 @@ export function useIsStreaming(): boolean {
   }
 
   /**
+   * Hook to access chat display visibility state.
+   */
+  export function useIsChatDisplayVisible(): boolean {
+    return useStore((state) => state.isChatDisplayVisible)
+  }
+
+  /**
+   * Hook to access the selected node ID for chat.
+   */
+export function useSelectedNodeIdForChat(): string | null {
+    return useStore((state) => state.selectedNodeIdForChat)
+}
+
+export function useChatFocusTarget() {
+  return useStore((state) => state.chatFocusTarget)
+}
+
+/**
+ * Hook to access chat display actions.
+ */
+export function useChatDisplayActions() {
+    return useStore((state) => ({
+      setChatDisplayVisible: state.setChatDisplayVisible,
+      setSelectedNodeIdForChat: state.setSelectedNodeIdForChat,
+      setChatFocusTarget: state.setChatFocusTarget,
    * Hook to access edge interrupt state.
    */
   export function useEdgeInterrupt(): { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null {

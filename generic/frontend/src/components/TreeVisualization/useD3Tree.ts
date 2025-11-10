@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as d3 from 'd3'
-import type { TreeNode, ToolCall, ToolExecution, ToolExecutionResult} from "../../types"
+import type { ConversationItemType, TreeNode, ToolCall, ToolExecution } from "../../types"
 import type { D3TreeNode, TreeConfig } from './utils/treeUtils'
 import {
     convertToD3Hierarchy,
@@ -18,6 +18,7 @@ interface UseD3TreeOptions {
     toolCallsByNodeId?: Record<string, ToolCall>
     toolExecutionsByNodeId?: Record<string, ToolExecution>
     isInterrupted?: boolean
+    onNodeClick?: (nodeId: string, itemType: ConversationItemType) => void
     edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null
     onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }) => void
 }
@@ -82,6 +83,12 @@ function getToolColor(): { bg: string; border: string } {
   return { bg: '#1f6feb', border: '#58a6ff' }
 }
 
+function getConversationItemTypeForNode(node: TreeNode): ConversationItemType {
+  if (node.node_type === 'tool_call') return 'tool_call'
+  if (node.node_type === 'tool_execution') return 'tool_execution'
+  return 'message'
+}
+
 /**
  * Custom hook for D3 tree visualization.
  * @param treeData - Root node of the conversation tree
@@ -103,6 +110,7 @@ export function useD3Tree(
       isInterrupted = false,
       edgeInterrupt = null,
       onEdgeClick,
+      onNodeClick,
     } = options
 
     const svgRef = useRef<SVGSVGElement>(null)
@@ -282,6 +290,7 @@ export function useD3Tree(
         toolExecutionsByNodeId,
         edgeInterrupt,
         onEdgeClick,
+        onNodeClick,
       })
 
       // After tree updates, preserve transform in navigation mode
@@ -293,7 +302,7 @@ export function useD3Tree(
           svg.call(zoomRef.current!.transform, transformRef.current)
         }, 0)
       }
-    }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled])
+    }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick])
   
     /**
      * Update center node when tree data changes to keep view on latest messages.
@@ -482,10 +491,11 @@ export function useD3Tree(
     activeNodeIds: Set<string>
     toolCallsByNodeId: Record<string, ToolCall>
     toolExecutionsByNodeId: Record<string, ToolExecution>
+    onNodeClick?: (nodeId: string, itemType: ConversationItemType) => void
     edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number } } | null
     onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }) => void
   }
-  
+
   function updateTree(
     root: D3TreeNode,
     g: d3.Selection<SVGGElement, unknown, null, undefined>,
@@ -500,6 +510,7 @@ export function useD3Tree(
       toolExecutionsByNodeId,
       edgeInterrupt,
       onEdgeClick,
+      onNodeClick,
     } = options
 
     // Expand all nodes to show full tree
@@ -733,15 +744,23 @@ export function useD3Tree(
       .style('rx', 3)
       .style('ry', 3)
   
+    // Agent name in box (always on left, more distant from node)
     label
       .append('text')
       .attr('dy', '0.31em')
-      .attr('x', (d) => (d.children || d._children ? -25 : 25))
-      .attr('text-anchor', (d) => (d.children || d._children ? 'end' : 'start'))
+      .attr('x', -35)
+      .attr('text-anchor', 'end')
       .text((d) => d.data.agent_name)
       .style('fill', '#c9d1d9')
-      .style('font-size', '12px')
+      .style('font-size', '11px')
       .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
+      .style('cursor', 'pointer')
+      .on('click', function(event: MouseEvent, d: D3TreeNode) {
+        event.stopPropagation()
+        if (onNodeClick) {
+          onNodeClick(d.data.id, getConversationItemTypeForNode(d.data))
+        }
+      })
       .each(function () {
         const bbox = this.getBBox()
         const padding = 5
@@ -752,17 +771,41 @@ export function useD3Tree(
           .attr('width', bbox.width + padding * 2)
           .attr('height', bbox.height + padding * 2)
       })
+
+    // Summary text on right (no box, grey text, max 3 lines, ~500 chars)
+    label
+      .append('foreignObject')
+      .attr('x', 25)
+      .attr('y', -18)
+      .attr('width', 400)
+      .attr('height', 50)
+      .style('overflow', 'visible')
+      .append('xhtml:div')
+      .style('color', '#8b949e')
+      .style('font-size', '10px')
+      .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
+      .style('line-height', '1.3')
+      .style('display', '-webkit-box')
+      .style('-webkit-line-clamp', '3')
+      .style('-webkit-box-orient', 'vertical')
+      .style('overflow', 'hidden')
+      .style('text-overflow', 'ellipsis')
+      .style('word-wrap', 'break-word')
+      .style('cursor', 'pointer')
+      .text((d) => d.data.summary || '')
+      .on('click', function(event: MouseEvent, d: D3TreeNode) {
+        console.log('[useD3Tree] Summary clicked:', d.data.id, 'type:', d.data.node_type)
+        event.stopPropagation()
+        if (onNodeClick) {
+          onNodeClick(d.data.id, getConversationItemTypeForNode(d.data))
+        }
+      })
   
     // Add tool badges
     const toolBadgeContainer = nodeEnter
       .append('g')
       .attr('class', 'tool-badges')
-      .attr('transform', (d) => {
-        const isLeft = d.children || d._children
-        // Position below the agent name label (y=20 for below)
-        const xOffset = isLeft ? -25 : 25
-        return `translate(${xOffset}, 20)`
-      })
+      .attr('transform', 'translate(35, -8)') // Position on the right, aligned with summary
   
     // For each node, check if it has tool calls
     toolBadgeContainer.each(function(d) {
@@ -773,12 +816,16 @@ export function useD3Tree(
         // Check if tool execution has completed
         const toolExecution = toolExecutionsByNodeId[d.data.id]
         const isExecuting = !toolExecution
-  
-        // Create badges for each tool
-        toolCall.tools.forEach((tool, index) => {
+
+        // Track horizontal position for badges
+        let xPosition = 0
+
+        // Create badges for each tool (arranged horizontally, max 6)
+        const toolsToShow = toolCall.tools.slice(0, 6)
+        toolsToShow.forEach((tool) => {
           const colors = getToolColor()
           const badge = container.append('g')
-            .attr('transform', `translate(0, ${index * 20})`)
+            .attr('transform', `translate(${xPosition}, 0)`)
   
           // Add background rect for the badge
           const badgeRect = badge
@@ -816,29 +863,16 @@ export function useD3Tree(
             .attr('y', 0)
             .attr('width', bbox.width + padding * 2)
             .attr('height', bbox.height + padding * 2)
-  
+
+          // Update horizontal position for next badge
+          xPosition += bbox.width + padding * 2 + 5 // 5px gap between badges
+
           // Apply pulsing animation if still executing
           applyPulsingAnimation(badge, isExecuting)
-  
-          // Add click handler to show results when execution is complete
-          if (!isExecuting) {
-            badge
-              .style('cursor', 'pointer')
-              .on('click', function(event: MouseEvent) {
-                event.stopPropagation()
-                const execution = toolExecutionsByNodeId[d.data.id]
-                if (execution && execution.results) {
-                  // Show results in console for now (will add modal later)
-                  console.log('=== Tool Execution Results ===')
-                  console.log('Agent:', execution.agent_name)
-                  execution.results.forEach((result: ToolExecutionResult, idx: number) => {
-                    console.log(`\nTool ${idx + 1}: ${result.tool_name}`)
-                    console.log('Success:', result.success)
-                    console.log('Result:', result.result)
-                  })
-                }
-              })
-          }
+
+          // TODO: Add click handler for tool badges to navigate to tool call details
+          // See TOOL_CLICKING_FEATURE_DOCUMENTATION.md for implementation details
+          // badge.style('cursor', 'pointer').on('click', function(event: MouseEvent) { ... })
         })
       }
     })
@@ -881,11 +915,16 @@ export function useD3Tree(
         // Check if tool execution has completed
         const toolExecution = toolExecutionsByNodeId[d.data.id]
         const isExecuting = !toolExecution
-  
-        toolCall.tools.forEach((tool, index) => {
+
+        // Track horizontal position for badges
+        let xPosition = 0
+
+        // Limit to max 6 tools arranged horizontally
+        const toolsToShow = toolCall.tools.slice(0, 6)
+        toolsToShow.forEach((tool) => {
           const colors = getToolColor()
           const badge = existingBadges.append('g')
-            .attr('transform', `translate(0, ${index * 20})`)
+            .attr('transform', `translate(${xPosition}, 0)`)
   
           const badgeRect = badge
             .append('rect')
@@ -920,29 +959,16 @@ export function useD3Tree(
             .attr('y', 0)
             .attr('width', bbox.width + padding * 2)
             .attr('height', bbox.height + padding * 2)
-  
+
+          // Update horizontal position for next badge
+          xPosition += bbox.width + padding * 2 + 5 // 5px gap between badges
+
           // Apply pulsing animation if still executing
           applyPulsingAnimation(badge, isExecuting)
-  
-          // Add click handler to show results when execution is complete
-          if (!isExecuting) {
-            badge
-              .style('cursor', 'pointer')
-              .on('click', function(event: MouseEvent) {
-                event.stopPropagation()
-                const execution = toolExecutionsByNodeId[d.data.id]
-                if (execution && execution.results) {
-                  // Show results in console for now (will add modal later)
-                  console.log('=== Tool Execution Results ===')
-                  console.log('Agent:', execution.agent_name)
-                  execution.results.forEach((result: ToolExecutionResult, idx: number) => {
-                    console.log(`\nTool ${idx + 1}: ${result.tool_name}`)
-                    console.log('Success:', result.success)
-                    console.log('Result:', result.result)
-                  })
-                }
-              })
-          }
+
+          // TODO: Add click handler for tool badges to navigate to tool call details
+          // See TOOL_CLICKING_FEATURE_DOCUMENTATION.md for implementation details
+          // badge.style('cursor', 'pointer').on('click', function(event: MouseEvent) { ... })
         })
       }
     })
