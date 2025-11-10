@@ -19,7 +19,7 @@ import {
   useToolCallsByNodeId,
   useToolExecutionsByNodeId,
   useIsInterrupted,
-  useChatDisplayActions
+  useChatDisplayActions,
   useEdgeInterrupt,
   useEdgeInterruptActions,
   useMessageActions,

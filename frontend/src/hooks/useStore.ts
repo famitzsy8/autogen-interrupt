@@ -281,6 +281,10 @@ export function useChatDisplayActions() {
       setChatDisplayVisible: state.setChatDisplayVisible,
       setSelectedNodeIdForChat: state.setSelectedNodeIdForChat,
       setChatFocusTarget: state.setChatFocusTarget,
+    }))
+  }
+
+  /**
    * Hook to access edge interrupt state.
    */
   export function useEdgeInterrupt(): { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null {
