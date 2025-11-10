@@ -16,6 +16,7 @@ import { ToolCallItem } from './ToolCallItem'
 import { ToolExecutionItem } from './ToolExecutionItem'
 import { InterruptButton } from './InterruptButton'
 import { UserInput } from './UserInput'
+import { X } from 'lucide-react'
 import {
   useMessages,
   useIsStreaming,
@@ -27,7 +28,11 @@ import {
   useToolCallsByNodeId,
   useToolExecutionsByNodeId,
   useConversationTree,
+  useSelectedNodeIdForChat,
+  useChatFocusTarget,
+  useChatDisplayActions,
 } from '../../hooks/useStore'
+import type { ConversationItemType } from '../../types'
 
 export function ChatDisplay(): React.ReactElement {
   const messages = useMessages()
@@ -38,12 +43,18 @@ export function ChatDisplay(): React.ReactElement {
   const toolCallsByNodeId = useToolCallsByNodeId()
   const toolExecutionsByNodeId = useToolExecutionsByNodeId()
   const conversationTree = useConversationTree()
+  const selectedNodeIdForChat = useSelectedNodeIdForChat()
+  const chatFocusTarget = useChatFocusTarget()
 
   const { sendUserMessage, sendInterrupt } = useMessageActions()
   const { setSelectedAgent, setTrimCount } = useUserInteractionActions()
+  const { setChatFocusTarget, setChatDisplayVisible } = useChatDisplayActions()
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const conversationItemRefs = useRef<Record<string, HTMLDivElement | null>>({})
+
+  const getConversationItemKey = (nodeId: string, type: ConversationItemType): string => `${type}:${nodeId}`
 
   // Build ordered list of all conversation items (messages, tool calls, executions) from tree
   const conversationItems = React.useMemo(() => {
@@ -51,60 +62,55 @@ export function ChatDisplay(): React.ReactElement {
 
     const items: Array<{ type: 'message' | 'tool_call' | 'tool_execution'; data: any; nodeId: string }> = []
 
-    console.log('[ChatDisplay] Building conversation items from tree...')
-    console.log('[ChatDisplay] Tree root:', conversationTree)
-    console.log('[ChatDisplay] toolCallsByNodeId:', toolCallsByNodeId)
-    console.log('[ChatDisplay] toolExecutionsByNodeId:', toolExecutionsByNodeId)
-
-    const traverse = (node: any, depth: number = 0) => {
-      const indent = '  '.repeat(depth)
-      console.log(`${indent}[ChatDisplay] Traversing node: id=${node.id}, type=${node.node_type}, agent=${node.agent_name}`)
-
+    const traverse = (node: any) => {
       if (node.node_type === 'message') {
         const message = messages.find(m => m.node_id === node.id)
         if (message) {
-          console.log(`${indent}  -> Added message item`)
           items.push({ type: 'message', data: message, nodeId: node.id })
-        } else {
-          console.log(`${indent}  -> Message node but no message data found!`)
         }
       } else if (node.node_type === 'tool_call') {
-        console.log(`${indent}  -> Found tool_call node`)
         const toolCall = toolCallsByNodeId[node.id]
         if (toolCall) {
-          console.log(`${indent}  -> Added tool_call item:`, toolCall)
           items.push({ type: 'tool_call', data: toolCall, nodeId: node.id })
-        } else {
-          console.log(`${indent}  -> tool_call node but no ToolCall data found!`)
         }
         const toolExecution = toolExecutionsByNodeId[node.id]
         if (toolExecution) {
-          console.log(`${indent}  -> Added tool_execution item:`, toolExecution)
           items.push({ type: 'tool_execution', data: toolExecution, nodeId: node.id })
-        } else {
-          console.log(`${indent}  -> No tool_execution data yet`)
         }
-      } else {
-        console.log(`${indent}  -> Unknown node_type: ${node.node_type}`)
       }
 
       // Traverse children
       if (node.children && node.children.length > 0) {
-        node.children.forEach((child: any) => traverse(child, depth + 1))
+        node.children.forEach((child: any) => traverse(child))
       }
     }
 
     traverse(conversationTree)
-    console.log(`[ChatDisplay] Total conversation items: ${items.length}`)
     return items
   }, [conversationTree, messages, toolCallsByNodeId, toolExecutionsByNodeId])
 
-  // Auto-scroll to latest message when new conversation items arrive
+  // Scroll to selected message when a node is clicked in the tree
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    if (!chatFocusTarget) return
+
+    const key = getConversationItemKey(chatFocusTarget.nodeId, chatFocusTarget.itemType)
+    const targetElement = conversationItemRefs.current[key]
+
+    if (targetElement && messagesContainerRef.current) {
+      const container = messagesContainerRef.current
+      // Get the element's position relative to the scrollable container
+      const itemTop = targetElement.offsetTop
+      // Account for container's padding (p-4 = 16px) and space-y-2 (8px between items)
+      // We want the message to appear at the top, so subtract these offsets
+      const containerPadding = 16
+      const itemSpacing = 80
+
+      container.scrollTo({
+        top: itemTop - containerPadding - itemSpacing,
+        behavior: 'smooth'
+      })
     }
-  }, [conversationItems])
+  }, [chatFocusTarget, conversationItems])
 
   const handleInterrupt = (): void => {
     try {
@@ -127,11 +133,51 @@ export function ChatDisplay(): React.ReactElement {
     setTrimCount(newTrimCount)
   }
 
+  const handleCloseChatDisplay = (): void => {
+    setChatDisplayVisible(false)
+  }
+
+  // Auto-clear selection on user scroll (but not during programmatic scroll to selection)
+  useEffect(() => {
+    const container = messagesContainerRef.current
+    if (!container || !chatFocusTarget) return
+
+    let isUserScroll = false
+    const scrollTimeout = setTimeout(() => {
+      // After initial programmatic scroll, any scroll is user-initiated
+      isUserScroll = true
+    }, 500) // Wait for initial scroll animation to complete
+
+    const handleScroll = () => {
+      if (isUserScroll) {
+        setChatFocusTarget(null)
+      }
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => {
+      clearTimeout(scrollTimeout)
+      container.removeEventListener('scroll', handleScroll)
+    }
+  }, [chatFocusTarget, setChatFocusTarget])
+
   return (
     <div className="flex flex-col h-full bg-dark-bg">
       {/* Header */}
       <div className="border-b border-dark-border p-4">
-        <h2 className="text-xl font-semibold text-dark-text">Agent Conversation</h2>
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-dark-text">Agent Conversation</h2>
+          </div>
+          <button
+            onClick={handleCloseChatDisplay}
+            className="p-2 text-gray-400 hover:text-gray-200 hover:bg-dark-hover rounded transition-colors"
+            aria-label="Close chat display"
+            title="Hide chat display"
+          >
+            <X size={20} />
+          </button>
+        </div>
         <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
           <div
             className={`w-2 h-2 rounded-full ${
@@ -156,24 +202,51 @@ export function ChatDisplay(): React.ReactElement {
           </div>
         ) : (
           <div className="space-y-2">
-            {conversationItems.map((item, index) => {
+            {conversationItems.map((item) => {
+              const itemKey = getConversationItemKey(item.nodeId, item.type)
+              const isFocused =
+                chatFocusTarget?.nodeId === item.nodeId && chatFocusTarget.itemType === item.type
+
               if (item.type === 'message') {
                 const message = item.data
                 const messageIndex = messages.findIndex(m => m.node_id === message.node_id)
+                const fallbackSelected = !chatFocusTarget && selectedNodeIdForChat === item.nodeId
+                const isSelected = isFocused || fallbackSelected
                 return (
-                  <MessageItem
+                  <div
                     key={`msg-${item.nodeId}`}
-                    message={message}
-                    messageIndex={messageIndex}
-                    totalMessages={messages.length}
-                    onSetTrimPoint={handleSetTrimPoint}
-                    isInterrupted={isInterrupted}
-                  />
+                    ref={(el) => { conversationItemRefs.current[itemKey] = el }}
+                    className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-opacity-50 rounded' : ''}`}
+                  >
+                    <MessageItem
+                      message={message}
+                      messageIndex={messageIndex}
+                      totalMessages={messages.length}
+                      onSetTrimPoint={handleSetTrimPoint}
+                      isInterrupted={isInterrupted}
+                    />
+                  </div>
                 )
               } else if (item.type === 'tool_call') {
-                return <ToolCallItem key={`tc-${item.nodeId}`} toolCall={item.data} />
+                return (
+                  <div
+                    key={`tc-${item.nodeId}`}
+                    ref={(el) => { conversationItemRefs.current[itemKey] = el }}
+                    className={`transition-all ${isFocused ? 'ring-2 ring-blue-500 ring-opacity-50 rounded' : ''}`}
+                  >
+                    <ToolCallItem toolCall={item.data} />
+                  </div>
+                )
               } else if (item.type === 'tool_execution') {
-                return <ToolExecutionItem key={`te-${item.nodeId}`} toolExecution={item.data} />
+                return (
+                  <div
+                    key={`te-${item.nodeId}`}
+                    ref={(el) => { conversationItemRefs.current[itemKey] = el }}
+                    className={`transition-all ${isFocused ? 'ring-2 ring-green-500 ring-opacity-50 rounded' : ''}`}
+                  >
+                    <ToolExecutionItem toolExecution={item.data} />
+                  </div>
+                )
               }
               return null
             })}

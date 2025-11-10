@@ -22,7 +22,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const agentInputDraft = useAgentInputDraft()
-  const { setAgentInputDraft } = useAgentInputActions()
+  const { setHumanInputDraft } = useAgentInputActions()
 
   // Focus textarea when modal opens
   useEffect(() => {
@@ -104,7 +104,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
           <textarea
             ref={textareaRef}
             value={agentInputDraft}
-            onChange={(e) => setAgentInputDraft(e.target.value)}
+            onChange={(e) => setHumanInputDraft(e.target.value)}
             onKeyDown={handleKeyDown}
             className="w-full px-3 py-2 bg-gray-900 text-gray-200 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
             rows={3}

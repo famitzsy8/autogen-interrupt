@@ -28,6 +28,7 @@ import type {
     UserDirectedMessage,
     UserInterrupt,
     AppError,
+    ChatFocusTarget,
 } from '../types'
 
 import {
@@ -76,6 +77,11 @@ interface State {
     toolCallsByNodeId: Record<string, ToolCall>
     toolExecutionsByNodeId: Record<string, ToolExecution>
 
+    // Chat display state
+    isChatDisplayVisible: boolean
+    selectedNodeIdForChat: string | null
+    chatFocusTarget: ChatFocusTarget | null
+
     // Error state
     error: AppError | null
 
@@ -113,6 +119,9 @@ interface State {
     // Actions: Toggling state variables
     setStreamState: (state: StreamState) => void
     setInterrupted: (interrupted: boolean) => void
+    setChatDisplayVisible: (visible: boolean) => void
+    setSelectedNodeIdForChat: (nodeId: string | null) => void
+    setChatFocusTarget: (target: ChatFocusTarget | null) => void
     setError: (error: AppError | null) => void
     clearError: () => void
     reset: () => void
@@ -140,6 +149,9 @@ const initialState = {
     humanInputDraft: '',
     toolCallsByNodeId: {},
     toolExecutionsByNodeId: {},
+    isChatDisplayVisible: false,  // Hidden by default, shows when summary is clicked
+    selectedNodeIdForChat: null,
+    chatFocusTarget: null,
     error: null
 }
 
@@ -199,8 +211,6 @@ export const useStore = create<State>()(
 
                     // what we do when we recieve a message
                     ws.onmessage = (event: MessageEvent) => {
-                        console.log("Recieved message from the agent team", event.data)
-
                         try {
                             const message: ServerMessage = JSON.parse(event.data)
                             get().handleServerMessage(message)
@@ -232,7 +242,7 @@ export const useStore = create<State>()(
                         })
                     }
 
-                    ws.onclose = (event) => {
+                    ws.onclose = () => {
                         const {wsConnection, reconnect} = get()
                         set({ connectionState: ConnectionStateEnum.DISCONNECTED})
 
@@ -557,6 +567,24 @@ export const useStore = create<State>()(
 
             setInterrupted: (interrupted: boolean) => {
                 set({isInterrupted: interrupted})
+            },
+
+            setChatDisplayVisible: (visible: boolean) => {
+                set({isChatDisplayVisible: visible})
+            },
+
+            setSelectedNodeIdForChat: (nodeId: string | null) => {
+                set({
+                    selectedNodeIdForChat: nodeId,
+                    chatFocusTarget: nodeId ? { nodeId, itemType: 'message' } : null,
+                })
+            },
+
+            setChatFocusTarget: (target: ChatFocusTarget | null) => {
+                set({
+                    chatFocusTarget: target,
+                    selectedNodeIdForChat: target ? target.nodeId : null,
+                })
             },
 
             setError: (error: AppError | null ) => {

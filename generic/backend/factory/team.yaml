@@ -322,9 +322,4 @@ prompts:
 
     They will mostly communicate findings from the Congress MCP server. So you will summarize in the following style:
 
-    - condense concrete findings: "Barasso chair of Energy Subcommittee, Wyden ranking member, Delano(WY) and 10 others on Committee"
-    - condense next steps: "Committee specialist to get committee actions next"
-
-    --> output all of these condensations together in the following style:
-
-    "condesnation 1, Condensation 2" (no bullet point style)
+    - take the no. 1 novel finding and turn it into a roughly 15-word sentence!

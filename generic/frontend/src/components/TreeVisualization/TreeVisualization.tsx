@@ -15,8 +15,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { TreeControls, useTreeKeyboardShortcuts } from './TreeControls'
 import { useD3Tree } from './useD3Tree'
 import { countNodes, getTreeDepth } from './utils/treeUtils'
-import { useToolCallsByNodeId, useToolExecutionsByNodeId, useIsInterrupted } from '../../hooks/useStore'
-import type { TreeNode } from '../../types'
+import { useToolCallsByNodeId, useToolExecutionsByNodeId, useIsInterrupted, useChatDisplayActions } from '../../hooks/useStore'
+import type { ConversationItemType, TreeNode } from '../../types'
 
 /**
  * Props for TreeVisualization component.
@@ -40,6 +40,13 @@ export function TreeVisualization({
   const toolCallsByNodeId = useToolCallsByNodeId()
   const toolExecutionsByNodeId = useToolExecutionsByNodeId()
   const isInterrupted = useIsInterrupted()
+  const { setChatDisplayVisible, setChatFocusTarget } = useChatDisplayActions()
+
+  // Handler for node clicks - shows chat display and selects the node
+  const handleNodeClick = (nodeId: string, itemType: ConversationItemType) => {
+    setChatFocusTarget({ nodeId, itemType })
+    setChatDisplayVisible(true)
+  }
 
   // Update dimensions on resize
   useEffect(() => {
@@ -72,6 +79,7 @@ export function TreeVisualization({
       toolCallsByNodeId,
       toolExecutionsByNodeId,
       isInterrupted,
+      onNodeClick: handleNodeClick,
     }
   )
 

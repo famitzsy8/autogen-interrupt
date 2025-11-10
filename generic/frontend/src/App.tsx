@@ -3,6 +3,7 @@ import { ChatDisplay } from './components/ChatDisplay'
 import { TreeVisualization } from './components/TreeVisualization'
 import AgentInputModal from './components/AgentInputModal'
 import { ConfigForm } from './components/ConfigForm'
+import { MessageSquare } from 'lucide-react'
 import type { RunConfig } from './types'
 import {
   useAgentInputActions,
@@ -13,21 +14,29 @@ import {
   useConnectionState,
   useConversationTree,
   useCurrentBranchId,
+  useIsChatDisplayVisible,
+  useChatDisplayActions,
 } from './hooks/useStore'
 
 function App(): React.ReactElement {
   const [isConfigured, setIsConfigured] = useState(false)
   const hasConnectedRef = useRef(false)
-  const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8001/ws/agent'
+  const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8006/ws/agent'
 
-  const { connect, sendConfig, disconnect } = useConnectionActions()
+  const { connect, sendConfig } = useConnectionActions()
   const connectionState = useConnectionState()
   const agentTeamNames = useAgentTeamNames()
   const participantNames = useParticipantNames()
   const conversationTree = useConversationTree()
   const currentBranchId = useCurrentBranchId()
   const agentInputRequest = useAgentInputRequest()
+  const isChatDisplayVisible = useIsChatDisplayVisible()
   const { sendHumanInputResponse } = useAgentInputActions()
+  const { setChatDisplayVisible } = useChatDisplayActions()
+
+  const handleToggleChatDisplay = () => {
+    setChatDisplayVisible(!isChatDisplayVisible)
+  }
 
   // Connect to WebSocket on mount (only once)
   useEffect(() => {
@@ -62,9 +71,9 @@ function App(): React.ReactElement {
 
   return (
     <div className="min-h-screen bg-dark-bg text-dark-text">
-      <div className="flex h-screen">
-        {/* Tree visualization area (70% width) */}
-        <div className="flex-[0_0_70%] border-r border-dark-border relative">
+      <div className="relative h-screen w-full">
+        {/* Tree visualization area (always full size) */}
+        <div className="absolute inset-0">
           <TreeVisualization
             treeData={conversationTree}
             currentBranchId={currentBranchId}
@@ -83,12 +92,26 @@ function App(): React.ReactElement {
               }}
             />
           )}
+
+          {/* Floating toggle button for chat display */}
+          {!isChatDisplayVisible && (
+            <button
+              onClick={handleToggleChatDisplay}
+              className="absolute top-4 right-4 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-colors z-10"
+              aria-label="Show chat display"
+              title="Show full messages"
+            >
+              <MessageSquare size={24} />
+            </button>
+          )}
         </div>
 
-        {/* Chat display area (30% width) */}
-        <div className="flex-[0_0_30%] flex flex-col">
-          <ChatDisplay />
-        </div>
+        {/* Chat display overlay (slides in from right) */}
+        {isChatDisplayVisible && (
+          <div className="fixed right-0 top-0 h-full w-[400px] bg-dark-bg border-l border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
+            <ChatDisplay />
+          </div>
+        )}
       </div>
 
       {/* Connection status indicator */}

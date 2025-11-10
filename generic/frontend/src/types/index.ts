@@ -250,4 +250,10 @@ export interface AppError {
     message: string
     timestamp: string
   }
-  
+
+export type ConversationItemType = 'message' | 'tool_call' | 'tool_execution'
+
+export interface ChatFocusTarget {
+  nodeId: string
+  itemType: ConversationItemType
+}

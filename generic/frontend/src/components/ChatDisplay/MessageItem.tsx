@@ -14,6 +14,7 @@ import { MessageCircle } from 'lucide-react'
 import { Streamdown } from 'streamdown'
 import { getAgentColor, getAgentDisplayName } from '../../constants/agents'
 import type { AgentMessage } from '../../types'
+import type { BundledTheme } from 'shiki'
 
 interface MessageItemProps {
   message: AgentMessage
@@ -32,6 +33,7 @@ export function MessageItem({
 }: MessageItemProps): React.ReactElement {
   const agentColor = getAgentColor(message.agent_name)
   const displayName = getAgentDisplayName(message.agent_name)
+  const shikiThemes: [BundledTheme, BundledTheme] = ['github-light-default', 'github-dark-default']
 
   // Calculate trim count: number of messages from this point to the end
   const trimCount = totalMessages - messageIndex - 1
@@ -63,7 +65,7 @@ export function MessageItem({
         }}
       >
         <div className="text-dark-text text-sm leading-relaxed [&>*]:my-0 [&>p]:my-2 [&>pre]:my-2">
-          <Streamdown parseIncompleteMarkdown={true} controls={true} shikiTheme={['github-dark-default']}>
+          <Streamdown parseIncompleteMarkdown={true} controls={true} shikiTheme={shikiThemes}>
             {message.content}
           </Streamdown>
         </div>
