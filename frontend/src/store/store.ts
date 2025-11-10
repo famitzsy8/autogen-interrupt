@@ -69,6 +69,13 @@ interface State {
     trimCount: number
     userMessageDraft: string
 
+    // Edge interrupt state (for clicking edges to branch)
+    edgeInterrupt: {
+        targetNodeId: string
+        position: { x: number; y: number }
+        trimCount: number
+    } | null
+
     // Agent input request state
     agentInputRequest: AgentInputRequest | null
     humanInputDraft: string
@@ -111,6 +118,10 @@ interface State {
     setTrimCount: (count: number) => void
     setUserMessageDraft: (draft: string) => void
 
+    // Actions: Edge interrupt management
+    setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
+    clearEdgeInterrupt: () => void
+
     // Actions: Human-Agent interaction (UserProxyAgent)
     sendHumanInputResponse: (requestId: string, userInput: string) => void
     setHumanInputDraft: (draft: string) => void
@@ -145,6 +156,7 @@ const initialState = {
     selectedAgent: null,
     trimCount: 0,
     userMessageDraft: '',
+    edgeInterrupt: null,
     agentInputRequest: null,
     humanInputDraft: '',
     toolCallsByNodeId: {},
@@ -190,6 +202,7 @@ export const useStore = create<State>()(
                     selectedAgent: null,
                     trimCount: 0,
                     userMessageDraft: '',
+                    edgeInterrupt: null,
                 })
 
                 try {
@@ -488,7 +501,8 @@ export const useStore = create<State>()(
                     userMessageDraft: '',
                     trimCount: 0,
                     isInterrupted: false,
-                    streamState: StreamStateEnum.STREAMING
+                    streamState: StreamStateEnum.STREAMING,
+                    edgeInterrupt: null,
                 })
             },
 
@@ -525,6 +539,20 @@ export const useStore = create<State>()(
 
             setUserMessageDraft: (draft: string) => {
                 set({userMessageDraft: draft})
+            },
+
+            setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => {
+                set({
+                    edgeInterrupt: {
+                        targetNodeId,
+                        position,
+                        trimCount,
+                    },
+                })
+            },
+
+            clearEdgeInterrupt: () => {
+                set({edgeInterrupt: null})
             },
 
             sendHumanInputResponse: (requestId: string, userInput: string) => {

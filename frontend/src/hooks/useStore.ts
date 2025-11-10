@@ -281,5 +281,21 @@ export function useChatDisplayActions() {
       setChatDisplayVisible: state.setChatDisplayVisible,
       setSelectedNodeIdForChat: state.setSelectedNodeIdForChat,
       setChatFocusTarget: state.setChatFocusTarget,
+   * Hook to access edge interrupt state.
+   */
+  export function useEdgeInterrupt(): { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null {
+    return useStore((state) => state.edgeInterrupt)
+  }
+
+  /**
+   * Hook to access edge interrupt actions.
+   */
+  export function useEdgeInterruptActions(): {
+    setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
+    clearEdgeInterrupt: () => void
+  } {
+    return useStore((state) => ({
+      setEdgeInterrupt: state.setEdgeInterrupt,
+      clearEdgeInterrupt: state.clearEdgeInterrupt,
     }))
   }
