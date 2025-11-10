@@ -155,6 +155,7 @@ class TreeNode(BaseModel):
 
     id: str = Field(..., description="Unique node message identifier")
     agent_name: str = Field(..., description="Name of the agent who sent this message")
+    display_name: str = Field(..., description="Display name of the agent (human-readable)")
     message: str = Field(..., description="Message content")
     summary: str = Field(default="", description="AI-generated summary of the message content")
     parent: str | None = Field(default=None, description="ID of the parent node (None for root)")

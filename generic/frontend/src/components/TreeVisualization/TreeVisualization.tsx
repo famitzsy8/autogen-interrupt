@@ -15,7 +15,16 @@ import React, { useEffect, useRef, useState } from 'react'
 import { TreeControls, useTreeKeyboardShortcuts } from './TreeControls'
 import { useD3Tree } from './useD3Tree'
 import { countNodes, getTreeDepth } from './utils/treeUtils'
-import { useToolCallsByNodeId, useToolExecutionsByNodeId, useIsInterrupted, useChatDisplayActions } from '../../hooks/useStore'
+import {
+  useToolCallsByNodeId,
+  useToolExecutionsByNodeId,
+  useIsInterrupted,
+  useChatDisplayActions
+  useEdgeInterrupt,
+  useEdgeInterruptActions,
+  useMessageActions,
+} from '../../hooks/useStore'
+import { EdgeInterruptPopup } from './EdgeInterruptPopup'
 import type { ConversationItemType, TreeNode } from '../../types'
 
 /**
@@ -36,6 +45,7 @@ export function TreeVisualization({
   className = '',
 }: TreeVisualizationProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null)
+  const svgContainerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
   const toolCallsByNodeId = useToolCallsByNodeId()
   const toolExecutionsByNodeId = useToolExecutionsByNodeId()
@@ -47,6 +57,9 @@ export function TreeVisualization({
     setChatFocusTarget({ nodeId, itemType })
     setChatDisplayVisible(true)
   }
+  const edgeInterrupt = useEdgeInterrupt()
+  const { setEdgeInterrupt, clearEdgeInterrupt } = useEdgeInterruptActions()
+  const { sendInterrupt, sendUserMessage } = useMessageActions()
 
   // Update dimensions on resize
   useEffect(() => {
@@ -69,8 +82,63 @@ export function TreeVisualization({
     }
   }, [])
 
+  // Handle edge click: send interrupt and store edge info for popup
+  const handleEdgeClick = (targetNodeId: string, mousePosition: { x: number; y: number }): void => {
+    // Send interrupt to backend
+    try {
+      sendInterrupt()
+
+      // Calculate trim_count: number of messages AFTER the target node in the current branch
+      let trimCount = 0
+      if (treeData) {
+        // Find the target node and its timestamp
+        let targetTimestamp: string | null = null
+        const findTargetNode = (node: TreeNode): void => {
+          if (node.id === targetNodeId) {
+            targetTimestamp = node.timestamp
+          }
+          if (node.children) {
+            node.children.forEach(findTargetNode)
+          }
+        }
+        findTargetNode(treeData)
+
+        // Count nodes in current branch that come AFTER the target node
+        if (targetTimestamp) {
+          const targetTime = targetTimestamp // Capture for closure
+          const countNodesAfter = (node: TreeNode): void => {
+            if (node.branch_id === currentBranchId && node.is_active) {
+              if (node.timestamp > targetTime) {
+                trimCount++
+              }
+            }
+            if (node.children) {
+              node.children.forEach(countNodesAfter)
+            }
+          }
+          countNodesAfter(treeData)
+        }
+      }
+
+      console.log(`[TreeVisualization] Edge clicked: targetNode=${targetNodeId}, trimCount=${trimCount}`)
+
+      // Convert screen coordinates (clientX/clientY) to container-relative coordinates
+      // The popup is absolutely positioned relative to svgContainerRef (which has position: relative)
+      if (svgContainerRef.current) {
+        const containerRect = svgContainerRef.current.getBoundingClientRect()
+        const containerX = mousePosition.x - containerRect.left
+        const containerY = mousePosition.y - containerRect.top
+
+        console.log(`[TreeVisualization] Popup position: (${containerX}, ${containerY})`)
+        setEdgeInterrupt(targetNodeId, { x: containerX, y: containerY }, trimCount)
+      }
+    } catch (error) {
+      console.error('Failed to send interrupt:', error)
+    }
+  }
+
   // Initialize D3 tree
-  const { svgRef, root, recenter, zoomIn, zoomOut, resetZoom } = useD3Tree(
+  const { svgRef, root, recenter, zoomIn, zoomOut, resetZoom, isNavigationMode, enableAutoCenter } = useD3Tree(
     treeData,
     currentBranchId,
     {
@@ -80,6 +148,8 @@ export function TreeVisualization({
       toolExecutionsByNodeId,
       isInterrupted,
       onNodeClick: handleNodeClick,
+      edgeInterrupt,
+      onEdgeClick: handleEdgeClick,
     }
   )
 
@@ -105,30 +175,45 @@ export function TreeVisualization({
         onResetZoom={resetZoom}
         nodeCount={nodeCount}
         treeDepth={treeDepth}
+        isNavigationMode={isNavigationMode}
+        onEnableAutoCenter={enableAutoCenter}
       />
 
       {/* Tree SVG */}
-      {treeData ? (
-        <svg
-          ref={svgRef}
-          width={dimensions.width}
-          height={dimensions.height}
-          className="w-full h-full bg-dark-bg"
-          style={{ cursor: 'grab' }}
-          onMouseDown={(e) => {
-            if (e.currentTarget) {
-              e.currentTarget.style.cursor = 'grabbing'
-            }
-          }}
-          onMouseUp={(e) => {
-            if (e.currentTarget) {
-              e.currentTarget.style.cursor = 'grab'
-            }
-          }}
-        />
-      ) : (
-        <EmptyTreeState />
-      )}
+      <div ref={svgContainerRef} className="relative w-full h-full">
+        {treeData ? (
+          <svg
+            ref={svgRef}
+            width={dimensions.width}
+            height={dimensions.height}
+            className="w-full h-full bg-dark-bg"
+            style={{ cursor: 'grab' }}
+            onMouseDown={(e) => {
+              if (e.currentTarget) {
+                e.currentTarget.style.cursor = 'grabbing'
+              }
+            }}
+            onMouseUp={(e) => {
+              if (e.currentTarget) {
+                e.currentTarget.style.cursor = 'grab'
+              }
+            }}
+          />
+        ) : (
+          <EmptyTreeState />
+        )}
+
+        {/* Edge Interrupt Popup */}
+        {edgeInterrupt && (
+          <EdgeInterruptPopup
+            position={edgeInterrupt.position}
+            targetNodeId={edgeInterrupt.targetNodeId}
+            trimCount={edgeInterrupt.trimCount}
+            onSendMessage={sendUserMessage}
+            onClose={clearEdgeInterrupt}
+          />
+        )}
+      </div>
     </div>
   )
 }

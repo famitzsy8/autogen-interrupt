@@ -107,6 +107,7 @@ class AgentTeamContext:
     team: BaseGroupChat
     user_control: UserControlAgent
     participant_names: list[str]
+    display_names: dict[str, str]  # Maps agent_name -> display_name
 
 async def init_team(
     api_key: str,
@@ -203,10 +204,23 @@ async def init_team(
 
     user_control = UserControlAgent(name="You")
 
+    # Build display_names mapping from agent_name to display_name
+    display_names = {}
+    for agent_config in config_data["agents"].values():
+        agent_name = agent_config["name"]
+        display_name = agent_config.get("display_name", agent_name)
+        display_names[agent_name] = display_name
+
+    # Add special display names
+    display_names["You"] = "You"
+    display_names["User"] = "User"
+    display_names["System"] = "System"
+
     return AgentTeamContext(
         team=team,
         user_control=user_control,
-        participant_names=[a.name for a in agents]
+        participant_names=[a.name for a in agents],
+        display_names=display_names
     )
 
 

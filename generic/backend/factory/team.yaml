@@ -2,6 +2,7 @@ team_name: congress_investigation_team
 
 agents:
   orchestrator:
+    display_name: Orchestrator
     description: >
       You are the orchestrator of the step-by-step investigation to lead the investigation of {bill} described in the task.
       You are the primary responsible agent for the investigation, determining if all the puzzle pieces are in place, and if you have all the information you need to compile the table ACCURATELY and IN NUANCE.
@@ -39,6 +40,7 @@ agents:
     reflect_on_tool_use: false
 
   actions_specialist:
+    display_name: Actions Specialist
     description: >
       You are the specialist in everything related to the broad timeline of actions that relates the entire bill's progress.
       Thus you will provide the crucial information when it comes to glueing together the involvement of Congressmen in the committees with the actions that were then taken on the Congress floor.
@@ -64,6 +66,7 @@ agents:
     reflect_on_tool_use: true
 
   bill_specialist:
+    display_name: Bill Specialist
     description: >
       Your role is very special in this deep investigation. You will have access to tools that can give you directly
       the sections of the bill that are of most relevance to {company_name}, and even a report on why these sections are of such relevance to {company_name}.
@@ -96,6 +99,7 @@ agents:
     reflect_on_tool_use: true
 
   committee_specialist:
+    display_name: Committee Specialist
     description: >
       Without you, the entire investigation would only be half-hearted. You are the specialist that has access to the tools
       that can deeply look into what happened in the committee stage of the bill.
@@ -125,6 +129,7 @@ agents:
     reflect_on_tool_use: true
 
   amendment_specialist:
+    display_name: Amendment Specialist
     description: >
       When you are needed, you will be providing the crucial blindspot the other agents have when it comes to the investigation: amendments.
       Amendments are of huge importance in the legislative process, they can reveal efforts to include last-minute specific special interests into the bill, they can change the semantics of the bill entirely.
@@ -155,6 +160,7 @@ agents:
     reflect_on_tool_use: true
 
   congress_member_specialist:
+    display_name: Congress Member Specialist
     description: >
       Your role is a bit more marginal than the one of the other agents,
       but when you are called you will be the busiest of them all.

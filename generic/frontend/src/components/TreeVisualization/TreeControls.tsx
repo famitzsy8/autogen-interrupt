@@ -22,6 +22,8 @@ interface TreeControlsProps {
   onResetZoom: () => void
   nodeCount?: number
   treeDepth?: number
+  isNavigationMode?: boolean
+  onEnableAutoCenter?: () => void
 }
 
 /**
@@ -34,9 +36,35 @@ export function TreeControls({
   onResetZoom,
   nodeCount = 0,
   treeDepth = 0,
+  isNavigationMode = false,
+  onEnableAutoCenter,
 }: TreeControlsProps): React.ReactElement {
+  console.log('[TreeControls] Received props:', {
+    isNavigationMode,
+    hasEnableAutoCenter: !!onEnableAutoCenter
+  })
+
   return (
     <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+      {/* Navigation mode indicator */}
+      {isNavigationMode && onEnableAutoCenter && (
+        <div className="bg-orange-900 bg-opacity-30 border border-orange-500 rounded-lg p-3 shadow-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+            <span className="text-xs font-semibold text-orange-400">Navigation Mode</span>
+          </div>
+          <p className="text-xs text-gray-400 mb-2">
+            Auto-centering paused
+          </p>
+          <button
+            onClick={onEnableAutoCenter}
+            className="w-full px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-medium rounded transition-colors"
+            title="Resume auto-centering to new messages"
+          >
+            Resume Auto-Center
+          </button>
+        </div>
+      )}
       {/* Stats panel */}
       <div className="bg-dark-hover border border-dark-border rounded-lg p-3 shadow-lg">
         <h3 className="text-xs font-semibold text-gray-400 mb-2">Tree Stats</h3>
