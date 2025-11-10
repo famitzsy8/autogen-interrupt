@@ -45,10 +45,14 @@ class MessageSummarizer:
             A concise summary of the message (1-2 sentences)
         """
         try:
-            # If message is already short, return it as-is
-            if len(message_content) <= 1000:
+            logger.info(f"[SUMMARIZE] Agent: {agent_name}, Message length: {len(message_content)} chars")
+
+            # If message is already very short (< 150 chars), return it as-is
+            if len(message_content) <= 150:
+                logger.info(f"[SUMMARIZE] Message is short (<= 150 chars), returning as-is")
                 return message_content
 
+            logger.info(f"[SUMMARIZE] Message needs summarization, calling OpenAI...")
             user_prompt = f"Summarize this message in one sentence from {agent_name}:\n\n{message_content}" # TODO: come up with a good prompt to summarize the message
 
             response = await self.client.chat.completions.create(
@@ -65,14 +69,14 @@ class MessageSummarizer:
             if not summary:
                 raise ValueError("OpenAI returned empty summary")
 
-            logger.info(f"Generated summary for {agent_name}: {summary[:50]}...")
+            logger.info(f"[SUMMARIZE] SUCCESS - Generated summary for {agent_name} ({len(summary)} chars): {summary[:80]}...")
             return summary.strip()
 
         except Exception as e:
-            logger.error(f"Failed to generate summary: {e}")
-            # Fallback: return first 1000 characters of message
-            fallback = message_content[:1000] + "..." if len(message_content) > 1000 else message_content
-            logger.warning(f"Using fallback summary: {fallback}")
+            logger.error(f"[SUMMARIZE] FAILED - Error generating summary for {agent_name}: {e}")
+            # Fallback: return first 150 characters of message with ellipsis
+            fallback = message_content[:150] + "..." if len(message_content) > 150 else message_content
+            logger.warning(f"[SUMMARIZE] FALLBACK - Using truncated message ({len(fallback)} chars): {fallback[:80]}...")
             return fallback
 
 
