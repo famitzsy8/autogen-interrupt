@@ -49,6 +49,7 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         max_turns: int | None,
         message_factory: MessageFactory,
         emit_team_events: bool = False,
+        agent_input_queue: Any | None = None,
     ):
         super().__init__(
             description="Group chat manager",
@@ -88,14 +89,29 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         self._active_speakers: List[str] = []
         self._interrupted = False
         self._old_threads: List[List[BaseAgentEvent | BaseChatMessage]] = []
+        self._agent_input_queue = agent_input_queue
 
     @rpc
     async def handle_user_interrupt(self, message: UserInterrupt, ctx: MessageContext) -> None:
         """Handle a user interrupt by signaling a termination with a specific reason.
 
-        This does not clear message thread so conversation can resume later."""
-        # DEBUG marker
+        This does not clear message thread so conversation can resume later.
+
+        Also cancels any pending agent input requests to prevent deadlock when
+        UserProxyAgent is waiting for user input."""
         self._interrupted = True
+
+        # Cancel any pending agent input requests
+        # This is critical to prevent deadlock when UserProxyAgent is waiting for input
+        if self._agent_input_queue is not None and hasattr(self._agent_input_queue, 'cancel_all_pending'):
+            try:
+                self._agent_input_queue.cancel_all_pending()
+                print(f"✓ Cancelled all pending agent input requests due to interrupt")
+            except Exception as e:
+                # Don't let cancellation errors block the interrupt
+                print(f"⚠️ Error cancelling pending input requests: {e}")
+
+        # DEBUG marker
         debug_msg = TextMessage(content="DEBUG: handle_user_interrupt received", source=self._name)
         await self.publish_message(
             GroupChatMessage(message=debug_msg),

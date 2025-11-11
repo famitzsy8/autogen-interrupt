@@ -387,6 +387,7 @@ export const useStore = create<State>()(
                         set({
                             isInterrupted: true,
                             streamState: StreamStateEnum.INTERRUPTED,
+                            agentInputRequest: null,
                         })
                         break
                     
