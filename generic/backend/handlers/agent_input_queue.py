@@ -59,10 +59,37 @@ class AgentInputQueue:
 
     def cancel_all_pending(self) -> None:
 
-        for request_id, (future, _, _) in list(self.pending_requests.items()):
+        if not self.pending_requests:
+            # No pending requests, nothing to do
+            return
+
+        cancelled_count = 0
+        error_count = 0
+
+        # Iterate over copy to avoid modification during iteration
+        for request_id, (future, _, agent_name) in list(self.pending_requests.items()):
             if not future.done():
-                future.cancel()
+                try:
+                    # Cancel the future - this will raise CancelledError in awaiter
+                    future.cancel()
+                    cancelled_count += 1
+                    print(f"✗ Cancelled pending input request for {agent_name}: {request_id[:8]}...")
+                except Exception as e:
+                    # future.cancel() should not raise, but be defensive
+                    error_count += 1
+                    print(f"⚠️ Error cancelling future {request_id[:8]} for {agent_name}: {e}")
+            else:
+                # Future already done (resolved, rejected, or cancelled)
+                print(f"ℹ️ Request {request_id[:8]} for {agent_name} already completed")
+
+        # Clear all pending requests
         self.pending_requests.clear()
+
+        # Summary logging
+        if cancelled_count > 0:
+            print(f"✓ Successfully cancelled {cancelled_count} pending input request(s)")
+        if error_count > 0:
+            print(f"⚠️ Failed to cancel {error_count} request(s)")
     
     def has_pending_requests(self) -> bool:
         return len(self.pending_requests) > 0

@@ -200,6 +200,7 @@ async def init_team(
         termination_condition=MaxMessageTermination(max_messages=max_messages),
         selector_func=selector_prompt,
         model_client=model_client,
+        agent_input_queue=agent_input_queue
     )
 
     user_control = UserControlAgent(name="You")

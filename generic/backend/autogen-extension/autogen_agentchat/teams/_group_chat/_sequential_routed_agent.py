@@ -2,6 +2,7 @@ import asyncio
 from typing import Any, Sequence
 
 from autogen_core import MessageContext, RoutedAgent
+from ._events import UserInterrupt
 
 
 class FIFOLock:
@@ -59,6 +60,8 @@ class SequentialRoutedAgent(RoutedAgent):
         self._sequential_message_types = sequential_message_types
 
     async def on_message_impl(self, message: Any, ctx: MessageContext) -> Any | None:
+        if isinstance(message, UserInterrupt):
+            return await super().on_message_impl(message, ctx)
         if any(isinstance(message, sequential_type) for sequential_type in self._sequential_message_types):
             # Acquire the FIFO lock to ensure that this message is processed
             # in the order it was received.

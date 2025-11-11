@@ -72,6 +72,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         emit_team_events: bool,
         model_context: ChatCompletionContext | None,
         model_client_streaming: bool = False,
+        agent_input_queue: Any | None = None,
     ) -> None:
         super().__init__(
             name,
@@ -85,6 +86,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             max_turns,
             message_factory,
             emit_team_events,
+            agent_input_queue=agent_input_queue,
         )
         self._model_client = model_client
         self._selector_prompt = selector_prompt
@@ -623,6 +625,7 @@ Read the above conversation. Then select the next role from {participants} to pl
         emit_team_events: bool = False,
         model_client_streaming: bool = False,
         model_context: ChatCompletionContext | None = None,
+        agent_input_queue: Any | None = None,
     ):
         super().__init__(
             name=name or self.DEFAULT_NAME,
@@ -635,6 +638,7 @@ Read the above conversation. Then select the next role from {participants} to pl
             runtime=runtime,
             custom_message_types=custom_message_types,
             emit_team_events=emit_team_events,
+            agent_input_queue=agent_input_queue,
         )
         # Validate the participants.
         if len(participants) < 2:
@@ -660,6 +664,7 @@ Read the above conversation. Then select the next role from {participants} to pl
         termination_condition: TerminationCondition | None,
         max_turns: int | None,
         message_factory: MessageFactory,
+        agent_input_queue: Any | None = None,
     ) -> Callable[[], BaseGroupChatManager]:
         return lambda: SelectorGroupChatManager(
             name,
@@ -681,6 +686,7 @@ Read the above conversation. Then select the next role from {participants} to pl
             self._emit_team_events,
             self._model_context,
             self._model_client_streaming,
+            agent_input_queue=agent_input_queue,
         )
 
     def _to_config(self) -> SelectorGroupChatConfig:
