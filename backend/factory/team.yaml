@@ -1,6 +1,15 @@
 team_name: congress_investigation_team
 
 agents:
+  user_proxy_1:
+    display_name: User
+    description: A human user providing input and feedback to the team
+    system_message: ''
+    agent_class: UserProxyAgent
+    input_func: queue_based_input
+    name: user_proxy_1
+    model_client_stream: false
+    reflect_on_tool_use: false
   orchestrator:
     display_name: Orchestrator
     description: >
@@ -26,7 +35,8 @@ agents:
       ONLY if you are ABSOLUTELY SURE that you have all the information you need, you can compile the table and terminate the task.
       For this you will need to give the agent detailed instructions on what you want to know, and the last word should be either one of the {agent_names} or terminate the task.
 
-      IMPORTANT: NEVER hallucinate committee rosters or other sponsorship information. If you are not sure, ask the agents.
+      IMPORTANT: NEVER hallucinate committee rosters or other sponsorship information.
+      ALSO IMPORTANT: After EVERY BIG STEP, CALL THE USERPROXY AGENT FOR INTERMEDIATE FEEDBACK.
       When referring to other agents, use the agent name as it is written in the {agent_names} list.
 
       ALSO: YOU compile the final table of the investigation. You DON'T need to ask other agents for confirmation that we have everything, because YOU are the team lead.
@@ -269,8 +279,8 @@ team:
   group_chat_class: SelectorGroupChat
   group_chat_manager_class: SelectorGroupChatManager
   group_chat_args:
-    has_user_proxy: false
-    user_proxy_name: ''
+    has_user_proxy: true
+    user_proxy_name: user_proxy_1
     allowed_transitions: null  # Not used for SelectorGroupChat
     max_turns: 150
     default_selector_prompt: >
