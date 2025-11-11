@@ -26,6 +26,8 @@ from tools.FilteredWorkbench import FilteredWorkbench
 
 from factory.registry import FunctionRegistry
 from factory.function_loader import FunctionLoader
+from factory.input_function_registry import InputFunctionRegistry
+from factory.input_function_loader import InputFunctionLoader
 
 
 logger = logging.getLogger(__name__)
@@ -134,16 +136,32 @@ async def init_team(
     
     loader = FunctionLoader(registry)
 
+    # Initialize input function registry
+    input_func_registry = InputFunctionRegistry()
+    input_func_registry.load_from_module("factory.input_functions")
+
+    if input_func_registry.get_errors():
+        for error in input_func_registry.get_errors():
+            logger.warning(f"   {error}")
+
+    input_func_loader = InputFunctionLoader(input_func_registry)
+
     if has_user_proxy and agent_input_queue is not None:
         user_proxy_agent_name = config_data["team"]["group_chat_args"]["user_proxy_name"]
+        user_proxy_config = config_data["agents"][user_proxy_agent_name]
+        input_func_name = user_proxy_config.get("input_func", "queue_based_input")
+
+        # Retrieve input function template and wrap in closure
+        input_func_template = input_func_loader.get_input_function(input_func_name)
+
         async def user_proxy_input(
             prompt: str, cancellation_token: CancellationToken | None = None
         ) -> str:
-
-            return await agent_input_queue.get_input(
+            return await input_func_template(
+                agent_input_queue=agent_input_queue,
+                agent_name=user_proxy_agent_name,
                 prompt=prompt,
                 cancellation_token=cancellation_token,
-                agent_name=user_proxy_agent_name
             )
 
         # Format user_proxy description with config values if available
@@ -165,6 +183,7 @@ async def init_team(
             description=user_proxy_description,
             input_func=user_proxy_input, # This listens to the WebSocket input configured in agent_input_queue
         )
+        # UserProxyAgent will be added to agents list after build_agents
 
     if config_data["team"]["mcp_url"] is not None:
         params = globals()[config_data["team"]["params_class"]](
@@ -189,7 +208,10 @@ async def init_team(
             bill_name=bill_name,
             congress=congress
         )
-    
+
+    # Add UserProxyAgent to agents list if it was created
+    if has_user_proxy and agent_input_queue is not None:
+        agents.insert(0, user_proxy)  # Insert at beginning for selector to prefer other agents first
 
     if selector_prompt is not None:
         enhanced_selector_prompt = await enhance_selector_prompt(
@@ -245,6 +267,9 @@ async def build_agents(
     agents = []
 
     for agent_name, agent_cfg in config_data["agents"].items():
+        # Skip UserProxyAgent - it's created separately in init_team with special handling
+        if agent_cfg["agent_class"] == "UserProxyAgent":
+            continue
         # Format agent description with config values if available
         description = agent_cfg["description"]
         if company_name and bill_name and congress:
@@ -294,12 +319,7 @@ async def build_agents(
                     workbench,
                     agent_cfg["tools"]["mcp_tools"]["allowed_tool_names"]
                 )
-            
-            # Combine both types of tools # TODO: make sure this works like this
-            all_tools = python_tools
-            if mcp_workbench:
-                all_tools = python_tools + [mcp_workbench] if python_tools else [mcp_workbench]
-            
+
             agent_kwargs = {
                 "name": agent_cfg["name"],
                 "model_client": model_client,
@@ -309,10 +329,11 @@ async def build_agents(
                 "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False)
             }
 
-            if mcp_workbench and not python_tools:
+            # Cannot use both workbench and tools - workbench takes precedence
+            if mcp_workbench:
                 agent_kwargs["workbench"] = mcp_workbench
-            elif all_tools:
-                agent_kwargs["tools"] = all_tools
+            elif python_tools:
+                agent_kwargs["tools"] = python_tools
             
             a = globals()[agent_cfg["agent_class"]](**agent_kwargs)
             agents.append(a)
