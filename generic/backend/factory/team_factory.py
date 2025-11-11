@@ -1,35 +1,32 @@
-from autogen_core.models import _model_client
-from pydantic import config
-import yaml
-from typing import Sequence, List
-
+# Standard library imports
 import logging
 import os
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
-import openai
-
 from pathlib import Path
-from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams, SseServerParams
-from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent, UserProxyAgent
+from typing import TYPE_CHECKING, List, Sequence
+
+# Third-party imports
+import openai
+import yaml
+from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.agents._user_control_agent import UserControlAgent
 from autogen_agentchat.conditions import MaxMessageTermination
-from autogen_core import Agent, CancellationToken
-from autogen_core.tools import FunctionTool
-from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
-from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
 from autogen_agentchat.teams import BaseGroupChat
 from autogen_agentchat.teams._group_chat._selector_group_chat import SelectorGroupChat
+from autogen_core import CancellationToken
+from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams, SseServerParams
 from openai import AsyncOpenAI
 
-from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
-
-
-# from _hierarchical_groupchat import HierarchicalGroupChat # TODO: handle the allowedTransitions field for the general factory of Group Chats
-
-from handlers.agent_input_queue import AgentInputQueue
+# Local imports
 from agents.PlannerAgent import PlannerAgent
+from handlers.agent_input_queue import AgentInputQueue
 from tools.FilteredWorkbench import FilteredWorkbench
+
+from factory.registry import FunctionRegistry
+from factory.function_loader import FunctionLoader
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -128,6 +125,15 @@ async def init_team(
     enhance_prompt_client = AsyncOpenAI(api_key=api_key)
     has_user_proxy = config_data["team"]["group_chat_args"]["has_user_proxy"]
 
+    registry = FunctionRegistry()
+    registry.load_from_module("factory.tool_functions")
+
+    if registry.get_errors():
+        for error in registry.get_errors():
+            logger.warning(f"   {error}")
+    
+    loader = FunctionLoader(registry)
+
     if has_user_proxy and agent_input_queue is not None:
         user_proxy_agent_name = config_data["team"]["group_chat_args"]["user_proxy_name"]
         async def user_proxy_input(
@@ -169,6 +175,7 @@ async def init_team(
             agents = await build_agents(
                 workbench,
                 model_client=model_client,
+                loader=loader,
                 company_name=company_name,
                 bill_name=bill_name,
                 congress=congress
@@ -178,6 +185,7 @@ async def init_team(
             None,
             model_client=model_client,
             company_name=company_name,
+            loader=loader,
             bill_name=bill_name,
             congress=congress
         )
@@ -228,6 +236,7 @@ async def init_team(
 async def build_agents(
     workbench: McpWorkbench | None,
     model_client: OpenAIChatCompletionClient,
+    loader: FunctionLoader,
     company_name: str | None = None,
     bill_name: str | None = None,
     congress: str | None = None
@@ -253,28 +262,59 @@ async def build_agents(
             )
 
         if workbench is None:
-            a = globals()[agent_cfg["agent_class"]](
-                name = agent_cfg["name"],
-                model_client = model_client,
-                system_message = agent_cfg["system_message"], # TODO: check if including a '' system message affects behavior of the agents
-                description = description,
-                model_client_stream = agent_cfg.get("model_client_stream", False),
-                reflect_on_tool_use = agent_cfg.get("reflect_on_tool_use", False)
-            )
+            python_tools = []
+            if "python_tools" in agent_cfg.get("tools", {}):
+                tool_names = agent_cfg["tools"]["python_tools"] # TODO: make sure python_tools is in YAML
+                python_tools = loader.get_tool_functions_by_names(tool_names)
+            
+            agent_kwargs = {
+                "name": agent_cfg["name"],
+                "model_client": model_client,
+                "system_message": agent_cfg["system_message"],
+                "description": description,
+                "model_client_stream": agent_cfg.get("model_client_stream", False),
+                "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False)
+            }
+
+            if python_tools:
+                agent_kwargs["tools"] = python_tools
+
+            a = globals()[agent_cfg["agent_class"]](**agent_kwargs)
             agents.append(a)
+
         else:
-            a = globals()[agent_cfg["agent_class"]](
-                name = agent_cfg["name"],
-                model_client = model_client,
-                system_message = agent_cfg["system_message"], # TODO: check if including a '' system message affects behavior of the agents
-                description = description,
-                model_client_stream = agent_cfg.get("model_client_stream", False),
-                workbench = globals()[agent_cfg["tools"]["workbench_class"]](
+            python_tools = []
+            if "python_tools" in agent_cfg.get("tools", {}):
+                tool_names = agent_cfg["tools"]["python_tools"]
+                python_tools = loader.get_tool_functions_by_names(tool_names)
+            
+            mcp_workbench = None
+            if "mcp_tools" in agent_cfg.get("tools", {}):
+                mcp_workbench = globals()[agent_cfg["tools"]["mcp_tools"]["workbench_class"]](
                     workbench,
-                    agent_cfg["tools"]["allowed_tool_names"]
-                ),
-                reflect_on_tool_use = agent_cfg.get("reflect_on_tool_use", False)
-            )
+                    agent_cfg["tools"]["mcp_tools"]["allowed_tool_names"]
+                )
+            
+            # Combine both types of tools # TODO: make sure this works like this
+            all_tools = python_tools
+            if mcp_workbench:
+                all_tools = python_tools + [mcp_workbench] if python_tools else [mcp_workbench]
+            
+            agent_kwargs = {
+                "name": agent_cfg["name"],
+                "model_client": model_client,
+                "system_message": agent_cfg["system_message"],
+                "description": description,
+                "model_client_stream": agent_cfg.get("model_client_stream", False),
+                "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False)
+            }
+
+            if mcp_workbench and not python_tools:
+                agent_kwargs["workbench"] = mcp_workbench
+            elif all_tools:
+                agent_kwargs["tools"] = all_tools
+            
+            a = globals()[agent_cfg["agent_class"]](**agent_kwargs)
             agents.append(a)
 
     return agents
