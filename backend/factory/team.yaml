@@ -33,8 +33,11 @@ agents:
     system_message: ''
     agent_class: PlannerAgent
     tools:
-      workbench_class: FilteredWorkbench
-      allowed_tool_names: ["getBillSummary"]
+      python_tools:
+        - web_search
+      mcp_tools:
+        workbench_class: FilteredWorkbench
+        allowed_tool_names: ["getBillSummary"]
     name: orchestrator
     model_client_stream: true
     reflect_on_tool_use: false
@@ -59,8 +62,9 @@ agents:
     system_message: ''
     agent_class: PlannerAgent
     tools:
-      workbench_class: FilteredWorkbench
-      allowed_tool_names: ["extractBillActions", "get_committee_actions"]
+      mcp_tools:
+        workbench_class: FilteredWorkbench
+        allowed_tool_names: ["extractBillActions", "get_committee_actions"]
     name: actions_specialist
     model_client_stream: true
     reflect_on_tool_use: true
@@ -92,8 +96,9 @@ agents:
     system_message: ''
     agent_class: PlannerAgent
     tools:
-      workbench_class: FilteredWorkbench
-      allowed_tool_names: ["getBillSponsors", "getBillCoSponsors", "getBillCommittees", "getRelevantBillSections", "getBillSummary"]
+      mcp_tools:
+        workbench_class: FilteredWorkbench
+        allowed_tool_names: ["getBillSponsors", "getBillCoSponsors", "getBillCommittees", "getRelevantBillSections", "getBillSummary"]
     name: bill_specialist
     model_client_stream: true
     reflect_on_tool_use: true
@@ -122,8 +127,9 @@ agents:
     system_message: ''
     agent_class: PlannerAgent
     tools:
-      workbench_class: FilteredWorkbench
-      allowed_tool_names: ["get_committee_members", "get_committee_actions", "getBillCommittees"]
+      mcp_tools:
+        workbench_class: FilteredWorkbench
+        allowed_tool_names: ["get_committee_members", "get_committee_actions", "getBillCommittees"]
     name: committee_specialist
     model_client_stream: true
     reflect_on_tool_use: true
@@ -153,8 +159,9 @@ agents:
     system_message: ''
     agent_class: PlannerAgent
     tools:
-      workbench_class: FilteredWorkbench
-      allowed_tool_names: ["getAmendmentSponsors", "getAmendmentCoSponsors", "getBillAmendments", "getAmendmentText", "getAmendmentActions"]
+      mcp_tools:
+        workbench_class: FilteredWorkbench
+        allowed_tool_names: ["getAmendmentSponsors", "getAmendmentCoSponsors", "getBillAmendments", "getAmendmentText", "getAmendmentActions"]
     name: amendment_specialist
     model_client_stream: true
     reflect_on_tool_use: true
@@ -186,8 +193,9 @@ agents:
     system_message: ''
     agent_class: PlannerAgent
     tools:
-      workbench_class: FilteredWorkbench
-      allowed_tool_names: ["getCongressMemberName", "getCongressMembersByState", "getCongressMemberParty", "getCongressMemberState", "getBillSponsors", "getBillCoSponsors"]
+      mcp_tools:
+        workbench_class: FilteredWorkbench
+        allowed_tool_names: ["getCongressMemberName", "getCongressMembersByState", "getCongressMemberParty", "getCongressMemberState", "getBillSponsors", "getBillCoSponsors"]
     name: congress_member_specialist
     model_client_stream: true
     reflect_on_tool_use: true
