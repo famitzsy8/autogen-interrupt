@@ -20,7 +20,7 @@ local_path = os.path.dirname(os.path.abspath(__file__))
 
 class MCPServerWrapper:
 
-    mcp = FastMCP(name="RAG Congress MCP Server", host="0.0.0.0", port=8080, timeout=30)
+    mcp = FastMCP(name="RAG Congress MCP Server", host="0.0.0.0", port=8083, timeout=30)
 
     def __init__(self):
         pass
@@ -712,7 +712,7 @@ class MCPServerWrapper:
         return votes
 
     def run(self):
-        print("Starting RAG Congress MCP server at PORT 8080...")
+        print("Starting RAG Congress MCP server at PORT 8083...")
         print("Using SSE transport for better compatibility...")
         self.mcp.run(transport="sse")
 

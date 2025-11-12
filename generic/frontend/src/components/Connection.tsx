@@ -15,21 +15,11 @@ import { ConnectionState } from '../types'
 
 export function Connection(): React.ReactElement {
   const connectionState = useConnectionState()
-  const { connect, disconnect } = useConnectionActions()
   const error = useError()
   const { clearError } = useErrorActions()
 
-  const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8006/ws/agent'
-
-  useEffect(() => {
-    // Connect when component mounts
-    connect(wsUrl)
-
-    // Disconnect when component unmounts
-    return () => {
-      disconnect()
-    }
-  }, [wsUrl, connect, disconnect])
+  // NOTE: Connection management is handled by App.tsx on initial mount.
+  // This component is only responsible for displaying status, not managing the connection.
 
   const getStatusColor = (): string => {
     switch (connectionState) {

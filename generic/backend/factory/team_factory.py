@@ -1,35 +1,35 @@
-from autogen_core.models import _model_client
-from pydantic import config
-import yaml
-from typing import Sequence, List
-
+# Standard library imports
 import logging
 import os
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
-import openai
-
 from pathlib import Path
-from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams, SseServerParams
-from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent, UserProxyAgent
+from typing import TYPE_CHECKING, List, Sequence
+
+# Third-party imports
+import openai
+import yaml
+from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_agentchat.agents._user_control_agent import UserControlAgent
 from autogen_agentchat.conditions import MaxMessageTermination
-from autogen_core import Agent, CancellationToken
-from autogen_core.tools import FunctionTool
-from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
-from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
 from autogen_agentchat.teams import BaseGroupChat
 from autogen_agentchat.teams._group_chat._selector_group_chat import SelectorGroupChat
+from autogen_core import CancellationToken
+from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams, SseServerParams
 from openai import AsyncOpenAI
 
-from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
-
-
-# from _hierarchical_groupchat import HierarchicalGroupChat # TODO: handle the allowedTransitions field for the general factory of Group Chats
-
-from handlers.agent_input_queue import AgentInputQueue
+# Local imports
 from agents.PlannerAgent import PlannerAgent
+from handlers.agent_input_queue import AgentInputQueue
 from tools.FilteredWorkbench import FilteredWorkbench
+from teams.hierarchical_groupchat import HierarchicalGroupChat, HierarchicalGroupChatManager
+
+from factory.registry import FunctionRegistry
+from factory.function_loader import FunctionLoader
+from factory.input_function_registry import InputFunctionRegistry
+from factory.input_function_loader import InputFunctionLoader
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -128,16 +128,41 @@ async def init_team(
     enhance_prompt_client = AsyncOpenAI(api_key=api_key)
     has_user_proxy = config_data["team"]["group_chat_args"]["has_user_proxy"]
 
+    registry = FunctionRegistry()
+    registry.load_from_module("factory.tool_functions")
+
+    if registry.get_errors():
+        for error in registry.get_errors():
+            logger.warning(f"   {error}")
+    
+    loader = FunctionLoader(registry)
+
+    # Initialize input function registry
+    input_func_registry = InputFunctionRegistry()
+    input_func_registry.load_from_module("factory.input_functions")
+
+    if input_func_registry.get_errors():
+        for error in input_func_registry.get_errors():
+            logger.warning(f"   {error}")
+
+    input_func_loader = InputFunctionLoader(input_func_registry)
+
     if has_user_proxy and agent_input_queue is not None:
         user_proxy_agent_name = config_data["team"]["group_chat_args"]["user_proxy_name"]
+        user_proxy_config = config_data["agents"][user_proxy_agent_name]
+        input_func_name = user_proxy_config.get("input_func", "queue_based_input")
+
+        # Retrieve input function template and wrap in closure
+        input_func_template = input_func_loader.get_input_function(input_func_name)
+
         async def user_proxy_input(
             prompt: str, cancellation_token: CancellationToken | None = None
         ) -> str:
-
-            return await agent_input_queue.get_input(
+            return await input_func_template(
+                agent_input_queue=agent_input_queue,
+                agent_name=user_proxy_agent_name,
                 prompt=prompt,
                 cancellation_token=cancellation_token,
-                agent_name=user_proxy_agent_name
             )
 
         # Format user_proxy description with config values if available
@@ -159,6 +184,7 @@ async def init_team(
             description=user_proxy_description,
             input_func=user_proxy_input, # This listens to the WebSocket input configured in agent_input_queue
         )
+        # UserProxyAgent will be added to agents list after build_agents
 
     if config_data["team"]["mcp_url"] is not None:
         params = globals()[config_data["team"]["params_class"]](
@@ -169,6 +195,7 @@ async def init_team(
             agents = await build_agents(
                 workbench,
                 model_client=model_client,
+                loader=loader,
                 company_name=company_name,
                 bill_name=bill_name,
                 congress=congress
@@ -178,29 +205,73 @@ async def init_team(
             None,
             model_client=model_client,
             company_name=company_name,
+            loader=loader,
             bill_name=bill_name,
             congress=congress
         )
-    
 
-    if selector_prompt is not None:
-        enhanced_selector_prompt = await enhance_selector_prompt(
-            user_selector_prompt=selector_prompt,
-            model_client=enhance_prompt_client
+    # Add UserProxyAgent to agents list if it was created
+    if has_user_proxy and agent_input_queue is not None:
+        agents.insert(0, user_proxy)  # Insert at beginning for selector to prefer other agents first
+
+    # Determine group chat class and build appropriate selector
+    group_chat_class_name = config_data["team"]["group_chat_class"]
+
+    # For HierarchicalGroupChat, use selector_prompt as a string
+    # For SelectorGroupChat (congress), use selector_func as a callable
+    if group_chat_class_name == "HierarchicalGroupChat":
+        # Use selector_prompt as a string template
+        if selector_prompt is not None:
+            selector_prompt_str = await enhance_selector_prompt(
+                user_selector_prompt=selector_prompt,
+                model_client=enhance_prompt_client
+            )
+        else:
+            selector_prompt_str = config_data["team"]["group_chat_args"]["default_selector_prompt"]
+
+        team_kwargs = {
+            "participants": agents,
+            "termination_condition": MaxMessageTermination(max_messages=max_messages),
+            "selector_prompt": selector_prompt_str,
+            "model_client": model_client,
+            "agent_input_queue": agent_input_queue
+        }
+
+        allowed_transitions = config_data["team"]["group_chat_args"].get("allowed_transitions")
+        if allowed_transitions is None:
+            raise ValueError("allowed_transitions must be specified in group_chat_args for HierarchicalGroupChat")
+
+        team = globals()[group_chat_class_name](
+            allowed_transitions=allowed_transitions,
+            **team_kwargs
         )
-        selector_prompt = enhanced_selector_prompt
     else:
-        selector_prompt = build_default_selector_prompt(
-            agent_names=[a.name for a in agents],
-            api_key=api_key
-        )
+        # For SelectorGroupChat (congress), use selector_func as a callable
+        if selector_prompt is not None:
+            selector_prompt_str = await enhance_selector_prompt(
+                user_selector_prompt=selector_prompt,
+                model_client=enhance_prompt_client
+            )
+            selector_func = None  # Use the enhanced string with default selector logic
+        else:
+            selector_prompt_str = config_data["team"]["group_chat_args"]["default_selector_prompt"]
+            selector_func = build_default_selector_prompt(
+                agent_names=[a.name for a in agents],
+                api_key=api_key
+            )
 
-    team = globals()[config_data["team"]["group_chat_class"]](
-        participants=agents,
-        termination_condition=MaxMessageTermination(max_messages=max_messages),
-        selector_func=selector_prompt,
-        model_client=model_client,
-    )
+        team_kwargs = {
+            "participants": agents,
+            "termination_condition": MaxMessageTermination(max_messages=max_messages),
+            "selector_prompt": selector_prompt_str,
+            "model_client": model_client,
+            "agent_input_queue": agent_input_queue
+        }
+
+        if selector_func is not None:
+            team_kwargs["selector_func"] = selector_func
+
+        team = globals()[group_chat_class_name](**team_kwargs)
 
     user_control = UserControlAgent(name="You")
 
@@ -227,6 +298,7 @@ async def init_team(
 async def build_agents(
     workbench: McpWorkbench | None,
     model_client: OpenAIChatCompletionClient,
+    loader: FunctionLoader,
     company_name: str | None = None,
     bill_name: str | None = None,
     congress: str | None = None
@@ -235,6 +307,9 @@ async def build_agents(
     agents = []
 
     for agent_name, agent_cfg in config_data["agents"].items():
+        # Skip UserProxyAgent - it's created separately in init_team with special handling
+        if agent_cfg["agent_class"] == "UserProxyAgent":
+            continue
         # Format agent description with config values if available
         description = agent_cfg["description"]
         if company_name and bill_name and congress:
@@ -252,28 +327,55 @@ async def build_agents(
             )
 
         if workbench is None:
-            a = globals()[agent_cfg["agent_class"]](
-                name = agent_cfg["name"],
-                model_client = model_client,
-                system_message = agent_cfg["system_message"], # TODO: check if including a '' system message affects behavior of the agents
-                description = description,
-                model_client_stream = agent_cfg.get("model_client_stream", False),
-                reflect_on_tool_use = agent_cfg.get("reflect_on_tool_use", False)
-            )
+            python_tools = []
+            if "python_tools" in agent_cfg.get("tools", {}):
+                tool_names = agent_cfg["tools"]["python_tools"] # TODO: make sure python_tools is in YAML
+                python_tools = loader.get_tool_functions_by_names(tool_names)
+            
+            agent_kwargs = {
+                "name": agent_cfg["name"],
+                "model_client": model_client,
+                "system_message": agent_cfg["system_message"],
+                "description": description,
+                "model_client_stream": agent_cfg.get("model_client_stream", False),
+                "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False)
+            }
+
+            if python_tools:
+                agent_kwargs["tools"] = python_tools
+
+            a = globals()[agent_cfg["agent_class"]](**agent_kwargs)
             agents.append(a)
+
         else:
-            a = globals()[agent_cfg["agent_class"]](
-                name = agent_cfg["name"],
-                model_client = model_client,
-                system_message = agent_cfg["system_message"], # TODO: check if including a '' system message affects behavior of the agents
-                description = description,
-                model_client_stream = agent_cfg.get("model_client_stream", False),
-                workbench = globals()[agent_cfg["tools"]["workbench_class"]](
+            python_tools = []
+            if "python_tools" in agent_cfg.get("tools", {}):
+                tool_names = agent_cfg["tools"]["python_tools"]
+                python_tools = loader.get_tool_functions_by_names(tool_names)
+            
+            mcp_workbench = None
+            if "mcp_tools" in agent_cfg.get("tools", {}):
+                mcp_workbench = globals()[agent_cfg["tools"]["mcp_tools"]["workbench_class"]](
                     workbench,
-                    agent_cfg["tools"]["allowed_tool_names"]
-                ),
-                reflect_on_tool_use = agent_cfg.get("reflect_on_tool_use", False)
-            )
+                    agent_cfg["tools"]["mcp_tools"]["allowed_tool_names"]
+                )
+
+            agent_kwargs = {
+                "name": agent_cfg["name"],
+                "model_client": model_client,
+                "system_message": agent_cfg["system_message"],
+                "description": description,
+                "model_client_stream": agent_cfg.get("model_client_stream", False),
+                "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False)
+            }
+
+            # Cannot use both workbench and tools - workbench takes precedence
+            if mcp_workbench:
+                agent_kwargs["workbench"] = mcp_workbench
+            elif python_tools:
+                agent_kwargs["tools"] = python_tools
+            
+            a = globals()[agent_cfg["agent_class"]](**agent_kwargs)
             agents.append(a)
 
     return agents

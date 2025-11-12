@@ -9,7 +9,7 @@ Usage:
     python demo_agent_run.py
 
 Or in Docker:
-    docker exec -it backend_server python demo_agent_run.py
+    docker exec -it backend-proxy python demo_agent_run.py
 """
 
 import asyncio
