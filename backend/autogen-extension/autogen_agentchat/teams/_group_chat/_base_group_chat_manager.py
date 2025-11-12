@@ -129,7 +129,12 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         target = message.target
         trim_up = message.trim_up
         self._old_threads.append(self._message_thread)
-        self._message_thread = self._message_thread[:-trim_up]
+
+        # Fix: Handle trim_up=0 case (don't trim anything)
+        # Python's list[:-0] returns empty list, so we need special handling
+        if trim_up > 0:
+            self._message_thread = self._message_thread[:-trim_up]
+
         if target not in self._participant_name_to_topic_type:
             raise ValueError(f"Target {target} not found in participant names {self._participant_names}")
 
