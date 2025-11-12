@@ -14,13 +14,11 @@ from handlers.websocket_handler import WebSocketHandler
 load_dotenv()
 
 
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-
     # Lifespan context manager for application startup/shutdown
     print("Starting agent run...")
+    # Logging is configured at module import time in base_group_chat_manager.py
     yield
     print("Shutting down agent run backend...")
 
@@ -31,7 +29,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:5176")
+cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:5173")
 cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
 
 app.add_middleware(
