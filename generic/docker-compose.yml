@@ -6,9 +6,9 @@ services:
       context: ./mcp/ragMCP
       dockerfile: Dockerfile
     ports:
-      - "8083:8083"
+      - "8080:8080"
     networks:
-      - proxy-control-app-network
+      - app-network
     volumes:
       - ./mcp/ragMCP:/app
     stdin_open: true
@@ -24,9 +24,9 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8004:8004"
+      - "8001:8001"
     networks:
-      - proxy-control-app-network
+      - app-network
     volumes:
       - ./backend:/app
     stdin_open: true
@@ -36,24 +36,24 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - RAGMCP_URL=http://ragmcp:8083
-    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8004", "--reload"]
+      - RAGMCP_URL=http://ragmcp:8080
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5176:5176"
+      - "5173:5173"
     networks:
-      - proxy-control-app-network
+      - app-network
     stdin_open: true
     tty: true
     depends_on:
       - backend
     environment:
-      - VITE_WS_URL=ws://localhost:8004/ws/agent
+      - VITE_WS_URL=ws://localhost:8001/ws/agent
 
 networks:
-  proxy-control-app-network:
+  app-network:
     driver: bridge
