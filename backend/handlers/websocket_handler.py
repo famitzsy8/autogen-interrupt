@@ -78,36 +78,48 @@ class WebSocketHandler:
     async def handle_connection(self) -> None:
 
         await self.websocket.accept()
+        print("✓ WebSocket accepted")
 
         try:
             # Step 1: Send available agent team names to frontend
+            print("→ Sending agent team names...")
             team_names = get_agent_team_names()
             await self._send_agent_team_names(team_names)
+            print("✓ Agent team names sent")
 
             # Step 2: Wait for config from frontend
+            print("→ Waiting for config from frontend...")
             config_data = await self.websocket.receive_text()
+            print(f"✓ Received config: {config_data[:100]}...")
             config_dict = json.loads(config_data)
 
             self.agent_team_config = RunConfig(**config_dict)
 
             # Get or create session based on session_id
             session_id = self.agent_team_config.session_id
+            print(f"→ Creating session with ID: {session_id}")
             state_file = Path(os.getenv("STATE_FILE_PATH", f"agent_run_state_{session_id}.json"))
 
             self.session = self.session_manager.get_or_create_session(
                 session_id=session_id,
                 state_file_path=str(state_file)
             )
+            print(f"✓ Session created/retrieved")
 
             # Register this WebSocket with the session
             self.session.add_websocket(self.websocket)
+            print(f"✓ WebSocket registered with session")
 
             # Initialize the agent team if not already initialized for this session
             if self.session.agent_team_context is None:
+                print("→ Initializing agent team...")
                 await self._initialize_run(selector_prompt=self.agent_team_config.selector_prompt)
+                print("✓ Agent team initialized")
 
                 # Send participant names to frontend for agent selection dropdown
+                print("→ Sending participant names...")
                 await self._send_participant_names()
+                print("✓ Participant names sent")
 
                 # Use provided initial_topic or default task from backend
                 initial_topic = self.agent_team_config.initial_topic or get_team_main_tasks()
@@ -122,16 +134,21 @@ class WebSocketHandler:
                         congress=self.agent_team_config.congress
                     )
 
-                print(initial_topic)
+                print(f"→ Initializing root message with topic: {initial_topic[:100]}...")
                 self.session.state_manager.initialize_root(
                     agent_name="You", message=initial_topic
                 )
+                print("✓ Root initialized")
 
                 # Broadcast initial tree state to all connections in session
+                print("→ Broadcasting tree update...")
                 await self._broadcast_tree_update()
+                print("✓ Tree broadcasted")
 
                 # Step 3: Start the conversation stream
+                print("→ Starting conversation stream...")
                 await self._conversation_stream(initial_topic)
+                print("✓ Conversation stream completed")
             else:
                 # Send current state to this new connection
                 await self._send_tree_update()
@@ -139,12 +156,18 @@ class WebSocketHandler:
 
 
         except json.JSONDecodeError as e:
+            print(f"✗ JSON Error: {str(e)}")
             await self._send_error("CONFIG_JSON_ERROR", f"Invalid JSON: {str(e)}")
         except ValueError as e:
+            print(f"✗ Value Error: {str(e)}")
             await self._send_error("CONFIG_VALIDATION_ERROR", str(e))
         except WebSocketDisconnect as e:
+            print(f"✗ WebSocket Disconnected")
             pass
         except Exception as e:
+            print(f"✗ Handler Error: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
             await self._send_error("HANDLER_ERROR", str(e))
 
 

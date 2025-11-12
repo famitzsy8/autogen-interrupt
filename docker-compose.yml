@@ -1,9 +1,10 @@
+name: proxy-control-${DOCKER_PROJECT_SUFFIX:-default}
+
 services:
   ragmcp:
     build:
       context: ./mcp/ragMCP
       dockerfile: Dockerfile
-    container_name: ragmcp_server
     ports:
       - "8080:8080"
     networks:
@@ -22,7 +23,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: backend_server
     ports:
       - "8001:8001"
     networks:
@@ -43,7 +43,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: frontend_app
     ports:
       - "5173:5173"
     networks:

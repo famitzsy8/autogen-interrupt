@@ -77,6 +77,7 @@ class BaseGroupChat(Team, ABC, ComponentBase[BaseModel]):
         runtime: AgentRuntime | None = None,
         custom_message_types: List[type[BaseAgentEvent | BaseChatMessage]] | None = None,
         emit_team_events: bool = False,
+        agent_input_queue: Any | None = None,
     ):
         self._name = name
         self._description = description
@@ -152,6 +153,9 @@ class BaseGroupChat(Team, ABC, ComponentBase[BaseModel]):
         # Flag to track if the team events should be emitted.
         self._emit_team_events = emit_team_events
 
+        # Store agent input queue reference for passing to manager
+        self._agent_input_queue = agent_input_queue
+
     @property
     def name(self) -> str:
         """The name of the group chat team."""
@@ -175,6 +179,7 @@ class BaseGroupChat(Team, ABC, ComponentBase[BaseModel]):
         termination_condition: TerminationCondition | None,
         max_turns: int | None,
         message_factory: MessageFactory,
+        agent_input_queue: Any | None = None,
     ) -> Callable[[], SequentialRoutedAgent]: ...
 
     def _create_participant_factory(
@@ -226,6 +231,7 @@ class BaseGroupChat(Team, ABC, ComponentBase[BaseModel]):
                 termination_condition=self._termination_condition,
                 max_turns=self._max_turns,
                 message_factory=self._message_factory,
+                agent_input_queue=self._agent_input_queue,
             ),
         )
         # Add subscriptions for the group chat manager.

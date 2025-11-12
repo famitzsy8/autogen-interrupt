@@ -13,7 +13,7 @@ RUN if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 COPY . .
 
 # Expose the MCP server port
-EXPOSE 8080
+EXPOSE 8083
 
 # Keep container running for VSCode attachment
 CMD ["tail", "-f", "/dev/null"]
