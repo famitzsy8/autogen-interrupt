@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, List, Sequence
 # Third-party imports
 import openai
 import yaml
-from autogen_agentchat.agents import UserProxyAgent
+from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_agentchat.agents._user_control_agent import UserControlAgent
 from autogen_agentchat.conditions import MaxMessageTermination
 from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
@@ -23,6 +23,7 @@ from openai import AsyncOpenAI
 from agents.PlannerAgent import PlannerAgent
 from handlers.agent_input_queue import AgentInputQueue
 from tools.FilteredWorkbench import FilteredWorkbench
+from teams.hierarchical_groupchat import HierarchicalGroupChat, HierarchicalGroupChatManager
 
 from factory.registry import FunctionRegistry
 from factory.function_loader import FunctionLoader
@@ -213,25 +214,64 @@ async def init_team(
     if has_user_proxy and agent_input_queue is not None:
         agents.insert(0, user_proxy)  # Insert at beginning for selector to prefer other agents first
 
-    if selector_prompt is not None:
-        enhanced_selector_prompt = await enhance_selector_prompt(
-            user_selector_prompt=selector_prompt,
-            model_client=enhance_prompt_client
-        )
-        selector_prompt = enhanced_selector_prompt
-    else:
-        selector_prompt = build_default_selector_prompt(
-            agent_names=[a.name for a in agents],
-            api_key=api_key
-        )
+    # Determine group chat class and build appropriate selector
+    group_chat_class_name = config_data["team"]["group_chat_class"]
 
-    team = globals()[config_data["team"]["group_chat_class"]](
-        participants=agents,
-        termination_condition=MaxMessageTermination(max_messages=max_messages),
-        selector_func=selector_prompt,
-        model_client=model_client,
-        agent_input_queue=agent_input_queue
-    )
+    # For HierarchicalGroupChat, use selector_prompt as a string
+    # For SelectorGroupChat (congress), use selector_func as a callable
+    if group_chat_class_name == "HierarchicalGroupChat":
+        # Use selector_prompt as a string template
+        if selector_prompt is not None:
+            selector_prompt_str = await enhance_selector_prompt(
+                user_selector_prompt=selector_prompt,
+                model_client=enhance_prompt_client
+            )
+        else:
+            selector_prompt_str = config_data["team"]["group_chat_args"]["default_selector_prompt"]
+
+        team_kwargs = {
+            "participants": agents,
+            "termination_condition": MaxMessageTermination(max_messages=max_messages),
+            "selector_prompt": selector_prompt_str,
+            "model_client": model_client,
+            "agent_input_queue": agent_input_queue
+        }
+
+        allowed_transitions = config_data["team"]["group_chat_args"].get("allowed_transitions")
+        if allowed_transitions is None:
+            raise ValueError("allowed_transitions must be specified in group_chat_args for HierarchicalGroupChat")
+
+        team = globals()[group_chat_class_name](
+            allowed_transitions=allowed_transitions,
+            **team_kwargs
+        )
+    else:
+        # For SelectorGroupChat (congress), use selector_func as a callable
+        if selector_prompt is not None:
+            selector_prompt_str = await enhance_selector_prompt(
+                user_selector_prompt=selector_prompt,
+                model_client=enhance_prompt_client
+            )
+            selector_func = None  # Use the enhanced string with default selector logic
+        else:
+            selector_prompt_str = config_data["team"]["group_chat_args"]["default_selector_prompt"]
+            selector_func = build_default_selector_prompt(
+                agent_names=[a.name for a in agents],
+                api_key=api_key
+            )
+
+        team_kwargs = {
+            "participants": agents,
+            "termination_condition": MaxMessageTermination(max_messages=max_messages),
+            "selector_prompt": selector_prompt_str,
+            "model_client": model_client,
+            "agent_input_queue": agent_input_queue
+        }
+
+        if selector_func is not None:
+            team_kwargs["selector_func"] = selector_func
+
+        team = globals()[group_chat_class_name](**team_kwargs)
 
     user_control = UserControlAgent(name="You")
 
