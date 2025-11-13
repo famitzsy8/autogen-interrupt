@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import re
+import tiktoken
 from inspect import iscoroutinefunction
 from typing import Any, Awaitable, Callable, Dict, List, Mapping, Optional, Sequence, Union, cast
 
@@ -37,6 +38,47 @@ from ._base_group_chat_manager import BaseGroupChatManager
 from ._events import GroupChatTermination
 
 trace_logger = logging.getLogger(TRACE_LOGGER_NAME)
+message_thread_logger = logging.getLogger(f"{__name__}.message_thread")
+
+# Initialize tiktoken encoder for token counting
+def _get_tiktoken_encoder() -> tiktoken.Encoding:
+    """Get the tiktoken encoder for GPT-3.5/4 models."""
+    try:
+        return tiktoken.get_encoding("cl100k_base")
+    except Exception:
+        # Fallback to a simple token counter if tiktoken fails
+        return None
+
+_tiktoken_encoder = _get_tiktoken_encoder()
+
+def _count_tokens(text: str) -> int:
+    """Count tokens in text using tiktoken."""
+    if _tiktoken_encoder is None:
+        # Fallback: rough estimate of 4 chars per token
+        return len(text) // 4
+    try:
+        return len(_tiktoken_encoder.encode(text))
+    except Exception:
+        return len(text) // 4
+
+# Configure logging at module import time
+def _setup_selector_logging() -> None:
+    """Setup logging configuration for selector group chat."""
+    import sys
+
+    if not message_thread_logger.handlers:
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(message)s')
+        handler.setFormatter(formatter)
+        message_thread_logger.addHandler(handler)
+        message_thread_logger.setLevel(logging.INFO)
+        message_thread_logger.propagate = False
+
+        print("✅ SELECTOR GROUP CHAT LOGGER INITIALIZED", flush=True)
+
+_setup_selector_logging()
+
 
 SyncSelectorFunc = Callable[[Sequence[BaseAgentEvent | BaseChatMessage]], str | None]
 AsyncSelectorFunc = Callable[[Sequence[BaseAgentEvent | BaseChatMessage]], Awaitable[str | None]]
@@ -108,12 +150,20 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         pass
 
     async def reset(self) -> None:
+        reset_msg = f"\n{'='*80}\n🔄 RESETTING MESSAGE THREAD (previous size: {len(self._message_thread)})\n{'='*80}\n"
+        message_thread_logger.info(reset_msg)
+        print(reset_msg, flush=True)
+
         self._current_turn = 0
         self._message_thread.clear()
         await self._model_context.clear()
         if self._termination_condition is not None:
             await self._termination_condition.reset()
         self._previous_speaker = None
+
+        success_msg = "✅ Message thread reset successfully\n"
+        message_thread_logger.info(success_msg)
+        print(success_msg, flush=True)
 
     async def save_state(self) -> Mapping[str, Any]:
         state = SelectorManagerState(
@@ -147,9 +197,92 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             await model_context.add_message(msg.to_model_message())
 
     async def update_message_thread(self, messages: Sequence[BaseAgentEvent | BaseChatMessage]) -> None:
+        # Calculate token count for new messages
+        new_tokens = 0
+        for msg in messages:
+            if hasattr(msg, 'content'):
+                content = msg.content
+                if isinstance(content, str):
+                    new_tokens += _count_tokens(content)
+                elif isinstance(content, list):
+                    for item in content:
+                        if isinstance(item, str):
+                            new_tokens += _count_tokens(item)
+                        else:
+                            new_tokens += _count_tokens(str(item))
+                else:
+                    new_tokens += _count_tokens(str(content))
+
+        # Log the messages being added (using both logger and print for reliability)
+        log_output = f"\n{'='*80}\n📝 ADDING {len(messages)} MESSAGE(S) TO THREAD ({new_tokens} tokens)\n{'='*80}"
+        message_thread_logger.info(log_output)
+        print(log_output, flush=True)
+
+        for i, msg in enumerate(messages):
+            msg_type = type(msg).__name__
+            source = getattr(msg, 'source', 'unknown')
+            content_preview = ""
+
+            if hasattr(msg, 'content'):
+                content = msg.content
+                if isinstance(content, str):
+                    content_preview = f" - {content[:100]}" if content else " - (empty)"
+                elif isinstance(content, list):
+                    content_preview = f" - {len(content)} item(s)"
+                else:
+                    content_preview = f" - {str(content)[:100]}"
+
+            msg_line = f"  [{i+1}] {msg_type:30s} from {source:20s}{content_preview}"
+            message_thread_logger.info(msg_line)
+            print(msg_line, flush=True)
+
+        # Extend the message thread
         self._message_thread.extend(messages)
         base_chat_messages = [m for m in messages if isinstance(m, BaseChatMessage)]
         await self._add_messages_to_context(self._model_context, base_chat_messages)
+
+        # Calculate total token count for entire thread
+        total_tokens = 0
+        for msg in self._message_thread:
+            if hasattr(msg, 'content'):
+                content = msg.content
+                if isinstance(content, str):
+                    total_tokens += _count_tokens(content)
+                elif isinstance(content, list):
+                    for item in content:
+                        if isinstance(item, str):
+                            total_tokens += _count_tokens(item)
+                        else:
+                            total_tokens += _count_tokens(str(item))
+                else:
+                    total_tokens += _count_tokens(str(content))
+
+        # Log the updated thread state
+        thread_header = f"\n{'─'*80}\n📊 MESSAGE THREAD STATE (Total: {len(self._message_thread)} messages, {total_tokens:,} tokens)\n{'─'*80}"
+        message_thread_logger.info(thread_header)
+        print(thread_header, flush=True)
+
+        for i, msg in enumerate(self._message_thread):
+            msg_type = type(msg).__name__
+            source = getattr(msg, 'source', 'unknown')
+            content_preview = ""
+
+            if hasattr(msg, 'content'):
+                content = msg.content
+                if isinstance(content, str):
+                    content_preview = f" - {content[:80]}" if content else " - (empty)"
+                elif isinstance(content, list):
+                    content_preview = f" - {len(content)} item(s)"
+                else:
+                    content_preview = f" - {str(content)[:80]}"
+
+            thread_line = f"  [{i+1:3d}] {msg_type:30s} from {source:20s}{content_preview}"
+            message_thread_logger.info(thread_line)
+            print(thread_line, flush=True)
+
+        footer = f"{'='*80}\n"
+        message_thread_logger.info(footer)
+        print(footer, flush=True)
 
     async def select_speaker(self, thread: Sequence[BaseAgentEvent | BaseChatMessage]) -> List[str] | str:
         """Selects the next speaker in a group chat using a ChatCompletion client,

@@ -8,6 +8,7 @@ from ...base import ChatAgent, Response, TaskResult, Team
 from ...state import ChatAgentContainerState
 from ._events import (
     GroupChatAgentResponse,
+    GroupChatBranch,
     GroupChatError,
     GroupChatMessage,
     GroupChatPause,
@@ -45,6 +46,7 @@ class ChatAgentContainer(SequentialRoutedAgent):
                 GroupChatReset,
                 GroupChatAgentResponse,
                 GroupChatTeamResponse,
+                GroupChatBranch,
             ],
         )
         self._parent_topic_type = parent_topic_type
@@ -81,6 +83,19 @@ class ChatAgentContainer(SequentialRoutedAgent):
             await self._agent.reset()
         else:
             await self._agent.on_reset(ctx.cancellation_token)
+
+    @event
+    async def handle_branch(self, message: GroupChatBranch, ctx: MessageContext) -> None:
+        """Handle a branch event by trimming the message buffer."""
+        agent_trim_up = message.agent_trim_up
+
+        if agent_trim_up > 0:
+            buffer_size_before = len(self._message_buffer)
+            if buffer_size_before >= agent_trim_up:
+                self._message_buffer = self._message_buffer[:-agent_trim_up]
+                print(f"[{self._agent.name}] Branch: trimmed {agent_trim_up} messages ({buffer_size_before} -> {len(self._message_buffer)})", flush=True)
+            else:
+                print(f"[{self._agent.name}] Branch: cannot trim {agent_trim_up}, buffer has {buffer_size_before}", flush=True)
 
     @event
     async def handle_request(self, message: GroupChatRequestPublish, ctx: MessageContext) -> None:
