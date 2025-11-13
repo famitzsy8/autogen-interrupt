@@ -118,6 +118,16 @@ class UserInterrupt(BaseModel):
     ...
 
 
+class GroupChatBranch(BaseModel):
+    """A request to branch the conversation by trimming agent buffers.
+
+    Sent to all agents before a UserDirectedMessage when trim_up > 0.
+    Agents trim their message buffers to align with the manager's trimmed thread.
+    """
+    agent_trim_up: int
+    """Number of message nodes to remove from agent buffers (excludes tool call nodes)."""
+
+
 class UserDirectedMessage(BaseModel):
     """A request to send a user message to a specific participant in the group chat."""
     target: str

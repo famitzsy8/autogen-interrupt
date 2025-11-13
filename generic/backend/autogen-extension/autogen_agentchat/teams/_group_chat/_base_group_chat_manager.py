@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, Sequence
 
@@ -8,6 +9,7 @@ from ...base import TerminationCondition
 from ...messages import BaseAgentEvent, BaseChatMessage, MessageFactory, SelectSpeakerEvent, StopMessage, TextMessage
 from ._events import (
     GroupChatAgentResponse,
+    GroupChatBranch,
     GroupChatError,
     GroupChatMessage,
     UserDirectedMessage,
@@ -22,6 +24,33 @@ from ._events import (
     SerializableException,
 )
 from ._sequential_routed_agent import SequentialRoutedAgent
+from ._node_message_mapping import count_messages_for_node_trim, analyze_thread_structure
+from ._agent_buffer_node_mapping import convert_manager_trim_to_agent_trim
+
+# Create a logger for message thread tracking
+logger = logging.getLogger(__name__)
+message_thread_logger = logging.getLogger(f"{__name__}.message_thread")
+
+# Configure logging at module import time to ensure it works in Docker
+def _setup_logging() -> None:
+    """Setup logging configuration for message thread tracking."""
+    import sys
+
+    # Ensure message_thread_logger has a handler
+    if not message_thread_logger.handlers:
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(message)s')
+        handler.setFormatter(formatter)
+        message_thread_logger.addHandler(handler)
+        message_thread_logger.setLevel(logging.INFO)
+        message_thread_logger.propagate = False
+
+        # Verify setup with a print statement
+        print("✅ MESSAGE THREAD LOGGER INITIALIZED", file=sys.stderr, flush=True)
+
+# Setup logging immediately when module is imported
+_setup_logging()
 
 
 class BaseGroupChatManager(SequentialRoutedAgent, ABC):
@@ -124,38 +153,89 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
 
     @rpc
     async def handle_user_directed_message(self, message: UserDirectedMessage, ctx: MessageContext) -> None:
-        """Handle a user-directed message by appending it to the thread and triggering only the target participant."""
+        """Handle a user-directed message by trimming thread, broadcasting branch, then sending message."""
         self._interrupted = False
         target = message.target
         trim_up = message.trim_up
         self._old_threads.append(self._message_thread)
 
-        # Fix: Handle trim_up=0 case (don't trim anything)
-        # Python's list[:-0] returns empty list, so we need special handling
+        thread_size_before = len(self._message_thread)
+
+        # Branch handling: trim manager thread and notify agents
         if trim_up > 0:
-            self._message_thread = self._message_thread[:-trim_up]
+            # print(f"\n=== BRANCHING EVENT ===", flush=True)
+            # print(f"Branch: trim_up={trim_up} nodes", flush=True)
+            # print(f"Thread size before trim: {thread_size_before} entries", flush=True)
+
+            # # Show last 3 messages BEFORE trim
+            # print(f"\nLast 3 entries BEFORE trim:", flush=True)
+            # for i, msg in enumerate(self._message_thread[-3:], start=len(self._message_thread)-3):
+            #     msg_type = type(msg).__name__
+            #     if hasattr(msg, 'content'):
+            #         content_preview = str(msg.content)[:100] if msg.content else "(no content)"
+            #     elif hasattr(msg, 'source'):
+            #         content_preview = f"source={msg.source}"
+            #     else:
+            #         content_preview = "(no preview)"
+            #     print(f"  [{i}] {msg_type}: {content_preview}", flush=True)
+
+            # Calculate trim amounts
+            messages_to_trim = count_messages_for_node_trim(self._message_thread, trim_up)
+            agent_trim_up = convert_manager_trim_to_agent_trim(self._message_thread, trim_up)
+
+            # print(f"\nTrim calculations:", flush=True)
+            # print(f"  Manager will trim: {messages_to_trim} entries", flush=True)
+            # print(f"  Agents will trim: {agent_trim_up} messages", flush=True)
+
+            # Trim manager thread
+            self._message_thread = self._message_thread[:-messages_to_trim]
+
+            # print(f"\nThread size after trim: {len(self._message_thread)} entries", flush=True)
+
+            # # Show last 3 messages AFTER trim
+            # print(f"\nLast 3 entries AFTER trim:", flush=True)
+            # for i, msg in enumerate(self._message_thread[-3:], start=len(self._message_thread)-3):
+            #     msg_type = type(msg).__name__
+            #     if hasattr(msg, 'content'):
+            #         content_preview = str(msg.content)[:100] if msg.content else "(no content)"
+            #     elif hasattr(msg, 'source'):
+            #         content_preview = f"source={msg.source}"
+            #     else:
+            #         content_preview = "(no preview)"
+            #     print(f"  [{i}] {msg_type}: {content_preview}", flush=True)
+
+            # # Show THE VERY LAST MESSAGE in detail
+            # if len(self._message_thread) > 0:
+            #     last_msg = self._message_thread[-1]
+            #     print(f"\n>>> LAST MESSAGE AFTER TRIM (detailed):", flush=True)
+            #     print(f"    Type: {type(last_msg).__name__}", flush=True)
+            #     if hasattr(last_msg, 'content'):
+            #         print(f"    Content: {last_msg.content}", flush=True)
+            #     if hasattr(last_msg, 'source'):
+            #         print(f"    Source: {last_msg.source}", flush=True)
+            #     if hasattr(last_msg, 'models_usage'):
+            #         print(f"    Models Usage: {last_msg.models_usage}", flush=True)
+            #     print(f"    Full repr: {repr(last_msg)[:200]}", flush=True)
+
+            # print(f"\n=== END BRANCHING EVENT ===\n", flush=True)
+
+            # Broadcast branch event to all agents
+            await self.publish_message(
+                GroupChatBranch(agent_trim_up=agent_trim_up),
+                topic_id=DefaultTopicId(type=self._group_topic_type),
+                cancellation_token=ctx.cancellation_token,
+            )
 
         if target not in self._participant_name_to_topic_type:
             raise ValueError(f"Target {target} not found in participant names {self._participant_names}")
 
-        # DEBUG marker
-        dbg = TextMessage(content=f"DEBUG: handle_user_directed_message target={target}", source=self._name)
-        await self.publish_message(
-            GroupChatMessage(message=dbg),
-            topic_id=DefaultTopicId(type=self._output_topic_type),
-        )
-        await self._output_message_queue.put(dbg)
-
-        # Log all messages at once to output topic
+        # Send user message to output and agents
         await self.publish_message(
             GroupChatStart(messages=[message.message]),
             topic_id=DefaultTopicId(type=self._output_topic_type),
         )
-
-        # Also put task messages in output queue to mirror handle_start behavior
         await self._output_message_queue.put(message.message)
 
-        # Relay message to participants so their containers buffer it
         await self.publish_message(
             GroupChatStart(messages=[message.message]),
             topic_id=DefaultTopicId(type=self._group_topic_type),
@@ -165,18 +245,17 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         # Append to thread
         await self.update_message_thread([message.message])
 
-        # Check termination condition after processing
+        # Check termination condition
         if await self._apply_termination_condition([message.message]):
             return
 
-        # Send publish request to only the target speaker
+        # Send publish request to target speaker
         speaker_topic_type = self._participant_name_to_topic_type[target]
         await self.publish_message(
             GroupChatRequestPublish(),
             topic_id=DefaultTopicId(type=speaker_topic_type),
             cancellation_token=ctx.cancellation_token,
         )
-        # Track active speaker to wait for response before selecting next speakers
         self._active_speakers.append(target)
 
     @rpc
@@ -236,6 +315,10 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
             self._active_speakers = []
             return
         try:
+            # Log incoming response
+            agent_name = message.name
+            logger.debug(f"Received response from agent: {agent_name}")
+
             # Construct the detla from the agent response.
             delta: List[BaseAgentEvent | BaseChatMessage] = []
             if isinstance(message, GroupChatAgentResponse):
@@ -400,7 +483,60 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         This is called when the group chat receives a GroupChatStart or GroupChatAgentResponse event,
         before calling the select_speakers method.
         """
+        import sys
+
+        # Log the messages being added (using both logger and print for reliability)
+        log_output = f"\n{'='*80}\n📝 ADDING {len(messages)} MESSAGE(S) TO THREAD\n{'='*80}"
+        message_thread_logger.info(log_output)
+        print(log_output, flush=True)
+
+        for i, msg in enumerate(messages):
+            msg_type = type(msg).__name__
+            source = getattr(msg, 'source', 'unknown')
+            content_preview = ""
+
+            if hasattr(msg, 'content'):
+                content = msg.content
+                if isinstance(content, str):
+                    content_preview = f" - {content[:100]}" if content else " - (empty)"
+                elif isinstance(content, list):
+                    content_preview = f" - {len(content)} item(s)"
+                else:
+                    content_preview = f" - {str(content)[:100]}"
+
+            msg_line = f"  [{i+1}] {msg_type:30s} from {source:20s}{content_preview}"
+            message_thread_logger.info(msg_line)
+            print(msg_line, flush=True)
+
+        # Extend the message thread
         self._message_thread.extend(messages)
+
+        # Log the updated thread state
+        thread_header = f"\n{'─'*80}\n📊 MESSAGE THREAD STATE (Total: {len(self._message_thread)} messages)\n{'─'*80}"
+        message_thread_logger.info(thread_header)
+        print(thread_header, flush=True)
+
+        for i, msg in enumerate(self._message_thread):
+            msg_type = type(msg).__name__
+            source = getattr(msg, 'source', 'unknown')
+            content_preview = ""
+
+            if hasattr(msg, 'content'):
+                content = msg.content
+                if isinstance(content, str):
+                    content_preview = f" - {content[:80]}" if content else " - (empty)"
+                elif isinstance(content, list):
+                    content_preview = f" - {len(content)} item(s)"
+                else:
+                    content_preview = f" - {str(content)[:80]}"
+
+            thread_line = f"  [{i+1:3d}] {msg_type:30s} from {source:20s}{content_preview}"
+            message_thread_logger.info(thread_line)
+            print(thread_line, flush=True)
+
+        footer = f"{'='*80}\n"
+        message_thread_logger.info(footer)
+        print(footer, flush=True)
 
     @abstractmethod
     async def select_speaker(self, thread: Sequence[BaseAgentEvent | BaseChatMessage]) -> List[str] | str:
