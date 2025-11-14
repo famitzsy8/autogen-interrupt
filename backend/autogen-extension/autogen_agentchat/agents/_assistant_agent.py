@@ -48,6 +48,7 @@ from ..messages import (
     HandoffMessage,
     MemoryQueryEvent,
     ModelClientStreamingChunkEvent,
+    StateContextMessage,
     StructuredMessage,
     StructuredMessageFactory,
     TextMessage,
@@ -85,6 +86,7 @@ class AssistantAgentConfig(BaseModel):
     max_tool_iterations: int = Field(default=1, ge=1)
     metadata: Dict[str, str] | None = None
     structured_message_factory: ComponentModel | None = None
+    include_state_in_context: bool = False
 
 
 class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
@@ -743,6 +745,7 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
         output_content_type_format: str | None = None,
         memory: Sequence[Memory] | None = None,
         metadata: Dict[str, str] | None = None,
+        include_state_in_context: bool = False,
     ):
         super().__init__(name=name, description=description)
         self._metadata = metadata or {}
@@ -857,6 +860,7 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
         self._tool_call_summary_format = tool_call_summary_format
         self._tool_call_summary_formatter = tool_call_summary_formatter
         self._is_running = False
+        self._include_state_in_context = include_state_in_context
 
     @property
     def produced_message_types(self) -> Sequence[type[BaseChatMessage]]:
@@ -913,6 +917,17 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
             Events, messages and final response during processing
         """
 
+        # STEP 0: Extract StateContextMessage if present
+        state_context: StateContextMessage | None = None
+        actual_messages: List[BaseChatMessage] = []
+
+        for msg in messages:
+            if isinstance(msg, StateContextMessage):
+                state_context = msg
+                # Don't include in actual conversation - extract and use separately
+            else:
+                actual_messages.append(msg)
+
         # Gather all relevant state here
         agent_name = self.name
         model_context = self._model_context
@@ -929,10 +944,43 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
         tool_call_summary_formatter = self._tool_call_summary_formatter
         output_content_type = self._output_content_type
 
-        # STEP 1: Add new user/handoff messages to the model context
+        # Optionally enhance system message with state context
+        if state_context and self._include_state_in_context:
+            # Create enhanced system messages with state context
+            enhanced_system_messages: List[SystemMessage] = []
+            if system_messages:
+                base_content = system_messages[0].content if isinstance(system_messages[0].content, str) else ""
+                enhanced_content = base_content + f"""
+
+                                                    ## Current Research Context
+
+                                                    {state_context.state_of_run_text}
+
+                                                    {state_context.tool_call_facts_text}
+
+                                                    {state_context.handoff_context_text}
+                                                    """ # TODO: ENGINEERING -- maybe take out handoff context here
+                enhanced_system_messages = [SystemMessage(content=enhanced_content)]
+                # Add any additional system messages
+                enhanced_system_messages.extend(system_messages[1:])
+            else:
+                # No system messages, create one with just state context
+                enhanced_content = f"""## Current Research Context
+
+{state_context.state_of_run_text}
+
+{state_context.tool_call_facts_text}
+
+{state_context.handoff_context_text}
+"""
+                enhanced_system_messages = [SystemMessage(content=enhanced_content)]
+
+            system_messages = enhanced_system_messages
+
+        # STEP 1: Add new user/handoff messages to the model context (use actual_messages, not original)
         await self._add_messages_to_context(
             model_context=model_context,
-            messages=messages,
+            messages=actual_messages,
         )
 
         # STEP 2: Update model context with any relevant memory
@@ -1665,6 +1713,7 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
             if self._structured_message_factory
             else None,
             metadata=self._metadata,
+            include_state_in_context=self._include_state_in_context,
         )
 
     @classmethod
@@ -1696,4 +1745,5 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
             output_content_type=output_content_type,
             output_content_type_format=format_string,
             metadata=config.metadata,
+            include_state_in_context=config.include_state_in_context,
         )

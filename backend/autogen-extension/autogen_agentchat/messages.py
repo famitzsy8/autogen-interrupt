@@ -430,6 +430,58 @@ class HandoffMessage(BaseTextChatMessage):
     type: Literal["HandoffMessage"] = "HandoffMessage"
 
 
+class StateContextMessage(BaseChatMessage):
+    """A message containing state context information for agents.
+
+    This message type is used to pass three types of state information to agents:
+    - state_of_run_text: Current research progress and next steps
+    - tool_call_facts_text: Discovered facts whiteboard
+    - handoff_context_text: Agent selection rules
+
+    This message is NOT included in the actual conversation thread.
+    It is extracted by ChatAgentContainer before agent processing to provide
+    context without polluting the conversation history.
+    """
+
+    state_of_run_text: str
+
+    tool_call_facts_text: str
+
+    handoff_context_text: str
+
+    type: Literal["StateContextMessage"] = "StateContextMessage"
+
+    def to_text(self) -> str:
+        return (
+            f"=== STATE OF RUN ===\n{self.state_of_run_text}\n\n"
+            f"=== TOOL CALL FACTS ===\n{self.tool_call_facts_text}\n\n"
+            f"=== HANDOFF CONTEXT ===\n{self.handoff_context_text}\n\n"
+        )
+
+    def to_model_text(self) -> str:
+        return self.to_text()
+
+    def to_model_message(self) -> UserMessage:
+        # Converts to a UserMessage
+        return UserMessage(content=self.to_text(), source=self.source)
+
+    @classmethod
+    def create(
+        cls,
+        state_of_run_text: str,
+        tool_call_facts_text: str,
+        handoff_context_text: str,
+        source: str = "manager",
+    ) -> "StateContextMessage":
+        # Static factory for StateContextMessage
+        return cls(
+            state_of_run_text=state_of_run_text,
+            tool_call_facts_text=tool_call_facts_text,
+            handoff_context_text=handoff_context_text,
+            source=source,
+        )
+
+
 class ToolCallSummaryMessage(BaseTextChatMessage):
     """A message signaling the summary of tool call results."""
 
@@ -596,6 +648,7 @@ class MessageFactory:
         self._message_types[StopMessage.__name__] = StopMessage
         self._message_types[ToolCallSummaryMessage.__name__] = ToolCallSummaryMessage
         self._message_types[HandoffMessage.__name__] = HandoffMessage
+        self._message_types[StateContextMessage.__name__] = StateContextMessage
         self._message_types[ToolCallRequestEvent.__name__] = ToolCallRequestEvent
         self._message_types[ToolCallExecutionEvent.__name__] = ToolCallExecutionEvent
         self._message_types[MemoryQueryEvent.__name__] = MemoryQueryEvent
@@ -617,12 +670,10 @@ class MessageFactory:
         """Register a new message type with the factory."""
         if self.is_registered(message_type):
             raise ValueError(f"Message type {message_type} is already registered.")
-        if not issubclass(message_type, BaseChatMessage) and not issubclass(message_type, BaseAgentEvent):
+        if not (issubclass(message_type, BaseChatMessage) or issubclass(message_type, BaseAgentEvent)):
             raise ValueError(f"Message type {message_type} must be a subclass of BaseChatMessage or BaseAgentEvent.")
-        # Get the class name of the
+        # Get the class name and register the message type
         class_name = message_type.__name__
-        # Check if the class name is already registered.
-        # Register the message type.
         self._message_types[class_name] = message_type
 
     def create(self, data: Mapping[str, Any]) -> BaseAgentEvent | BaseChatMessage:
@@ -676,6 +727,7 @@ __all__ = [
     "StructuredMessage",
     "StructuredMessageFactory",
     "HandoffMessage",
+    "StateContextMessage",
     "MultiModalMessage",
     "StopMessage",
     "TextMessage",

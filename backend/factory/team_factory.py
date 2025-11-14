@@ -214,6 +214,10 @@ async def init_team(
     if has_user_proxy and agent_input_queue is not None:
         agents.insert(0, user_proxy)  # Insert at beginning for selector to prefer other agents first
 
+    # Extract state context configuration from team config
+    enable_state_context = config_data["team"].get("enable_state_context", True)
+    user_proxy_name = config_data["team"]["group_chat_args"].get("user_proxy_name", "user_proxy")
+
     # Determine group chat class and build appropriate selector
     group_chat_class_name = config_data["team"]["group_chat_class"]
 
@@ -234,7 +238,10 @@ async def init_team(
             "termination_condition": MaxMessageTermination(max_messages=max_messages),
             "selector_prompt": selector_prompt_str,
             "model_client": model_client,
-            "agent_input_queue": agent_input_queue
+            "agent_input_queue": agent_input_queue,
+            # State context parameters
+            "enable_state_context": enable_state_context,
+            "user_proxy_name": user_proxy_name
         }
 
         allowed_transitions = config_data["team"]["group_chat_args"].get("allowed_transitions")
@@ -265,7 +272,10 @@ async def init_team(
             "termination_condition": MaxMessageTermination(max_messages=max_messages),
             "selector_prompt": selector_prompt_str,
             "model_client": model_client,
-            "agent_input_queue": agent_input_queue
+            "agent_input_queue": agent_input_queue,
+            # State context parameters
+            "enable_state_context": enable_state_context,
+            "user_proxy_name": user_proxy_name
         }
 
         if selector_func is not None:
@@ -306,7 +316,7 @@ async def build_agents(
 
     agents = []
 
-    for agent_name, agent_cfg in config_data["agents"].items():
+    for _, agent_cfg in config_data["agents"].items():
         # Skip UserProxyAgent - it's created separately in init_team with special handling
         if agent_cfg["agent_class"] == "UserProxyAgent":
             continue
