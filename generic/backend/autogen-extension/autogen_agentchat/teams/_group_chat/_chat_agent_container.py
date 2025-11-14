@@ -1,11 +1,14 @@
-from typing import Any, List, Mapping
+from typing import Any, Callable, Dict, List, Mapping
+import logging
 
 from autogen_core import DefaultTopicId, MessageContext, event, rpc, trace_invoke_agent_span
 
-from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage, MessageFactory
+from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage, MessageFactory, StateContextMessage
 
 from ...base import ChatAgent, Response, TaskResult, Team
 from ...state import ChatAgentContainerState
+
+# logger = logging.getLogger(__name__)
 from ._events import (
     GroupChatAgentResponse,
     GroupChatBranch,
@@ -33,10 +36,18 @@ class ChatAgentContainer(SequentialRoutedAgent):
         agent (ChatAgent | Team): The agent or team to delegate message handling to.
         message_factory (MessageFactory): The message factory to use for
             creating messages from JSON data.
+        enable_state_context (bool): Whether to enable state context injection.
+        state_package_getter (Callable[[], Dict[str, str]] | None): Callback to get state package from manager.
     """
 
     def __init__(
-        self, parent_topic_type: str, output_topic_type: str, agent: ChatAgent | Team, message_factory: MessageFactory
+        self,
+        parent_topic_type: str,
+        output_topic_type: str,
+        agent: ChatAgent | Team,
+        message_factory: MessageFactory,
+        enable_state_context: bool = True,
+        state_package_getter: Callable[[], Dict[str, str]] | None = None,
     ) -> None:
         super().__init__(
             description=agent.description,
@@ -54,6 +65,9 @@ class ChatAgentContainer(SequentialRoutedAgent):
         self._agent = agent
         self._message_buffer: List[BaseChatMessage] = []
         self._message_factory = message_factory
+        # State context parameters
+        self._enable_state_context = enable_state_context
+        self._state_package_getter = state_package_getter
 
     @event
     async def handle_start(self, message: GroupChatStart, ctx: MessageContext) -> None:
@@ -101,6 +115,27 @@ class ChatAgentContainer(SequentialRoutedAgent):
     async def handle_request(self, message: GroupChatRequestPublish, ctx: MessageContext) -> None:
         """Handle a content request event by passing the messages in the buffer
         to the delegate agent and publish the response."""
+
+        # Inject state context before agent processing
+        if self._enable_state_context and self._state_package_getter:
+            try:
+                # Get current state package from manager
+                state_pkg = self._state_package_getter()
+
+                # Create state context message
+                state_msg = StateContextMessage.create(
+                    state_of_run_text=state_pkg.get('state_of_run', ''),
+                    tool_call_facts_text=state_pkg.get('tool_call_facts', ''),
+                    handoff_context_text=state_pkg.get('handoff_context', ''),
+                )
+
+                # Insert at beginning of buffer (so agent sees it first)
+                self._message_buffer.insert(0, state_msg)
+
+                logger.debug(f"Injected state context for {self._agent.name}")
+            except Exception as e:
+                logger.warning(f"Failed to inject state context: {e}")
+
         if isinstance(self._agent, Team):
             try:
                 stream = self._agent.run_stream(
