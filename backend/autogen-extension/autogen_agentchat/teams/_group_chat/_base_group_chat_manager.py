@@ -483,60 +483,8 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         This is called when the group chat receives a GroupChatStart or GroupChatAgentResponse event,
         before calling the select_speakers method.
         """
-        import sys
-
-        # Log the messages being added (using both logger and print for reliability)
-        log_output = f"\n{'='*80}\n📝 ADDING {len(messages)} MESSAGE(S) TO THREAD\n{'='*80}"
-        message_thread_logger.info(log_output)
-        print(log_output, flush=True)
-
-        for i, msg in enumerate(messages):
-            msg_type = type(msg).__name__
-            source = getattr(msg, 'source', 'unknown')
-            content_preview = ""
-
-            if hasattr(msg, 'content'):
-                content = msg.content
-                if isinstance(content, str):
-                    content_preview = f" - {content[:100]}" if content else " - (empty)"
-                elif isinstance(content, list):
-                    content_preview = f" - {len(content)} item(s)"
-                else:
-                    content_preview = f" - {str(content)[:100]}"
-
-            msg_line = f"  [{i+1}] {msg_type:30s} from {source:20s}{content_preview}"
-            message_thread_logger.info(msg_line)
-            print(msg_line, flush=True)
-
         # Extend the message thread
         self._message_thread.extend(messages)
-
-        # Log the updated thread state
-        thread_header = f"\n{'─'*80}\n📊 MESSAGE THREAD STATE (Total: {len(self._message_thread)} messages)\n{'─'*80}"
-        message_thread_logger.info(thread_header)
-        print(thread_header, flush=True)
-
-        for i, msg in enumerate(self._message_thread):
-            msg_type = type(msg).__name__
-            source = getattr(msg, 'source', 'unknown')
-            content_preview = ""
-
-            if hasattr(msg, 'content'):
-                content = msg.content
-                if isinstance(content, str):
-                    content_preview = f" - {content[:80]}" if content else " - (empty)"
-                elif isinstance(content, list):
-                    content_preview = f" - {len(content)} item(s)"
-                else:
-                    content_preview = f" - {str(content)[:80]}"
-
-            thread_line = f"  [{i+1:3d}] {msg_type:30s} from {source:20s}{content_preview}"
-            message_thread_logger.info(thread_line)
-            print(thread_line, flush=True)
-
-        footer = f"{'='*80}\n"
-        message_thread_logger.info(footer)
-        print(footer, flush=True)
 
     @abstractmethod
     async def select_speaker(self, thread: Sequence[BaseAgentEvent | BaseChatMessage]) -> List[str] | str:

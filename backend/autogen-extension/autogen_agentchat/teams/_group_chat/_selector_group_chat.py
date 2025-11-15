@@ -662,6 +662,10 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                 # Stop the group chat
                 return
 
+            # Check for interrupt before expensive speaker selection
+            if self._interrupted:
+                return
+
             # Select speakers to continue the conversation
             await self._transition_to_next_speakers(ctx.cancellation_token)
         except Exception as e:
@@ -703,76 +707,10 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                 else:
                     new_tokens += _count_tokens(str(content))
 
-        # Log the messages being added (using both logger and print for reliability)
-        log_output = f"\n{'='*80}\n📝 ADDING {len(messages)} MESSAGE(S) TO THREAD ({new_tokens} tokens)\n{'='*80}"
-        message_thread_logger.info(log_output)
-        print(log_output, flush=True)
-
-        for i, msg in enumerate(messages):
-            msg_type = type(msg).__name__
-            source = getattr(msg, 'source', 'unknown')
-            content_preview = ""
-
-            if hasattr(msg, 'content'):
-                content = msg.content
-                if isinstance(content, str):
-                    content_preview = f" - {content[:100]}" if content else " - (empty)"
-                elif isinstance(content, list):
-                    content_preview = f" - {len(content)} item(s)"
-                else:
-                    content_preview = f" - {str(content)[:100]}"
-
-            msg_line = f"  [{i+1}] {msg_type:30s} from {source:20s}{content_preview}"
-            message_thread_logger.info(msg_line)
-            print(msg_line, flush=True)
-
         # Extend the message thread
         self._message_thread.extend(messages)
         base_chat_messages = [m for m in messages if isinstance(m, BaseChatMessage)]
         await self._add_messages_to_context(self._model_context, base_chat_messages)
-
-        # Calculate total token count for entire thread
-        total_tokens = 0
-        for msg in self._message_thread:
-            if hasattr(msg, 'content'):
-                content = msg.content
-                if isinstance(content, str):
-                    total_tokens += _count_tokens(content)
-                elif isinstance(content, list):
-                    for item in content:
-                        if isinstance(item, str):
-                            total_tokens += _count_tokens(item)
-                        else:
-                            total_tokens += _count_tokens(str(item))
-                else:
-                    total_tokens += _count_tokens(str(content))
-
-        # Log the updated thread state
-        thread_header = f"\n{'─'*80}\n📊 MESSAGE THREAD STATE (Total: {len(self._message_thread)} messages, {total_tokens:,} tokens)\n{'─'*80}"
-        message_thread_logger.info(thread_header)
-        print(thread_header, flush=True)
-
-        for i, msg in enumerate(self._message_thread):
-            msg_type = type(msg).__name__
-            source = getattr(msg, 'source', 'unknown')
-            content_preview = ""
-
-            if hasattr(msg, 'content'):
-                content = msg.content
-                if isinstance(content, str):
-                    content_preview = f" - {content[:80]}" if content else " - (empty)"
-                elif isinstance(content, list):
-                    content_preview = f" - {len(content)} item(s)"
-                else:
-                    content_preview = f" - {str(content)[:80]}"
-
-            thread_line = f"  [{i+1:3d}] {msg_type:30s} from {source:20s}{content_preview}"
-            message_thread_logger.info(thread_line)
-            print(thread_line, flush=True)
-
-        footer = f"{'='*80}\n"
-        message_thread_logger.info(footer)
-        print(footer, flush=True)
 
     async def select_speaker(self, thread: Sequence[BaseAgentEvent | BaseChatMessage]) -> List[str] | str:
         """Selects the next speaker in a group chat using a ChatCompletion client,

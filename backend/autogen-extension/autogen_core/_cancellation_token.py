@@ -1,6 +1,8 @@
+import asyncio
 import threading
+import inspect
 from asyncio import Future
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Union
 
 
 class CancellationToken:
@@ -32,13 +34,17 @@ class CancellationToken:
             else:
                 self._callbacks.append(callback)
 
-    def link_future(self, future: Future[Any]) -> Future[Any]:
-        """Link a pending async call to a token to allow its cancellation"""
+    def link_future(self, future: Union[Future[Any], asyncio.Task[Any], Any]) -> Future[Any]:
+
+        if inspect.iscoroutine(future):
+            return future
+        if not hasattr(future, 'cancel'):
+            return future  # Don't register callback
+
         with self._lock:
             if self._cancelled:
                 future.cancel()
             else:
-
                 def _cancel() -> None:
                     future.cancel()
 
