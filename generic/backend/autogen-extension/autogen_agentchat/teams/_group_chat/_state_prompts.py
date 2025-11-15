@@ -54,7 +54,7 @@ Output an Updated whiteboard with the same structure (grouped by facts) in the f
 
 1. Look at all the existing facts on the whiteboard
 2. Look at the facts that the tool call results give
-3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us
+3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us. Completely ignore errors.
 """
 
 HANDOFF_CONTEXT_UPDATING_PROMPT = """Your task is to update the instructions to determine when our agent team should request feedback from the human user running them.
