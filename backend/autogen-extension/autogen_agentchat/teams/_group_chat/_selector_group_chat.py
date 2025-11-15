@@ -137,6 +137,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         user_proxy_name: str = "user_proxy",
         initial_handoff_context: str | None = None,
         initial_state_of_run: str | None = None,
+        state_model_client: ChatCompletionClient | None = None,
     ) -> None:
         super().__init__(
             name,
@@ -153,6 +154,8 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             agent_input_queue=agent_input_queue,
         )
         self._model_client = model_client
+        # Use separate model client for state updates if provided, otherwise use main client
+        self._state_model_client = state_model_client or model_client
         self._selector_prompt = selector_prompt
         self._previous_speaker: str | None = None
         self._allow_repeated_speaker = allow_repeated_speaker
@@ -306,7 +309,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
 
             # Wrap LLM call in task to make it cancellable (matching agent tool call pattern)
             async def _make_llm_call() -> Any:
-                return await self._model_client.create(
+                return await self._state_model_client.create(
                     messages=[
                         SystemMessage(content="You are updating research progress state."),
                         UserMessage(content=prompt, source="manager")
@@ -355,7 +358,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
 
             # Wrap LLM call in task to make it cancellable (matching agent tool call pattern)
             async def _make_llm_call() -> Any:
-                return await self._model_client.create(
+                return await self._state_model_client.create(
                     messages=[
                         SystemMessage(content="You are updating the discovered facts whiteboard."),
                         UserMessage(content=prompt, source="manager")
@@ -402,7 +405,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
 
             # Wrap LLM call in task to make it cancellable (matching agent tool call pattern)
             async def _make_llm_call() -> Any:
-                return await self._model_client.create(
+                return await self._state_model_client.create(
                     messages=[
                         SystemMessage(content="You are updating handoff instructions."),
                         UserMessage(content=prompt, source="manager")
@@ -1193,6 +1196,7 @@ Read the above conversation. Then select the next role from {participants} to pl
         user_proxy_name: str = "user_proxy",
         initial_handoff_context: str | None = None,
         initial_state_of_run: str | None = None,
+        state_model_client: ChatCompletionClient | None = None,
     ):
         super().__init__(
             name=name or self.DEFAULT_NAME,
@@ -1212,6 +1216,7 @@ Read the above conversation. Then select the next role from {participants} to pl
             raise ValueError("At least two participants are required for SelectorGroupChat.")
         self._selector_prompt = selector_prompt
         self._model_client = model_client
+        self._state_model_client = state_model_client
         self._allow_repeated_speaker = allow_repeated_speaker
         self._selector_func = selector_func
         self._max_selector_attempts = max_selector_attempts
@@ -1262,6 +1267,7 @@ Read the above conversation. Then select the next role from {participants} to pl
             user_proxy_name=self._user_proxy_name,
             initial_handoff_context=self._initial_handoff_context,
             initial_state_of_run=self._initial_state_of_run,
+            state_model_client=self._state_model_client,
         )
 
     def _to_config(self) -> SelectorGroupChatConfig:
