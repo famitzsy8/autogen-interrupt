@@ -135,6 +135,8 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         agent_input_queue: Any | None = None,
         enable_state_context: bool = True,
         user_proxy_name: str = "user_proxy",
+        initial_handoff_context: str | None = None,
+        initial_state_of_run: str | None = None,
     ) -> None:
         super().__init__(
             name,
@@ -170,10 +172,10 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         self._enable_state_context = enable_state_context
         self._user_proxy_name = user_proxy_name
 
-        # Initialize states as empty strings
-        self._state_of_run_text: str = ""
+        # Initialize states as empty strings (or initial context if provided)
+        self._state_of_run_text: str = initial_state_of_run or ""
         self._tool_call_facts_text: str = ""
-        self._handoff_context_text: str = ""
+        self._handoff_context_text: str = initial_handoff_context or ""
 
         # Initialize snapshots dict (sparse - only entries for state changes)
         self._state_snapshots: Dict[int, Any] = {}
@@ -1189,6 +1191,8 @@ Read the above conversation. Then select the next role from {participants} to pl
         agent_input_queue: Any | None = None,
         enable_state_context: bool = True,
         user_proxy_name: str = "user_proxy",
+        initial_handoff_context: str | None = None,
+        initial_state_of_run: str | None = None,
     ):
         super().__init__(
             name=name or self.DEFAULT_NAME,
@@ -1216,6 +1220,8 @@ Read the above conversation. Then select the next role from {participants} to pl
         self._model_context = model_context
         self._enable_state_context = enable_state_context
         self._user_proxy_name = user_proxy_name
+        self._initial_handoff_context = initial_handoff_context
+        self._initial_state_of_run = initial_state_of_run
 
     def _create_group_chat_manager_factory(
         self,
@@ -1254,6 +1260,8 @@ Read the above conversation. Then select the next role from {participants} to pl
             agent_input_queue=agent_input_queue,
             enable_state_context=self._enable_state_context,
             user_proxy_name=self._user_proxy_name,
+            initial_handoff_context=self._initial_handoff_context,
+            initial_state_of_run=self._initial_state_of_run,
         )
 
     def _to_config(self) -> SelectorGroupChatConfig:
