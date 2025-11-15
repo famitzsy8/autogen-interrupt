@@ -12,6 +12,7 @@ class MessageType(str, Enum):
 
     # WebSocket message types (equal in frontend src/types/index.ts)
     AGENT_TEAM_NAMES = 'agent_team_names'
+    AGENT_DETAILS = 'agent_details'
     PARTICIPANT_NAMES = 'participant_names'
     RUN_CONFIG = 'RUN_CONFIG'
     START_RUN = 'start_run'
@@ -53,6 +54,46 @@ class ParticipantNames(BaseModel):
         # Participant names list must not be empty
         if not v:
             raise ValueError("participant_names cannot be empty")
+        return v
+
+class Agent(BaseModel):
+    # Individual agent with name and description
+    name: str = Field(..., description="Internal name of the agent")
+    display_name: str = Field(..., description="Display name of the agent")
+    description: str = Field(..., description="Description of what the agent does")
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("name cannot be empty")
+        return v.strip()
+
+    @field_validator("display_name")
+    @classmethod
+    def validate_display_name(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("display_name cannot be empty")
+        return v.strip()
+
+    @field_validator("description")
+    @classmethod
+    def validate_description(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("description cannot be empty")
+        return v.strip()
+
+class AgentDetails(BaseModel):
+    # Details of all agents including their descriptions
+    type: Literal[MessageType.AGENT_DETAILS] = MessageType.AGENT_DETAILS
+    agents: list[Agent] = Field(..., description="List of agents with their details")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("agents")
+    @classmethod
+    def validate_agents(cls, v: list[Agent]) -> list[Agent]:
+        if not v:
+            raise ValueError("agents cannot be empty")
         return v
 
 class AgentMessage(BaseModel):

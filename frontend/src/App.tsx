@@ -9,6 +9,7 @@ import {
   useAgentInputActions,
   useAgentInputRequest,
   useAgentTeamNames,
+  useAgentDetails,
   useParticipantNames,
   useConnectionActions,
   useConnectionState,
@@ -26,6 +27,7 @@ function App(): React.ReactElement {
   const { connect, sendConfig } = useConnectionActions()
   const connectionState = useConnectionState()
   const agentTeamNames = useAgentTeamNames()
+  const agentDetails = useAgentDetails()
   const participantNames = useParticipantNames()
   const conversationTree = useConversationTree()
   const currentBranchId = useCurrentBranchId()
@@ -64,6 +66,7 @@ function App(): React.ReactElement {
         onSubmit={handleConfigSubmit}
         isLoading={connectionState === 'connecting'}
         agentTeamNames={agentTeamNames?.agent_team_names || null}
+        agentDetails={agentDetails?.agents || null}
         participantNames={participantNames?.participant_names || null}
       />
     )
