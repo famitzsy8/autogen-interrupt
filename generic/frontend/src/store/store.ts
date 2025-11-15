@@ -14,6 +14,7 @@ import {devtools} from 'zustand/middleware'
 import type {
     RunConfig,
     AgentTeamNames,
+    AgentDetails,
     ParticipantNames,
     AgentInputRequest,
     HumanInputResponse,
@@ -50,6 +51,9 @@ interface State {
 
     // Agent Team Names received from backend
     agent_names: AgentTeamNames | null
+
+    // Agent Details (names and descriptions) received from backend
+    agent_details: AgentDetails | null
 
     // Participant Names (individual agents) received from backend
     participant_names: ParticipantNames | null
@@ -104,6 +108,7 @@ interface State {
 
     // Actions: Agent Team Name Setting
     setAgentTeamNames: (agentTeamNames: AgentTeamNames) => void
+    setAgentDetails: (agentDetails: AgentDetails) => void
     setParticipantNames: (participantNames: ParticipantNames) => void
 
     // Actions: Message handling
@@ -146,6 +151,7 @@ const initialState = {
         reconnectTimeout: null,
     },
     agent_names: null as AgentTeamNames | null,
+    agent_details: null as AgentDetails | null,
     participant_names: null as ParticipantNames | null,
     messages: [],
     conversationTree: null,
@@ -371,6 +377,10 @@ export const useStore = create<State>()(
                         get().setAgentTeamNames(message)
                         break
 
+                    case 'agent_details':
+                        get().setAgentDetails(message)
+                        break
+
                     case 'participant_names':
                         get().setParticipantNames(message)
                         break
@@ -446,6 +456,10 @@ export const useStore = create<State>()(
 
             setAgentTeamNames: (agentTeamNames: AgentTeamNames) => {
                 set({agent_names: agentTeamNames})
+            },
+
+            setAgentDetails: (agentDetails: AgentDetails) => {
+                set({agent_details: agentDetails})
             },
 
             setParticipantNames: (participantNames: ParticipantNames) => {

@@ -6,15 +6,17 @@
  */
 
 import React, { useState } from 'react'
-import type { RunConfig } from '../types'
+import type { RunConfig, Agent } from '../types'
 import { MessageType } from '../types'
 import { getOrCreateSessionId } from '../utils/session'
+import { AgentSelector } from './AgentSelector'
 
 interface ConfigFormProps {
   onSubmit: (config: RunConfig) => void
   isLoading?: boolean
   agentTeamNames: string[] | null
   participantNames: string[] | null
+  agentDetails: Agent[] | null
 }
 
 // Company-Bill investigation pairs
@@ -41,6 +43,7 @@ export function ConfigForm({
   isLoading = false,
   agentTeamNames,
   participantNames,
+  agentDetails,
 }: ConfigFormProps): React.ReactElement {
   const [topic, setTopic] = useState('')
   const [selectorPrompt, setSelectorPrompt] = useState('')
@@ -124,6 +127,9 @@ export function ConfigForm({
             </div>
           </div>
         )}
+
+        {/* Agent Details Selector */}
+        <AgentSelector agents={agentDetails} />
 
         {/* Company-Bill Investigation Pair Dropdown */}
         <div>

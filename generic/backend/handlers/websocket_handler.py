@@ -37,6 +37,7 @@ from models import (
     AgentInputRequest,
     AgentMessage,
     AgentTeamNames,
+    AgentDetails,
     ErrorMessage,
     InterruptAcknowledged,
     MessageType,
@@ -51,7 +52,7 @@ from models import (
     UserDirectedMessage,
     UserInterrupt
 )
-from utils.yaml_utils import get_agent_team_names, get_team_main_tasks, get_summarization_system_prompt
+from utils.yaml_utils import get_agent_team_names, get_agent_details, get_team_main_tasks, get_summarization_system_prompt
 from utils.summarization import init_summarizer, summarize_message
 
 # we need to implement an autogen agent team factory
@@ -86,6 +87,8 @@ class WebSocketHandler:
             team_names = get_agent_team_names()
             await self._send_agent_team_names(team_names)
             print("✓ Agent team names sent")
+
+            await self._send_agent_details()
 
             # Step 2: Wait for config from frontend
             print("→ Waiting for config from frontend...")
@@ -481,6 +484,13 @@ class WebSocketHandler:
         team_names_msg = AgentTeamNames(agent_team_names=team_names)
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(team_names_msg.model_dump_json())
+
+    async def _send_agent_details(self) -> None:
+        # Send agent details (names and descriptions) to frontend
+        agents_data = get_agent_details()
+        agent_details_msg = AgentDetails(agents=agents_data)
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(agent_details_msg.model_dump_json())
 
     async def _send_participant_names(self) -> None:
         # Send individual agent participant names to frontend for agent selection dropdown

@@ -132,6 +132,13 @@ export function useIsStreaming(): boolean {
   }
 
   /**
+   * Hook to access the agent details (names and descriptions)
+   */
+  export function useAgentDetails() {
+    return useStore((state) => state.agent_details)
+  }
+
+  /**
    * Hook to access message sending actions.
    */
   export function useMessageActions() {

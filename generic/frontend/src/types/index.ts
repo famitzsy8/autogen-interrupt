@@ -6,6 +6,7 @@
 
 export enum MessageType {
     AGENT_TEAM_NAMES = 'agent_team_names',
+    AGENT_DETAILS = 'agent_details',
     PARTICIPANT_NAMES = 'participant_names',
     RUN_CONFIG = 'RUN_CONFIG',
     START_RUN = 'start_run',
@@ -44,6 +45,23 @@ export interface AgentTeamNames extends BaseMessage {
 export interface ParticipantNames extends BaseMessage {
     type: MessageType.PARTICIPANT_NAMES
     participant_names: string[]
+}
+
+/**
+ * Agent details including name, display name, and description
+ */
+export interface Agent {
+    name: string
+    display_name: string
+    description: string
+}
+
+/**
+ * Details of all agents including their descriptions for UI display
+ */
+export interface AgentDetails extends BaseMessage {
+    type: MessageType.AGENT_DETAILS
+    agents: Agent[]
 }
 
 /**
@@ -204,6 +222,7 @@ export interface ToolExecution extends BaseMessage {
  */
 export type ServerMessage =
   | AgentTeamNames
+  | AgentDetails
   | ParticipantNames
   | RunConfig
   | AgentMessage
