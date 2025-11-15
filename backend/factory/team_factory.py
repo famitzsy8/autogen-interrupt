@@ -217,6 +217,8 @@ async def init_team(
     # Extract state context configuration from team config
     enable_state_context = config_data["team"].get("enable_state_context", True)
     user_proxy_name = config_data["team"]["group_chat_args"].get("user_proxy_name", "user_proxy")
+    initial_handoff_context = config_data["team"].get("initial_handoff_context")
+    initial_state_of_run = config_data["team"].get("initial_state_of_run")
 
     # Determine group chat class and build appropriate selector
     group_chat_class_name = config_data["team"]["group_chat_class"]
@@ -241,7 +243,9 @@ async def init_team(
             "agent_input_queue": agent_input_queue,
             # State context parameters
             "enable_state_context": enable_state_context,
-            "user_proxy_name": user_proxy_name
+            "user_proxy_name": user_proxy_name,
+            "initial_handoff_context": initial_handoff_context,
+            "initial_state_of_run": initial_state_of_run
         }
 
         allowed_transitions = config_data["team"]["group_chat_args"].get("allowed_transitions")
@@ -275,7 +279,9 @@ async def init_team(
             "agent_input_queue": agent_input_queue,
             # State context parameters
             "enable_state_context": enable_state_context,
-            "user_proxy_name": user_proxy_name
+            "user_proxy_name": user_proxy_name,
+            "initial_handoff_context": initial_handoff_context,
+            "initial_state_of_run": initial_state_of_run
         }
 
         if selector_func is not None:

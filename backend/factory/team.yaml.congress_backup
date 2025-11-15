@@ -304,6 +304,33 @@ team:
       In all other cases reason from the content of the last message, which of the agents should be called and the previous logical reasoning.
       Return SOLELY thename of the agent that should be called next. (i.e. "committee_specialist")
     default_selector_prompt_advanced: true
+  initial_handoff_context: >
+    # HandoffContext
+
+    If we need bill sections, sponsors, or cosponsors: bill_specialist
+    If we need committee membership or committee actions: committee_specialist
+    If we need legislative actions timeline: actions_specialist
+    If we need amendment information: amendment_specialist
+    If we need Congress member details (state, party): congress_member_specialist
+    If a major step is completed or unclear next steps: user_proxy_1
+
+    ## Special User Requests
+
+    --
+  initial_state_of_run: >
+    # State of Research
+
+    ## Task
+    [Will be populated with the actual task]
+
+    ## What we have done so far
+    Nothing yet - investigation is just starting.
+
+    ## Research Outlook (Next Steps)
+    - Begin investigation
+
+    ## Concrete Next Step
+    We start with the orchestrator
 
 llm:
   model_client_class: OpenAIChatCompletionClient
