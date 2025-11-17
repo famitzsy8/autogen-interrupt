@@ -127,12 +127,11 @@ class ChatAgentContainer(SequentialRoutedAgent):
                     state_of_run_text=state_pkg.get('state_of_run', ''),
                     tool_call_facts_text=state_pkg.get('tool_call_facts', ''),
                     handoff_context_text=state_pkg.get('handoff_context', ''),
+                    participant_names=state_pkg.get('participant_names', []),
                 )
 
                 # Insert at beginning of buffer (so agent sees it first)
                 self._message_buffer.insert(0, state_msg)
-
-                logger.debug(f"Injected state context for {self._agent.name}")
             except Exception as e:
                 logger.warning(f"Failed to inject state context: {e}")
 

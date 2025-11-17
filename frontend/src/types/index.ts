@@ -21,6 +21,7 @@ export enum MessageType {
     HUMAN_INPUT_RESPONSE = 'human_input_response',
     TOOL_CALL = 'tool_call',
     TOOL_EXECUTION = 'tool_execution',
+    STATE_UPDATE = 'state_update',
 }
 
 /**
@@ -48,16 +49,16 @@ export interface ParticipantNames extends BaseMessage {
 }
 
 /**
- * Agent details including name, display name, and description
+ * Agent details including name, display name, and UI summary
  */
 export interface Agent {
     name: string
     display_name: string
-    description: string
+    summary: string
 }
 
 /**
- * Details of all agents including their descriptions for UI display
+ * Details of all agents including their summaries for UI display
  */
 export interface AgentDetails extends BaseMessage {
     type: MessageType.AGENT_DETAILS
@@ -217,6 +218,17 @@ export interface ToolExecution extends BaseMessage {
 }
 
 /**
+ * State update containing the GroupChatManager's 3-state model.
+ */
+export interface StateUpdate extends BaseMessage {
+    type: MessageType.STATE_UPDATE
+    state_of_run: string
+    tool_call_facts: string
+    handoff_context: string
+    message_index: number
+}
+
+/**
  * Union type of all possible WebSocket messages from server.
  * We declare this to do neat case distinction when the frontend recieves a message from the agent team.
  */
@@ -233,6 +245,7 @@ export type ServerMessage =
   | AgentInputRequest
   | ToolCall
   | ToolExecution
+  | StateUpdate
 
 /**
  * Union type of all possible WebSocket messages sent to server.

@@ -948,6 +948,7 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
         if state_context and self._include_state_in_context:
             # Create enhanced system messages with state context
             enhanced_system_messages: List[SystemMessage] = []
+            participant_str = ", ".join(state_context.participant_names) if state_context.participant_names else "None"
             if system_messages:
                 base_content = system_messages[0].content if isinstance(system_messages[0].content, str) else ""
                 enhanced_content = base_content + f"""
@@ -959,6 +960,10 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
                                                     {state_context.tool_call_facts_text}
 
                                                     {state_context.handoff_context_text}
+
+                                                    ## Available Team Members
+
+                                                    {participant_str}
                                                     """ # TODO: ENGINEERING -- maybe take out handoff context here
                 enhanced_system_messages = [SystemMessage(content=enhanced_content)]
                 # Add any additional system messages
@@ -972,6 +977,10 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
 {state_context.tool_call_facts_text}
 
 {state_context.handoff_context_text}
+
+## Available Team Members
+
+{participant_str}
 """
                 enhanced_system_messages = [SystemMessage(content=enhanced_content)]
 

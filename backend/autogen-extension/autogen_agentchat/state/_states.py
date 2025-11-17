@@ -10,6 +10,7 @@ class StateSnapshot(BaseModel):
     state_of_run_text: str = Field(description="Current research progress state as text")
     tool_call_facts_text: str = Field(description="Discovered facts whiteboard as text")
     handoff_context_text: str = Field(description="Agent selection rules as text")
+    participant_names: List[str] = Field(default_factory=list, description="Available team members at this point")
 
 
 class BaseState(BaseModel):

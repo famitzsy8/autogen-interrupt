@@ -1,7 +1,7 @@
 /**
  * Agent selector component for displaying and selecting through available agents.
  *
- * Displays a clickable interface to browse through agents with their names and descriptions.
+ * Displays a clickable interface to browse through agents with their names and short summaries.
  */
 
 import React, { useState } from 'react'
@@ -35,7 +35,7 @@ export function AgentSelector({ agents }: AgentSelectorProps): React.ReactElemen
   return (
     <div className="bg-purple-900/20 border border-purple-700 rounded-lg p-6 space-y-4">
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-purple-400 font-semibold">🤖 Meet the Agents</span>
+        <span className="text-purple-400 font-semibold">These are the Agents in Your Team:</span>
         <span className="text-gray-500 text-sm">
           ({selectedIndex + 1} of {agents.length})
         </span>
@@ -51,7 +51,7 @@ export function AgentSelector({ agents }: AgentSelectorProps): React.ReactElemen
             <p className="text-xs text-gray-500">{currentAgent.name}</p>
           </div>
           <p className="text-sm text-gray-300 leading-relaxed">
-            {currentAgent.description}
+            {currentAgent.summary}
           </p>
         </div>
       </div>

@@ -38,6 +38,7 @@ from ...messages import (
     ModelClientStreamingChunkEvent,
     SelectorEvent,
     ToolCallExecutionEvent,
+    UserInputRequestedEvent,
 )
 from ...state import SelectorManagerState, StateSnapshot
 from ._base_group_chat import BaseGroupChat
@@ -49,6 +50,7 @@ from ._events import (
     GroupChatStart,
     GroupChatTeamResponse,
     GroupChatTermination,
+    StateUpdateEvent,
     UserDirectedMessage,
 )
 from ._node_message_mapping import count_messages_for_node_trim
@@ -92,8 +94,6 @@ def _setup_selector_logging() -> None:
         message_thread_logger.addHandler(handler)
         message_thread_logger.setLevel(logging.INFO)
         message_thread_logger.propagate = False
-
-        print("✅ SELECTOR GROUP CHAT LOGGER INITIALIZED", flush=True)
 
 _setup_selector_logging()
 
@@ -270,17 +270,28 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                 logger.warning("Cannot create snapshot: message thread is empty")
                 return
 
-            # Create StateSnapshot with all three current state texts
+            # Create StateSnapshot with all three current state texts and participant names
             snapshot = StateSnapshot(
                 message_index=msg_idx,
                 state_of_run_text=self._state_of_run_text,
                 tool_call_facts_text=self._tool_call_facts_text,
-                handoff_context_text=self._handoff_context_text
+                handoff_context_text=self._handoff_context_text,
+                participant_names=self._participant_names
             )
 
             # Store in snapshots dict
             self._state_snapshots[msg_idx] = snapshot
-            logger.debug(f"✓ Snapshot created at index {msg_idx}")
+
+            # Emit state update event to output stream
+            if self._emit_team_events:
+                state_event = StateUpdateEvent(
+                    source=self._name,
+                    state_of_run=self._state_of_run_text,
+                    tool_call_facts=self._tool_call_facts_text,
+                    handoff_context=self._handoff_context_text,
+                    message_index=msg_idx
+                )
+                await self._output_message_queue.put(state_event)
         except Exception as e:
             logger.exception(f"Exception in _create_state_snapshot: {type(e).__name__}: {e}")
 
@@ -324,7 +335,6 @@ class SelectorGroupChatManager(BaseGroupChatManager):
 
             # Store response directly as new state
             self._state_of_run_text = response.content if isinstance(response.content, str) else str(response.content)
-            logger.debug(f"✓ StateOfRun updated ({len(self._state_of_run_text)} chars)")
 
         except Exception as e:
             logger.exception(f"Exception in _update_state_of_run: {type(e).__name__}: {e}")
@@ -371,9 +381,9 @@ class SelectorGroupChatManager(BaseGroupChatManager):
 
             response = await task
 
-            # Store response directly as new facts
-            self._tool_call_facts_text = response.content if isinstance(response.content, str) else str(response.content)
-            logger.debug(f"✓ ToolCallFacts updated ({len(self._tool_call_facts_text)} chars)")
+            # Concatenate new additions to existing whiteboard
+            new_additions = response.content if isinstance(response.content, str) else str(response.content)
+            self._tool_call_facts_text = self._tool_call_facts_text + "\n\n" + new_additions
 
         except Exception as e:
             logger.warning(f"Failed to update ToolCallFacts: {e}")
@@ -442,21 +452,23 @@ class SelectorGroupChatManager(BaseGroupChatManager):
     #     message_thread_logger.info(f"{self._handoff_context_text if self._handoff_context_text else '(empty)'}")
     #     message_thread_logger.info(f"{'#'*80}\n")
 
-    def get_current_state_package(self) -> dict[str, str]:
+    def get_current_state_package(self) -> dict[str, Any]:
         """Get current state package for passing to agents.
 
         Returns:
-            Dict with keys: 'state_of_run', 'tool_call_facts', 'handoff_context'
-            Each value is the current state text string.
+            Dict with keys:
+            - 'state_of_run': Current research progress (str)
+            - 'tool_call_facts': Discovered facts (str)
+            - 'handoff_context': Agent selection rules (str)
+            - 'participant_names': Available team members (list[str])
 
         This is called by ChatAgentContainer via callback to inject state into agent buffers.
         """
-        # FOR TESTING -- TO REMOVE: Log when state is requested
-        message_thread_logger.info(f"# FOR TESTING -- TO REMOVE: State package requested by container")
         return {
             'state_of_run': self._state_of_run_text,
             'tool_call_facts': self._tool_call_facts_text,
             'handoff_context': self._handoff_context_text,
+            'participant_names': self._participant_names,
         }
 
     @rpc
@@ -495,18 +507,12 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                     self._state_of_run_text = snap.state_of_run_text
                     self._tool_call_facts_text = snap.tool_call_facts_text
                     self._handoff_context_text = snap.handoff_context_text
-                    logger.info(f"✓ States recovered from snapshot at index {last_message_idx}")
-                else:
-                    logger.debug(f"No snapshot at index {last_message_idx}, states unchanged")
 
                 # Clean old snapshots beyond trim point
-                old_snapshot_count = len(self._state_snapshots)
                 self._state_snapshots = {
                     k: v for k, v in self._state_snapshots.items()
                     if k < len(self._message_thread)
                 }
-                removed_count = old_snapshot_count - len(self._state_snapshots)
-                logger.debug(f"Cleaned {removed_count} snapshots beyond trim point")
 
             # Broadcast branch event to all agents
             await self.publish_message(
@@ -534,12 +540,11 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         # Append to thread
         await self.update_message_thread([message.message])
 
-        # NEW: Check if this message is from a human client (UserControlAgent or UserProxyAgent)
+        # Check if this message is from a human client (UserControlAgent or UserProxyAgent)
         # Messages in UserDirectedMessage come from the user control API, and the source
         # field tells us who sent it. Human messages are from:
         # - UserProxyAgent (source = _user_proxy_name, e.g., "user_proxy")
         # - UserControlAgent (source = "You" or custom name, not in _participant_names)
-        logger.info(f"is_human: {self._enable_state_context}, {isinstance(message.message, BaseChatMessage)}, {message.message.source == self._user_proxy_name}, {message.message.source not in self._participant_names}, {message.message}, {message.message.source}")
         is_human_message = (
             self._enable_state_context and
             isinstance(message.message, BaseChatMessage) and
@@ -570,7 +575,6 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             # Create snapshot after state updates
             try:
                 await self._create_state_snapshot()
-                logger.debug("✓ State snapshot created after human message")
             except Exception as e:
                 logger.exception(f"Exception in _create_state_snapshot: {type(e).__name__}: {e}")
 
@@ -633,18 +637,26 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                                 try:
                                     await self._update_tool_call_facts(inner_message, ctx.cancellation_token)
                                     await self._create_state_snapshot()
-                                    logger.info("✓ ToolCallFacts updated and snapshot created")
                                 except Exception as e:
                                     logger.warning(f"Failed to update ToolCallFacts: {e}")
 
                 # Update StateOfRun from agent's chat message
+                logger.info(f"New message: {type(message)} from {message.name}")
+                logger.info(f"New message: {type(message)} from {message.name}")
                 if isinstance(message, GroupChatAgentResponse):
+                    logger.info(f"New message: {message.response.chat_message} from {message.name}")
                     try:
                         await self._update_state_of_run(message.response.chat_message, ctx.cancellation_token)
                         await self._create_state_snapshot()
-                        logger.info("✓ StateOfRun updated and snapshot created")
                     except Exception as e:
                         logger.warning(f"Failed to update StateOfRun: {e}")
+
+                    if agent_name == self._user_proxy_name:
+                        try:
+                            await self._update_handoff_context(message.response.chat_message, ctx.cancellation_token)
+                            await self._create_state_snapshot()
+                        except Exception as e:
+                            logger.warning(f"Failed to update HandoffContext: {e}")
                 else:
                     # For team responses, update from all messages
                     for msg in message.result.messages:
@@ -652,9 +664,18 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                             try:
                                 await self._update_state_of_run(msg, ctx.cancellation_token)
                                 await self._create_state_snapshot()
-                                logger.info("✓ StateOfRun updated and snapshot created")
                             except Exception as e:
                                 logger.warning(f"Failed to update StateOfRun: {e}")
+
+                if isinstance(message, UserInputRequestedEvent):
+                    logger.info("User proxy agent had feedback!")
+                    try:
+                        logger.info("Updating user proxy feedback")
+                        await self._update_handoff_context(msg, ctx.cancellation_token)
+                        await self._create_state_snapshot()
+                    except Exception as e:
+                        logger.warning(f"Failed to update HandoffContext from UserProxyAgent {e}")
+
 
             # Remove the agent from the active speakers list
             self._active_speakers.remove(message.name)
@@ -802,11 +823,12 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         model_context_history = self.construct_message_history(model_context_messages)
 
         select_speaker_prompt = self._selector_prompt.format(**{
-            "roles": roles,
             "participants": str(participants),
-            "history": model_context_history
+            "state_of_run": self._state_of_run_text,
+            "handoff_context": self._handoff_context_text,
         })
-        
+
+        logger.debug(f"🎯 Selector prompt:\n{select_speaker_prompt[:500]}...")
 
         select_speaker_messages: List[SystemMessage | UserMessage | AssistantMessage]
         if ModelFamily.is_openai(self._model_client.model_info["family"]):

@@ -133,3 +133,15 @@ class UserDirectedMessage(BaseModel):
     target: str
     message: SerializeAsAny[BaseChatMessage]
     trim_up: int = 0
+
+
+class StateUpdateEvent(BaseAgentEvent):
+    """Event emitted when the GroupChatManager creates a state snapshot."""
+    source: str
+    state_of_run: str
+    tool_call_facts: str
+    handoff_context: str
+    message_index: int
+
+    def to_text(self) -> str:
+        return f"State update at message {self.message_index}"

@@ -26,6 +26,7 @@ from autogen_agentchat.messages import (
     ToolCallSummaryMessage,
     UserInputRequestedEvent,
 )
+from autogen_agentchat.teams._group_chat._events import StateUpdateEvent
 
 from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocket, WebSocketState
@@ -43,6 +44,7 @@ from models import (
     MessageType,
     ParticipantNames,
     RunConfig,
+    StateUpdate,
     StreamEnd,
     TreeUpdate,
     ToolCall,
@@ -75,6 +77,7 @@ class WebSocketHandler:
         self.agent_input_queue.websocket_handler = self
         self.agent_team_config: RunConfig | None = None
         self.current_tool_call_node_id: str | None = None
+        self._pending_agent_messages: list[AgentMessage] = []
     
     async def handle_connection(self) -> None:
 
@@ -116,7 +119,7 @@ class WebSocketHandler:
             # Initialize the agent team if not already initialized for this session
             if self.session.agent_team_context is None:
                 print("→ Initializing agent team...")
-                await self._initialize_run(selector_prompt=self.agent_team_config.selector_prompt)
+                await self._initialize_run()
                 print("✓ Agent team initialized")
 
                 # Send participant names to frontend for agent selection dropdown
@@ -178,7 +181,7 @@ class WebSocketHandler:
             await self._cleanup()
 
 
-    async def _initialize_run(self, selector_prompt: str | None = None) -> None:
+    async def _initialize_run(self) -> None:
 
         if not self.session:
             raise RuntimeError("Session not initialized")
@@ -197,7 +200,6 @@ class WebSocketHandler:
         self.session.agent_team_context = await init_team(
             api_key=api_key,
             agent_input_queue=self.agent_input_queue,
-            selector_prompt=selector_prompt,
             company_name=self.agent_team_config.company_name,
             bill_name=self.agent_team_config.bill_name,
             congress=self.agent_team_config.congress
@@ -269,7 +271,10 @@ class WebSocketHandler:
                     elif isinstance(message, ToolCallExecutionEvent):
                         print(f"[TOOL RESULTS] Tool execution completed for {message.source}")
                         await self._send_tool_calls_execution(message)
-                    
+
+                    elif isinstance(message, StateUpdateEvent):
+                        await self._send_state_update(message)
+
                     elif isinstance(message, SelectorEvent):
                         print(f"\n[{message.source}] 🎯 Selector: {message.content}")
                     
@@ -473,11 +478,12 @@ class WebSocketHandler:
             summary=summary,
             node_id=node_id
         )
-
-        await self._send_message(agent_msg)
-
-        # and also send a tree update with the new message
-        await self._send_tree_update()
+        self._pending_agent_messages.append(agent_msg)
+        logger.info(
+            "Queued agent message %s awaiting state update (%d pending)",
+            node_id,
+            len(self._pending_agent_messages)
+        )
     
     async def _send_agent_team_names(self, team_names: list[str]) -> None:
         # Send available agent team configuration names to frontend
@@ -506,6 +512,18 @@ class WebSocketHandler:
     async def _send_message(self, message: AgentMessage) -> None:
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(message.model_dump_json())
+
+    async def _flush_pending_agent_messages(self) -> None:
+        if not self._pending_agent_messages:
+            return
+
+        pending = self._pending_agent_messages.copy()
+        self._pending_agent_messages.clear()
+        logger.info("Flushing %d pending agent messages after state update", len(pending))
+
+        for queued_message in pending:
+            await self._send_message(queued_message)
+            await self._send_tree_update()
 
     async def _send_tree_update(self) -> None:
         """Send tree update to this specific WebSocket connection only."""
@@ -599,9 +617,26 @@ class WebSocketHandler:
 
         self.current_tool_call_node_id = None
 
+    async def _send_state_update(self, message: StateUpdateEvent) -> None:
+        state_update = StateUpdate(
+            state_of_run=message.state_of_run,
+            tool_call_facts=message.tool_call_facts,
+            handoff_context=message.handoff_context,
+            message_index=message.message_index
+        )
+        try:
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                json_data = state_update.model_dump_json()
+                await self.websocket.send_text(json_data)
+            else:
+                logger.warning(f"Cannot send STATE_UPDATE - WebSocket not connected")
+        finally:
+            await self._flush_pending_agent_messages()
 
-    
+
     async def _send_stream_end(self, reason: str) -> None:
+        await self._flush_pending_agent_messages()
+
         stream_end = StreamEnd(reason=reason)
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(stream_end.model_dump_json())
@@ -657,5 +692,3 @@ class WebSocketHandler:
 
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.close()
-
-

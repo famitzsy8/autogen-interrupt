@@ -28,7 +28,7 @@ STATE_OF_RUN_UPDATE_PROMPT = """Your task is to update the state of a research p
 Update the state of research according to the agent message you just received. Keep the same structure: Task, What we have done so far, Research Outlook (Next Steps), Concrete Next Step
 
 1. DO NOT EDIT THE TASK
-2. Edit What we have done so far by synthesizing the old state with the Message from the Agent
+2. Edit What we have done so far by synthesizing the old state with the Message from the Agent. Summarize very old steps briefly that aren't relevant anymore (we need to save space!!). Maximum five bullet points
 3. Edit the Research Outlook section, by taking out steps that have been already done. NOTE: only add new steps when the agent message explicitly mentions them
 4. CHOOSE the concrete next step logically from the Research Outlook section. If it is not clear, write <toInfer>
 """
@@ -50,11 +50,12 @@ TOOL_CALL_UPDATING_PROMPT = """Your task is to update the whiteboard where we ga
 
 ## Your Task
 
-Output an Updated whiteboard with the same structure (grouped by facts) in the following way:
+Output the updates that should be added to the whiteboard with the same structure (grouped by facts) in the following way:
 
 1. Look at all the existing facts on the whiteboard
 2. Look at the facts that the tool call results give
 3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us. Completely ignore errors.
+4. DO NOT OUTPUT THE ENITRE UPDATED WHITEBOARD! Your output will be concatenated to the old whiteboard.
 """
 
 HANDOFF_CONTEXT_UPDATING_PROMPT = """Your task is to update the instructions to determine when our agent team should request feedback from the human user running them.

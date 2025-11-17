@@ -9,7 +9,7 @@ class AgentDetail(TypedDict):
     """Type definition for agent details."""
     name: str
     display_name: str
-    description: str
+    summary: str
 
 
 def get_agent_team_names() -> List[str]:
@@ -105,7 +105,7 @@ def get_summarization_system_prompt() -> str:
 def get_agent_details() -> List[AgentDetail]:
     """
     Extract agent details from team.yaml in the factory directory.
-    Returns a list of agents with their names, display names, and descriptions.
+    Returns a list of agents with their names, display names, and UI summaries.
     """
     team_yaml = Path(__file__).parent.parent / "factory" / "team.yaml"
 
@@ -123,13 +123,13 @@ def get_agent_details() -> List[AgentDetail]:
         if isinstance(agent_config, dict):
             name = agent_config.get("name", agent_key)
             display_name = agent_config.get("display_name", name)
-            description = agent_config.get("description", "")
+            summary = agent_config.get("ui_summary") or agent_config.get("description", "")
 
-            if name and description:
+            if name and summary:
                 agents.append(AgentDetail(
                     name=name,
                     display_name=display_name,
-                    description=description
+                    summary=summary
                 ))
 
     if not agents:
