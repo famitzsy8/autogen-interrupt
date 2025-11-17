@@ -136,12 +136,10 @@ export function findLastMessageNode(root: D3TreeNode, currentBranchId: string): 
     let lastNode: D3TreeNode | null = null
     let latestTimestamp = '';
 
-    console.log('[treeUtils] Finding last active node in branch:', currentBranchId)
 
     root.each((node: D3TreeNode) => {
         if (node.data.branch_id === currentBranchId && node.data.is_active) {
             if (node.data.timestamp > latestTimestamp) {
-                console.log(`[treeUtils]   Found newer node: id=${node.data.id}, type=${node.data.node_type}, timestamp=${node.data.timestamp}`)
                 latestTimestamp = node.data.timestamp;
                 lastNode = node;
             }
@@ -150,9 +148,7 @@ export function findLastMessageNode(root: D3TreeNode, currentBranchId: string): 
 
     if (lastNode) {
         const activeNode = lastNode as D3TreeNode
-        console.log(`[treeUtils] Last active node: id=${activeNode.data.id}, type=${activeNode.data.node_type}`)
     } else {
-        console.log('[treeUtils] No active node found!')
     }
 
     return lastNode
