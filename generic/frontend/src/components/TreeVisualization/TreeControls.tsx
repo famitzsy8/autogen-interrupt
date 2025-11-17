@@ -39,11 +39,6 @@ export function TreeControls({
   isNavigationMode = false,
   onEnableAutoCenter,
 }: TreeControlsProps): React.ReactElement {
-  console.log('[TreeControls] Received props:', {
-    isNavigationMode,
-    hasEnableAutoCenter: !!onEnableAutoCenter
-  })
-
   return (
     <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
       {/* Navigation mode indicator */}
