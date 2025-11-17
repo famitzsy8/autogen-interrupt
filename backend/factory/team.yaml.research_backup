@@ -102,9 +102,67 @@ team:
         - user_proxy
     max_turns: 60
     default_selector_prompt: >
-      Based on the last message and the conversation history, determine which agent should be called next.
-      Return SOLELY the name of the next agent to speak.
+      # Overview
+      You select the next agent to speak based on the current research state and handoff instructions.
+
+      # Context Information
+
+      1. The names of the agents to choose from
+      2. The state of the current research
+      3. The Handoff Instructions
+
+      ## The names of the agents to choose from
+
+      {participants}
+
+      ## The State of the Current Research
+
+      {state_of_run}
+
+      ## The Handoff Instructions
+
+      {handoff_context}
+
+      # How to Determine the next Agent
+
+      1. Look at the state of the current research to understand what has been done and what the next step should be.
+      2. Look at the handoff instructions to see how to map the next step to an agent.
+      3. Validate that the selected agent exists in the list of participants.
+
+      # Output
+      Return SOLELY the name of the agent that should be called next.
     default_selector_prompt_advanced: true
+  initial_handoff_context: >
+    # Handoff Instructions
+
+    ## Agent Responsibilities
+    - If research/planning is needed → **planner**
+    - If quality assurance or feedback is needed → **quality_assurance**
+    - If web search is needed → **web_search_agent**
+    - If report writing or task completion is needed → **report_writer**
+    - If user approval or guidance is needed → **user_proxy**
+
+    ## Escalation & Sync Points
+    - If the research is complete → **report_writer**
+    - If feedback or approval is needed → **user_proxy**
+
+    ## Special User Requests
+
+    --
+  initial_state_of_run: >
+    # State of Research
+
+    ## Task
+    [Will be populated with the actual task]
+
+    ## What we have done so far
+    Nothing yet - research is just starting.
+
+    ## Research Outlook (Next Steps)
+    - Begin research with planner
+
+    ## Concrete Next Step
+    We start with the planner to create a research plan
 
 llm:
   model_client_class: OpenAIChatCompletionClient
