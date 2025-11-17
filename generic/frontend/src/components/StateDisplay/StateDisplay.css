@@ -1,0 +1,142 @@
+/* Markdown content styling for StateDisplay */
+.markdown-content {
+  line-height: 1.6;
+  color: #c9d1d9;
+}
+
+.markdown-content h1 {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: #58a6ff;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 0.3em;
+}
+
+.markdown-content h2 {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-top: 0.5em;
+  margin-bottom: 0.4em;
+  color: #58a6ff;
+}
+
+.markdown-content h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-top: 0.4em;
+  margin-bottom: 0.3em;
+  color: #79c0ff;
+}
+
+.markdown-content h4 {
+  font-size: 1em;
+  font-weight: 600;
+  margin-top: 0.3em;
+  margin-bottom: 0.2em;
+  color: #a5d6ff;
+}
+
+.markdown-content p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-left: 1.5em;
+}
+
+.markdown-content li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content code {
+  background-color: rgba(110, 118, 129, 0.2);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.9em;
+  color: #79c0ff;
+}
+
+.markdown-content pre {
+  background-color: #161b22;
+  padding: 0.75em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  border: 1px solid #30363d;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+  color: #c9d1d9;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid #58a6ff;
+  padding-left: 1em;
+  margin-left: 0;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: #8b949e;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: #f0f6fc;
+}
+
+.markdown-content em {
+  font-style: italic;
+}
+
+.markdown-content a {
+  color: #58a6ff;
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid #30363d;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid #30363d;
+  padding: 0.5em;
+  text-align: left;
+}
+
+.markdown-content th {
+  background-color: #161b22;
+  font-weight: 600;
+}

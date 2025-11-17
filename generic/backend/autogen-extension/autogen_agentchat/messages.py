@@ -437,6 +437,7 @@ class StateContextMessage(BaseChatMessage):
     - state_of_run_text: Current research progress and next steps
     - tool_call_facts_text: Discovered facts whiteboard
     - handoff_context_text: Agent selection rules
+    - participant_names: List of available team members for correct agent references
 
     This message is NOT included in the actual conversation thread.
     It is extracted by ChatAgentContainer before agent processing to provide
@@ -449,13 +450,17 @@ class StateContextMessage(BaseChatMessage):
 
     handoff_context_text: str
 
+    participant_names: list[str]
+
     type: Literal["StateContextMessage"] = "StateContextMessage"
 
     def to_text(self) -> str:
+        participant_str = ", ".join(self.participant_names) if self.participant_names else "None"
         return (
             f"=== STATE OF RUN ===\n{self.state_of_run_text}\n\n"
             f"=== TOOL CALL FACTS ===\n{self.tool_call_facts_text}\n\n"
             f"=== HANDOFF CONTEXT ===\n{self.handoff_context_text}\n\n"
+            f"=== AVAILABLE TEAM MEMBERS ===\n{participant_str}\n\n"
         )
 
     def to_model_text(self) -> str:
@@ -471,6 +476,7 @@ class StateContextMessage(BaseChatMessage):
         state_of_run_text: str,
         tool_call_facts_text: str,
         handoff_context_text: str,
+        participant_names: list[str] | None = None,
         source: str = "manager",
     ) -> "StateContextMessage":
         # Static factory for StateContextMessage
@@ -478,6 +484,7 @@ class StateContextMessage(BaseChatMessage):
             state_of_run_text=state_of_run_text,
             tool_call_facts_text=tool_call_facts_text,
             handoff_context_text=handoff_context_text,
+            participant_names=participant_names or [],
             source=source,
         )
 

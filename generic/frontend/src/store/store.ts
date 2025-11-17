@@ -21,6 +21,7 @@ import type {
     AgentMessage,
     ConnectionState,
     ServerMessage,
+    StateUpdate,
     StreamState,
     ToolCall,
     ToolExecution,
@@ -93,6 +94,10 @@ interface State {
     selectedNodeIdForChat: string | null
     chatFocusTarget: ChatFocusTarget | null
 
+    // State display state
+    isStateDisplayVisible: boolean
+    currentState: StateUpdate | null
+
     // Error state
     error: AppError | null
 
@@ -138,6 +143,7 @@ interface State {
     setChatDisplayVisible: (visible: boolean) => void
     setSelectedNodeIdForChat: (nodeId: string | null) => void
     setChatFocusTarget: (target: ChatFocusTarget | null) => void
+    setStateDisplayVisible: (visible: boolean) => void
     setError: (error: AppError | null) => void
     clearError: () => void
     reset: () => void
@@ -170,6 +176,8 @@ const initialState = {
     isChatDisplayVisible: false,  // Hidden by default, shows when summary is clicked
     selectedNodeIdForChat: null,
     chatFocusTarget: null,
+    isStateDisplayVisible: false,  // Hidden by default
+    currentState: null as StateUpdate | null,
     error: null
 }
 
@@ -443,6 +451,22 @@ export const useStore = create<State>()(
                         }))
                         break
 
+                    case 'state_update':
+                        console.log('🔔 [FRONTEND] Received STATE_UPDATE message:', {
+                            message_index: message.message_index,
+                            state_of_run_length: message.state_of_run.length,
+                            tool_call_facts_length: message.tool_call_facts.length,
+                            handoff_context_length: message.handoff_context.length,
+                        })
+                        console.log('   state_of_run:', message.state_of_run.substring(0, 100) + '...')
+                        console.log('   tool_call_facts:', message.tool_call_facts.substring(0, 100) + '...')
+                        console.log('   handoff_context:', message.handoff_context.substring(0, 100) + '...')
+                        set({
+                            currentState: message
+                        })
+                        console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState')
+                        break
+
                     default:
                         set({
                             error: {
@@ -628,6 +652,10 @@ export const useStore = create<State>()(
                     chatFocusTarget: target,
                     selectedNodeIdForChat: target ? target.nodeId : null,
                 })
+            },
+
+            setStateDisplayVisible: (visible: boolean) => {
+                set({isStateDisplayVisible: visible})
             },
 
             setError: (error: AppError | null ) => {
