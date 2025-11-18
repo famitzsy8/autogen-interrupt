@@ -295,7 +295,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         except Exception as e:
             logger.exception(f"Exception in _create_state_snapshot: {type(e).__name__}: {e}")
 
-    async def _update_state_of_run(self, agent_message: BaseChatMessage, cancellation_token: CancellationToken | None = None) -> None:
+    async def _update_state_of_run(self, agent_message: BaseChatMessage, cancellation_token: CancellationToken | None = None, from_user_proxy: bool = False) -> None:
         """Update StateOfRun from agent message using LLM.
 
         Args:
@@ -313,8 +313,10 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             message_text = agent_message.to_text()
 
             # Format prompt with current state and agent message
+            handoff_info = "just recieved user feedback" if from_user_proxy else self._handoff_context_text
             prompt = STATE_OF_RUN_UPDATE_PROMPT.format(
                 stateOfRun=self._state_of_run_text,
+                handoffContext=handoff_info,
                 agentMessage=message_text
             )
 
