@@ -8,7 +8,7 @@ from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage, MessageF
 from ...base import ChatAgent, Response, TaskResult, Team
 from ...state import ChatAgentContainerState
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 from ._events import (
     GroupChatAgentResponse,
     GroupChatBranch,
@@ -58,6 +58,7 @@ class ChatAgentContainer(SequentialRoutedAgent):
                 GroupChatAgentResponse,
                 GroupChatTeamResponse,
                 GroupChatBranch,
+                GroupChatError,
             ],
         )
         self._parent_topic_type = parent_topic_type
@@ -87,6 +88,17 @@ class ChatAgentContainer(SequentialRoutedAgent):
         for msg in message.result.messages:
             if isinstance(msg, BaseChatMessage):
                 self._buffer_message(msg)
+
+    @event
+    async def handle_error(self, message: GroupChatError, ctx: MessageContext) -> None:
+        """Handle a group chat error by logging it and routing back to parent."""
+        logger.error(f"GroupChatError received: {message.error}")
+        # Re-publish the error to the parent so the group chat manager can handle it
+        await self.publish_message(
+            message,
+            topic_id=DefaultTopicId(type=self._parent_topic_type),
+            cancellation_token=ctx.cancellation_token,
+        )
 
     @rpc
     async def handle_reset(self, message: GroupChatReset, ctx: MessageContext) -> None:
