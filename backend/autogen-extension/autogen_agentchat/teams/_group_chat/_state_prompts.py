@@ -67,7 +67,7 @@ Output the updates that should be added to the whiteboard with the same structur
 
 1. Look at all the existing facts on the whiteboard
 2. Look at the facts that the tool call results give
-3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us. Maximum six bullet points. Completely ignore errors.
+3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us. Make sure to fit them in maximum 6 short bullet points (condense the information!). Completely ignore errors.
 4. DO NOT OUTPUT THE ENITRE UPDATED WHITEBOARD! Your output will be concatenated to the old whiteboard.
 """
 
