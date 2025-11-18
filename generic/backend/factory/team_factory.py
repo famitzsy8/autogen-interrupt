@@ -10,7 +10,7 @@ import openai
 import yaml
 from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_agentchat.agents._user_control_agent import UserControlAgent
-from autogen_agentchat.conditions import MaxMessageTermination
+from autogen_agentchat.conditions import TextMentionTermination
 from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
 from autogen_agentchat.teams import BaseGroupChat
 from autogen_agentchat.teams._group_chat._selector_group_chat import SelectorGroupChat
@@ -237,7 +237,7 @@ async def init_team(
 
         team_kwargs = {
             "participants": agents,
-            "termination_condition": MaxMessageTermination(max_messages=max_messages),
+            "termination_condition": TextMentionTermination("<TERMINATE>", [a.name for a in agents if a.name not in ["user", "You", user_proxy_name]]),
             "selector_prompt": selector_prompt_str,
             "model_client": model_client,
             "agent_input_queue": agent_input_queue,
@@ -265,7 +265,7 @@ async def init_team(
 
         team_kwargs = {
             "participants": agents,
-            "termination_condition": MaxMessageTermination(max_messages=max_messages),
+            "termination_condition": TextMentionTermination("<TERMINATE>", [a.name for a in agents if a.name not in ["You", "user", user_proxy_name]]),
             "selector_prompt": selector_prompt_str,
             "model_client": model_client,
             "agent_input_queue": agent_input_queue,
