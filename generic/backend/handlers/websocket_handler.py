@@ -259,7 +259,10 @@ class WebSocketHandler:
                         message_task = asyncio.create_task(stream.__anext__())
                         continue
 
-                    if isinstance(message, BaseChatMessage):
+                    if isinstance(message, StopMessage):
+                        await self._process_stop_message(message)
+
+                    elif isinstance(message, BaseChatMessage):
                         total_messages += 1
                         print(f"[{total_messages}] [{message.source}]: {message.content}")
                         await self._process_agent_message(message)
@@ -484,6 +487,50 @@ class WebSocketHandler:
             node_id,
             len(self._pending_agent_messages)
         )
+        # print(f"[TIMING] Queue Message (line 490): {(time.time() - t6_queue) * 1000:.2f}ms")
+
+        # # ==================== TIMING TOTAL ====================
+        # total_message_processing = (time.time() - t0_message_processing) * 1000
+        # print(f"[TIMING TOTAL] Full Message Processing (line 450): {total_message_processing:.2f}ms\n")
+
+
+    async def _process_stop_message(self, message: StopMessage) -> None:
+        """
+        Handle StopMessage by determining if run was interrupted or completed.
+
+        - If content == "USER_INTERRUPT": don't send RUN_TERMINATION
+          (INTERRUPT_ACKNOWLEDGED was already sent in _handle_interrupt)
+        - Otherwise: send RUN_TERMINATION with status="COMPLETED"
+        """
+        # First, add the StopMessage to the state tree as normal
+        await self._process_agent_message(message)
+
+        # Determine the status based on content
+        if message.content == "USER_INTERRUPT":
+            # This was a user interrupt, don't send RUN_TERMINATION
+            # (INTERRUPT_ACKNOWLEDGED was already sent in _handle_interrupt)
+            print("⚠️ StopMessage with USER_INTERRUPT received (already acknowledged)")
+            return
+
+        # It's a normal termination condition
+        print(f"🏁 Run termination detected: {message.content}")
+        await self._send_run_termination(
+            status="COMPLETED",
+            reason=message.content,
+            source=message.source
+        )
+
+    async def _send_run_termination(self, status: str, reason: str, source: str) -> None:
+        """
+        Send a RunTermination message to the frontend to notify of run completion.
+        """
+        termination = RunTermination(
+            status=status,
+            reason=reason,
+            source=source
+        )
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(termination.model_dump_json())
     
     async def _send_agent_team_names(self, team_names: list[str]) -> None:
         # Send available agent team configuration names to frontend

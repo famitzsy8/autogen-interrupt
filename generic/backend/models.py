@@ -28,6 +28,7 @@ class MessageType(str, Enum):
     TOOL_CALL = 'tool_call'
     TOOL_EXECUTION = 'tool_execution'
     STATE_UPDATE = 'state_update'
+    RUN_TERMINATION = 'run_termination'
 
 
 class AgentTeamNames(BaseModel):
@@ -181,6 +182,26 @@ class StreamEnd(BaseModel):
     # Notification that the agent conversation stream has ended.
     type: Literal[MessageType.STREAM_END] = MessageType.STREAM_END
     reason: str = Field(..., description="Reason for stream termination")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class RunTermination(BaseModel):
+    # Notification that the run has terminated (either completed or interrupted).
+    # Distinguishes between normal termination conditions and user interrupts.
+
+    type: Literal[MessageType.RUN_TERMINATION] = MessageType.RUN_TERMINATION
+    status: Literal["COMPLETED", "INTERRUPTED"] = Field(
+        ...,
+        description="Whether run was completed via termination condition or interrupted by user"
+    )
+    reason: str = Field(
+        ...,
+        description="The StopMessage content explaining why the run ended"
+    )
+    source: str = Field(
+        ...,
+        description="The StopMessage source (termination condition class name or manager name)"
+    )
     timestamp: datetime = Field(default_factory=datetime.now)
 
 

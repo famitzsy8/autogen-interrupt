@@ -22,6 +22,7 @@ export enum MessageType {
     TOOL_CALL = 'tool_call',
     TOOL_EXECUTION = 'tool_execution',
     STATE_UPDATE = 'state_update',
+    RUN_TERMINATION = 'run_termination',
 }
 
 /**
@@ -121,6 +122,17 @@ export interface InterruptAcknowledged extends BaseMessage {
 export interface StreamEnd extends BaseMessage {
     type: MessageType.STREAM_END,
     reason: string,
+}
+
+/**
+ * Notification that the run has terminated (either completed or interrupted).
+ * Distinguishes between normal termination conditions and user interrupts.
+ */
+export interface RunTermination extends BaseMessage {
+    type: MessageType.RUN_TERMINATION,
+    status: 'COMPLETED' | 'INTERRUPTED',
+    reason: string,
+    source: string,
 }
 
 /**
@@ -239,6 +251,7 @@ export type ServerMessage =
   | RunConfig
   | AgentMessage
   | InterruptAcknowledged
+  | RunTermination
   | StreamEnd
   | ErrorMessage
   | TreeUpdate
