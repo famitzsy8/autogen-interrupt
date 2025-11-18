@@ -14,23 +14,36 @@ STATE_OF_RUN_UPDATE_PROMPT = """Your task is to update the state of a research p
 
 1. The Previous State of the Research -- It outlines what has been done already, and what the next step at the previous point in time was
 2. The Message from the Agent -- It outlines what the agent did since the state of the research has been documented
+3. The Handoff Context -- Outlines if user feedback is needed for the next step, or if not
 
 ## Previous State of Research
 
+```markdown
 {stateOfRun}
+```
 
 ## Message from the Agent
 
+```markdown
 {agentMessage}
+```
+
+## Handoff Context
+
+```markdown
+{handoffContext}
+```
 
 ## Your Task
 
-Update the state of research according to the agent message you just received. Keep the same structure: Task, What we have done so far, Research Outlook (Next Steps), Concrete Next Step
+Update the state of research, following these SIMPLE RULES:
 
 1. DO NOT EDIT THE TASK
-2. Edit What we have done so far by synthesizing the old state with the Message from the Agent. Summarize very old steps briefly that aren't relevant anymore (we need to save space!!). Maximum five bullet points
+2. Edit "What we have done so far" by synthesizing the old state with the Message from the Agent. Summarize very old steps briefly that aren't relevant anymore (we need to save space!!). Maximum five bullet points
 3. Edit the Research Outlook section, by taking out steps that have been already done. NOTE: only add new steps when the agent message explicitly mentions them
-4. CHOOSE the concrete next step logically from the Research Outlook section. If it is not clear, write <toInfer>
+4. CHOOSE the concrete next step logically from the Research Outlook section.
+5. Read the Handoff Context. If the concrete next step needs user feedback according to the instructions in the HandoffContext, change the Concrete Next Step to asking feedback before
+    --> And if the concrete next step DOESN'T need user feedback (this means you can't find anything in Handoff context that would require this), just output the logically chosen Concrete Next Step in Step 4
 """
 
 TOOL_CALL_UPDATING_PROMPT = """Your task is to update the whiteboard where we gather all information that the team of agents found via tools.
@@ -54,7 +67,7 @@ Output the updates that should be added to the whiteboard with the same structur
 
 1. Look at all the existing facts on the whiteboard
 2. Look at the facts that the tool call results give
-3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us. Completely ignore errors.
+3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us. Maximum six bullet points. Completely ignore errors.
 4. DO NOT OUTPUT THE ENITRE UPDATED WHITEBOARD! Your output will be concatenated to the old whiteboard.
 """
 
@@ -90,4 +103,20 @@ Output updated handoff instructions in the following manner:
 1. Keep the structure of the old handoff instructions (If XY: agent_name, ..., ## Special User Requests)
 2. Update the handoff instructions ONLY according to the message from the human user
 3. Do NOT remove rules that the user didn't mention changing
+
+## Output structure
+
+Same as the old handoff instructions
+`
+# User Feedback Involvement
+
+clear instructions as to when involve {user_proxy_name}
+
+# Agent Responsibilities
+
+If we need X -> agent_name
+
+# Special User Requirements
+`
+
 """
