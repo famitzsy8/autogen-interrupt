@@ -652,15 +652,17 @@ class WebSocketHandler:
             )
             results.append(result)
 
-        tc_execution = ToolExecution(
-            agent_name=message.source,
-            results=results,
-            node_id=self.current_tool_call_node_id
-        )
-        await self._send_tree_update()
+        # Only send ToolExecution if we have a valid node_id
+        if self.current_tool_call_node_id:
+            tc_execution = ToolExecution(
+                agent_name=message.source,
+                results=results,
+                node_id=self.current_tool_call_node_id
+            )
+            await self._send_tree_update()
 
-        if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(tc_execution.model_dump_json())
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                await self.websocket.send_text(tc_execution.model_dump_json())
 
         self.current_tool_call_node_id = None
 
