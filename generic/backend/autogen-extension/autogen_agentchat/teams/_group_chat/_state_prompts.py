@@ -18,21 +18,21 @@ STATE_OF_RUN_UPDATE_PROMPT = """Your task is to update the state of a research p
 
 ## Previous State of Research
 
-```markdown
+
 {stateOfRun}
-```
+
 
 ## Message from the Agent
 
-```markdown
+
 {agentMessage}
-```
+
 
 ## Handoff Context
 
-```markdown
+
 {handoffContext}
-```
+
 
 ## Your Task
 
@@ -44,6 +44,10 @@ Update the state of research, following these SIMPLE RULES:
 4. CHOOSE the concrete next step logically from the Research Outlook section.
 5. Read the Handoff Context. If the concrete next step needs user feedback according to the instructions in the HandoffContext, change the Concrete Next Step to asking feedback before
     --> And if the concrete next step DOESN'T need user feedback (this means you can't find anything in Handoff context that would require this), just output the logically chosen Concrete Next Step in Step 4
+
+## Output structure
+
+Same as the old state of research
 """
 
 TOOL_CALL_UPDATING_PROMPT = """Your task is to update the whiteboard where we gather all information that the team of agents found via tools.
@@ -67,7 +71,7 @@ Output the updates that should be added to the whiteboard with the same structur
 
 1. Look at all the existing facts on the whiteboard
 2. Look at the facts that the tool call results give
-3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us. Make sure to fit them in maximum 6 short bullet points (condense the information!). Completely ignore errors.
+3. Create new facts for each NEW AND NOT PREVIOUSLY LISTED information that the new tool call results give us. Make sure to fit them in maximum 6 short bullet points (condense the information!). Completely ignore errors (meaning: output an empty string).
 4. DO NOT OUTPUT THE ENITRE UPDATED WHITEBOARD! Your output will be concatenated to the old whiteboard.
 """
 
@@ -107,7 +111,7 @@ Output updated handoff instructions in the following manner:
 ## Output structure
 
 Same as the old handoff instructions
-`
+
 # User Feedback Involvement
 
 clear instructions as to when involve {user_proxy_name}
@@ -117,6 +121,6 @@ clear instructions as to when involve {user_proxy_name}
 If we need X -> agent_name
 
 # Special User Requirements
-`
+
 
 """
