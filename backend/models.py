@@ -401,7 +401,7 @@ class ToolExecution(BaseModel):
     type: Literal[MessageType.TOOL_EXECUTION] = MessageType.TOOL_EXECUTION
     agent_name: str = Field(..., description="Name of the agent that executed tools")
     results: list[ToolExecutionResult] = Field(..., description="List of execution results")
-    node_id: str = Field(..., description="Node ID associated with this execution")
+    node_id: str | None = Field(default=None, description="Node ID associated with this execution")
     timestamp: datetime = Field(default_factory=datetime.now)
 
     @field_validator("agent_name")
