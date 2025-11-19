@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { ChatDisplay } from './components/ChatDisplay'
+import { StateDisplay } from './components/StateDisplay'
 import { TreeVisualization } from './components/TreeVisualization'
 import AgentInputModal from './components/AgentInputModal'
 import { ConfigForm } from './components/ConfigForm'
-import { MessageSquare } from 'lucide-react'
+import { MessageSquare, FileText } from 'lucide-react'
 import type { RunConfig } from './types'
 import {
   useAgentInputActions,
   useAgentInputRequest,
   useAgentTeamNames,
+  useAgentDetails,
   useParticipantNames,
   useConnectionActions,
   useConnectionState,
@@ -16,6 +18,8 @@ import {
   useCurrentBranchId,
   useIsChatDisplayVisible,
   useChatDisplayActions,
+  useIsStateDisplayVisible,
+  useStateDisplayActions,
 } from './hooks/useStore'
 
 function App(): React.ReactElement {
@@ -26,16 +30,23 @@ function App(): React.ReactElement {
   const { connect, sendConfig } = useConnectionActions()
   const connectionState = useConnectionState()
   const agentTeamNames = useAgentTeamNames()
+  const agentDetails = useAgentDetails()
   const participantNames = useParticipantNames()
   const conversationTree = useConversationTree()
   const currentBranchId = useCurrentBranchId()
   const agentInputRequest = useAgentInputRequest()
   const isChatDisplayVisible = useIsChatDisplayVisible()
+  const isStateDisplayVisible = useIsStateDisplayVisible()
   const { sendHumanInputResponse } = useAgentInputActions()
   const { setChatDisplayVisible } = useChatDisplayActions()
+  const { setStateDisplayVisible } = useStateDisplayActions()
 
   const handleToggleChatDisplay = () => {
     setChatDisplayVisible(!isChatDisplayVisible)
+  }
+
+  const handleToggleStateDisplay = () => {
+    setStateDisplayVisible(!isStateDisplayVisible)
   }
 
   // Connect to WebSocket on mount (only once)
@@ -64,6 +75,7 @@ function App(): React.ReactElement {
         onSubmit={handleConfigSubmit}
         isLoading={connectionState === 'connecting'}
         agentTeamNames={agentTeamNames?.agent_team_names || null}
+        agentDetails={agentDetails?.agents || null}
         participantNames={participantNames?.participant_names || null}
       />
     )
@@ -104,12 +116,31 @@ function App(): React.ReactElement {
               <MessageSquare size={24} />
             </button>
           )}
+
+          {/* Floating toggle button for state display */}
+          {!isStateDisplayVisible && (
+            <button
+              onClick={handleToggleStateDisplay}
+              className="absolute top-4 left-4 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-lg transition-colors z-10"
+              aria-label="Show state display"
+              title="Show state context"
+            >
+              <FileText size={24} />
+            </button>
+          )}
         </div>
 
         {/* Chat display overlay (slides in from right) */}
         {isChatDisplayVisible && (
           <div className="fixed right-0 top-0 h-full w-[400px] bg-dark-bg border-l border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
             <ChatDisplay />
+          </div>
+        )}
+
+        {/* State display overlay (slides in from left) */}
+        {isStateDisplayVisible && (
+          <div className="fixed left-0 top-0 h-full w-[400px] bg-dark-bg border-r border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
+            <StateDisplay />
           </div>
         )}
       </div>

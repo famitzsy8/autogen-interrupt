@@ -14,6 +14,7 @@ import type {
     AgentMessage,
     AppError,
     ConnectionState,
+    StateUpdate,
     StreamState,
     TreeNode
 } from '../types'
@@ -129,6 +130,13 @@ export function useIsStreaming(): boolean {
    */
   export function useParticipantNames() {
     return useStore((state) => state.participant_names)
+  }
+
+  /**
+   * Hook to access the agent details (names and descriptions)
+   */
+  export function useAgentDetails() {
+    return useStore((state) => state.agent_details)
   }
 
   /**
@@ -281,6 +289,29 @@ export function useChatDisplayActions() {
       setChatDisplayVisible: state.setChatDisplayVisible,
       setSelectedNodeIdForChat: state.setSelectedNodeIdForChat,
       setChatFocusTarget: state.setChatFocusTarget,
+    }))
+  }
+
+  /**
+   * Hook to access current state update.
+   */
+  export function useCurrentState(): StateUpdate | null {
+    return useStore((state) => state.currentState)
+  }
+
+  /**
+   * Hook to check if state display is visible.
+   */
+  export function useIsStateDisplayVisible(): boolean {
+    return useStore((state) => state.isStateDisplayVisible)
+  }
+
+  /**
+   * Hook to access state display actions.
+   */
+  export function useStateDisplayActions() {
+    return useStore((state) => ({
+      setStateDisplayVisible: state.setStateDisplayVisible,
     }))
   }
 

@@ -12,6 +12,7 @@ class MessageType(str, Enum):
 
     # WebSocket message types (equal in frontend src/types/index.ts)
     AGENT_TEAM_NAMES = 'agent_team_names'
+    AGENT_DETAILS = 'agent_details'
     PARTICIPANT_NAMES = 'participant_names'
     RUN_CONFIG = 'RUN_CONFIG'
     START_RUN = 'start_run'
@@ -26,6 +27,8 @@ class MessageType(str, Enum):
     HUMAN_INPUT_RESPONSE = 'human_input_response'
     TOOL_CALL = 'tool_call'
     TOOL_EXECUTION = 'tool_execution'
+    STATE_UPDATE = 'state_update'
+    RUN_TERMINATION = 'run_termination'
 
 
 class AgentTeamNames(BaseModel):
@@ -53,6 +56,46 @@ class ParticipantNames(BaseModel):
         # Participant names list must not be empty
         if not v:
             raise ValueError("participant_names cannot be empty")
+        return v
+
+class Agent(BaseModel):
+    # Individual agent with name and UI summary
+    name: str = Field(..., description="Internal name of the agent")
+    display_name: str = Field(..., description="Display name of the agent")
+    summary: str = Field(..., description="Short summary of what the agent does for UI display")
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("name cannot be empty")
+        return v.strip()
+
+    @field_validator("display_name")
+    @classmethod
+    def validate_display_name(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("display_name cannot be empty")
+        return v.strip()
+
+    @field_validator("summary")
+    @classmethod
+    def validate_summary(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("summary cannot be empty")
+        return v.strip()
+
+class AgentDetails(BaseModel):
+    # Details of all agents including their UI summaries
+    type: Literal[MessageType.AGENT_DETAILS] = MessageType.AGENT_DETAILS
+    agents: list[Agent] = Field(..., description="List of agents with their details")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("agents")
+    @classmethod
+    def validate_agents(cls, v: list[Agent]) -> list[Agent]:
+        if not v:
+            raise ValueError("agents cannot be empty")
         return v
 
 class AgentMessage(BaseModel):
@@ -139,6 +182,26 @@ class StreamEnd(BaseModel):
     # Notification that the agent conversation stream has ended.
     type: Literal[MessageType.STREAM_END] = MessageType.STREAM_END
     reason: str = Field(..., description="Reason for stream termination")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class RunTermination(BaseModel):
+    # Notification that the run has terminated (either completed or interrupted).
+    # Distinguishes between normal termination conditions and user interrupts.
+
+    type: Literal[MessageType.RUN_TERMINATION] = MessageType.RUN_TERMINATION
+    status: Literal["COMPLETED", "INTERRUPTED"] = Field(
+        ...,
+        description="Whether run was completed via termination condition or interrupted by user"
+    )
+    reason: str = Field(
+        ...,
+        description="The StopMessage content explaining why the run ended"
+    )
+    source: str = Field(
+        ...,
+        description="The StopMessage source (termination condition class name or manager name)"
+    )
     timestamp: datetime = Field(default_factory=datetime.now)
 
 
@@ -270,8 +333,8 @@ class HumanInputResponse(BaseModel):
         return v
 
 class RunConfig(BaseModel):
-    # Configuration of agent team: prompt to select next agent and initial task
-    # Open to be expanded with more variables
+    # Configuration of agent team: initial task and investigation parameters
+    # Selector prompt is now configured exclusively in team.yaml and uses live state context
 
     type: Literal[MessageType.START_RUN] = MessageType.START_RUN
 
@@ -280,10 +343,6 @@ class RunConfig(BaseModel):
     initial_topic: str | None = Field(
         default=None,
         description="The task of the agent team (optional, uses backend default if not provided)",
-    )
-    selector_prompt: str | None = Field(
-        default=None,
-        description="Prompt to set the next agent selection policy in the agent team",
     )
 
     # Company-bill investigation parameters
@@ -342,7 +401,7 @@ class ToolExecution(BaseModel):
     type: Literal[MessageType.TOOL_EXECUTION] = MessageType.TOOL_EXECUTION
     agent_name: str = Field(..., description="Name of the agent that executed tools")
     results: list[ToolExecutionResult] = Field(..., description="List of execution results")
-    node_id: str = Field(..., description="Node ID associated with this execution")
+    node_id: str | None = Field(default=None, description="Node ID associated with this execution")
     timestamp: datetime = Field(default_factory=datetime.now)
 
     @field_validator("agent_name")
@@ -353,3 +412,13 @@ class ToolExecution(BaseModel):
             raise ValueError("agent_name cannot be empty")
         return v.strip()
 
+class StateUpdate(BaseModel):
+    # Update containing the current state of the GroupChatManager's 3-state model.
+    # This is sent whenever a state snapshot is created.
+
+    type: Literal[MessageType.STATE_UPDATE] = MessageType.STATE_UPDATE
+    state_of_run: str = Field(default="", description="Current research progress and next steps")
+    tool_call_facts: str = Field(default="", description="Accumulated facts from tool executions")
+    handoff_context: str = Field(default="", description="Agent selection rules and guidelines")
+    message_index: int = Field(..., description="Message index when this state snapshot was created")
+    timestamp: datetime = Field(default_factory=datetime.now)

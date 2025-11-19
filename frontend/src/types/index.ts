@@ -6,6 +6,7 @@
 
 export enum MessageType {
     AGENT_TEAM_NAMES = 'agent_team_names',
+    AGENT_DETAILS = 'agent_details',
     PARTICIPANT_NAMES = 'participant_names',
     RUN_CONFIG = 'RUN_CONFIG',
     START_RUN = 'start_run',
@@ -20,6 +21,8 @@ export enum MessageType {
     HUMAN_INPUT_RESPONSE = 'human_input_response',
     TOOL_CALL = 'tool_call',
     TOOL_EXECUTION = 'tool_execution',
+    STATE_UPDATE = 'state_update',
+    RUN_TERMINATION = 'run_termination',
 }
 
 /**
@@ -44,6 +47,23 @@ export interface AgentTeamNames extends BaseMessage {
 export interface ParticipantNames extends BaseMessage {
     type: MessageType.PARTICIPANT_NAMES
     participant_names: string[]
+}
+
+/**
+ * Agent details including name, display name, and UI summary
+ */
+export interface Agent {
+    name: string
+    display_name: string
+    summary: string
+}
+
+/**
+ * Details of all agents including their summaries for UI display
+ */
+export interface AgentDetails extends BaseMessage {
+    type: MessageType.AGENT_DETAILS
+    agents: Agent[]
 }
 
 /**
@@ -102,6 +122,17 @@ export interface InterruptAcknowledged extends BaseMessage {
 export interface StreamEnd extends BaseMessage {
     type: MessageType.STREAM_END,
     reason: string,
+}
+
+/**
+ * Notification that the run has terminated (either completed or interrupted).
+ * Distinguishes between normal termination conditions and user interrupts.
+ */
+export interface RunTermination extends BaseMessage {
+    type: MessageType.RUN_TERMINATION,
+    status: 'COMPLETED' | 'INTERRUPTED',
+    reason: string,
+    source: string,
 }
 
 /**
@@ -199,21 +230,35 @@ export interface ToolExecution extends BaseMessage {
 }
 
 /**
+ * State update containing the GroupChatManager's 3-state model.
+ */
+export interface StateUpdate extends BaseMessage {
+    type: MessageType.STATE_UPDATE
+    state_of_run: string
+    tool_call_facts: string
+    handoff_context: string
+    message_index: number
+}
+
+/**
  * Union type of all possible WebSocket messages from server.
  * We declare this to do neat case distinction when the frontend recieves a message from the agent team.
  */
 export type ServerMessage =
   | AgentTeamNames
+  | AgentDetails
   | ParticipantNames
   | RunConfig
   | AgentMessage
   | InterruptAcknowledged
+  | RunTermination
   | StreamEnd
   | ErrorMessage
   | TreeUpdate
   | AgentInputRequest
   | ToolCall
   | ToolExecution
+  | StateUpdate
 
 /**
  * Union type of all possible WebSocket messages sent to server.

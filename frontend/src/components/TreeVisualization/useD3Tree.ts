@@ -138,16 +138,13 @@ export function useD3Tree(
     const handleUserActivity = useCallback(() => {
       // Ignore activity during initial setup
       if (!isInitializedRef.current) {
-        console.log('[useD3Tree] Ignoring activity during initialization')
         return
       }
 
-      console.log('[useD3Tree] ⚠️ handleUserActivity called')
       const now = Date.now()
 
       // Throttle to max once per 100ms to avoid excessive state updates
       if (throttleTimeoutRef.current && now - lastMouseActivityRef.current < 100) {
-        console.log('[useD3Tree] Throttled - ignoring')
         return
       }
 
@@ -156,10 +153,8 @@ export function useD3Tree(
       // Disable auto-centering immediately (only if not already disabled)
       setAutoCenterEnabled(prev => {
         if (prev) {
-          console.log('[useD3Tree] 🔴 User activity detected - DISABLING auto-center')
           return false
         }
-        console.log('[useD3Tree] Auto-center already disabled')
         return prev
       })
 
@@ -170,7 +165,6 @@ export function useD3Tree(
 
       // Set a 15-second timeout to re-enable auto-centering
       userInteractionTimeoutRef.current = window.setTimeout(() => {
-        console.log('[useD3Tree] 🟢 15 seconds of inactivity - re-enabling auto-center')
         setAutoCenterEnabled(true)
       }, 15000)
     }, [])
@@ -259,7 +253,6 @@ export function useD3Tree(
       // Mark as initialized after a short delay to avoid capturing setup events
       setTimeout(() => {
         isInitializedRef.current = true
-        console.log('[useD3Tree] ✅ Initialization complete - user activity tracking enabled')
       }, 500)
 
       // Cleanup function - runs when component unmounts or dependencies change
@@ -295,7 +288,6 @@ export function useD3Tree(
 
       // After tree updates, preserve transform in navigation mode
       if (!autoCenterEnabled && svgRef.current && zoomRef.current) {
-        console.log('[useD3Tree] Tree updated in navigation mode - re-applying transform')
         const svg = d3.select(svgRef.current)
         // Use a very short timeout to let D3 finish its update first
         setTimeout(() => {
@@ -311,24 +303,13 @@ export function useD3Tree(
      * - Auto-centering is enabled (user hasn't interacted recently)
      */
     useEffect(() => {
-      console.log('[useD3Tree] Recentering effect triggered', {
-        hasRoot: !!root,
-        isInterrupted,
-        autoCenterEnabled,
-        currentCenterNodeId: centerNodeId
-      })
-
       if (!root || isInterrupted || !autoCenterEnabled) {
-        console.log('[useD3Tree] Skipping recenter - conditions not met')
         return
       }
 
       const lastMessageNode = findLastMessageNode(root, currentBranchId)
       if (lastMessageNode && lastMessageNode.data.id !== centerNodeId) {
-        console.log(`[useD3Tree] Updating center node to: ${lastMessageNode.data.id} (type: ${lastMessageNode.data.node_type})`)
         setCenterNodeId(lastMessageNode.data.id)
-      } else {
-        console.log('[useD3Tree] No center node update needed')
       }
     }, [root, centerNodeId, currentBranchId, isInterrupted, autoCenterEnabled])
   
@@ -354,7 +335,6 @@ export function useD3Tree(
       }
 
       if (targetNode) {
-        console.log(`[useD3Tree] Recentering view to node: ${targetNode.data.id} at (${targetNode.x}, ${targetNode.y})`)
         // Calculate transform to position the node optimally
         const svg = d3.select(svgRef.current)
         const scale = transformRef.current.k
@@ -367,7 +347,6 @@ export function useD3Tree(
         // for viewing new messages at the bottom of the tree
         const y = -targetNode.y! * scale + (height * 2 / 3)
 
-        console.log(`[useD3Tree] Centering to position: x=${x}, y=${y}, scale=${scale}`)
 
         svg
           .transition()
@@ -386,7 +365,6 @@ export function useD3Tree(
         recenter()
       } else if (!autoCenterEnabled && svgRef.current && zoomRef.current) {
         // In navigation mode: preserve the current transform when tree updates
-        console.log('[useD3Tree] Navigation mode - preserving current transform')
         const svg = d3.select(svgRef.current)
         const currentTransform = transformRef.current
 
@@ -443,7 +421,6 @@ export function useD3Tree(
      * Manually enable auto-centering (exit navigation mode).
      */
     const enableAutoCenter = useCallback(() => {
-      console.log('[useD3Tree] Manually enabling auto-center')
 
       // Clear any existing timeout
       if (userInteractionTimeoutRef.current) {
@@ -459,13 +436,6 @@ export function useD3Tree(
         setTimeout(() => recenter(), 0)
       }
     }, [centerNodeId, recenter])
-
-    // Log navigation mode state for debugging
-    console.log('[useD3Tree] Current state:', {
-      autoCenterEnabled,
-      isNavigationMode: !autoCenterEnabled,
-      centerNodeId
-    })
 
     return {
       svgRef,
@@ -794,7 +764,6 @@ export function useD3Tree(
       .style('cursor', 'pointer')
       .text((d) => d.data.summary || '')
       .on('click', function(event: MouseEvent, d: D3TreeNode) {
-        console.log('[useD3Tree] Summary clicked:', d.data.id, 'type:', d.data.node_type)
         event.stopPropagation()
         if (onNodeClick) {
           onNodeClick(d.data.id, getConversationItemTypeForNode(d.data))

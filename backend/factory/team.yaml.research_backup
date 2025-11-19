@@ -4,6 +4,8 @@ agents:
   user_proxy:
     display_name: User
     description: A human admin who can approve plans and provide guidance. Call this agent for approvals, troubleshooting, or secrets/API keys.
+    ui_summary: >
+      Represents the human decision-maker who can clarify requirements, approve plans, and provide feedback. Call this agent whenever the team needs direction or confirmation from the user.
     system_message: ''
     agent_class: UserProxyAgent
     input_func: queue_based_input
@@ -14,14 +16,16 @@ agents:
   planner:
     display_name: Planner
     description: Call this Agent if you need to build a plan.
+    ui_summary: >
+      Builds detailed 5-step plans for solving tasks, coordinating team members, and revising plans based on feedback from admin and quality_assurance.
     system_message: |
-      You are an AI Planner, follow these guidelines:
-      1. Your plan should include 5 steps, you should provide a detailed plan to solve the task.
-      2. Post project review isn't needed.
-      3. Revise the plan based on feedback from admin and quality_assurance.
-      4. The plan should include the various team members, explain which step is performed by whom.
-      5. Do not show appreciation in your responses, say only what is necessary.
-      6. The final message should include an accurate answer to the user request
+      You are planning a step-by-step research investigation into a question given by a human user.
+      Your plan should include the following structure:
+      1. It should include the next 3 steps to undertake
+      2. It should clearly reference the agents in the team that can do work for you.
+        --> quality_assurance: Is here to review any plan made by you
+        --> web_search_agent: Can do the actual web searches for you
+        --> report_writer: Is here to write up a report, as soon as the investigation is concluded
     agent_class: AssistantAgent
     name: planner
     model_client_stream: true
@@ -30,8 +34,10 @@ agents:
   quality_assurance:
     display_name: Quality Assurance
     description: Quality assurance agent that checks plan and execution quality.
+    ui_summary: >
+      Reviews plans and execution for bugs or errors, suggests resolutions, and analyzes problems to think of different approaches when tasks aren't solved.
     system_message: |
-      You are an AI Quality Assurance. Follow these instructions:
+      You are here of the Quality Assurance department. Follow these instructions:
       1. Double check the plan,
       2. if there's a bug or error suggest a resolution
       3. If the task is not solved, analyze the problem, revisit your assumption, collect additional info you need, and think of a different approach.
@@ -43,8 +49,10 @@ agents:
   web_search_agent:
     display_name: Web Search Agent
     description: Call this Agent if you need to search the web for information.
+    ui_summary: >
+      Searches the web for information to support research tasks and gather external data.
     system_message: |
-      You are a web search agent. You search the web for information.
+      You are a web search agent. You have the ability to make queries to the web, and get a text full of links in return that try to answer your question.
     agent_class: AssistantAgent
     name: web_search_agent
     tools:
@@ -56,6 +64,8 @@ agents:
   report_writer:
     display_name: Report Writer
     description: Call this agent if the research is done and we want to terminate.
+    ui_summary: >
+      Writes final reports summarizing research findings with sources, then terminates the task if research is complete, or yields back to the Planner if more work is needed.
     system_message: |
       Look at the message history. Case 1 -- The research has been concluded successfully: the research has been done, you write the final report regarding the task and the result of the research run. Make sure to include sources from the web search (if he was called). Then terminate. Case 2 -- The research has not been concluded yet: Yield back to the Planner.
     agent_class: AssistantAgent
@@ -67,44 +77,94 @@ tasks:
   main_task:
     description: >
       Research task: Investigate and provide comprehensive findings on the given topic.
-      This task will be conducted by a team of specialists working together.
+      This task will be conducted by a team of specialists working together:
+
+      The `planner` agent: Plans and re-plans the intermediate steps to be able to comprehensively report on the query
+      The `quality_assurance`: Approves or critiques the plans that are made
+      The `web_search_agent`: Main agent that browses the internet based on the plan
+      The `report_writer`: Gathers all findings together and synthesizes them into a well-written report
+
+      When all the agents agree that the task is sufficiently well researched, output a strucutured report and end the run! (by writing <TERMINATE>)
 
 team:
   mcp_url: null
   params_class: SseServerParams
   mcp_timeout: 60
-  group_chat_class: HierarchicalGroupChat
-  group_chat_manager_class: HierarchicalGroupChatManager
+  group_chat_class: SelectorGroupChat
+  group_chat_manager_class: SelectorGroupChatManager
   group_chat_args:
     has_user_proxy: true
     user_proxy_name: user_proxy
-    allowed_transitions:
-      user:
-        - planner
-      user_proxy:
-        - planner
-        - quality_assurance
-        - web_search_agent
-      planner:
-        - user_proxy
-        - quality_assurance
-        - web_search_agent
-        - report_writer
-      quality_assurance:
-        - planner
-        - user_proxy
-        - report_writer
-      web_search_agent:
-        - planner
-        - user_proxy
-      report_writer:
-        - planner
-        - user_proxy
     max_turns: 60
     default_selector_prompt: >
-      Based on the last message and the conversation history, determine which agent should be called next.
-      Return SOLELY the name of the next agent to speak.
+
+      # Overview
+      You select the next agent to speak based on the current research state and handoff instructions.
+
+      # Context Information
+
+      1. The names of the agents to choose from
+      2. The state of the current research
+      3. The Handoff Instructions
+
+      ## The names of the agents to choose from
+
+      {participants}
+
+      ## The State of the Current Research
+
+      {state_of_run}
+
+      ## The Handoff Instructions
+
+      {handoff_context}
+
+      # How to Determine the next Agent
+
+      1. Look at the state of the current research to understand what has been done and what the next step should be.
+      2. Look at the handoff instructions to see how to map the next step to an agent.
+      3. Validate that the selected agent exists in the list of participants.
+
+      # Output
+      Return SOLELY the name of the agent that should be called next.
+
     default_selector_prompt_advanced: true
+  enable_state_context: true
+  initial_handoff_context: >
+    # User Feedback Involvement
+
+    Request user_proxy feedback when major plan changes or approvals are needed.
+
+    ## Agent Responsibilities
+
+    - If research/planning is needed → **planner**
+    - If quality assurance or feedback is needed → **quality_assurance**
+    - If web search is needed → **web_search_agent**
+    - If report writing or task completion is needed → **report_writer**
+    - If user approval or guidance is needed → **user_proxy**
+
+    ## Escalation & Sync Points
+
+    - If the research is complete → **report_writer**
+    - If feedback or approval is needed → **user_proxy**
+
+    ## Special User Requests
+
+    --
+  initial_state_of_run: >
+    # State of Research
+
+    ## Task
+    [Will be populated with the actual task]
+
+    ## What we have done so far
+    Nothing yet - investigation is just starting.
+
+    ## Research Outlook (Next Steps)
+    - Begin investigation
+
+    ## Concrete Next Step
+    We start with the planner
 
 llm:
   model_client_class: OpenAIChatCompletionClient
@@ -123,11 +183,11 @@ prompts:
     {warning}
     Our agent wants to call the following tool: {tool_name}
     For this he provided the following arguments: {sent_arguments}
-    We checked them and they are false in structure and possibly wrong in content. Here is the expected STRUCTURE description of the arguments (not the content):
+    We checked them and they are false in structure and possibly wrong in content. Here is the expected STRUCTURE description of the arguments (not the content)\n
     """
     {description}
     """
-
+    \n
     Again: The arguments in the descriptions ARE JUST EXAMPLES FOR THE STRUCTURE. Now you will need to infer the correct content of the arguments by the last instruction here:
 
     And this is the last instruction that was given to the agent:
@@ -141,10 +201,5 @@ prompts:
     DO NOT MAKE UP ARGUMENTS. ONLY USE THE LAST INSTRUCTION AND THE DESCRIPTION.
 
   summarization_system_prompt: >
-    You are the summarizer for research team messages. You will get:
-    - the last message sent: this one you need to summarize
-
-    You will summarize in the following style:
-    - extract the most important finding or insight from the message
-    - turn it into a concise, roughly 15-word sentence if possible
-    - if multiple key findings exist, prioritize the most novel or actionable one
+    You are the summarizer for the messages. You will get the last message sent: this one you need to summarize.
+    Summarize research findings in roughly 15-word sentences, focusing on the most novel information.

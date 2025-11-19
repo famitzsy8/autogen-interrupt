@@ -10,7 +10,7 @@ import openai
 import yaml
 from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_agentchat.agents._user_control_agent import UserControlAgent
-from autogen_agentchat.conditions import TextMentionTermination
+from autogen_agentchat.conditions import MaxMessageTermination
 from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
 from autogen_agentchat.teams import BaseGroupChat
 from autogen_agentchat.teams._group_chat._selector_group_chat import SelectorGroupChat
@@ -35,71 +35,28 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-
-async def enhance_selector_prompt(
-    user_selector_prompt: str, model_client: AsyncOpenAI
-) -> str:
+def load_data(config_file: str = "team_demo.yaml"):
     """
-    Enhance user-provided selector prompt using LLM.
-
-    Takes a user input selector prompt and enhances it with structured information about:
-    - Participant names and roles
-    - When to call User_proxy for feedback
-    - Message history context
+    Load YAML configuration file.
 
     Args:
-        user_selector_prompt: Raw selector prompt from user
-        model_client: OpenAI model client for LLM call
+        config_file: Name of the YAML file to load (default: "team_demo.yaml")
+                    File should be in the factory directory.
 
     Returns:
-        Enhanced selector prompt with proper structure
+        Parsed YAML configuration as a dictionary
     """
-    logger.info("Starting selector prompt enhancement")
-    logger.debug(f"Original user selector prompt:\n{user_selector_prompt}")
-
-    enhancement_prompt = f"""You are helping optimize an agent selector prompt for a multi-agent system.
-
-The user has provided this selector prompt: "{user_selector_prompt}"
-
-Your task is to enhance this prompt to be clear and structured. The enhanced prompt MUST include:
-
-1. A clear reference to {{participants}} - the list of available agents
-2. A clear reference to {{roles}} - what each agent does
-3. Clear guidance on when to call the User_proxy agent (when user feedback or approval is needed)
-4. A reference to {{history}} - the conversation history for context
-
-The enhanced prompt should:
-- Be concise but complete
-- Use the template variables: {{participants}}, {{roles}}, {{history}}, User_proxy
-- Maintain the user's intent while adding structure
-- Make it clear that User_proxy should only be called when user feedback/approval is truly needed
-
-Provide ONLY the enhanced selector prompt, no additional text."""
-
-    response = await model_client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": enhancement_prompt}],
-    )
-
-    enhanced_prompt = response.content if hasattr(response, "content") else str(response)
-
-    logger.info("Selector prompt enhancement completed")
-    logger.info(f"Enhanced selector prompt:\n{enhanced_prompt}")
-    logger.debug(f"Original prompt:\n{user_selector_prompt}")
-
-    return enhanced_prompt
-
-
-def load_data():
-    # Use relative path - team.yaml is in the same factory directory
-    config_path = Path(__file__).parent / "team.yaml"
+    # Use relative path - config file is in the same factory directory
+    config_path = Path(__file__).parent / config_file
 
     with open(config_path, 'r', encoding='utf-8') as f:
         data = yaml.safe_load(f)
         f.close()
         return data
 
+
 config_data = load_data()
+
 
 @dataclass
 class AgentTeamContext:
@@ -108,6 +65,7 @@ class AgentTeamContext:
     user_control: UserControlAgent
     participant_names: list[str]
     display_names: dict[str, str]  # Maps agent_name -> display_name
+
 
 async def init_team(
     api_key: str,
@@ -118,6 +76,24 @@ async def init_team(
     bill_name: str | None = None,
     congress: str | None = None
 ) -> AgentTeamContext:
+    """
+    Initialize the agent team for DEMO MODE.
+
+    This uses team_demo.yaml configuration and stdin input for UserProxyAgent
+    instead of WebSocket queue input.
+
+    Args:
+        api_key: OpenAI API key
+        agent_input_queue: Queue for agent input handling (unused in demo mode)
+        max_messages: Maximum number of messages before termination
+        selector_prompt: Optional custom selector prompt
+        company_name: Company name for template variable substitution
+        bill_name: Bill name for template variable substitution
+        congress: Congress number for template variable substitution
+
+    Returns:
+        AgentTeamContext containing the initialized team and metadata
+    """
 
     model_client = OpenAIChatCompletionClient(
         model=config_data["llm"]["model_client_args"]["model"],
@@ -134,7 +110,7 @@ async def init_team(
     if registry.get_errors():
         for error in registry.get_errors():
             logger.warning(f"   {error}")
-    
+
     loader = FunctionLoader(registry)
 
     # Initialize input function registry
@@ -147,23 +123,9 @@ async def init_team(
 
     input_func_loader = InputFunctionLoader(input_func_registry)
 
-    if has_user_proxy and agent_input_queue is not None:
+    if has_user_proxy:
         user_proxy_agent_name = config_data["team"]["group_chat_args"]["user_proxy_name"]
         user_proxy_config = config_data["agents"][user_proxy_agent_name]
-        input_func_name = user_proxy_config.get("input_func", "queue_based_input")
-
-        # Retrieve input function template and wrap in closure
-        input_func_template = input_func_loader.get_input_function(input_func_name)
-
-        async def user_proxy_input(
-            prompt: str, cancellation_token: CancellationToken | None = None
-        ) -> str:
-            return await input_func_template(
-                agent_input_queue=agent_input_queue,
-                agent_name=user_proxy_agent_name,
-                prompt=prompt,
-                cancellation_token=cancellation_token,
-            )
 
         # Format user_proxy description with config values if available
         user_proxy_description = config_data["agents"][user_proxy_agent_name]["description"]
@@ -179,19 +141,22 @@ async def init_team(
                 agent_names=agent_names_str
             )
 
+        # DEMO MODE: UserProxyAgent uses default stdin input (input_func not set)
+        # This allows interactive input from the terminal without WebSocket
+        logger.info("Demo mode: UserProxyAgent will use stdin input")
         user_proxy = UserProxyAgent(
             name=user_proxy_agent_name,
             description=user_proxy_description,
-            input_func=user_proxy_input, # This listens to the WebSocket input configured in agent_input_queue
+            # NO input_func specified - uses default stdin input
         )
         # UserProxyAgent will be added to agents list after build_agents
 
     if config_data["team"]["mcp_url"] is not None:
         params = globals()[config_data["team"]["params_class"]](
-            url = config_data["team"]["mcp_url"],
-            timeout = config_data["team"].get("mcp_timeout", 60)
+            url=config_data["team"]["mcp_url"],
+            timeout=config_data["team"].get("mcp_timeout", 60)
         )
-        async with McpWorkbench(server_params = params) as workbench:
+        async with McpWorkbench(server_params=params) as workbench:
             agents = await build_agents(
                 workbench,
                 model_client=model_client,
@@ -211,7 +176,7 @@ async def init_team(
         )
 
     # Add UserProxyAgent to agents list if it was created
-    if has_user_proxy and agent_input_queue is not None:
+    if has_user_proxy:
         agents.insert(0, user_proxy)  # Insert at beginning for selector to prefer other agents first
 
     # Extract state context configuration from team config
@@ -228,16 +193,13 @@ async def init_team(
     if group_chat_class_name == "HierarchicalGroupChat":
         # Use selector_prompt as a string template
         if selector_prompt is not None:
-            selector_prompt_str = await enhance_selector_prompt(
-                user_selector_prompt=selector_prompt,
-                model_client=enhance_prompt_client
-            )
+            selector_prompt_str = selector_prompt
         else:
             selector_prompt_str = config_data["team"]["group_chat_args"]["default_selector_prompt"]
 
         team_kwargs = {
             "participants": agents,
-            "termination_condition": TextMentionTermination("<TERMINATE>", [a.name for a in agents if a.name not in ["user", "You", user_proxy_name]]),
+            "termination_condition": MaxMessageTermination(max_messages=max_messages),
             "selector_prompt": selector_prompt_str,
             "model_client": model_client,
             "agent_input_queue": agent_input_queue,
@@ -265,7 +227,7 @@ async def init_team(
 
         team_kwargs = {
             "participants": agents,
-            "termination_condition": TextMentionTermination("<TERMINATE>", [a.name for a in agents if a.name not in ["You", "user", user_proxy_name]]),
+            "termination_condition": MaxMessageTermination(max_messages=max_messages),
             "selector_prompt": selector_prompt_str,
             "model_client": model_client,
             "agent_input_queue": agent_input_queue,
@@ -335,9 +297,9 @@ async def build_agents(
         if workbench is None:
             python_tools = []
             if "python_tools" in agent_cfg.get("tools", {}):
-                tool_names = agent_cfg["tools"]["python_tools"] # TODO: make sure python_tools is in YAML
+                tool_names = agent_cfg["tools"]["python_tools"]  # TODO: make sure python_tools is in YAML
                 python_tools = loader.get_tool_functions_by_names(tool_names)
-            
+
             agent_kwargs = {
                 "name": agent_cfg["name"],
                 "model_client": model_client,
@@ -358,7 +320,7 @@ async def build_agents(
             if "python_tools" in agent_cfg.get("tools", {}):
                 tool_names = agent_cfg["tools"]["python_tools"]
                 python_tools = loader.get_tool_functions_by_names(tool_names)
-            
+
             mcp_workbench = None
             if "mcp_tools" in agent_cfg.get("tools", {}):
                 mcp_workbench = globals()[agent_cfg["tools"]["mcp_tools"]["workbench_class"]](
@@ -380,16 +342,17 @@ async def build_agents(
                 agent_kwargs["workbench"] = mcp_workbench
             elif python_tools:
                 agent_kwargs["tools"] = python_tools
-            
+
             a = globals()[agent_cfg["agent_class"]](**agent_kwargs)
             agents.append(a)
 
     return agents
-    
+
+
 def build_default_selector_prompt(agent_names: List[str], api_key: str) -> callable:
 
     # This function returns a default selector prompt that is called by the GCM and gives it access to the last message
-    def _default_selector(thread: Sequence[BaseAgentEvent | BaseChatMessage]) -> str| None:
+    def _default_selector(thread: Sequence[BaseAgentEvent | BaseChatMessage]) -> str | None:
         last_msg = next((m for m in reversed(thread) if isinstance(m, BaseChatMessage)), None)
         if not last_msg:
             return None
@@ -412,5 +375,5 @@ def build_default_selector_prompt(agent_names: List[str], api_key: str) -> calla
             return model_result.content.strip()
         else:
             return None
-    return _default_selector
 
+    return _default_selector

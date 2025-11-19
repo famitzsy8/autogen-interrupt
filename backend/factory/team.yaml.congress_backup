@@ -4,6 +4,8 @@ agents:
   user_proxy_1:
     display_name: User
     description: A human user providing input and feedback to the team
+    ui_summary: >
+      Represents the human decision-maker who can clarify requirements, approve plans, and provide feedback. Call this agent whenever the team needs direction or confirmation from the user.
     system_message: ''
     agent_class: UserProxyAgent
     input_func: queue_based_input
@@ -32,7 +34,7 @@ agents:
       After you have called an agent, he will communicate his findings back to you.
       The investigation will be a VERY DEEP step-by-step investigation, prompting you to ask yourself each time if you have found all the puzzle pieces to complete the task.
       If not, you will need to call another agent.
-      ONLY if you are ABSOLUTELY SURE that you have all the information you need, you can compile the table and terminate the task.
+      ONLY if you are ABSOLUTELY SURE that you have all the information you need, you can compile the table and terminate the task (by writing <TERMINATE>).
       For this you will need to give the agent detailed instructions on what you want to know, and the last word should be either one of the {agent_names} or terminate the task.
 
       IMPORTANT: NEVER hallucinate committee rosters or other sponsorship information.
@@ -40,8 +42,10 @@ agents:
       When referring to other agents, use the agent name as it is written in the {agent_names} list.
 
       ALSO: YOU compile the final table of the investigation. You DON'T need to ask other agents for confirmation that we have everything, because YOU are the team lead.
+    ui_summary: >
+      Leads the entire congressional investigation, deciding which specialist to call and verifying every gap is filled before moving forward. Coordinates findings, gathers user feedback after major steps, and compiles the final deliverable.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       python_tools:
         - web_search
@@ -65,12 +69,14 @@ agents:
       their party and their name with the `committee_specialist`. He is the specialist in this and can call all of the tools, to obtain the data.
       3. You can get hold of the amendments with the `amendment_specialist`. He will help you to understand the relevant amendments for {company_name}, and attach this to the relevant people involved.
       4. You can get hold of more detailed information about (possibly each) individual Congress members with the `congress_member_specialist`. He will be able to get you the state and party the member is from and he will help you to connect the bill sections with individual members' stakes in the advancing or opposing/stalling the bill.
-
+      
       If you deem that you contributed to the subtask you were asked for, you will then present your findings to the orchestrator.
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple tool calls to ensure that all information you pass on is based on tool calls.
+    ui_summary: >
+      Maps out the bill's timeline—introductions, hearings, markups, and floor actions—to explain how events connect to company interests. Use this agent to stitch together who acted when and why those moves matter for the investigation.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -103,8 +109,10 @@ agents:
       If you deem that you contributed to the subtask you were asked for, you will then present your findings to the orchestrator.
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple tool calls to ensure that all information you pass on is based on tool calls.
+    ui_summary: >
+      Owns the primary bill context by pulling sponsors, cosponsors, committees, and the sections most relevant to the company. Engage this agent when you need to understand why the bill matters or who initiated and shepherded it.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -134,8 +142,10 @@ agents:
       If you deem that you contributed to the subtask you were asked for, you will then present your findings to the orchestrator.
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple tool calls to ensure that all information you pass on is based on tool calls.
+    ui_summary: >
+      Digs into committee rosters, activities, and reports to reveal who shaped the bill before it reached the floor. Use this agent whenever committee dynamics, markups, or membership insights are needed to explain legislative momentum.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -166,8 +176,10 @@ agents:
       If you deem that you contributed to the subtask you were asked for, you will then present your findings to the orchestrator.
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple tool calls to ensure that all information you pass on is based on tool calls.
+    ui_summary: >
+      Investigates amendments, their text, sponsors, and actions to show how lawmakers attempted to reshape the bill. Call this agent to surface late-game changes or targeted edits that affect the company's position.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -200,8 +212,10 @@ agents:
 
       IMPORTANT: NEVER hallucinate information, and prefer to make multiple
       tool calls to ensure that all information you pass on is based on tool calls.
+    ui_summary: >
+      Provides concise dossiers on individual lawmakers—their party, state, and relevant actions—to link bill sections to real political incentives. Use this agent whenever you need factual, member-level context to ground the investigation.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -284,26 +298,70 @@ team:
     allowed_transitions: null  # Not used for SelectorGroupChat
     max_turns: 150
     default_selector_prompt: >
-      This is the last message in the conversation:
-      """
-      {last_message}
-      """
 
-      You are given the following agents: {agent_names}
+      # Overview
+      You select the next agent to speak. You will recieve context information and instructions how to use this context information to determine the next agent.
 
-      Based on the content of the last message AND on your logical reasoning you should output the name of the agent that needs to be called.
-      For this you first look at the last message, and see which agents are mentioned. Then you look at the most important task that needs to be done.
-      Then you verify that the agent(s) mentioned ACTUALLY CAN do the requested task. Here are some important things:
+      # Context Information You'll Recieve
 
-      - only the 'committee_specialist' can retrieve committee rosters
-      - the 'congress_member_specialist' can retrieve detailed information about KNOWN congressmen (not fetch a roster)
+      1. The names of the agents to choose from
+      2. The state of the current research
+      3. The Handoff Context
 
-      Then before outputting the agent:
-      If the last message corresponds to a specialist returning his findings, return "orchestrator"
-      If the last message corresponds to the orchestrator asking all of the agents for confirmation return a random agent name.
-      In all other cases reason from the content of the last message, which of the agents should be called and the previous logical reasoning.
-      Return SOLELY thename of the agent that should be called next. (i.e. "committee_specialist")
+      ## The names of the agents to choose from
+
+      {participants}
+
+      ## The State of the Current Research
+
+      {state_of_run}
+
+      ## The Handoff Context
+
+      {handoff_context}
+
+      # How to Determine the next Agent
+
+      Follow these 3 VERY SIMPLE RULES:
+
+      1. Look at the state of the current research. You will find a CONCRETE NEXT STEP section there that tells you what needs to be done next.
+      2. Look at the handoff context next. This is the information that tells you HOW to select the next agent based on WHAT needs to be done next. If Step 1 mentioned an agent to do something next, and you find an instruction to use another agent here, ALWAYS USE THE AGENT MENTIONED HERE IN HANDOFF CONTEXT.
+      3. Validate that this agent exists by looking at the "Names of the Agents to Choose From" section
+
+      # Output
+      Return SOLELY the name of the agent that should be called next.
+      
     default_selector_prompt_advanced: true
+  initial_handoff_context: >
+    # User Feedback Involvement
+
+    If we have are planning anything amendment-related, get feedback from user_proxy_1
+
+    ## Agent Responsibilities
+
+    - If we need bill sections, sponsors, or cosponsors → **bill_specialist**
+    - If we need committee membership or committee actions → **committee_specialist**
+    - If we need legislative actions timeline → **actions_specialist**
+    - If we need amendment information → **amendment_specialist**
+    - If we need Congress member details (state, party) → **congress_member_specialist**
+
+    ## Special User Requests
+
+    --
+  initial_state_of_run: >
+    # State of Research
+
+    ## Task
+    [Will be populated with the actual task]
+
+    ## What we have done so far
+    Nothing yet - investigation is just starting.
+
+    ## Research Outlook (Next Steps)
+    - Begin investigation
+
+    ## Concrete Next Step
+    We start with the orchestrator
 
 llm:
   model_client_class: OpenAIChatCompletionClient

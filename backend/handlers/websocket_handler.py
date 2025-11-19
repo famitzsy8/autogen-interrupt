@@ -26,6 +26,7 @@ from autogen_agentchat.messages import (
     ToolCallSummaryMessage,
     UserInputRequestedEvent,
 )
+from autogen_agentchat.teams._group_chat._events import StateUpdateEvent
 
 from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocket, WebSocketState
@@ -37,11 +38,13 @@ from models import (
     AgentInputRequest,
     AgentMessage,
     AgentTeamNames,
+    AgentDetails,
     ErrorMessage,
     InterruptAcknowledged,
     MessageType,
     ParticipantNames,
     RunConfig,
+    StateUpdate,
     StreamEnd,
     TreeUpdate,
     ToolCall,
@@ -51,7 +54,7 @@ from models import (
     UserDirectedMessage,
     UserInterrupt
 )
-from utils.yaml_utils import get_agent_team_names, get_team_main_tasks, get_summarization_system_prompt
+from utils.yaml_utils import get_agent_team_names, get_agent_details, get_team_main_tasks, get_summarization_system_prompt
 from utils.summarization import init_summarizer, summarize_message
 
 # we need to implement an autogen agent team factory
@@ -74,6 +77,7 @@ class WebSocketHandler:
         self.agent_input_queue.websocket_handler = self
         self.agent_team_config: RunConfig | None = None
         self.current_tool_call_node_id: str | None = None
+        self._pending_agent_messages: list[AgentMessage] = []
     
     async def handle_connection(self) -> None:
 
@@ -86,6 +90,8 @@ class WebSocketHandler:
             team_names = get_agent_team_names()
             await self._send_agent_team_names(team_names)
             print("✓ Agent team names sent")
+
+            await self._send_agent_details()
 
             # Step 2: Wait for config from frontend
             print("→ Waiting for config from frontend...")
@@ -113,7 +119,7 @@ class WebSocketHandler:
             # Initialize the agent team if not already initialized for this session
             if self.session.agent_team_context is None:
                 print("→ Initializing agent team...")
-                await self._initialize_run(selector_prompt=self.agent_team_config.selector_prompt)
+                await self._initialize_run()
                 print("✓ Agent team initialized")
 
                 # Send participant names to frontend for agent selection dropdown
@@ -175,7 +181,7 @@ class WebSocketHandler:
             await self._cleanup()
 
 
-    async def _initialize_run(self, selector_prompt: str | None = None) -> None:
+    async def _initialize_run(self) -> None:
 
         if not self.session:
             raise RuntimeError("Session not initialized")
@@ -194,7 +200,6 @@ class WebSocketHandler:
         self.session.agent_team_context = await init_team(
             api_key=api_key,
             agent_input_queue=self.agent_input_queue,
-            selector_prompt=selector_prompt,
             company_name=self.agent_team_config.company_name,
             bill_name=self.agent_team_config.bill_name,
             congress=self.agent_team_config.congress
@@ -254,7 +259,10 @@ class WebSocketHandler:
                         message_task = asyncio.create_task(stream.__anext__())
                         continue
 
-                    if isinstance(message, BaseChatMessage):
+                    if isinstance(message, StopMessage):
+                        await self._process_stop_message(message)
+
+                    elif isinstance(message, BaseChatMessage):
                         total_messages += 1
                         print(f"[{total_messages}] [{message.source}]: {message.content}")
                         await self._process_agent_message(message)
@@ -266,7 +274,10 @@ class WebSocketHandler:
                     elif isinstance(message, ToolCallExecutionEvent):
                         print(f"[TOOL RESULTS] Tool execution completed for {message.source}")
                         await self._send_tool_calls_execution(message)
-                    
+
+                    elif isinstance(message, StateUpdateEvent):
+                        await self._send_state_update(message)
+
                     elif isinstance(message, SelectorEvent):
                         print(f"\n[{message.source}] 🎯 Selector: {message.content}")
                     
@@ -470,17 +481,69 @@ class WebSocketHandler:
             summary=summary,
             node_id=node_id
         )
+        self._pending_agent_messages.append(agent_msg)
+        logger.info(
+            "Queued agent message %s awaiting state update (%d pending)",
+            node_id,
+            len(self._pending_agent_messages)
+        )
+        # print(f"[TIMING] Queue Message (line 490): {(time.time() - t6_queue) * 1000:.2f}ms")
 
-        await self._send_message(agent_msg)
+        # # ==================== TIMING TOTAL ====================
+        # total_message_processing = (time.time() - t0_message_processing) * 1000
+        # print(f"[TIMING TOTAL] Full Message Processing (line 450): {total_message_processing:.2f}ms\n")
 
-        # and also send a tree update with the new message
-        await self._send_tree_update()
+
+    async def _process_stop_message(self, message: StopMessage) -> None:
+        """
+        Handle StopMessage by determining if run was interrupted or completed.
+
+        - If content == "USER_INTERRUPT": don't send RUN_TERMINATION
+          (INTERRUPT_ACKNOWLEDGED was already sent in _handle_interrupt)
+        - Otherwise: send RUN_TERMINATION with status="COMPLETED"
+        """
+        # First, add the StopMessage to the state tree as normal
+        await self._process_agent_message(message)
+
+        # Determine the status based on content
+        if message.content == "USER_INTERRUPT":
+            # This was a user interrupt, don't send RUN_TERMINATION
+            # (INTERRUPT_ACKNOWLEDGED was already sent in _handle_interrupt)
+            print("⚠️ StopMessage with USER_INTERRUPT received (already acknowledged)")
+            return
+
+        # It's a normal termination condition
+        print(f"🏁 Run termination detected: {message.content}")
+        await self._send_run_termination(
+            status="COMPLETED",
+            reason=message.content,
+            source=message.source
+        )
+
+    async def _send_run_termination(self, status: str, reason: str, source: str) -> None:
+        """
+        Send a RunTermination message to the frontend to notify of run completion.
+        """
+        termination = RunTermination(
+            status=status,
+            reason=reason,
+            source=source
+        )
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(termination.model_dump_json())
     
     async def _send_agent_team_names(self, team_names: list[str]) -> None:
         # Send available agent team configuration names to frontend
         team_names_msg = AgentTeamNames(agent_team_names=team_names)
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(team_names_msg.model_dump_json())
+
+    async def _send_agent_details(self) -> None:
+        # Send agent details (names and descriptions) to frontend
+        agents_data = get_agent_details()
+        agent_details_msg = AgentDetails(agents=agents_data)
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            await self.websocket.send_text(agent_details_msg.model_dump_json())
 
     async def _send_participant_names(self) -> None:
         # Send individual agent participant names to frontend for agent selection dropdown
@@ -496,6 +559,18 @@ class WebSocketHandler:
     async def _send_message(self, message: AgentMessage) -> None:
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(message.model_dump_json())
+
+    async def _flush_pending_agent_messages(self) -> None:
+        if not self._pending_agent_messages:
+            return
+
+        pending = self._pending_agent_messages.copy()
+        self._pending_agent_messages.clear()
+        logger.info("Flushing %d pending agent messages after state update", len(pending))
+
+        for queued_message in pending:
+            await self._send_message(queued_message)
+            await self._send_tree_update()
 
     async def _send_tree_update(self) -> None:
         """Send tree update to this specific WebSocket connection only."""
@@ -577,21 +652,40 @@ class WebSocketHandler:
             )
             results.append(result)
 
-        tc_execution = ToolExecution(
-            agent_name=message.source,
-            results=results,
-            node_id=self.current_tool_call_node_id
-        )
-        await self._send_tree_update()
+        # Only send ToolExecution if we have a valid node_id
+        if self.current_tool_call_node_id:
+            tc_execution = ToolExecution(
+                agent_name=message.source,
+                results=results,
+                node_id=self.current_tool_call_node_id
+            )
+            await self._send_tree_update()
 
-        if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(tc_execution.model_dump_json())
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                await self.websocket.send_text(tc_execution.model_dump_json())
 
         self.current_tool_call_node_id = None
 
+    async def _send_state_update(self, message: StateUpdateEvent) -> None:
+        state_update = StateUpdate(
+            state_of_run=message.state_of_run,
+            tool_call_facts=message.tool_call_facts,
+            handoff_context=message.handoff_context,
+            message_index=message.message_index
+        )
+        try:
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                json_data = state_update.model_dump_json()
+                await self.websocket.send_text(json_data)
+            else:
+                logger.warning(f"Cannot send STATE_UPDATE - WebSocket not connected")
+        finally:
+            await self._flush_pending_agent_messages()
 
-    
+
     async def _send_stream_end(self, reason: str) -> None:
+        await self._flush_pending_agent_messages()
+
         stream_end = StreamEnd(reason=reason)
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(stream_end.model_dump_json())
@@ -647,5 +741,3 @@ class WebSocketHandler:
 
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.close()
-
-
