@@ -95,27 +95,6 @@ export function ConfigForm({
           <p className="text-gray-400">Configure your task</p>
         </div>
 
-        {/* Agent Team Names Display */}
-        {agentTeamNames && agentTeamNames.length > 0 ? (
-          <div className="bg-green-900/30 border border-green-700 rounded-lg px-4 py-3 flex flex-wrap items-center gap-2">
-            <span className="text-green-400 font-semibold">✓ Connected to team:</span>
-            <div className="flex gap-2 flex-wrap">
-              {agentTeamNames.map((name) => (
-                <span
-                  key={name}
-                  className="bg-green-800/50 text-green-300 px-3 py-1 rounded-md text-sm"
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4">
-            <span className="text-yellow-400">⏳ Waiting for agent team names from backend...</span>
-          </div>
-        )}
-
         {/* Participant Names Display */}
         {participantNames && participantNames.length > 0 && (
           <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4">
