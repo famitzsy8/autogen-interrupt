@@ -120,7 +120,6 @@ export function TreeVisualization({
         }
       }
 
-      console.log(`[TreeVisualization] Edge clicked: targetNode=${targetNodeId}, trimCount=${trimCount}`)
 
       // Convert screen coordinates (clientX/clientY) to container-relative coordinates
       // The popup is absolutely positioned relative to svgContainerRef (which has position: relative)
@@ -129,7 +128,6 @@ export function TreeVisualization({
         const containerX = mousePosition.x - containerRect.left
         const containerY = mousePosition.y - containerRect.top
 
-        console.log(`[TreeVisualization] Popup position: (${containerX}, ${containerY})`)
         setEdgeInterrupt(targetNodeId, { x: containerX, y: containerY }, trimCount)
       }
     } catch (error) {

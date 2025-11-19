@@ -118,8 +118,30 @@ class UserInterrupt(BaseModel):
     ...
 
 
+class GroupChatBranch(BaseModel):
+    """A request to branch the conversation by trimming agent buffers.
+
+    Sent to all agents before a UserDirectedMessage when trim_up > 0.
+    Agents trim their message buffers to align with the manager's trimmed thread.
+    """
+    agent_trim_up: int
+    """Number of message nodes to remove from agent buffers (excludes tool call nodes)."""
+
+
 class UserDirectedMessage(BaseModel):
     """A request to send a user message to a specific participant in the group chat."""
     target: str
     message: SerializeAsAny[BaseChatMessage]
     trim_up: int = 0
+
+
+class StateUpdateEvent(BaseAgentEvent):
+    """Event emitted when the GroupChatManager creates a state snapshot."""
+    source: str
+    state_of_run: str
+    tool_call_facts: str
+    handoff_context: str
+    message_index: int
+
+    def to_text(self) -> str:
+        return f"State update at message {self.message_index}"

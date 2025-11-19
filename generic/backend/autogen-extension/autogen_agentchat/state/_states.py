@@ -1,6 +1,16 @@
-from typing import Any, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 from pydantic import BaseModel, Field
+
+
+class StateSnapshot(BaseModel):
+    """Snapshot of all three states at a specific message index."""
+
+    message_index: int = Field(description="Position in message thread (0-based)")
+    state_of_run_text: str = Field(description="Current research progress state as text")
+    tool_call_facts_text: str = Field(description="Discovered facts whiteboard as text")
+    handoff_context_text: str = Field(description="Agent selection rules as text")
+    participant_names: List[str] = Field(default_factory=list, description="Available team members at this point")
 
 
 class BaseState(BaseModel):
@@ -51,6 +61,15 @@ class SelectorManagerState(BaseGroupChatManagerState):
     """State for :class:`~autogen_agentchat.teams.SelectorGroupChat` manager."""
 
     previous_speaker: Optional[str] = Field(default=None)
+    # NEW: State text fields for three-state context management
+    state_of_run_text: str = Field(default="", description="Current research state as text")
+    tool_call_facts_text: str = Field(default="", description="Discovered facts whiteboard as text")
+    handoff_context_text: str = Field(default="", description="Handoff selection rules as text")
+    # NEW: Snapshots dictionary (uses string keys for JSON compatibility)
+    state_snapshots: Dict[str, Mapping[str, Any]] = Field(
+        default_factory=dict,
+        description="Message index -> StateSnapshot (keys are strings for JSON compatibility)"
+    )
     type: str = Field(default="SelectorManagerState")
 
 

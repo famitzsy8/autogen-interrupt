@@ -1,0 +1,24 @@
+# Model Configuration for State Updates and LLM Calls
+# This file parametrizes which model clients to use for different purposes
+
+model_clients:
+  # Main model client for agent conversations, speaker selection, etc.
+  # Keep using OpenAI for now
+  main:
+    provider: openai
+    model: gpt-4o-mini
+    description: "OpenAI GPT-4o-mini for main conversation and speaker selection"
+
+  # State update model client - for StateOfRun, ToolCallFacts, HandoffContext
+  # Can be easily swapped between OpenAI and Anthropic (Claude)
+  state_updates:
+    provider: anthropic  # Options: "openai", "anthropic"
+    model: claude-haiku-4-5-20251001  # For anthropic
+    # model: gpt-4o-mini  # For openai - uncomment to switch back
+    description: "Claude Haiku 4.5 for state context management"
+
+  # Future: Add more specialized clients as needed
+  # reasoning:
+  #   provider: anthropic
+  #   model: claude-sonnet-4-5-20250929
+  #   description: "For complex reasoning tasks"

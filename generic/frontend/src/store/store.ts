@@ -14,12 +14,14 @@ import {devtools} from 'zustand/middleware'
 import type {
     RunConfig,
     AgentTeamNames,
+    AgentDetails,
     ParticipantNames,
     AgentInputRequest,
     HumanInputResponse,
     AgentMessage,
     ConnectionState,
     ServerMessage,
+    StateUpdate,
     StreamState,
     ToolCall,
     ToolExecution,
@@ -50,6 +52,9 @@ interface State {
 
     // Agent Team Names received from backend
     agent_names: AgentTeamNames | null
+
+    // Agent Details (names and descriptions) received from backend
+    agent_details: AgentDetails | null
 
     // Participant Names (individual agents) received from backend
     participant_names: ParticipantNames | null
@@ -89,6 +94,10 @@ interface State {
     selectedNodeIdForChat: string | null
     chatFocusTarget: ChatFocusTarget | null
 
+    // State display state
+    isStateDisplayVisible: boolean
+    currentState: StateUpdate | null
+
     // Error state
     error: AppError | null
 
@@ -104,6 +113,7 @@ interface State {
 
     // Actions: Agent Team Name Setting
     setAgentTeamNames: (agentTeamNames: AgentTeamNames) => void
+    setAgentDetails: (agentDetails: AgentDetails) => void
     setParticipantNames: (participantNames: ParticipantNames) => void
 
     // Actions: Message handling
@@ -133,6 +143,7 @@ interface State {
     setChatDisplayVisible: (visible: boolean) => void
     setSelectedNodeIdForChat: (nodeId: string | null) => void
     setChatFocusTarget: (target: ChatFocusTarget | null) => void
+    setStateDisplayVisible: (visible: boolean) => void
     setError: (error: AppError | null) => void
     clearError: () => void
     reset: () => void
@@ -146,6 +157,7 @@ const initialState = {
         reconnectTimeout: null,
     },
     agent_names: null as AgentTeamNames | null,
+    agent_details: null as AgentDetails | null,
     participant_names: null as ParticipantNames | null,
     messages: [],
     conversationTree: null,
@@ -164,6 +176,8 @@ const initialState = {
     isChatDisplayVisible: false,  // Hidden by default, shows when summary is clicked
     selectedNodeIdForChat: null,
     chatFocusTarget: null,
+    isStateDisplayVisible: false,  // Hidden by default
+    currentState: null as StateUpdate | null,
     error: null
 }
 
@@ -371,6 +385,10 @@ export const useStore = create<State>()(
                         get().setAgentTeamNames(message)
                         break
 
+                    case 'agent_details':
+                        get().setAgentDetails(message)
+                        break
+
                     case 'participant_names':
                         get().setParticipantNames(message)
                         break
@@ -433,6 +451,22 @@ export const useStore = create<State>()(
                         }))
                         break
 
+                    case 'state_update':
+                        console.log('🔔 [FRONTEND] Received STATE_UPDATE message:', {
+                            message_index: message.message_index,
+                            state_of_run_length: message.state_of_run.length,
+                            tool_call_facts_length: message.tool_call_facts.length,
+                            handoff_context_length: message.handoff_context.length,
+                        })
+                        console.log('   state_of_run:', message.state_of_run.substring(0, 100) + '...')
+                        console.log('   tool_call_facts:', message.tool_call_facts.substring(0, 100) + '...')
+                        console.log('   handoff_context:', message.handoff_context.substring(0, 100) + '...')
+                        set({
+                            currentState: message
+                        })
+                        console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState')
+                        break
+
                     default:
                         set({
                             error: {
@@ -446,6 +480,10 @@ export const useStore = create<State>()(
 
             setAgentTeamNames: (agentTeamNames: AgentTeamNames) => {
                 set({agent_names: agentTeamNames})
+            },
+
+            setAgentDetails: (agentDetails: AgentDetails) => {
+                set({agent_details: agentDetails})
             },
 
             setParticipantNames: (participantNames: ParticipantNames) => {
@@ -614,6 +652,10 @@ export const useStore = create<State>()(
                     chatFocusTarget: target,
                     selectedNodeIdForChat: target ? target.nodeId : null,
                 })
+            },
+
+            setStateDisplayVisible: (visible: boolean) => {
+                set({isStateDisplayVisible: visible})
             },
 
             setError: (error: AppError | null ) => {

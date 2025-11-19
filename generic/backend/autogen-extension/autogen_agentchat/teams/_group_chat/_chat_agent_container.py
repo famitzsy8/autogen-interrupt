@@ -1,13 +1,17 @@
-from typing import Any, List, Mapping
+from typing import Any, Callable, Dict, List, Mapping
+import logging
 
 from autogen_core import DefaultTopicId, MessageContext, event, rpc, trace_invoke_agent_span
 
-from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage, MessageFactory
+from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage, MessageFactory, StateContextMessage
 
 from ...base import ChatAgent, Response, TaskResult, Team
 from ...state import ChatAgentContainerState
+
+logger = logging.getLogger(__name__)
 from ._events import (
     GroupChatAgentResponse,
+    GroupChatBranch,
     GroupChatError,
     GroupChatMessage,
     GroupChatPause,
@@ -32,10 +36,18 @@ class ChatAgentContainer(SequentialRoutedAgent):
         agent (ChatAgent | Team): The agent or team to delegate message handling to.
         message_factory (MessageFactory): The message factory to use for
             creating messages from JSON data.
+        enable_state_context (bool): Whether to enable state context injection.
+        state_package_getter (Callable[[], Dict[str, str]] | None): Callback to get state package from manager.
     """
 
     def __init__(
-        self, parent_topic_type: str, output_topic_type: str, agent: ChatAgent | Team, message_factory: MessageFactory
+        self,
+        parent_topic_type: str,
+        output_topic_type: str,
+        agent: ChatAgent | Team,
+        message_factory: MessageFactory,
+        enable_state_context: bool = True,
+        state_package_getter: Callable[[], Dict[str, str]] | None = None,
     ) -> None:
         super().__init__(
             description=agent.description,
@@ -45,6 +57,8 @@ class ChatAgentContainer(SequentialRoutedAgent):
                 GroupChatReset,
                 GroupChatAgentResponse,
                 GroupChatTeamResponse,
+                GroupChatBranch,
+                GroupChatError,
             ],
         )
         self._parent_topic_type = parent_topic_type
@@ -52,6 +66,9 @@ class ChatAgentContainer(SequentialRoutedAgent):
         self._agent = agent
         self._message_buffer: List[BaseChatMessage] = []
         self._message_factory = message_factory
+        # State context parameters
+        self._enable_state_context = enable_state_context
+        self._state_package_getter = state_package_getter
 
     @event
     async def handle_start(self, message: GroupChatStart, ctx: MessageContext) -> None:
@@ -72,6 +89,17 @@ class ChatAgentContainer(SequentialRoutedAgent):
             if isinstance(msg, BaseChatMessage):
                 self._buffer_message(msg)
 
+    @event
+    async def handle_error(self, message: GroupChatError, ctx: MessageContext) -> None:
+        """Handle a group chat error by logging it and routing back to parent."""
+        logger.error(f"GroupChatError received: {message.error}")
+        # Re-publish the error to the parent so the group chat manager can handle it
+        await self.publish_message(
+            message,
+            topic_id=DefaultTopicId(type=self._parent_topic_type),
+            cancellation_token=ctx.cancellation_token,
+        )
+
     @rpc
     async def handle_reset(self, message: GroupChatReset, ctx: MessageContext) -> None:
         """Handle a reset event by resetting the agent."""
@@ -83,9 +111,42 @@ class ChatAgentContainer(SequentialRoutedAgent):
             await self._agent.on_reset(ctx.cancellation_token)
 
     @event
+    async def handle_branch(self, message: GroupChatBranch, ctx: MessageContext) -> None:
+        """Handle a branch event by trimming the message buffer."""
+        agent_trim_up = message.agent_trim_up
+
+        if agent_trim_up > 0:
+            buffer_size_before = len(self._message_buffer)
+            if buffer_size_before >= agent_trim_up:
+                self._message_buffer = self._message_buffer[:-agent_trim_up]
+                print(f"[{self._agent.name}] Branch: trimmed {agent_trim_up} messages ({buffer_size_before} -> {len(self._message_buffer)})", flush=True)
+            else:
+                print(f"[{self._agent.name}] Branch: cannot trim {agent_trim_up}, buffer has {buffer_size_before}", flush=True)
+
+    @event
     async def handle_request(self, message: GroupChatRequestPublish, ctx: MessageContext) -> None:
         """Handle a content request event by passing the messages in the buffer
         to the delegate agent and publish the response."""
+
+        # Inject state context before agent processing
+        if self._enable_state_context and self._state_package_getter:
+            try:
+                # Get current state package from manager
+                state_pkg = self._state_package_getter()
+
+                # Create state context message
+                state_msg = StateContextMessage.create(
+                    state_of_run_text=state_pkg.get('state_of_run', ''),
+                    tool_call_facts_text=state_pkg.get('tool_call_facts', ''),
+                    handoff_context_text=state_pkg.get('handoff_context', ''),
+                    participant_names=state_pkg.get('participant_names', []),
+                )
+
+                # Insert at beginning of buffer (so agent sees it first)
+                self._message_buffer.insert(0, state_msg)
+            except Exception as e:
+                logger.warning(f"Failed to inject state context: {e}")
+
         if isinstance(self._agent, Team):
             try:
                 stream = self._agent.run_stream(
