@@ -60,3 +60,7 @@ generic/mcp/ragMCP/rag/data/bill_summaries/
 generic/backend/agent_run_state_session_*
 
 generic/backend/autogen-extension/autogen_ext/*
+generic/backend/demo/
+generic/backend/autogen-extension/autogen_ext*/
+generic/*.md
+generic/backend/tests/*
