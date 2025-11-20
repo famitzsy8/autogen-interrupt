@@ -8,8 +8,8 @@
  * 5. The trim count for branching
  */
 
-import {create} from 'zustand'
-import {devtools} from 'zustand/middleware'
+import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 
 import type {
     RunConfig,
@@ -30,7 +30,6 @@ import type {
     UserDirectedMessage,
     UserInterrupt,
     AppError,
-    ChatFocusTarget,
 } from '../types'
 
 import {
@@ -89,14 +88,12 @@ interface State {
     toolCallsByNodeId: Record<string, ToolCall>
     toolExecutionsByNodeId: Record<string, ToolExecution>
 
-    // Chat display state
-    isChatDisplayVisible: boolean
-    selectedNodeIdForChat: string | null
-    chatFocusTarget: ChatFocusTarget | null
+
 
     // State display state
     isStateDisplayVisible: boolean
     currentState: StateUpdate | null
+    stateUpdates: StateUpdate[]
 
     // Error state
     error: AppError | null
@@ -140,9 +137,7 @@ interface State {
     // Actions: Toggling state variables
     setStreamState: (state: StreamState) => void
     setInterrupted: (interrupted: boolean) => void
-    setChatDisplayVisible: (visible: boolean) => void
-    setSelectedNodeIdForChat: (nodeId: string | null) => void
-    setChatFocusTarget: (target: ChatFocusTarget | null) => void
+
     setStateDisplayVisible: (visible: boolean) => void
     setError: (error: AppError | null) => void
     clearError: () => void
@@ -173,11 +168,10 @@ const initialState = {
     humanInputDraft: '',
     toolCallsByNodeId: {},
     toolExecutionsByNodeId: {},
-    isChatDisplayVisible: false,  // Hidden by default, shows when summary is clicked
-    selectedNodeIdForChat: null,
-    chatFocusTarget: null,
+
     isStateDisplayVisible: false,  // Hidden by default
     currentState: null as StateUpdate | null,
+    stateUpdates: [] as StateUpdate[],
     error: null
 }
 
@@ -192,7 +186,7 @@ export const useStore = create<State>()(
 
             // Connect to WebSocket server (does NOT send config - that comes later)
             connect: (url: string) => {
-                const {wsConnection, disconnect} = get()
+                const { wsConnection, disconnect } = get()
 
                 // If there is already an existing connection: close it
                 if (wsConnection.ws) {
@@ -208,6 +202,7 @@ export const useStore = create<State>()(
                     activeNodeId: null,
                     toolCallsByNodeId: {},
                     toolExecutionsByNodeId: {},
+                    stateUpdates: [],
                     isInterrupted: false,
                     streamState: StreamStateEnum.IDLE,
                     agentInputRequest: null,
@@ -243,7 +238,7 @@ export const useStore = create<State>()(
                             get().handleServerMessage(message)
                         } catch (error) {
                             const errorMessage = error instanceof Error ? error.message : 'Unknown parsing error'
-                            
+
                             set({
                                 error: {
                                     code: 'MESSAGE_PARSE_ERROR',
@@ -270,8 +265,8 @@ export const useStore = create<State>()(
                     }
 
                     ws.onclose = () => {
-                        const {wsConnection, reconnect} = get()
-                        set({ connectionState: ConnectionStateEnum.DISCONNECTED})
+                        const { wsConnection, reconnect } = get()
+                        set({ connectionState: ConnectionStateEnum.DISCONNECTED })
 
                         if (
                             wsConnection.reconnectAttempts < MAX_RECONNECT_ATTEMPTS &&
@@ -304,7 +299,7 @@ export const useStore = create<State>()(
 
             // Send config to backend after receiving agent team names
             sendConfig: (config: RunConfig) => {
-                const {wsConnection, connectionState} = get()
+                const { wsConnection, connectionState } = get()
 
                 if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
                     throw new Error('WebSocket is not connected')
@@ -341,7 +336,7 @@ export const useStore = create<State>()(
             },
 
             reconnect: () => {
-                const {wsConnection} = get()
+                const { wsConnection } = get()
 
                 if (wsConnection.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
                     set({
@@ -354,7 +349,7 @@ export const useStore = create<State>()(
                     return
                 }
 
-                const delay = RECONNECT_DELAY_MS * Math.pow(2, wsConnection.reconnectAttempts) 
+                const delay = RECONNECT_DELAY_MS * Math.pow(2, wsConnection.reconnectAttempts)
 
                 set({
                     connectionState: ConnectionStateEnum.RECONNECTING,
@@ -400,7 +395,7 @@ export const useStore = create<State>()(
                     case 'tree_update':
                         get().updateConversationTree(message)
                         break
-                    
+
                     case 'interrupt_acknowledged':
                         set({
                             isInterrupted: true,
@@ -408,20 +403,20 @@ export const useStore = create<State>()(
                             agentInputRequest: null,
                         })
                         break
-                    
+
                     case 'stream_end':
                         set({
                             streamState: StreamStateEnum.ENDED
                         })
                         break
-                    
+
                     case 'agent_input_request':
                         set({
                             agentInputRequest: message,
                             streamState: StreamStateEnum.WAITING_FOR_AGENT_INPUT
                         })
                         break
-                    
+
                     case 'error':
                         set({
                             error: {
@@ -431,7 +426,7 @@ export const useStore = create<State>()(
                             }
                         })
                         break
-                    
+
                     case 'tool_call':
                         set((state) => ({
                             toolCallsByNodeId: {
@@ -461,10 +456,11 @@ export const useStore = create<State>()(
                         console.log('   state_of_run:', message.state_of_run.substring(0, 100) + '...')
                         console.log('   tool_call_facts:', message.tool_call_facts.substring(0, 100) + '...')
                         console.log('   handoff_context:', message.handoff_context.substring(0, 100) + '...')
-                        set({
-                            currentState: message
-                        })
-                        console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState')
+                        set((state) => ({
+                            currentState: message,
+                            stateUpdates: [...state.stateUpdates, message]
+                        }))
+                        console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState and appended to stateUpdates')
                         break
 
                     default:
@@ -479,15 +475,15 @@ export const useStore = create<State>()(
             },
 
             setAgentTeamNames: (agentTeamNames: AgentTeamNames) => {
-                set({agent_names: agentTeamNames})
+                set({ agent_names: agentTeamNames })
             },
 
             setAgentDetails: (agentDetails: AgentDetails) => {
-                set({agent_details: agentDetails})
+                set({ agent_details: agentDetails })
             },
 
             setParticipantNames: (participantNames: ParticipantNames) => {
-                set({participant_names: participantNames})
+                set({ participant_names: participantNames })
             },
 
             addMessage: (message: AgentMessage) => {
@@ -513,15 +509,15 @@ export const useStore = create<State>()(
             },
 
             sendUserMessage: (content: string, targetAgent: string, trimCount: number) => {
-                const {wsConnection, connectionState} = get()
+                const { wsConnection, connectionState } = get()
 
-                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws ) {
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
                     throw new Error('WebSocket is not connected')
                 }
                 if (!content.trim()) {
                     throw new Error('Message content cannot be empty')
                 }
-        
+
                 if (!targetAgent.trim()) {
                     throw new Error('Target agent must be specified')
                 }
@@ -546,12 +542,12 @@ export const useStore = create<State>()(
             },
 
             sendInterrupt: () => {
-                const {wsConnection, connectionState, streamState} = get()
+                const { wsConnection, connectionState, streamState } = get()
 
                 if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
                     throw new Error('WebSocket is not connected')
                 }
-        
+
                 if (streamState !== StreamStateEnum.STREAMING) {
                     throw new Error('Cannot interrupt when stream is not active')
                 }
@@ -566,18 +562,18 @@ export const useStore = create<State>()(
             },
 
             setSelectedAgent: (agentName: string | null) => {
-                set({selectedAgent: agentName})
+                set({ selectedAgent: agentName })
             },
 
             setTrimCount: (count: number) => {
                 if (count < 0) {
                     throw new Error('Trim count cannot be negative')
                 }
-                set({trimCount: count})
+                set({ trimCount: count })
             },
 
             setUserMessageDraft: (draft: string) => {
-                set({userMessageDraft: draft})
+                set({ userMessageDraft: draft })
             },
 
             setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => {
@@ -591,11 +587,11 @@ export const useStore = create<State>()(
             },
 
             clearEdgeInterrupt: () => {
-                set({edgeInterrupt: null})
+                set({ edgeInterrupt: null })
             },
 
             sendHumanInputResponse: (requestId: string, userInput: string) => {
-                const {wsConnection, connectionState} = get()
+                const { wsConnection, connectionState } = get()
 
                 if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
                     throw new Error('WebSocket is not connected')
@@ -618,7 +614,7 @@ export const useStore = create<State>()(
             },
 
             setHumanInputDraft: (draft: string) => {
-                set({humanInputDraft: draft})
+                set({ humanInputDraft: draft })
             },
 
             clearAgentInputRequest: () => {
@@ -629,45 +625,29 @@ export const useStore = create<State>()(
             },
 
             setStreamState: (state: StreamState) => {
-                set({streamState: state})
+                set({ streamState: state })
             },
 
             setInterrupted: (interrupted: boolean) => {
-                set({isInterrupted: interrupted})
+                set({ isInterrupted: interrupted })
             },
 
-            setChatDisplayVisible: (visible: boolean) => {
-                set({isChatDisplayVisible: visible})
-            },
 
-            setSelectedNodeIdForChat: (nodeId: string | null) => {
-                set({
-                    selectedNodeIdForChat: nodeId,
-                    chatFocusTarget: nodeId ? { nodeId, itemType: 'message' } : null,
-                })
-            },
-
-            setChatFocusTarget: (target: ChatFocusTarget | null) => {
-                set({
-                    chatFocusTarget: target,
-                    selectedNodeIdForChat: target ? target.nodeId : null,
-                })
-            },
 
             setStateDisplayVisible: (visible: boolean) => {
-                set({isStateDisplayVisible: visible})
+                set({ isStateDisplayVisible: visible })
             },
 
-            setError: (error: AppError | null ) => {
-                set({error})
+            setError: (error: AppError | null) => {
+                set({ error })
             },
 
             clearError: () => {
-                set({ error: null})
+                set({ error: null })
             },
 
             reset: () => {
-                const {disconnect} = get()
+                const { disconnect } = get()
                 disconnect()
                 set(initialState)
             },

@@ -47,6 +47,7 @@ export function ConfigForm({
 }: ConfigFormProps): React.ReactElement {
   const [topic, setTopic] = useState('')
   const [selectedPairId, setSelectedPairId] = useState<string>(COMPANY_BILL_PAIRS[0].id)
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
 
   const normalizedTeamNames = agentTeamNames?.map((name) => name.toLowerCase()) ?? []
   const isCongressTeam = normalizedTeamNames.some((name) => name.includes('congress'))
@@ -73,10 +74,10 @@ export function ConfigForm({
       initial_topic: showTaskField ? (topic.trim() || undefined) : undefined,
       ...(showCompanyBillField && selectedPair
         ? {
-            company_name: selectedPair.company_name,
-            bill_name: selectedPair.bill_name,
-            congress: selectedPair.congress,
-          }
+          company_name: selectedPair.company_name,
+          bill_name: selectedPair.bill_name,
+          congress: selectedPair.congress,
+        }
         : {}),
       timestamp: new Date().toISOString(),
     }
@@ -115,7 +116,11 @@ export function ConfigForm({
         )}
 
         {/* Agent Details Selector */}
-        <AgentSelector agents={agentDetails} />
+        <AgentSelector
+          agents={agentDetails}
+          selectedAgent={selectedAgent}
+          onSelectAgent={setSelectedAgent}
+        />
 
         {/* Company-Bill Investigation Pair Dropdown */}
         {showCompanyBillField && (

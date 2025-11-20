@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import type { TreeNode } from '../../../types'
+import type { TreeNode, StateUpdate } from '../../../types'
 
 export interface D3TreeNode extends d3.HierarchyPointNode<TreeNode> {
     _children?: D3TreeNode[]
@@ -146,11 +146,6 @@ export function findLastMessageNode(root: D3TreeNode, currentBranchId: string): 
         }
     });
 
-    if (lastNode) {
-        const activeNode = lastNode as D3TreeNode
-    } else {
-    }
-
     return lastNode
 }
 
@@ -204,4 +199,149 @@ export function countNodes(root: D3TreeNode): number {
     })
     return count
 }
-  
+
+/**
+ * Find the most recent state update that was active when the node was created.
+ * Returns the state with the latest timestamp that is less than or equal to the node's timestamp.
+ *
+ * @param node - The tree node to find the state for
+ * @param allStateUpdates - Array of all state updates from the run
+ * @returns The matching StateUpdate or undefined if no matching state found
+ */
+export function findStateForNode(node: TreeNode, allStateUpdates: StateUpdate[]): StateUpdate | undefined {
+    // Filter states where state.timestamp <= node.timestamp
+    const eligibleStates = allStateUpdates.filter(state => state.timestamp <= node.timestamp)
+
+    // If no states match, return undefined
+    if (eligibleStates.length === 0) {
+        return undefined
+    }
+
+    // Sort by timestamp descending and return the first (most recent)
+    eligibleStates.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+
+    return eligibleStates[0]
+}
+
+/**
+ * Check if a node represents user feedback or input.
+ * Checks against known user agent names that indicate user interaction.
+ *
+ * @param node - The tree node to check
+ * @returns true if the node is from a user feedback agent, false otherwise
+ */
+export function isUserFeedbackNode(node: TreeNode): boolean {
+    const userAgentNames = ['user_proxy', 'user_control', 'you']
+    const normalizedAgentName = node.agent_name.toLowerCase().trim()
+
+    return userAgentNames.includes(normalizedAgentName)
+}
+
+/**
+ * Format the raw state_of_run text for display in the UI.
+ * Performs basic text cleanup without parsing or transforming the content.
+ *
+ * @param text - Raw state_of_run text from StateUpdate
+ * @returns Formatted text suitable for display
+ */
+export function formatStateOfRunForDisplay(text: string): string {
+    // Trim leading and trailing whitespace
+    let formatted = text.trim()
+
+    // Replace multiple consecutive newlines (3+) with double newlines for cleaner display
+    formatted = formatted.replace(/\n{3,}/g, '\n\n')
+
+    return formatted
+}
+
+/**
+ * Extract all unique agent names from the tree in order of first appearance.
+ * Performs depth-first traversal to maintain consistent ordering.
+ * @param root - Root TreeNode of the conversation tree
+ * @returns Sorted array of unique agent names
+ */
+export function extractAgentNames(root: TreeNode): string[] {
+    const agentNamesSet = new Set<string>()
+
+    function traverse(node: TreeNode): void {
+        agentNamesSet.add(node.agent_name)
+        if (node.children) {
+            node.children.forEach(traverse)
+        }
+    }
+
+    traverse(root)
+    return Array.from(agentNamesSet).sort()
+}
+
+/**
+ * Calculate the depth of a specific node in the tree.
+ * Depth is measured as distance from root (root = 0, immediate children = 1, etc.).
+ * Used for x-axis positioning in visualization (depth * horizontalSpacing).
+ * @param root - Root TreeNode of the conversation tree
+ * @param nodeId - ID of the node to find
+ * @returns Depth of the node, or null if node not found
+ */
+export function calculateNodeDepth(root: TreeNode, nodeId: string): number | null {
+    function findDepth(node: TreeNode, currentDepth: number): number | null {
+        if (node.id === nodeId) {
+            return currentDepth
+        }
+
+        if (node.children) {
+            for (const child of node.children) {
+                const depth = findDepth(child, currentDepth + 1)
+                if (depth !== null) {
+                    return depth
+                }
+            }
+        }
+
+        return null
+    }
+
+    return findDepth(root, 0)
+}
+
+/**
+ * Find a node in the tree by its ID.
+ * Performs recursive depth-first search.
+ * @param root - Root TreeNode of the conversation tree
+ * @param nodeId - ID of the node to find
+ * @returns The matching TreeNode or null if not found
+ */
+export function findNodeInTree(root: TreeNode, nodeId: string): TreeNode | null {
+    if (root.id === nodeId) {
+        return root
+    }
+
+    if (root.children) {
+        for (const child of root.children) {
+            const found = findNodeInTree(child, nodeId)
+            if (found !== null) {
+                return found
+            }
+        }
+    }
+
+    return null
+}
+
+/**
+ * Find all edges (parent-child relationships) for a given node.
+ * Returns edges where this node is a child (i.e., edges pointing TO this node).
+ * Used for rendering links between nodes in the visualization.
+ * @param node - The TreeNode to find edges for
+ * @returns Array of edge objects with source (parent) and target (child) nodes
+ */
+export function findEdgesForNode(node: TreeNode): Array<{ source: TreeNode; target: TreeNode }> {
+    const edges: Array<{ source: TreeNode; target: TreeNode }> = []
+
+    if (node.children) {
+        node.children.forEach((child) => {
+            edges.push({ source: node, target: child })
+        })
+    }
+
+    return edges
+}

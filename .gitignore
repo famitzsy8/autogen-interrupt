@@ -64,3 +64,6 @@ generic/backend/demo/
 generic/backend/autogen-extension/autogen_ext*/
 generic/*.md
 generic/backend/tests/*
+
+generic/frontend/dist/assets/
+generic/frontend/**/*.md

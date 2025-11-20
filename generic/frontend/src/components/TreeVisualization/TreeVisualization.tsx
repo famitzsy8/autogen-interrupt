@@ -14,18 +14,20 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { TreeControls, useTreeKeyboardShortcuts } from './TreeControls'
 import { useD3Tree } from './useD3Tree'
-import { countNodes, getTreeDepth } from './utils/treeUtils'
+import { countNodes, getTreeDepth, findStateForNode } from './utils/treeUtils'
 import {
   useToolCallsByNodeId,
   useToolExecutionsByNodeId,
   useIsInterrupted,
-  useChatDisplayActions,
+
   useEdgeInterrupt,
   useEdgeInterruptActions,
   useMessageActions,
+  useAllStateUpdates,
 } from '../../hooks/useStore'
 import { EdgeInterruptPopup } from './EdgeInterruptPopup'
-import type { ConversationItemType, TreeNode } from '../../types'
+import { NodeDetailsPopup } from './NodeDetailsPopup'
+import type { TreeNode, StateUpdate, ToolCall, ToolExecution } from '../../types'
 
 /**
  * Props for TreeVisualization component.
@@ -47,15 +49,47 @@ export function TreeVisualization({
   const containerRef = useRef<HTMLDivElement>(null)
   const svgContainerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
+  const [selectedNodeForPopup, setSelectedNodeForPopup] = useState<TreeNode | null>(null)
   const toolCallsByNodeId = useToolCallsByNodeId()
   const toolExecutionsByNodeId = useToolExecutionsByNodeId()
   const isInterrupted = useIsInterrupted()
-  const { setChatDisplayVisible, setChatFocusTarget } = useChatDisplayActions()
+
+  const allStateUpdates = useAllStateUpdates()
+
+  // Helper functions for data lookup
+  const getStateForNode = (node: TreeNode): StateUpdate | undefined => {
+    return findStateForNode(node, allStateUpdates)
+  }
+
+  const getToolCallForNode = (node: TreeNode): ToolCall | undefined => {
+    return toolCallsByNodeId[node.id]
+  }
+
+  const getToolExecutionForNode = (node: TreeNode): ToolExecution | undefined => {
+    return toolExecutionsByNodeId[node.id]
+  }
 
   // Handler for node clicks - shows chat display and selects the node
-  const handleNodeClick = (nodeId: string, itemType: ConversationItemType) => {
-    setChatFocusTarget({ nodeId, itemType })
-    setChatDisplayVisible(true)
+  const handleNodeClick = (nodeId: string) => {
+    // Find the node in the tree
+    if (treeData) {
+      const findNode = (node: TreeNode): TreeNode | null => {
+        if (node.id === nodeId) return node
+        if (node.children) {
+          for (const child of node.children) {
+            const found = findNode(child)
+            if (found) return found
+          }
+        }
+        return null
+      }
+
+      const clickedNode = findNode(treeData)
+
+      if (clickedNode) {
+        setSelectedNodeForPopup(clickedNode)
+      }
+    }
   }
   const edgeInterrupt = useEdgeInterrupt()
   const { setEdgeInterrupt, clearEdgeInterrupt } = useEdgeInterruptActions()
@@ -83,43 +117,10 @@ export function TreeVisualization({
   }, [])
 
   // Handle edge click: send interrupt and store edge info for popup
-  const handleEdgeClick = (targetNodeId: string, mousePosition: { x: number; y: number }): void => {
+  const handleEdgeClick = (targetNodeId: string, mousePosition: { x: number; y: number }, trimCount: number): void => {
     // Send interrupt to backend
     try {
       sendInterrupt()
-
-      // Calculate trim_count: number of messages AFTER the target node in the current branch
-      let trimCount = 0
-      if (treeData) {
-        // Find the target node and its timestamp
-        let targetTimestamp: string | null = null
-        const findTargetNode = (node: TreeNode): void => {
-          if (node.id === targetNodeId) {
-            targetTimestamp = node.timestamp
-          }
-          if (node.children) {
-            node.children.forEach(findTargetNode)
-          }
-        }
-        findTargetNode(treeData)
-
-        // Count nodes in current branch that come AFTER the target node
-        if (targetTimestamp) {
-          const targetTime = targetTimestamp // Capture for closure
-          const countNodesAfter = (node: TreeNode): void => {
-            if (node.branch_id === currentBranchId && node.is_active) {
-              if (node.timestamp > targetTime) {
-                trimCount++
-              }
-            }
-            if (node.children) {
-              node.children.forEach(countNodesAfter)
-            }
-          }
-          countNodesAfter(treeData)
-        }
-      }
-
 
       // Convert screen coordinates (clientX/clientY) to container-relative coordinates
       // The popup is absolutely positioned relative to svgContainerRef (which has position: relative)
@@ -212,6 +213,17 @@ export function TreeVisualization({
           />
         )}
       </div>
+
+      {/* Node Details Popup */}
+      {selectedNodeForPopup && (
+        <NodeDetailsPopup
+          node={selectedNodeForPopup}
+          stateUpdate={getStateForNode(selectedNodeForPopup)}
+          toolCall={getToolCallForNode(selectedNodeForPopup)}
+          toolExecution={getToolExecutionForNode(selectedNodeForPopup)}
+          onClose={() => setSelectedNodeForPopup(null)}
+        />
+      )}
     </div>
   )
 }

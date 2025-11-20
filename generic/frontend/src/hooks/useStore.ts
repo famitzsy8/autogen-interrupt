@@ -16,6 +16,8 @@ import type {
     ConnectionState,
     StateUpdate,
     StreamState,
+    ToolCall,
+    ToolExecution,
     TreeNode
 } from '../types'
 
@@ -251,15 +253,20 @@ export function useIsStreaming(): boolean {
 
   /**
    * Hook to access tool calls by node ID.
+   * Returns a map of node_id -> ToolCall message.
+   * Used to look up tool call details for a given node.
    */
-  export function useToolCallsByNodeId(): Record<string, import('../types').ToolCall> {
+  export function useToolCallsByNodeId(): Record<string, ToolCall> {
     return useStore((state) => state.toolCallsByNodeId)
   }
-  
+
   /**
    * Hook to access tool executions by node ID.
+   * Returns a map of node_id -> ToolExecution message.
+   * Used to look up tool execution results for a given node.
+   * Note: ToolCall and ToolExecution may share the same node_id.
    */
-  export function useToolExecutionsByNodeId(): Record<string, import('../types').ToolExecution> {
+  export function useToolExecutionsByNodeId(): Record<string, ToolExecution> {
     return useStore((state) => state.toolExecutionsByNodeId)
   }
 
@@ -297,6 +304,16 @@ export function useChatDisplayActions() {
    */
   export function useCurrentState(): StateUpdate | null {
     return useStore((state) => state.currentState)
+  }
+
+  /**
+   * Hook to access all state updates received from the backend.
+   * Returns an ordered list of all StateUpdate messages accumulated during the session.
+   * StateUpdates are sparse (not emitted for every message).
+   * Used for temporal lookup when populating Run State tab.
+   */
+  export function useAllStateUpdates(): StateUpdate[] {
+    return useStore((state) => state.stateUpdates)
   }
 
   /**
