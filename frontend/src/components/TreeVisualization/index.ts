@@ -7,5 +7,6 @@
 export { TreeVisualization, TreeVisualizationLoading, TreeVisualizationError } from './TreeVisualization'
 export { TreeControls, useTreeKeyboardShortcuts } from './TreeControls'
 export { TreeNode, TreeNodeInfo } from './TreeNode'
+export { NodeDetailsPopup } from './NodeDetailsPopup'
 export { useD3Tree } from './useD3Tree'
 export * from './utils/treeUtils'

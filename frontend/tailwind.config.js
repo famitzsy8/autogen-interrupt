@@ -13,6 +13,7 @@ export default {
           text: '#c9d1d9',
           border: '#30363d',
           hover: '#161b22',
+          surface: '#161b22',
           accent: '#58a6ff',
         },
       },

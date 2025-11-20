@@ -4,10 +4,9 @@
  * This component automatically connects when mounted and disconnects when unmounted.
  */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
   useConnectionState,
-  useConnectionActions,
   useError,
   useErrorActions,
 } from '../hooks/useStore'

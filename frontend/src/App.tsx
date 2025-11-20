@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { ChatDisplay } from './components/ChatDisplay'
+import { FloatingInputPanel } from './components/FloatingInputPanel'
+import { InterruptButton } from './components/InterruptButton'
 import { StateDisplay } from './components/StateDisplay'
 import { TreeVisualization } from './components/TreeVisualization'
 import AgentInputModal from './components/AgentInputModal'
 import { ConfigForm } from './components/ConfigForm'
-import { MessageSquare, FileText } from 'lucide-react'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { FileText } from 'lucide-react'
 import type { RunConfig } from './types'
 import {
   useAgentInputActions,
@@ -16,10 +18,13 @@ import {
   useConnectionState,
   useConversationTree,
   useCurrentBranchId,
-  useIsChatDisplayVisible,
-  useChatDisplayActions,
+  useIsStreaming,
+  useMessageActions,
+  useUserInteractionActions,
   useIsStateDisplayVisible,
   useStateDisplayActions,
+  useIsInterrupted,
+  useTrimCount,
 } from './hooks/useStore'
 
 function App(): React.ReactElement {
@@ -35,18 +40,28 @@ function App(): React.ReactElement {
   const conversationTree = useConversationTree()
   const currentBranchId = useCurrentBranchId()
   const agentInputRequest = useAgentInputRequest()
-  const isChatDisplayVisible = useIsChatDisplayVisible()
+  const isStreaming = useIsStreaming()
+  const { sendInterrupt, sendUserMessage } = useMessageActions()
+  const { setTrimCount } = useUserInteractionActions()
   const isStateDisplayVisible = useIsStateDisplayVisible()
   const { sendHumanInputResponse } = useAgentInputActions()
-  const { setChatDisplayVisible } = useChatDisplayActions()
   const { setStateDisplayVisible } = useStateDisplayActions()
+  const isInterrupted = useIsInterrupted()
+  const trimCount = useTrimCount()
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
 
-  const handleToggleChatDisplay = () => {
-    setChatDisplayVisible(!isChatDisplayVisible)
-  }
 
   const handleToggleStateDisplay = () => {
     setStateDisplayVisible(!isStateDisplayVisible)
+  }
+
+  const handleInterrupt = () => {
+    sendInterrupt()
+    setTrimCount(0)
+  }
+
+  const handleSendMessage = (content: string, targetAgent: string, trimCount: number) => {
+    sendUserMessage(content, targetAgent, trimCount)
   }
 
   // Connect to WebSocket on mount (only once)
@@ -82,93 +97,93 @@ function App(): React.ReactElement {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text">
-      <div className="relative h-screen w-full">
-        {/* Tree visualization area (always full size) */}
-        <div className="absolute inset-0">
-          <TreeVisualization
-            treeData={conversationTree}
-            currentBranchId={currentBranchId}
-          />
-
-          {/* Agent Input Modal - positioned in tree area */}
-          {agentInputRequest && (
-            <AgentInputModal
-              request={agentInputRequest}
-              onSubmit={(userInput) => {
-                sendHumanInputResponse(agentInputRequest.request_id, userInput)
-              }}
-              onCancel={() => {
-                // Send 'continue' when user cancels
-                sendHumanInputResponse(agentInputRequest.request_id, 'continue')
-              }}
+    <ErrorBoundary>
+      <div className="min-h-screen bg-dark-bg text-dark-text">
+        <div className="relative h-screen w-full">
+          {/* Tree visualization area (always full size) */}
+          <div className="absolute inset-0">
+            <TreeVisualization
+              treeData={conversationTree}
+              currentBranchId={currentBranchId}
             />
-          )}
 
-          {/* Floating toggle button for chat display */}
-          {!isChatDisplayVisible && (
-            <button
-              onClick={handleToggleChatDisplay}
-              className="absolute top-4 right-4 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-colors z-10"
-              aria-label="Show chat display"
-              title="Show full messages"
-            >
-              <MessageSquare size={24} />
-            </button>
-          )}
+            {/* Agent Input Modal - positioned in tree area */}
+            {agentInputRequest && (
+              <AgentInputModal
+                request={agentInputRequest}
+                onSubmit={(userInput) => {
+                  sendHumanInputResponse(agentInputRequest.request_id, userInput)
+                }}
+                onCancel={() => {
+                  // Send 'continue' when user cancels
+                  sendHumanInputResponse(agentInputRequest.request_id, 'continue')
+                }}
+              />
+            )}
 
-          {/* Floating toggle button for state display */}
-          {!isStateDisplayVisible && (
-            <button
-              onClick={handleToggleStateDisplay}
-              className="absolute top-4 left-4 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-lg transition-colors z-10"
-              aria-label="Show state display"
-              title="Show state context"
-            >
-              <FileText size={24} />
-            </button>
+
+
+            {/* Top right controls */}
+            <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+              {/* Interrupt Button */}
+              <InterruptButton onInterrupt={handleInterrupt} isStreaming={isStreaming} />
+
+              {/* Floating toggle button for state display */}
+              {!isStateDisplayVisible && (
+                <button
+                  onClick={handleToggleStateDisplay}
+                  className="p-3 bg-dark-surface hover:bg-dark-accent text-dark-text rounded-full shadow-lg transition-colors"
+                  aria-label="Show state display"
+                  title="Show state history"
+                >
+                  <FileText size={24} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Floating Input Panel (replaces ControlBar) */}
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+            <FloatingInputPanel
+              onSendMessage={handleSendMessage}
+              isInterrupted={isInterrupted}
+              selectedAgent={selectedAgent}
+              onSelectAgent={setSelectedAgent}
+              trimCount={trimCount}
+            />
+          </div>
+
+          {/* State display overlay (slides in from left) */}
+          {isStateDisplayVisible && (
+            <div className="fixed left-0 top-0 h-full w-[400px] bg-dark-bg border-r border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
+              <StateDisplay />
+            </div>
           )}
         </div>
 
-        {/* Chat display overlay (slides in from right) */}
-        {isChatDisplayVisible && (
-          <div className="fixed right-0 top-0 h-full w-[400px] bg-dark-bg border-l border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
-            <ChatDisplay />
-          </div>
-        )}
-
-        {/* State display overlay (slides in from left) */}
-        {isStateDisplayVisible && (
-          <div className="fixed left-0 top-0 h-full w-[400px] bg-dark-bg border-r border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
-            <StateDisplay />
-          </div>
-        )}
-      </div>
-
-      {/* Connection status indicator */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <div
-          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-xs ${
-            connectionState === 'connected'
+        {/* Connection status indicator */}
+        <div className="fixed bottom-4 right-4 z-50">
+          <div
+            className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-xs ${connectionState === 'connected'
               ? 'bg-green-900 text-green-300'
               : connectionState === 'connecting' || connectionState === 'reconnecting'
                 ? 'bg-yellow-900 text-yellow-300'
                 : 'bg-red-900 text-red-300'
-          }`}
-        >
-          <div
-            className={`w-2 h-2 rounded-full ${
-              connectionState === 'connected'
+              }`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full ${connectionState === 'connected'
                 ? 'bg-green-400 animate-pulse'
                 : connectionState === 'connecting' || connectionState === 'reconnecting'
                   ? 'bg-yellow-400 animate-pulse'
                   : 'bg-red-400'
-            }`}
-          />
-          <span className="font-medium">{connectionState}</span>
+                }`}
+            />
+            <span className="font-medium">{connectionState}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   )
 }
 

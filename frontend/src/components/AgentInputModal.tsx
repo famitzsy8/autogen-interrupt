@@ -49,24 +49,11 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 
   return (
     <div
-      className="absolute inset-0 z-40 flex items-end justify-center pb-20 px-4 pointer-events-none"
-      style={{ pointerEvents: 'none' }}
+      className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-40 flex items-end justify-center px-4 pointer-events-none"
     >
-      {/* Backdrop for tree area only - blocks mouse interaction */}
+      {/* Compact modal card - pointer events auto to allow interaction within the card */}
       <div
-        className="absolute inset-0 bg-black bg-opacity-30"
-        style={{ pointerEvents: 'auto' }}
-        onClick={(e) => {
-          if (e.target === e.currentTarget && onCancel) {
-            onCancel()
-          }
-        }}
-      />
-
-      {/* Compact modal card */}
-      <div
-        className="relative bg-gray-800 border border-gray-600 rounded-lg shadow-2xl max-w-xl w-full"
-        style={{ pointerEvents: 'auto' }}
+        className="relative bg-gray-800 border border-gray-600 rounded-lg shadow-2xl max-w-xl w-full pointer-events-auto"
         role="dialog"
         aria-labelledby="agent-input-modal-title"
       >
