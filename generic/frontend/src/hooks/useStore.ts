@@ -351,3 +351,36 @@ export function useChatDisplayActions() {
       clearEdgeInterrupt: state.clearEdgeInterrupt,
     }))
   }
+
+  /**
+   * Hook to access analysis components.
+   */
+  export function useAnalysisComponents() {
+    return useStore((state) => state.analysisComponents)
+  }
+
+  /**
+   * Hook to access analysis scores by node ID.
+   */
+  export function useAnalysisScores() {
+    return useStore((state) => state.analysisScores)
+  }
+
+  /**
+   * Hook to access triggered nodes set.
+   */
+  export function useTriggeredNodes() {
+    return useStore((state) => state.triggeredNodes)
+  }
+
+  /**
+   * Hook to access analysis actions.
+   */
+  export function useAnalysisActions() {
+    return useStore((state) => ({
+      setAnalysisComponents: state.setAnalysisComponents,
+      addAnalysisScore: state.addAnalysisScore,
+      markNodeTriggered: state.markNodeTriggered,
+      clearAnalysisData: state.clearAnalysisData,
+    }))
+  }

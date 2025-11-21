@@ -2,8 +2,11 @@ import asyncio
 import logging
 import re
 import tiktoken
+import uuid
 from inspect import iscoroutinefunction
-from typing import Any, Awaitable, Callable, Dict, List, Mapping, Optional, Sequence, Union, cast
+from datetime import datetime, timezone
+from pydantic import BaseModel, Field, field_validator
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, List, Mapping, Optional, Sequence, Union, cast
 
 from autogen_core import AgentRuntime, CancellationToken, Component, ComponentModel, DefaultTopicId, MessageContext, event, rpc
 from autogen_core.model_context import (
@@ -59,6 +62,10 @@ from ._agent_buffer_node_mapping import convert_manager_trim_to_agent_trim
 trace_logger = logging.getLogger(TRACE_LOGGER_NAME)
 message_thread_logger = logging.getLogger(f"{__name__}.message_thread")
 logger = logging.getLogger(__name__)
+
+from ._models import AnalysisComponent, ComponentScore, AnalysisUpdate
+from ._analysis_service import AnalysisService
+
 
 # Initialize tiktoken encoder for token counting
 def _get_tiktoken_encoder() -> tiktoken.Encoding:
@@ -186,6 +193,12 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         # Initialize intent router for detecting handoff intent in user messages
         self._intent_router = HandoffIntentRouter(model_client)
 
+        # Analysis-related fields
+        self._analysis_service: AnalysisService | None = None
+        self._analysis_components: list[AnalysisComponent] = []
+        self._trigger_threshold: int = 8
+        self._feedback_context: dict[str, Any] | None = None
+
     async def validate_group_state(self, messages: List[BaseChatMessage] | None) -> None:
         pass
 
@@ -294,6 +307,227 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                 await self._output_message_queue.put(state_event)
         except Exception as e:
             logger.exception(f"Exception in _create_state_snapshot: {type(e).__name__}: {e}")
+
+    async def _emit_analysis_update(
+        self,
+        node_id: str,
+        scores: dict[str, "ComponentScore"],
+        triggered_components: list[str]
+    ) -> None:
+        """
+        Emit analysis update to frontend via WebSocket.
+
+        This message is sent via websocket_handler to all clients in the session.
+
+        Args:
+            node_id: Message node ID that was scored
+            scores: All component scores for the message
+            triggered_components: Labels where score >= threshold
+        """
+        if self._emit_team_events:  # Check if events should be emitted
+
+            logger.info(
+                f"📤 [BACKEND] Emitting ANALYSIS_UPDATE for node {node_id}: "
+                f"scores={list(scores.keys())}, triggered={triggered_components}"
+            )
+
+            # Log individual scores
+            for label, score_obj in scores.items():
+                logger.debug(
+                    f"   📊 {label}: score={score_obj.score}, "
+                    f"reasoning=\"{score_obj.reasoning[:50]}...\""
+                )
+
+            update = AnalysisUpdate(
+                type="analysis_update",
+                node_id=node_id,
+                scores=scores,
+                triggered_components=triggered_components,
+                timestamp=datetime.now(timezone.utc)
+            )
+
+            # Emit as event for websocket_handler to broadcast
+            await self._output_message_queue.put(update)
+
+            logger.info(
+                f"✅ [BACKEND] Analysis update queued for WebSocket broadcast"
+            )
+
+    async def _transition_to_next_speakers(self, cancellation_token: CancellationToken) -> None:
+        """
+        Select next speaker(s) with optional analysis scoring.
+
+        Flow:
+        1. Get latest message from thread
+        2. Check if it's from user_proxy (bypass analysis if so)
+        3. If analysis enabled, score the message
+        4. If triggered, inject user_proxy with feedback context
+        5. Otherwise, select AI agent only
+        6. Request speaker response
+        """
+        # Get latest message
+        if not self._message_thread:
+            logger.warning("No messages in thread, cannot select speaker")
+            return
+
+        latest_message = self._message_thread[-1]
+
+        # Check if latest message is from user_proxy - skip analysis if so
+        # This prevents infinite feedback loops
+        if isinstance(latest_message, BaseChatMessage):
+            if latest_message.source == self._user_proxy_name:
+                logger.info(f"📊 [ANALYSIS] Skipping analysis for user_proxy message: {latest_message.source}")
+                # User just provided feedback - skip analysis, go to next AI agent
+
+                # Build participants list (same logic as select_speaker)
+                if self._candidate_func is not None:
+                    if self._is_candidate_func_async:
+                        async_candidate_func = cast(AsyncCandidateFunc, self._candidate_func)
+                        participants = await async_candidate_func(self._message_thread)
+                    else:
+                        sync_candidate_func = cast(SyncCandidateFunc, self._candidate_func)
+                        participants = sync_candidate_func(self._message_thread)
+                else:
+                    # Construct the candidate agent list to be selected from, skip the previous speaker if not allowed.
+                    if self._previous_speaker is not None and not self._allow_repeated_speaker:
+                        participants = [p for p in self._participant_names if p != self._previous_speaker]
+                    else:
+                        participants = list(self._participant_names)
+
+                # Construct agent roles
+                roles = ""
+                for topic_type, description in zip(self._participant_names, self._participant_descriptions, strict=True):
+                    roles += re.sub(r"\s+", " ", f"{topic_type}: {description}").strip() + "\n"
+                roles = roles.strip()
+
+                # Select AI agent only
+                next_speaker = await self._select_speaker_ai_only(roles, participants, self._max_selector_attempts)
+                self._previous_speaker = next_speaker
+
+                # Send request to publish
+                speaker_topic_type = self._participant_name_to_topic_type[next_speaker]
+                await self.publish_message(
+                    GroupChatRequestPublish(),
+                    topic_id=DefaultTopicId(type=speaker_topic_type),
+                    cancellation_token=cancellation_token,
+                )
+                self._active_speakers.append(next_speaker)
+                return
+
+        # Perform analysis scoring (if enabled)
+        if self._analysis_service is not None and self._analysis_components:
+            try:
+                # Extract message content
+                message_content = (
+                    latest_message.content
+                    if isinstance(latest_message, BaseChatMessage)
+                    else str(latest_message)
+                )
+                
+                message_source = getattr(latest_message, 'source', 'unknown')
+                print(f"📊 [ANALYSIS] Scoring message from {message_source}: {len(message_content)} chars")
+
+                # Score the message
+                logger.debug(f"Scoring message with analysis service: {len(message_content)} chars")
+                scores = await self._analysis_service.score_message(
+                    message=message_content,
+                    components=self._analysis_components,
+                    tool_call_facts=self._tool_call_facts_text,  # Existing state field
+                    state_of_run=self._state_of_run_text,        # Existing state field
+                    trigger_threshold=self._trigger_threshold
+                )
+
+                # Always emit analysis update to frontend (regardless of trigger)
+                # Use the message's existing ID (BaseChatMessage has an id field)
+                node_id = getattr(latest_message, 'id', str(uuid.uuid4()))
+                
+                message_source = getattr(latest_message, 'source', 'unknown')
+                print(f"📊 [ANALYSIS] Using message ID {node_id} for analysis from {message_source}")
+
+                triggered_components = [
+                    label for label, score_obj in scores.items()
+                    if score_obj.score >= self._trigger_threshold
+                ]
+                
+                await self._emit_analysis_update(
+                    node_id=node_id,
+                    scores=scores,
+                    triggered_components=triggered_components
+                )
+
+                # Check if feedback should be triggered
+                if triggered_components:
+                    logger.info(
+                        f"Analysis triggered: components={triggered_components}, "
+                        f"injecting user_proxy for feedback"
+                    )
+
+                    # Inject user_proxy with feedback context
+                    next_speaker = self._user_proxy_name
+                    self._feedback_context = {
+                        "triggered": triggered_components,
+                        "scores": scores,
+                        "message": latest_message,
+                        "tool_call_facts": self._tool_call_facts_text,
+                        "state_of_run": self._state_of_run_text
+                    }
+
+                    # Set previous speaker
+                    self._previous_speaker = next_speaker
+
+                    # Send request to publish (user_proxy will trigger AgentInputRequest)
+                    speaker_topic_type = self._participant_name_to_topic_type[next_speaker]
+                    await self.publish_message(
+                        GroupChatRequestPublish(),
+                        topic_id=DefaultTopicId(type=speaker_topic_type),
+                        cancellation_token=cancellation_token,
+                    )
+                    self._active_speakers.append(next_speaker)
+                    return
+                else:
+                    logger.debug(f"Analysis completed: max score below threshold")
+
+            except Exception as e:
+                logger.warning(
+                    f"Analysis scoring failed: {e}, continuing without analysis",
+                    exc_info=True
+                )
+                # Fall through to normal speaker selection
+
+        # No trigger or analysis disabled - normal speaker selection (AI agents only)
+        # Build participants list (same logic as select_speaker)
+        if self._candidate_func is not None:
+            if self._is_candidate_func_async:
+                async_candidate_func = cast(AsyncCandidateFunc, self._candidate_func)
+                participants = await async_candidate_func(self._message_thread)
+            else:
+                sync_candidate_func = cast(SyncCandidateFunc, self._candidate_func)
+                participants = sync_candidate_func(self._message_thread)
+        else:
+            # Construct the candidate agent list to be selected from, skip the previous speaker if not allowed.
+            if self._previous_speaker is not None and not self._allow_repeated_speaker:
+                participants = [p for p in self._participant_names if p != self._previous_speaker]
+            else:
+                participants = list(self._participant_names)
+
+        # Construct agent roles
+        roles = ""
+        for topic_type, description in zip(self._participant_names, self._participant_descriptions, strict=True):
+            roles += re.sub(r"\s+", " ", f"{topic_type}: {description}").strip() + "\n"
+        roles = roles.strip()
+
+        # Select AI agent only
+        next_speaker = await self._select_speaker_ai_only(roles, participants, self._max_selector_attempts)
+        self._previous_speaker = next_speaker
+
+        # Send request to publish
+        speaker_topic_type = self._participant_name_to_topic_type[next_speaker]
+        await self.publish_message(
+            GroupChatRequestPublish(),
+            topic_id=DefaultTopicId(type=speaker_topic_type),
+            cancellation_token=cancellation_token,
+        )
+        self._active_speakers.append(next_speaker)
 
     async def _update_state_of_run(self, agent_message: BaseChatMessage, cancellation_token: CancellationToken | None = None, from_user_proxy: bool = False) -> None:
         """Update StateOfRun from agent message using LLM.
@@ -820,6 +1054,46 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         history: str = "\n".join(history_messages)
         return history
 
+    async def _select_speaker_ai_only(
+        self,
+        roles: str,
+        participants: List[str],
+        max_attempts: int
+    ) -> str:
+        """
+        Select next speaker from AI agents only (exclude user_proxy).
+
+        This prevents LLM from auto-selecting user_proxy. Only user_proxy enters via:
+        - Analysis trigger (explicit injection)
+        - Orchestrator explicit request
+        - User direct message
+
+        Args:
+            roles: Agent role descriptions
+            participants: List of available agent names
+            max_attempts: Maximum selection retry attempts
+
+        Returns:
+            Name of selected AI agent
+        """
+        # Filter out user_proxy from participants
+        ai_agents = [
+            p for p in participants
+            if p != self._user_proxy_name
+        ]
+
+        # Fallback: if somehow only user_proxy available, select it
+        if len(ai_agents) == 0:
+            logger.warning("No AI agents available, falling back to user_proxy")
+            return self._user_proxy_name
+
+        # Single agent optimization
+        if len(ai_agents) == 1:
+            return ai_agents[0]
+
+        # Use existing _select_speaker logic but with filtered participants
+        return await self._select_speaker(roles, ai_agents, max_attempts)
+
     async def _select_speaker(self, roles: str, participants: List[str], max_attempts: int) -> str:
         model_context_messages = await self._model_context.get_messages()
         model_context_history = self.construct_message_history(model_context_messages)
@@ -1252,6 +1526,11 @@ Read the above conversation. Then select the next role from {participants} to pl
         self._initial_handoff_context = initial_handoff_context
         self._initial_state_of_run = initial_state_of_run
 
+        # Analysis-related fields (can be set after init)
+        self._analysis_service: 'AnalysisService | None' = None
+        self._analysis_components: list['AnalysisComponent'] = []
+        self._trigger_threshold: int = 8
+
     def _create_group_chat_manager_factory(
         self,
         name: str,
@@ -1266,33 +1545,41 @@ Read the above conversation. Then select the next role from {participants} to pl
         message_factory: MessageFactory,
         agent_input_queue: Any | None = None,
     ) -> Callable[[], BaseGroupChatManager]:
-        return lambda: SelectorGroupChatManager(
-            name,
-            group_topic_type,
-            output_topic_type,
-            participant_topic_types,
-            participant_names,
-            participant_descriptions,
-            output_message_queue,
-            termination_condition,
-            max_turns,
-            message_factory,
-            self._model_client,
-            self._selector_prompt,
-            self._allow_repeated_speaker,
-            self._selector_func,
-            self._max_selector_attempts,
-            self._candidate_func,
-            self._emit_team_events,
-            self._model_context,
-            self._model_client_streaming,
-            agent_input_queue=agent_input_queue,
-            enable_state_context=self._enable_state_context,
-            user_proxy_name=self._user_proxy_name,
-            initial_handoff_context=self._initial_handoff_context,
-            initial_state_of_run=self._initial_state_of_run,
-            state_model_client=self._state_model_client,
-        )
+        def factory() -> BaseGroupChatManager:
+            manager = SelectorGroupChatManager(
+                name,
+                group_topic_type,
+                output_topic_type,
+                participant_topic_types,
+                participant_names,
+                participant_descriptions,
+                output_message_queue,
+                termination_condition,
+                max_turns,
+                message_factory,
+                self._model_client,
+                self._selector_prompt,
+                self._allow_repeated_speaker,
+                self._selector_func,
+                self._max_selector_attempts,
+                self._candidate_func,
+                self._emit_team_events,
+                self._model_context,
+                self._model_client_streaming,
+                agent_input_queue=agent_input_queue,
+                enable_state_context=self._enable_state_context,
+                user_proxy_name=self._user_proxy_name,
+                initial_handoff_context=self._initial_handoff_context,
+                initial_state_of_run=self._initial_state_of_run,
+                state_model_client=self._state_model_client,
+            )
+            # Set analysis fields on manager if they exist on team
+            if self._analysis_service is not None:
+                manager._analysis_service = self._analysis_service
+                manager._analysis_components = self._analysis_components
+                manager._trigger_threshold = self._trigger_threshold
+            return manager
+        return factory
 
     def _to_config(self) -> SelectorGroupChatConfig:
         return SelectorGroupChatConfig(

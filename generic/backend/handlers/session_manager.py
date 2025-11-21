@@ -10,13 +10,17 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
-from typing import Dict, Set
+from typing import Dict, Set, TYPE_CHECKING
 from dataclasses import dataclass, field
 
 from starlette.websockets import WebSocket
 
 from handlers.state_manager import StateManager
 from factory.team_factory import AgentTeamContext
+
+if TYPE_CHECKING:
+    from analysis_service import AnalysisService
+    from models import AnalysisComponent
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +36,11 @@ class Session:
     websockets: Set[WebSocket] = field(default_factory=set)
     created_at: datetime = field(default_factory=datetime.now)
     last_activity: datetime = field(default_factory=datetime.now)
+
+    # Analysis-related fields
+    analysis_service: 'AnalysisService | None' = None
+    active_components: list['AnalysisComponent'] = field(default_factory=list)
+    trigger_threshold: int = 8
 
     def add_websocket(self, ws: WebSocket) -> None:
         """Add a WebSocket connection to this session."""

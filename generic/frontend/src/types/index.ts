@@ -23,6 +23,8 @@ export enum MessageType {
     TOOL_EXECUTION = 'tool_execution',
     STATE_UPDATE = 'state_update',
     RUN_TERMINATION = 'run_termination',
+    ANALYSIS_UPDATE = 'analysis_update',
+    ANALYSIS_COMPONENTS_INIT = 'analysis_components_init',
 }
 
 /**
@@ -78,6 +80,9 @@ export interface RunConfig extends BaseMessage {
     company_name?: string,
     bill_name?: string,
     congress?: string,
+    // Analysis watchlist parameters
+    analysis_prompt?: string,
+    trigger_threshold?: number,
 }
 
 /**
@@ -179,6 +184,13 @@ export interface AgentInputRequest extends BaseMessage {
     request_id: string
     prompt: string
     agent_name: string
+    feedback_context?: {
+        triggered: string[]
+        scores: Record<string, ComponentScore>
+        message: unknown
+        tool_call_facts: string
+        state_of_run: string
+    }
 }
 
 /**
@@ -241,6 +253,48 @@ export interface StateUpdate extends BaseMessage {
 }
 
 /**
+ * Configuration for a single analysis component/watchlist item.
+ */
+export interface AnalysisComponent {
+    label: string
+    description: string
+    color: string
+}
+
+/**
+ * Score and reasoning for a single analysis component.
+ */
+export interface ComponentScore {
+    score: number
+    reasoning: string
+}
+
+/**
+ * Container for all component scores.
+ */
+export interface AnalysisScores {
+    scores: Record<string, ComponentScore>
+}
+
+/**
+ * WebSocket message containing analysis results for a message.
+ */
+export interface AnalysisUpdate extends BaseMessage {
+    type: MessageType.ANALYSIS_UPDATE
+    node_id: string
+    scores: Record<string, ComponentScore>
+    triggered_components: string[]
+}
+
+/**
+ * Initial list of analysis components sent at session start.
+ */
+export interface AnalysisComponentsInit extends BaseMessage {
+    type: MessageType.ANALYSIS_COMPONENTS_INIT
+    components: AnalysisComponent[]
+}
+
+/**
  * Union type of all possible WebSocket messages from server.
  * We declare this to do neat case distinction when the frontend recieves a message from the agent team.
  */
@@ -259,6 +313,8 @@ export type ServerMessage =
   | ToolCall
   | ToolExecution
   | StateUpdate
+  | AnalysisUpdate
+  | AnalysisComponentsInit
 
 /**
  * Union type of all possible WebSocket messages sent to server.

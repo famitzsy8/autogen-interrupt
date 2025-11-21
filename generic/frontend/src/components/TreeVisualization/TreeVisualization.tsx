@@ -19,11 +19,13 @@ import {
   useToolCallsByNodeId,
   useToolExecutionsByNodeId,
   useIsInterrupted,
-
   useEdgeInterrupt,
   useEdgeInterruptActions,
   useMessageActions,
   useAllStateUpdates,
+  useAnalysisComponents,
+  useAnalysisScores,
+  useTriggeredNodes,
 } from '../../hooks/useStore'
 import { EdgeInterruptPopup } from './EdgeInterruptPopup'
 import { NodeDetailsPopup } from './NodeDetailsPopup'
@@ -53,6 +55,9 @@ export function TreeVisualization({
   const toolCallsByNodeId = useToolCallsByNodeId()
   const toolExecutionsByNodeId = useToolExecutionsByNodeId()
   const isInterrupted = useIsInterrupted()
+  const analysisComponents = useAnalysisComponents()
+  const analysisScores = useAnalysisScores()
+  const triggeredNodes = useTriggeredNodes()
 
   const allStateUpdates = useAllStateUpdates()
 
@@ -149,6 +154,9 @@ export function TreeVisualization({
       onNodeClick: handleNodeClick,
       edgeInterrupt,
       onEdgeClick: handleEdgeClick,
+      analysisComponents,
+      analysisScores,
+      triggeredNodes,
     }
   )
 

@@ -479,15 +479,13 @@ class ComponentScore(BaseModel):
     # Scoring result for one analysis component.
 
     score: int = Field(..., ge=1, le=10, description="Score on 1-10 scale")
-    reasoning: str = Field(..., description="One sentence explanation of the score")
+    reasoning: str = Field(default="", description="One sentence explanation (empty if score < threshold)")
 
     @field_validator("reasoning")
     @classmethod
     def validate_reasoning(cls, v: str) -> str:
-        # Reasoning must not be empty
-        if not v or not v.strip():
-            raise ValueError("reasoning cannot be empty")
-        return v.strip()
+        # Allow empty reasoning for low scores (< trigger threshold)
+        return v.strip() if v else ""
 
 
 class AnalysisScores(BaseModel):

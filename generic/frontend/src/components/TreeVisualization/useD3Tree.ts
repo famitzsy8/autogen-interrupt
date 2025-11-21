@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as d3 from 'd3'
-import type { ConversationItemType, TreeNode, ToolCall, ToolExecution } from "../../types"
+import type { ConversationItemType, TreeNode, ToolCall, ToolExecution, AnalysisComponent, AnalysisScores } from "../../types"
 import type { D3TreeNode, TreeConfig } from './utils/treeUtils'
 import {
   convertToD3Hierarchy,
@@ -21,6 +21,9 @@ interface UseD3TreeOptions {
   onNodeClick?: (nodeId: string, itemType: ConversationItemType) => void
   edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null
   onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
+  analysisComponents?: AnalysisComponent[]
+  analysisScores?: Map<string, AnalysisScores>
+  triggeredNodes?: Set<string>
 }
 
 interface UseD3TreeReturn {
@@ -103,6 +106,9 @@ export function useD3Tree(
     edgeInterrupt = null,
     onEdgeClick,
     onNodeClick,
+    analysisComponents = [],
+    analysisScores = new Map(),
+    triggeredNodes = new Set(),
   } = options
 
   const svgRef = useRef<SVGSVGElement>(null)
@@ -278,6 +284,9 @@ export function useD3Tree(
       onEdgeClick,
       onNodeClick,
       treeData,
+      analysisComponents,
+      analysisScores,
+      triggeredNodes,
     })
 
     // After tree updates, preserve transform in navigation mode
@@ -288,7 +297,7 @@ export function useD3Tree(
         svg.call(zoomRef.current!.transform, transformRef.current)
       }, 0)
     }
-  }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick])
+  }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick, analysisComponents, analysisScores, triggeredNodes])
 
   /**
    * Update center node when tree data changes to keep view on latest messages.
@@ -506,6 +515,9 @@ interface UpdateTreeOptions {
   edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null
   onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
   treeData?: TreeNode | null
+  analysisComponents: AnalysisComponent[]
+  analysisScores: Map<string, AnalysisScores>
+  triggeredNodes: Set<string>
 }
 
 /**
@@ -539,6 +551,9 @@ function updateTree(
     onEdgeClick,
     onNodeClick,
     treeData,
+    analysisComponents,
+    analysisScores,
+    triggeredNodes,
   } = options
 
   // Expand all nodes to show full tree
@@ -793,8 +808,17 @@ function updateTree(
       }
       return node.is_active ? '#238636' : '#30363d'
     })
-    .attr('stroke', '#58a6ff')
-    .attr('stroke-width', 2)
+    .attr('stroke', (d: PositionedNode) => {
+      // Yellow border for triggered nodes
+      if (triggeredNodes.has(d.node.data.id)) {
+        return '#fbbf24'
+      }
+      return '#58a6ff'
+    })
+    .attr('stroke-width', (d: PositionedNode) => {
+      // Thicker border for triggered nodes
+      return triggeredNodes.has(d.node.data.id) ? 3 : 2
+    })
 
   const nodeUpdate = nodeEnter.merge(nodes)
 
@@ -813,6 +837,17 @@ function updateTree(
       }
       return node.is_active ? '#238636' : '#30363d'
     })
+    .attr('stroke', (d: PositionedNode) => {
+      // Yellow border for triggered nodes
+      if (triggeredNodes.has(d.node.data.id)) {
+        return '#fbbf24'
+      }
+      return '#58a6ff'
+    })
+    .attr('stroke-width', (d: PositionedNode) => {
+      // Thicker border for triggered nodes
+      return triggeredNodes.has(d.node.data.id) ? 3 : 2
+    })
 
   nodeUpdate
     .on('click', function (event: MouseEvent, d: PositionedNode) {
@@ -821,4 +856,131 @@ function updateTree(
         onNodeClick(d.node.data.id, getConversationItemTypeForNode(d.node.data))
       }
     })
+
+  // ============================================================
+  // PHASE 5: RENDER ANALYSIS BADGES
+  // ============================================================
+
+  // Only render badges if analysis components exist
+  if (analysisComponents.length > 0) {
+    console.log('🎨 [D3] Rendering analysis badges:', {
+      num_components: analysisComponents.length,
+      component_labels: analysisComponents.map(c => c.label),
+      num_nodes: positionedNodes.length,
+      analysisScores_size: analysisScores.size,
+      node_ids_with_scores: Array.from(analysisScores.keys())
+    })
+
+    // Remove existing badges first
+    nodeUpdate.selectAll('.node-analysis-badges').remove()
+
+    let badgesRendered = 0
+    let nodesWithoutScores = 0
+
+    // Add analysis badges to nodes that have scores
+    nodeUpdate.each(function (this: SVGGElement, d: PositionedNode) {
+      const nodeScores = analysisScores.get(d.node.data.id)
+
+      if (nodeScores) {
+        badgesRendered++
+        console.log(`   ✓ Rendering badges for node ${d.node.data.id}`)
+
+        const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
+
+        // Create a group for analysis bars positioned below the node
+        const barGroup = nodeGroup
+          .append('g')
+          .attr('class', 'node-analysis-badges')
+          .attr('transform', `translate(${-NODE_RADIUS}, ${NODE_RADIUS + 8})`)
+
+        const barHeight = 4
+        const barSpacing = 2
+        const maxBarWidth = NODE_RADIUS * 2 // Match node width
+
+        // Render horizontal bars for each component
+        analysisComponents.forEach((component, index) => {
+          const score = nodeScores.scores[component.label]?.score || 0
+          const barWidth = (score / 10) * maxBarWidth // Scale 0-10 to bar width
+
+          // Background bar (light gray)
+          barGroup
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', index * (barHeight + barSpacing))
+            .attr('width', maxBarWidth)
+            .attr('height', barHeight)
+            .attr('fill', '#2a2a2a')
+            .attr('rx', 1)
+
+          // Foreground bar (colored by score)
+          barGroup
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', index * (barHeight + barSpacing))
+            .attr('width', barWidth)
+            .attr('height', barHeight)
+            .attr('fill', component.color)
+            .attr('opacity', 0.8)
+            .attr('rx', 1)
+            .style('cursor', 'pointer')
+            .append('title')
+            .text(`${component.label}: ${score}/10\n${nodeScores.scores[component.label]?.reasoning || ''}`)
+        })
+      } else {
+        nodesWithoutScores++
+        // Log the first few nodes without scores to see what IDs they have
+        if (nodesWithoutScores <= 3) {
+          console.log(`   ❌ Node ${d.node.data.id} has no scores. Available score IDs:`, Array.from(analysisScores.keys()))
+        }
+      }
+    })
+
+    console.log(`🎨 [D3] Badge rendering complete:`, {
+      badges_rendered: badgesRendered,
+      nodes_without_scores: nodesWithoutScores,
+      all_tree_node_ids: positionedNodes.map(n => n.node.data.id)
+    })
+
+    console.log(`🎨 [D3] Badge rendering complete:`, {
+      badges_rendered: badgesRendered,
+      nodes_without_scores: nodesWithoutScores
+    })
+  } else {
+    console.log('⚠️ [D3] No analysis components configured, skipping badge rendering')
+  }
+
+  // Add triggered node indicator (warning icon)
+  nodeUpdate.selectAll('.node-triggered-indicator').remove()
+
+  nodeUpdate.each(function (this: SVGGElement, d: PositionedNode) {
+    if (triggeredNodes.has(d.node.data.id)) {
+      const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
+
+      // Add a small warning circle indicator
+      const indicatorGroup = nodeGroup
+        .append('g')
+        .attr('class', 'node-triggered-indicator')
+        .attr('transform', `translate(${NODE_RADIUS - 2}, ${-NODE_RADIUS + 2})`)
+
+      // Background circle
+      indicatorGroup
+        .append('circle')
+        .attr('r', 6)
+        .attr('fill', '#fbbf24')
+        .attr('stroke', '#0d1117')
+        .attr('stroke-width', 1.5)
+
+      // Warning symbol (exclamation mark) using text
+      indicatorGroup
+        .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('font-size', '10px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#0d1117')
+        .text('!')
+        .append('title')
+        .text('Analysis triggered feedback')
+    }
+  })
 }

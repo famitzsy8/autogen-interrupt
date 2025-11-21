@@ -34,6 +34,7 @@ from starlette.websockets import WebSocket, WebSocketState
 from handlers.agent_input_queue import AgentInputQueue
 from handlers.session_manager import get_session_manager, Session
 from models import (
+    AnalysisComponentsInit,
     HumanInputResponse,
     AgentInputRequest,
     AgentMessage,
@@ -56,6 +57,7 @@ from models import (
 )
 from utils.yaml_utils import get_agent_team_names, get_agent_details, get_team_main_tasks, get_summarization_system_prompt
 from utils.summarization import init_summarizer, summarize_message
+from autogen_agentchat.teams._group_chat._models import AnalysisUpdate as ExtensionAnalysisUpdate
 
 # we need to implement an autogen agent team factory
 from handlers.state_manager import StateManager
@@ -208,6 +210,60 @@ class WebSocketHandler:
         # Update StateManager with display_names from agent team context
         self.session.state_manager.display_names = self.session.agent_team_context.display_names
 
+        # Initialize analysis service if analysis_prompt provided
+        if self.agent_team_config.analysis_prompt:
+            logger.info(f"Initializing analysis service with prompt: {self.agent_team_config.analysis_prompt[:100]}...")
+
+            # Import here to avoid circular dependency
+            from analysis_service import AnalysisService
+            from datetime import datetime, timezone
+
+            # Get model client from team
+            model_client = self.session.agent_team_context.team._model_client
+
+            # Create analysis service
+            analysis_service = AnalysisService(model_client=model_client)
+
+            # Parse analysis prompt into components
+            try:
+                components = await analysis_service.parse_prompt(
+                    self.agent_team_config.analysis_prompt
+                )
+
+                if components:
+                    logger.info(f"Parsed {len(components)} analysis components: {[c.label for c in components]}")
+
+                    # Store in session
+                    self.session.analysis_service = analysis_service
+                    self.session.active_components = components
+                    self.session.trigger_threshold = self.agent_team_config.trigger_threshold
+
+                    # Pass analysis fields to team (they will be passed to manager via factory)
+                    self.session.agent_team_context.team._analysis_service = analysis_service
+                    self.session.agent_team_context.team._analysis_components = components
+                    self.session.agent_team_context.team._trigger_threshold = self.agent_team_config.trigger_threshold
+
+                    # Send to frontend
+                    init_message = AnalysisComponentsInit(
+                        type="analysis_components_init",
+                        components=components,
+                        timestamp=datetime.now(timezone.utc)
+                    )
+
+                    # Broadcast to all connections in session
+                    await self.session_manager.broadcast_to_session(
+                        session_id=self.session.session_id,
+                        message=init_message.model_dump_json()
+                    )
+
+                    logger.info("Analysis components initialized and sent to frontend")
+                else:
+                    logger.warning("Component parsing returned empty list, analysis disabled")
+
+            except Exception as e:
+                logger.error(f"Failed to initialize analysis service: {e}", exc_info=True)
+                # Don't fail the run, just disable analysis
+
     async def _conversation_stream(self, initial_topic: str) -> None:
 
         if not self.session or not self.session.agent_team_context or not self.session.state_manager:
@@ -285,6 +341,10 @@ class WebSocketHandler:
                         print(
                             f"\n💬 [{message.source}] is requesting input from the human user."
                         )
+                    
+                    elif isinstance(message, ExtensionAnalysisUpdate):
+                        print(f"📊 [ANALYSIS] Sending update for node {message.node_id}")
+                        await self._send_analysis_update(message)
                     
                     elif hasattr(message, "stop_reason"):
                         print(f"🏁 Stream ended: {message.stop_reason}")
@@ -463,11 +523,19 @@ class WebSocketHandler:
         summary = await summarize_message(agent_name=agent_name, message_content=content)
         logger.info(f"Summary generated: {summary[:100]}...")
 
+        # Check if message has an ID (e.g. from SelectorGroupChat analysis)
+        msg_id = getattr(message, "id", None)
+        if msg_id:
+            print(f"✅ [WEBSOCKET] Message from {agent_name} HAS ID: {msg_id}")
+        else:
+            print(f"⚠️ [WEBSOCKET] Message from {agent_name} has NO ID, will generate new one")
+
         # Create a new node for this message with summary
         node = self.session.state_manager.add_node(
             agent_name=agent_name,
             message=content,
-            summary=summary
+            summary=summary,
+            node_id=msg_id
         )
         if node is None:
             return
@@ -617,11 +685,15 @@ class WebSocketHandler:
             await self.websocket.send_text(ack.model_dump_json())
 
     async def _send_tool_calls_request(self, message: ToolCallRequestEvent) -> None:
+        # Check if message has an ID (e.g. from SelectorGroupChat analysis)
+        msg_id = getattr(message, "id", None)
+
         # Create new node for tool call
         node = self.session.state_manager.add_node(
             agent_name=message.source,
             message=message.to_text(),
-            node_type="tool_call"
+            node_type="tool_call",
+            node_id=msg_id
         )
         self.current_tool_call_node_id = node.id
         self.session.state_manager.save_to_file()
@@ -640,6 +712,20 @@ class WebSocketHandler:
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(tc_request.model_dump_json())
     
+    async def _send_analysis_update(self, message: ExtensionAnalysisUpdate) -> None:
+        try:
+            print(f"📊 [WEBSOCKET] Attempting to send analysis update for node {message.node_id}")
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                json_data = message.model_dump_json()
+                await self.websocket.send_text(json_data)
+                print(f"✅ [WEBSOCKET] Successfully sent analysis update for node {message.node_id}")
+            else:
+                print(f"⚠️ [WEBSOCKET] Cannot send analysis update, WebSocket state: {self.websocket.client_state}")
+        except Exception as e:
+            print(f"❌ [WEBSOCKET] Failed to send analysis update for node {message.node_id}: {e}")
+            import traceback
+            traceback.print_exc()
+
     async def _send_tool_calls_execution(self, message: ToolCallExecutionEvent) -> None:
 
         results = []
