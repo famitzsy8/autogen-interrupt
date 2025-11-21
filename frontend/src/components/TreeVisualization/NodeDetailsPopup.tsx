@@ -11,9 +11,11 @@
  */
 
 import React, { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, AlertTriangle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import type { TreeNode, StateUpdate, ToolCall, ToolExecution } from '../../types'
+import { useStore } from '../../store/store'
+import { AnalysisScoreDisplay } from './AnalysisScoreDisplay'
 
 interface NodeDetailsPopupProps {
   node: TreeNode
@@ -39,6 +41,14 @@ export function NodeDetailsPopup({
   onClose,
 }: NodeDetailsPopupProps): React.ReactElement {
   const [activeTab, setActiveTab] = useState<TabName>('message')
+
+  // Get analysis data from store
+  const analysisComponents = useStore((state) => state.analysisComponents)
+  const analysisScores = useStore((state) => state.analysisScores)
+  const triggeredNodes = useStore((state) => state.triggeredNodes)
+
+  const nodeScores = analysisScores.get(node.id)
+  const isTriggered = triggeredNodes.has(node.id)
 
   // Format timestamp nicely
   const formatTimestamp = (timestamp: string): string => {
@@ -111,6 +121,34 @@ export function NodeDetailsPopup({
                 <p className="text-gray-500 italic text-sm">(no message content)</p>
               )}
             </div>
+
+            {/* Analysis Scores Section */}
+            {nodeScores && (
+              <div className="pt-4 border-t border-dark-border">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-dark-accent">Analysis Scores</h3>
+                  {isTriggered && (
+                    <span className="flex items-center gap-1 px-3 py-1 bg-red-900/30 text-red-400 border border-red-800 rounded-full text-xs font-medium">
+                      <AlertTriangle size={12} />
+                      Triggered Feedback
+                    </span>
+                  )}
+                </div>
+                <AnalysisScoreDisplay
+                  components={analysisComponents}
+                  scores={nodeScores.scores}
+                  triggerThreshold={8}
+                />
+              </div>
+            )}
+
+            {!nodeScores && analysisComponents.length > 0 && (
+              <div className="pt-4 border-t border-dark-border">
+                <p className="text-gray-500 italic text-sm">
+                  Analysis scores not yet available for this node
+                </p>
+              </div>
+            )}
           </div>
         )
 

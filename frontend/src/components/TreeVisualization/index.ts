@@ -8,5 +8,6 @@ export { TreeVisualization, TreeVisualizationLoading, TreeVisualizationError } f
 export { TreeControls, useTreeKeyboardShortcuts } from './TreeControls'
 export { TreeNode, TreeNodeInfo } from './TreeNode'
 export { NodeDetailsPopup } from './NodeDetailsPopup'
+export { AnalysisBadge } from './AnalysisBadge'
 export { useD3Tree } from './useD3Tree'
 export * from './utils/treeUtils'

@@ -30,6 +30,10 @@ import type {
     UserDirectedMessage,
     UserInterrupt,
     AppError,
+    AnalysisComponent,
+    AnalysisScores,
+    AnalysisUpdate,
+    AnalysisComponentsInit,
 } from '../types'
 
 import {
@@ -88,7 +92,10 @@ interface State {
     toolCallsByNodeId: Record<string, ToolCall>
     toolExecutionsByNodeId: Record<string, ToolExecution>
 
-
+    // Analysis state
+    analysisComponents: AnalysisComponent[]
+    analysisScores: Map<string, AnalysisScores>
+    triggeredNodes: Set<string>
 
     // State display state
     isStateDisplayVisible: boolean
@@ -138,6 +145,12 @@ interface State {
     setStreamState: (state: StreamState) => void
     setInterrupted: (interrupted: boolean) => void
 
+    // Actions: Analysis state management
+    setAnalysisComponents: (components: AnalysisComponent[]) => void
+    addAnalysisScore: (nodeId: string, scores: AnalysisScores) => void
+    markNodeTriggered: (nodeId: string) => void
+    clearAnalysisData: () => void
+
     setStateDisplayVisible: (visible: boolean) => void
     setError: (error: AppError | null) => void
     clearError: () => void
@@ -168,7 +181,9 @@ const initialState = {
     humanInputDraft: '',
     toolCallsByNodeId: {},
     toolExecutionsByNodeId: {},
-
+    analysisComponents: [] as AnalysisComponent[],
+    analysisScores: new Map<string, AnalysisScores>(),
+    triggeredNodes: new Set<string>(),
     isStateDisplayVisible: false,  // Hidden by default
     currentState: null as StateUpdate | null,
     stateUpdates: [] as StateUpdate[],
@@ -202,6 +217,9 @@ export const useStore = create<State>()(
                     activeNodeId: null,
                     toolCallsByNodeId: {},
                     toolExecutionsByNodeId: {},
+                    analysisComponents: [],
+                    analysisScores: new Map(),
+                    triggeredNodes: new Set(),
                     stateUpdates: [],
                     isInterrupted: false,
                     streamState: StreamStateEnum.IDLE,
@@ -373,6 +391,7 @@ export const useStore = create<State>()(
             },
 
             handleServerMessage: (message: ServerMessage) => {
+                console.log('📨 [WEBSOCKET] Received message:', { type: message.type, message })
 
                 switch (message.type) {
 
@@ -411,10 +430,15 @@ export const useStore = create<State>()(
                         break
 
                     case 'agent_input_request':
-                        set({
-                            agentInputRequest: message,
-                            streamState: StreamStateEnum.WAITING_FOR_AGENT_INPUT
-                        })
+                        // Delay modal appearance to allow message and analysis badges to render first.
+                        // This ensures the user sees: message → badges → modal in sequence,
+                        // rather than the modal appearing before the message is visible.
+                        setTimeout(() => {
+                            set({
+                                agentInputRequest: message,
+                                streamState: StreamStateEnum.WAITING_FOR_AGENT_INPUT
+                            })
+                        }, 500)
                         break
 
                     case 'error':
@@ -462,6 +486,61 @@ export const useStore = create<State>()(
                         }))
                         console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState and appended to stateUpdates')
                         break
+
+                    case 'analysis_components_init': {
+                        console.log('🔔 [FRONTEND] Received ANALYSIS_COMPONENTS_INIT message:', message)
+                        const typedMessage = message as AnalysisComponentsInit
+                        get().setAnalysisComponents(typedMessage.components)
+
+                        console.log(
+                            `✅ [Analysis] Initialized ${typedMessage.components.length} components:`,
+                            typedMessage.components.map(c => c.label)
+                        )
+                        console.log('   Current store analysisComponents:', get().analysisComponents)
+                        break
+                    }
+
+                    case 'analysis_update': {
+                        const typedMessage = message as AnalysisUpdate
+                        const { addAnalysisScore, markNodeTriggered } = get()
+
+                        console.log('🎯 [ANALYSIS] Received ANALYSIS_UPDATE from WebSocket:', {
+                            node_id: typedMessage.node_id,
+                            num_scores: Object.keys(typedMessage.scores).length,
+                            score_labels: Object.keys(typedMessage.scores),
+                            triggered_components: typedMessage.triggered_components,
+                            timestamp: typedMessage.timestamp
+                        })
+
+                        // Log individual scores
+                        Object.entries(typedMessage.scores).forEach(([label, scoreObj]) => {
+                            console.log(`   📊 ${label}: score=${scoreObj.score}, reasoning="${scoreObj.reasoning}"`)
+                        })
+
+                        // Store scores for this node
+                        addAnalysisScore(typedMessage.node_id, { scores: typedMessage.scores })
+                        console.log(`✅ [ANALYSIS] Scores stored in analysisScores Map for node ${typedMessage.node_id}`)
+
+                        // Mark as triggered if any components exceeded threshold
+                        if (typedMessage.triggered_components.length > 0) {
+                            markNodeTriggered(typedMessage.node_id)
+                            console.warn(
+                                `⚠️ [ANALYSIS] Node ${typedMessage.node_id} TRIGGERED:`,
+                                typedMessage.triggered_components
+                            )
+                        } else {
+                            console.log(
+                                `✓ [ANALYSIS] Node ${typedMessage.node_id} scored (no trigger)`
+                            )
+                        }
+
+                        // Log current state of analysisScores Map
+                        const currentScores = get().analysisScores
+                        console.log(`📈 [ANALYSIS] Total nodes with scores: ${currentScores.size}`)
+                        console.log(`   Node IDs:`, Array.from(currentScores.keys()))
+
+                        break
+                    }
 
                     default:
                         set({
@@ -632,7 +711,39 @@ export const useStore = create<State>()(
                 set({ isInterrupted: interrupted })
             },
 
+            // Analysis actions
+            setAnalysisComponents: (components: AnalysisComponent[]) => {
+                set({ analysisComponents: components })
+            },
 
+            addAnalysisScore: (nodeId: string, scores: AnalysisScores) => {
+                console.log(`💾 [STORE] addAnalysisScore called for node ${nodeId}`, {
+                    num_scores: Object.keys(scores.scores).length,
+                    labels: Object.keys(scores.scores)
+                })
+                set((state) => {
+                    const newScores = new Map(state.analysisScores)
+                    newScores.set(nodeId, scores)
+                    console.log(`   ✓ Updated analysisScores Map, new size: ${newScores.size}`)
+                    return { analysisScores: newScores }
+                })
+            },
+
+            markNodeTriggered: (nodeId: string) => {
+                set((state) => {
+                    const newTriggered = new Set(state.triggeredNodes)
+                    newTriggered.add(nodeId)
+                    return { triggeredNodes: newTriggered }
+                })
+            },
+
+            clearAnalysisData: () => {
+                set({
+                    analysisComponents: [],
+                    analysisScores: new Map(),
+                    triggeredNodes: new Set()
+                })
+            },
 
             setStateDisplayVisible: (visible: boolean) => {
                 set({ isStateDisplayVisible: visible })

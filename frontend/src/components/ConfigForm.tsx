@@ -48,6 +48,8 @@ export function ConfigForm({
   const [topic, setTopic] = useState('')
   const [selectedPairId, setSelectedPairId] = useState<string>(COMPANY_BILL_PAIRS[0].id)
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
+  const [analysisPrompt, setAnalysisPrompt] = useState<string>('')
+  const [triggerThreshold, setTriggerThreshold] = useState<number>(8)
 
   const normalizedTeamNames = agentTeamNames?.map((name) => name.toLowerCase()) ?? []
   const isCongressTeam = normalizedTeamNames.some((name) => name.includes('congress'))
@@ -79,6 +81,8 @@ export function ConfigForm({
           congress: selectedPair.congress,
         }
         : {}),
+      analysis_prompt: analysisPrompt.trim() || undefined,
+      trigger_threshold: analysisPrompt.trim() ? triggerThreshold : undefined,
       timestamp: new Date().toISOString(),
     }
 
@@ -164,6 +168,59 @@ export function ConfigForm({
             </p>
           </div>
         )}
+
+        {/* Analysis Watchlist Section */}
+        <div className="border border-gray-700 rounded-lg p-4 bg-gray-900/50">
+          <h3 className="text-base font-semibold mb-2">Analysis Watchlist (Optional)</h3>
+          <p className="text-xs text-gray-400 mb-4">
+            Monitor agent messages for hallucinations or inconsistencies.
+            Describe what to watch for, and the system will pause for your feedback when criteria are met.
+          </p>
+
+          <div className="mb-4">
+            <label htmlFor="analysis-prompt" className="block text-sm font-medium mb-2">
+              Analysis Criteria
+              <span className="block text-xs text-gray-500 font-normal mt-1">
+                Example: "Watch for hallucinated committee members or incorrect geographic information"
+              </span>
+            </label>
+            <textarea
+              id="analysis-prompt"
+              value={analysisPrompt}
+              onChange={(e) => setAnalysisPrompt(e.target.value)}
+              placeholder="Describe what patterns or errors to watch for..."
+              rows={3}
+              className="w-full bg-gray-900 text-dark-text border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+              disabled={isLoading}
+            />
+          </div>
+
+          {analysisPrompt && (
+            <div>
+              <label htmlFor="trigger-threshold" className="block text-sm font-medium mb-2">
+                Trigger Threshold: {triggerThreshold}/10
+                <span className="block text-xs text-gray-500 font-normal mt-1">
+                  Pause for feedback when any score reaches this threshold (1=low, 10=critical)
+                </span>
+              </label>
+              <input
+                type="range"
+                id="trigger-threshold"
+                min="1"
+                max="10"
+                value={triggerThreshold}
+                onChange={(e) => setTriggerThreshold(parseInt(e.target.value, 10))}
+                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                disabled={isLoading}
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Low (1)</span>
+                <span>Medium (5)</span>
+                <span>Critical (10)</span>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Buttons */}
         <div className="flex gap-3 pt-6">
