@@ -48,6 +48,12 @@ const NODE_HORIZONTAL_SPACING = 200  // Horizontal distance between depth levels
 const LEFT_MARGIN = 150              // Left margin before first nodes
 const NODE_RADIUS = 8                // Radius of node circles
 
+// Dynamic spacing parameters
+const RECENT_NODE_MAX_SPACING = 300  // Maximum spacing for the most recent nodes
+const RECENT_NODE_MIN_SPACING = 150  // Minimum spacing for recent nodes (within 5 nodes)
+const OLD_NODE_SPACING = 80          // Fixed spacing for older nodes (5+ positions back)
+const RECENT_NODE_THRESHOLD = 5      // Number of nodes considered "recent"
+
 
 function getConversationItemTypeForNode(node: TreeNode): ConversationItemType {
   if (node.node_type === 'tool_call') return 'tool_call'
@@ -82,6 +88,32 @@ function calculateTrimCount(targetNodeId: string, treeRoot: TreeNode): number {
 
   traverse(treeRoot)
   return count
+}
+
+/**
+ * Calculate dynamic spacing for a node based on its distance from the latest node.
+ * - Last 2 nodes: maximum spacing (300px)
+ * - Nodes 3-5 back: linearly decreasing spacing (150-300px)
+ * - Nodes 5+ back: fixed small spacing (80px)
+ *
+ * @param distanceFromLatest - How many positions back from the latest node (0 = latest)
+ * @returns Spacing in pixels to use after this node
+ */
+function calculateDynamicSpacing(distanceFromLatest: number): number {
+  if (distanceFromLatest === 0) {
+    return RECENT_NODE_MAX_SPACING
+  }
+
+  if (distanceFromLatest === 1) {
+    return RECENT_NODE_MAX_SPACING
+  }
+
+  if (distanceFromLatest < RECENT_NODE_THRESHOLD) {
+    const progressionRatio = (RECENT_NODE_THRESHOLD - distanceFromLatest) / (RECENT_NODE_THRESHOLD - 2)
+    return RECENT_NODE_MIN_SPACING + (RECENT_NODE_MAX_SPACING - RECENT_NODE_MIN_SPACING) * progressionRatio
+  }
+
+  return OLD_NODE_SPACING
 }
 
 /**
@@ -576,11 +608,28 @@ function updateTree(
     return name
   }
 
-  // Create a set of unique swimlane names
+  // Collect unique swimlanes with their display names
+  // Maps normalized agent_name -> display_name for swimlane labels
+  const swimlaneDisplayNames = new Map<string, string>()
   const swimlaneNamesSet = new Set<string>()
-  rawAgentNames.forEach(name => {
-    swimlaneNamesSet.add(normalizeAgentName(name))
-  })
+
+  // Traverse tree to collect agent names and their display names
+  function collectSwimlaneInfo(node: TreeNode): void {
+    const normalized = normalizeAgentName(node.agent_name)
+    swimlaneNamesSet.add(normalized)
+
+    // Store display name for this normalized swimlane (prefer display_name over agent_name)
+    if (!swimlaneDisplayNames.has(normalized)) {
+      swimlaneDisplayNames.set(normalized, node.display_name || normalized)
+    }
+
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(child => collectSwimlaneInfo(child))
+    }
+  }
+
+  collectSwimlaneInfo(root.data)
+
   const swimlaneNames = Array.from(swimlaneNamesSet).sort()
 
   // Create swimlane Y-map (mapping normalized name to Y position)
@@ -600,13 +649,56 @@ function updateTree(
     }
   })
 
+  // Calculate maximum depth across ALL nodes (not just active branch)
+  // This ensures we have X positions for all nodes, including new branches
+  let maxDepth = 0
+  let maxActiveDepth = 0
+  root.each((node: D3TreeNode) => {
+    if (node.depth > maxDepth) {
+      maxDepth = node.depth
+    }
+    if (node.data.is_active && node.depth > maxActiveDepth) {
+      maxActiveDepth = node.depth
+    }
+  })
+
+  // Build depth-to-spacing map for ALL depths to handle branches
+  const depthSpacingMap = new Map<number, number>()
+  for (let depth = 0; depth <= maxDepth; depth++) {
+    // Use distance from maxActiveDepth for spacing calculation to maintain visual hierarchy
+    const distanceFromLatest = Math.max(0, maxActiveDepth - depth)
+    const spacing = calculateDynamicSpacing(distanceFromLatest)
+    depthSpacingMap.set(depth, spacing)
+  }
+
+  // Calculate cumulative X positions for ALL depths (not just active branch)
+  const depthToXMap = new Map<number, number>()
+  let cumulativeX = LEFT_MARGIN
+  depthToXMap.set(0, cumulativeX)
+  for (let depth = 0; depth < maxDepth; depth++) {
+    const spacing = depthSpacingMap.get(depth)
+    if (spacing === undefined) {
+      throw new Error(`Spacing not found for depth ${depth}`)
+    }
+    cumulativeX += spacing
+    depthToXMap.set(depth + 1, cumulativeX)
+  }
+
   // Assign X,Y positions to all nodes
   const positionedNodes: PositionedNode[] = []
 
   function assignPositions(node: D3TreeNode, depth: number): void {
-    const x = LEFT_MARGIN + (depth * NODE_HORIZONTAL_SPACING)
+    let x = depthToXMap.get(depth)
+    if (x === undefined) {
+      // Fallback: calculate position for unexpected depths
+      const lastDepth = Math.max(...Array.from(depthToXMap.keys()))
+      const lastX = depthToXMap.get(lastDepth) || LEFT_MARGIN
+      // Use default spacing for depths beyond what we calculated
+      const defaultSpacing = calculateDynamicSpacing(0)
+      x = lastX + (depth - lastDepth) * defaultSpacing
+      depthToXMap.set(depth, x)
+    }
     const y = agentYMap.get(node.data.agent_name)
-
     if (y === undefined) {
       throw new Error(`Agent ${node.data.agent_name} not found in swimlane map`)
     }
@@ -710,7 +802,13 @@ function updateTree(
     })
     .attr('dy', '0.35em')
     .attr('text-anchor', 'start')
-    .text((d: string) => d)
+    .text((d: string) => {
+      const displayName = swimlaneDisplayNames.get(d)
+      if (displayName === undefined) {
+        throw new Error(`Display name for swimlane ${d} not found`)
+      }
+      return displayName
+    })
     .style('fill', '#8b949e')
     .style('font-size', '13px')
     .style('font-weight', '600')
