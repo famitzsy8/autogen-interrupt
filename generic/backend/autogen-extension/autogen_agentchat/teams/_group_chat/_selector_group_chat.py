@@ -714,6 +714,8 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         Overrides base class to add state snapshot recovery when trimming the message thread.
         """
         self._interrupted = False
+        # Clear any lingering active speakers from previous interactions
+        self._active_speakers = []
         target = message.target
         trim_up = message.trim_up
         self._old_threads.append(self._message_thread)
@@ -825,7 +827,9 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             topic_id=DefaultTopicId(type=speaker_topic_type),
             cancellation_token=ctx.cancellation_token,
         )
-        self._active_speakers.append(target)
+        # Only add to active speakers if not already present (avoid duplicates)
+        if target not in self._active_speakers:
+            self._active_speakers.append(target)
 
     @event
     async def handle_agent_response(  # type: ignore[override]

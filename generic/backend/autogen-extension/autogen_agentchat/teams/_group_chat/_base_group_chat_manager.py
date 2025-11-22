@@ -373,7 +373,9 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
                 topic_id=DefaultTopicId(type=speaker_topic_type),
                 cancellation_token=cancellation_token,
             )
-            self._active_speakers.append(speaker_name)
+            # Only add if not already present to avoid duplicates
+            if speaker_name not in self._active_speakers:
+                self._active_speakers.append(speaker_name)
 
     async def _apply_termination_condition(
         self, delta: Sequence[BaseAgentEvent | BaseChatMessage], increment_turn_count: bool = False
