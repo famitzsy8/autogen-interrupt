@@ -25,6 +25,7 @@ import {
   useStateDisplayActions,
   useIsInterrupted,
   useTrimCount,
+  useEdgeInterrupt,
 } from './hooks/useStore'
 
 function App(): React.ReactElement {
@@ -48,6 +49,7 @@ function App(): React.ReactElement {
   const { setStateDisplayVisible } = useStateDisplayActions()
   const isInterrupted = useIsInterrupted()
   const trimCount = useTrimCount()
+  const edgeInterrupt = useEdgeInterrupt()
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
 
 
@@ -142,16 +144,18 @@ function App(): React.ReactElement {
             </div>
           </div>
 
-          {/* Floating Input Panel (replaces ControlBar) */}
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-            <FloatingInputPanel
-              onSendMessage={handleSendMessage}
-              isInterrupted={isInterrupted}
-              selectedAgent={selectedAgent}
-              onSelectAgent={setSelectedAgent}
-              trimCount={trimCount}
-            />
-          </div>
+          {/* Floating Input Panel (replaces ControlBar) - Only show when no edge interrupt is active */}
+          {!edgeInterrupt && (
+            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+              <FloatingInputPanel
+                onSendMessage={handleSendMessage}
+                isInterrupted={isInterrupted}
+                selectedAgent={selectedAgent}
+                onSelectAgent={setSelectedAgent}
+                trimCount={trimCount}
+              />
+            </div>
+          )}
 
           {/* State display overlay (slides in from left) */}
           {isStateDisplayVisible && (
