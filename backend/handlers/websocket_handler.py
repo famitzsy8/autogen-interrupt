@@ -618,6 +618,13 @@ class WebSocketHandler:
         if not self.session or not self.session.agent_team_context:
             raise RuntimeError("Agent team context not initialized")
 
+        # Filter out user_proxy agents from the participant list
+        # These represent the user and shouldn't receive directed messages
+        filtered_participants = [
+            name for name in self.session.agent_team_context.participant_names
+            if "user_proxy" not in name.lower()
+        ]
+
         participant_names_msg = ParticipantNames(
             participant_names=self.session.agent_team_context.participant_names
         )

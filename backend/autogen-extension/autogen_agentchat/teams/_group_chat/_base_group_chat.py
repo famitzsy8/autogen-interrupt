@@ -683,10 +683,9 @@ class BaseGroupChat(Team, ABC, ComponentBase[BaseModel]):
         # DON'T STOP RUNTIME - let manager's termination condition control conversation flow
         # The manager will signal termination via GroupChatTermination if conversation should end
         # Otherwise, _transition_to_next_speakers will continue the conversation naturally
-        
-        # Drain any remaining queued messages
-        while not self._output_message_queue.empty():
-            self._output_message_queue.get_nowait()
+
+        # DON'T drain the queue - let the main stream continue processing messages
+        # The manager should continue selecting speakers after the target responds
         return TaskResult(messages=output_messages, stop_reason=stop_reason)
 
     async def reset(self) -> None:
