@@ -186,6 +186,11 @@ export interface AgentInputRequest extends BaseMessage {
     agent_name: string
     feedback_context?: {
         triggered: string[]
+        triggered_with_details?: Record<string, {
+            description: string
+            score: number
+            reasoning: string
+        }>
         scores: Record<string, ComponentScore>
         message: unknown
         tool_call_facts: string

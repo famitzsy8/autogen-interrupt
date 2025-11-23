@@ -279,6 +279,10 @@ async def init_team(
 
         team = globals()[group_chat_class_name](**team_kwargs)
 
+        # Set team reference on the group chat so selector can access it
+        # The selector needs this to set _feedback_context on the team instance
+        team._team_reference = team
+
     user_control = UserControlAgent(name="You")
 
     # Build display_names mapping from agent_name to display_name
