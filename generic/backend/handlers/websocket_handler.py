@@ -466,6 +466,15 @@ class WebSocketHandler:
                     f"Valid agents: {', '.join(self.session.agent_team_context.participant_names)}",
                 )
                 return
+
+            # Prevent sending messages to user_proxy agents (they represent the user)
+            if "user_proxy" in user_message.target_agent.lower():
+                await self._send_error(
+                    "INVALID_TARGET_AGENT",
+                    f"Cannot send messages to '{user_message.target_agent}' as it represents the user. "
+                    f"Please select a different agent.",
+                )
+                return
             print(
                 f"Sending message to {user_message.target_agent} with trim_up={user_message.trim_count}"
             )
@@ -488,6 +497,12 @@ class WebSocketHandler:
 
             if result and getattr(result, "messages", None):
                 for response in result.messages:
+                    # This is to avoid displaying the UserDirectedMessage twice
+                    print("[WS]: This is the source of the response: ", response.source)
+                    if isinstance(response, BaseChatMessage) and response.source == "You":
+                        continue
+
+
                     if isinstance(
                         response,
                         (
@@ -549,7 +564,13 @@ class WebSocketHandler:
             summary=summary,
             node_id=node_id
         )
-        self._pending_agent_messages.append(agent_msg)
+
+        # If we have a UserDirectedMessage, we want to see it immediately
+        if agent_name == "You":
+            await self._send_message(agent_msg)
+        else:
+            self._pending_agent_messages.append(agent_msg)
+
         logger.info(
             "Queued agent message %s awaiting state update (%d pending)",
             node_id,
@@ -626,7 +647,7 @@ class WebSocketHandler:
         ]
 
         participant_names_msg = ParticipantNames(
-            participant_names=self.session.agent_team_context.participant_names
+            participant_names=filtered_participants
         )
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(participant_names_msg.model_dump_json())
