@@ -42,6 +42,8 @@ import {
     StreamState as StreamStateEnum,
 } from '../types'
 
+import { resetAgentColorRegistry } from '../utils/colorSchemes'
+
 
 interface WebSocketConnection {
     ws: WebSocket | null
@@ -207,6 +209,9 @@ export const useStore = create<State>()(
                 if (wsConnection.ws) {
                     disconnect()
                 }
+
+                // Reset agent color registry for new session to ensure consistent color assignment
+                resetAgentColorRegistry()
 
                 set({
                     connectionState: ConnectionStateEnum.CONNECTING,
@@ -760,6 +765,7 @@ export const useStore = create<State>()(
             reset: () => {
                 const { disconnect } = get()
                 disconnect()
+                resetAgentColorRegistry()
                 set(initialState)
             },
 
