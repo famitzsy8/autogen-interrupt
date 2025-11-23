@@ -2,11 +2,13 @@
  * Agent Input Modal Component
  *
  * Displays a compact modal in the tree area when an agent requests human input.
+ * When triggered by analysis, displays highlighted analysis components with their
+ * descriptions and expandable reasoning.
  * Does not block the chat display but prevents tree interaction.
  */
 
-import React, { useEffect, useRef } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
 import { useAgentInputActions, useAgentInputDraft } from '../hooks/useStore'
 import { useStore } from '../store/store'
 import { AnalysisScoreDisplay } from './TreeVisualization/AnalysisScoreDisplay'
@@ -18,6 +20,10 @@ interface AgentInputModalProps {
   onCancel?: () => void
 }
 
+interface ExpandedComponent {
+  [label: string]: boolean
+}
+
 export const AgentInputModal: React.FC<AgentInputModalProps> = ({
   request,
   onSubmit,
@@ -26,6 +32,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const agentInputDraft = useAgentInputDraft()
   const { setHumanInputDraft } = useAgentInputActions()
+  const [expandedComponents, setExpandedComponents] = useState<ExpandedComponent>({})
 
   // Get analysis components from store
   const analysisComponents = useStore((state) => state.analysisComponents)
@@ -33,6 +40,14 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
   // Check if feedback_context exists (analysis triggered)
   const { feedback_context } = request
   const hasFeedbackContext = !!feedback_context
+
+  // Toggle component expansion
+  const toggleComponentExpanded = (label: string) => {
+    setExpandedComponents((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }))
+  }
 
   // Focus textarea when modal opens
   useEffect(() => {
@@ -99,27 +114,99 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 
           {/* Feedback Context Section - Only shown when analysis triggered */}
           {hasFeedbackContext && feedback_context && (
-            <div className="mb-6 p-4 border-2 border-amber-500 rounded-lg bg-amber-950/20">
+            <div className="mb-6 space-y-4">
               {/* Alert Banner */}
-              <div className="flex gap-3 mb-4 p-3 bg-gray-900/50 rounded-md border-l-4 border-amber-500">
+              <div className="flex gap-3 p-3 bg-amber-950/40 rounded-lg border border-amber-700/50">
                 <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <strong className="text-amber-400 text-sm font-semibold block mb-1">
+                  <strong className="text-amber-300 text-sm font-semibold block mb-1">
                     Analysis Alert
                   </strong>
                   <p className="text-xs text-gray-300">
-                    The following components flagged potential issues. Please
-                    review and provide feedback.
+                    The following components triggered above the threshold. Review the details and provide feedback.
                   </p>
                 </div>
               </div>
 
-              {/* Triggered Components List */}
-              <div className="space-y-2 mb-4">
+
+              {/* Triggered Components with Details */}
+              {feedback_context.triggered_with_details && Object.entries(feedback_context.triggered_with_details).length > 0 ? (
+                <div className="space-y-3">
+                  {Object.entries(feedback_context.triggered_with_details).map(([label, details]) => {
+                    const component = analysisComponents.find((c) => c.label === label)
+                    const isExpanded = expandedComponents[label] || false
+
+                    return (
+                      <div
+                        key={label}
+                        className="rounded-lg border border-gray-600/50 bg-gray-800/30 overflow-hidden hover:border-gray-500/70 transition-colors"
+                      >
+                        {/* Component Header - Clickable to expand/collapse */}
+                        <button
+                          onClick={() => toggleComponentExpanded(label)}
+                          className="w-full px-4 py-3 flex items-start gap-3 hover:bg-gray-800/50 transition-colors text-left"
+                        >
+                          {/* Color Indicator Circle */}
+                          <div
+                            className="w-3 h-3 rounded-full flex-shrink-0 mt-1"
+                            style={{ backgroundColor: component?.color || '#6b7280' }}
+                          />
+
+                          {/* Component Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-baseline gap-2 mb-1">
+                              <h4 className="text-sm font-semibold text-gray-100 break-words">
+                                {label}
+                              </h4>
+                              <span className="text-xs font-bold text-red-400 flex-shrink-0">
+                                {details.score}/10
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-400 line-clamp-2">
+                              {details.description}
+                            </p>
+                          </div>
+
+                          {/* Expand/Collapse Icon */}
+                          <div className="flex-shrink-0 text-gray-400">
+                            {isExpanded ? (
+                              <ChevronUp className="w-4 h-4" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4" />
+                            )}
+                          </div>
+                        </button>
+
+                        {/* Expanded Content */}
+                        {isExpanded && (
+                          <div className="px-4 py-3 bg-gray-900/40 border-t border-gray-600/30 space-y-2">
+                            <div>
+                              <strong className="text-xs font-semibold text-gray-300 block mb-1">
+                                Why This Triggered:
+                              </strong>
+                              <p className="text-xs text-gray-400 leading-relaxed">
+                                {details.reasoning || 'No additional reasoning provided.'}
+                              </p>
+                            </div>
+                            <div>
+                              <strong className="text-xs font-semibold text-gray-300 block mb-1">
+                                Full Description:
+                              </strong>
+                              <p className="text-xs text-gray-400 leading-relaxed">
+                                {details.description}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                /* Fallback to original display if no triggered_with_details */
+                <div className="space-y-2">
                 {feedback_context.triggered.map((label) => {
-                  const component = analysisComponents.find(
-                    (c) => c.label === label
-                  )
+                    const component = analysisComponents.find((c) => c.label === label)
                   const score = feedback_context.scores[label]
 
                   if (!score) return null
@@ -151,18 +238,10 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
                   )
                 })}
               </div>
-
-              {/* Full Analysis Scores */}
-              <div className="mb-4 p-3 bg-gray-900/50 rounded">
-                <AnalysisScoreDisplay
-                  components={analysisComponents}
-                  scores={feedback_context.scores}
-                  triggerThreshold={8}
-                />
-              </div>
+              )}
 
               {/* Expandable Details Section */}
-              <details className="p-3 bg-gray-900/50 rounded">
+              <details className="p-3 bg-gray-900/50 rounded border border-gray-600/30">
                 <summary className="cursor-pointer font-medium text-sm text-gray-300 hover:text-gray-100 transition-colors">
                   View Agent Message & Research Context
                 </summary>

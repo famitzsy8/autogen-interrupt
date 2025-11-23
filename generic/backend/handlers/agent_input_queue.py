@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from autogen_core import CancellationToken 
+from autogen_core import CancellationToken
 
 if TYPE_CHECKING:
     from websocket_handler import WebSocketHandler
@@ -22,6 +22,7 @@ class AgentInputQueue:
         prompt: str,
         agent_name: str,
         cancellation_token: Optional[CancellationToken] = None,
+        feedback_context: dict[str, Any] | None = None,
     ) -> str:
         
         if not self.websocket_handler:
@@ -32,7 +33,21 @@ class AgentInputQueue:
 
         self.pending_requests[request_id] = (future, prompt, agent_name)
 
-        await self.websocket_handler.send_agent_input_request(request_id, prompt, agent_name)
+        # Retrieve feedback_context from team if not explicitly provided
+        if feedback_context is None and self.websocket_handler and self.websocket_handler.session:
+            session = self.websocket_handler.session
+
+            if session.agent_team_context and session.agent_team_context.team:
+                team = session.agent_team_context.team
+                if hasattr(team, '_feedback_context'):
+                    if team._feedback_context:
+                        feedback_context = team._feedback_context
+                        # Clear the feedback_context after retrieving it (one-time use)
+                        team._feedback_context = None
+        
+        await self.websocket_handler.send_agent_input_request(
+            request_id, prompt, agent_name, feedback_context
+        )
 
         if cancellation_token is not None:
             cancellation_token.link_future(future)

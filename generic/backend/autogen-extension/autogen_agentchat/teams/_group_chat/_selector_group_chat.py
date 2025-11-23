@@ -145,6 +145,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         initial_handoff_context: str | None = None,
         initial_state_of_run: str | None = None,
         state_model_client: ChatCompletionClient | None = None,
+        team_reference: Any | None = None,
     ) -> None:
         super().__init__(
             name,
@@ -198,6 +199,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         self._analysis_components: list[AnalysisComponent] = []
         self._trigger_threshold: int = 8
         self._feedback_context: dict[str, Any] | None = None
+        self._team_reference: Any | None = team_reference
 
     async def validate_group_state(self, messages: List[BaseChatMessage] | None) -> None:
         pass
@@ -462,15 +464,36 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                         f"injecting user_proxy for feedback"
                     )
 
+                    # Build triggered components with their descriptions and scores
+                    triggered_with_details = {}
+                    for label in triggered_components:
+                        component = next(
+                            (c for c in self._analysis_components if c.label == label),
+                            None
+                        )
+                        if component:
+                            triggered_with_details[label] = {
+                                "description": component.description,
+                                "score": scores[label].score,
+                                "reasoning": scores[label].reasoning
+                            }
+
                     # Inject user_proxy with feedback context
                     next_speaker = self._user_proxy_name
-                    self._feedback_context = {
+
+                    feedback_context_data = {
                         "triggered": triggered_components,
+                        "triggered_with_details": triggered_with_details,
                         "scores": scores,
                         "message": latest_message,
                         "tool_call_facts": self._tool_call_facts_text,
                         "state_of_run": self._state_of_run_text
                     }
+
+                    # Set feedback context on manager (self) AND on team if available
+                    self._feedback_context = feedback_context_data
+                    if self._team_reference is not None:
+                        self._team_reference._feedback_context = feedback_context_data
 
                     # Set previous speaker
                     self._previous_speaker = next_speaker
@@ -1499,6 +1522,7 @@ Read the above conversation. Then select the next role from {participants} to pl
         initial_handoff_context: str | None = None,
         initial_state_of_run: str | None = None,
         state_model_client: ChatCompletionClient | None = None,
+        team_reference: Any | None = None,
     ):
         super().__init__(
             name=name or self.DEFAULT_NAME,
@@ -1534,6 +1558,7 @@ Read the above conversation. Then select the next role from {participants} to pl
         self._analysis_service: 'AnalysisService | None' = None
         self._analysis_components: list['AnalysisComponent'] = []
         self._trigger_threshold: int = 8
+        self._team_reference: Any | None = team_reference
 
     def _create_group_chat_manager_factory(
         self,
@@ -1576,6 +1601,7 @@ Read the above conversation. Then select the next role from {participants} to pl
                 initial_handoff_context=self._initial_handoff_context,
                 initial_state_of_run=self._initial_state_of_run,
                 state_model_client=self._state_model_client,
+                team_reference=self._team_reference,
             )
             # Set analysis fields on manager if they exist on team
             if self._analysis_service is not None:

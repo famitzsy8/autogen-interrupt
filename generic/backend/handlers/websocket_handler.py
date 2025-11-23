@@ -792,13 +792,14 @@ class WebSocketHandler:
                 print(f"Error sending error message: {e}")
     
     async def send_agent_input_request(
-        self, request_id: str, prompt: str, agent_name: str
+        self, request_id: str, prompt: str, agent_name: str, feedback_context: dict[str, Any] | None = None
     ) -> None:
-        
+
         request = AgentInputRequest(
             request_id=request_id,
             prompt=prompt,
-            agent_name=agent_name
+            agent_name=agent_name,
+            feedback_context=feedback_context
         )
 
         if self.websocket.client_state == WebSocketState.CONNECTED:
