@@ -50,22 +50,6 @@ export function NodeDetailsPopup({
   const nodeScores = analysisScores.get(node.id)
   const isTriggered = triggeredNodes.has(node.id)
 
-  // Format timestamp nicely
-  const formatTimestamp = (timestamp: string): string => {
-    try {
-      const date = new Date(timestamp)
-      return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })
-    } catch {
-      return timestamp
-    }
-  }
-
   // Define tabs with enabled state based on data availability
   const tabs: Tab[] = [
     {

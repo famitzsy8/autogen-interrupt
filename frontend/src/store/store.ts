@@ -391,7 +391,7 @@ export const useStore = create<State>()(
             },
 
             handleServerMessage: (message: ServerMessage) => {
-                console.log('📨 [WEBSOCKET] Received message:', { type: message.type, message })
+                // console.log('📨 [WEBSOCKET] Received message:', { type: message.type, message })
 
                 switch (message.type) {
 
@@ -471,24 +471,24 @@ export const useStore = create<State>()(
                         break
 
                     case 'state_update':
-                        console.log('🔔 [FRONTEND] Received STATE_UPDATE message:', {
-                            message_index: message.message_index,
-                            state_of_run_length: message.state_of_run.length,
-                            tool_call_facts_length: message.tool_call_facts.length,
-                            handoff_context_length: message.handoff_context.length,
-                        })
-                        console.log('   state_of_run:', message.state_of_run.substring(0, 100) + '...')
-                        console.log('   tool_call_facts:', message.tool_call_facts.substring(0, 100) + '...')
-                        console.log('   handoff_context:', message.handoff_context.substring(0, 100) + '...')
+                        // // console.log('🔔 [FRONTEND] Received STATE_UPDATE message:', {
+                        //     message_index: message.message_index,
+                        //     state_of_run_length: message.state_of_run.length,
+                        //     tool_call_facts_length: message.tool_call_facts.length,
+                        //     handoff_context_length: message.handoff_context.length,
+                        // })
+                        // console.log('   state_of_run:', message.state_of_run.substring(0, 100) + '...')
+                        // console.log('   tool_call_facts:', message.tool_call_facts.substring(0, 100) + '...')
+                        // console.log('   handoff_context:', message.handoff_context.substring(0, 100) + '...')
                         set((state) => ({
                             currentState: message,
                             stateUpdates: [...state.stateUpdates, message]
                         }))
-                        console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState and appended to stateUpdates')
+                        // console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState and appended to stateUpdates')
                         break
 
                     case 'analysis_components_init': {
-                        console.log('🔔 [FRONTEND] Received ANALYSIS_COMPONENTS_INIT message:', message)
+                        // console.log('🔔 [FRONTEND] Received ANALYSIS_COMPONENTS_INIT message:', message)
                         const typedMessage = message as AnalysisComponentsInit
                         get().setAnalysisComponents(typedMessage.components)
 
@@ -504,40 +504,40 @@ export const useStore = create<State>()(
                         const typedMessage = message as AnalysisUpdate
                         const { addAnalysisScore, markNodeTriggered } = get()
 
-                        console.log('🎯 [ANALYSIS] Received ANALYSIS_UPDATE from WebSocket:', {
-                            node_id: typedMessage.node_id,
-                            num_scores: Object.keys(typedMessage.scores).length,
-                            score_labels: Object.keys(typedMessage.scores),
-                            triggered_components: typedMessage.triggered_components,
-                            timestamp: typedMessage.timestamp
-                        })
+                        // console.log('🎯 [ANALYSIS] Received ANALYSIS_UPDATE from WebSocket:', {
+                        //     node_id: typedMessage.node_id,
+                        //     num_scores: Object.keys(typedMessage.scores).length,
+                        //     score_labels: Object.keys(typedMessage.scores),
+                        //     triggered_components: typedMessage.triggered_components,
+                        //     timestamp: typedMessage.timestamp
+                        // })
 
                         // Log individual scores
-                        Object.entries(typedMessage.scores).forEach(([label, scoreObj]) => {
-                            console.log(`   📊 ${label}: score=${scoreObj.score}, reasoning="${scoreObj.reasoning}"`)
-                        })
+                        // Object.entries(typedMessage.scores).forEach(([label, scoreObj]) => {
+                        //     console.log(`   📊 ${label}: score=${scoreObj.score}, reasoning="${scoreObj.reasoning}"`)
+                        // })
 
                         // Store scores for this node
                         addAnalysisScore(typedMessage.node_id, { scores: typedMessage.scores })
-                        console.log(`✅ [ANALYSIS] Scores stored in analysisScores Map for node ${typedMessage.node_id}`)
+                        // console.log(`✅ [ANALYSIS] Scores stored in analysisScores Map for node ${typedMessage.node_id}`)
 
                         // Mark as triggered if any components exceeded threshold
                         if (typedMessage.triggered_components.length > 0) {
                             markNodeTriggered(typedMessage.node_id)
-                            console.warn(
-                                `⚠️ [ANALYSIS] Node ${typedMessage.node_id} TRIGGERED:`,
-                                typedMessage.triggered_components
-                            )
+                            // console.warn(
+                            //     `⚠️ [ANALYSIS] Node ${typedMessage.node_id} TRIGGERED:`,
+                            //     typedMessage.triggered_components
+                            // )
                         } else {
-                            console.log(
-                                `✓ [ANALYSIS] Node ${typedMessage.node_id} scored (no trigger)`
-                            )
+                            // console.log(
+                            //     `✓ [ANALYSIS] Node ${typedMessage.node_id} scored (no trigger)`
+                            // )
                         }
 
                         // Log current state of analysisScores Map
                         const currentScores = get().analysisScores
-                        console.log(`📈 [ANALYSIS] Total nodes with scores: ${currentScores.size}`)
-                        console.log(`   Node IDs:`, Array.from(currentScores.keys()))
+                        // console.log(`📈 [ANALYSIS] Total nodes with scores: ${currentScores.size}`)
+                        // console.log(`   Node IDs:`, Array.from(currentScores.keys()))
 
                         break
                     }
@@ -717,14 +717,14 @@ export const useStore = create<State>()(
             },
 
             addAnalysisScore: (nodeId: string, scores: AnalysisScores) => {
-                console.log(`💾 [STORE] addAnalysisScore called for node ${nodeId}`, {
-                    num_scores: Object.keys(scores.scores).length,
-                    labels: Object.keys(scores.scores)
-                })
+                // console.log(`💾 [STORE] addAnalysisScore called for node ${nodeId}`, {
+                //     num_scores: Object.keys(scores.scores).length,
+                //     labels: Object.keys(scores.scores)
+                // })
                 set((state) => {
                     const newScores = new Map(state.analysisScores)
                     newScores.set(nodeId, scores)
-                    console.log(`   ✓ Updated analysisScores Map, new size: ${newScores.size}`)
+                    // console.log(`   ✓ Updated analysisScores Map, new size: ${newScores.size}`)
                     return { analysisScores: newScores }
                 })
             },

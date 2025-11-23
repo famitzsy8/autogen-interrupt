@@ -959,93 +959,62 @@ function updateTree(
   // PHASE 5: RENDER ANALYSIS BADGES
   // ============================================================
 
-  // Only render badges if analysis components exist
-  if (analysisComponents.length > 0) {
-    console.log('🎨 [D3] Rendering analysis badges:', {
-      num_components: analysisComponents.length,
-      component_labels: analysisComponents.map(c => c.label),
-      num_nodes: positionedNodes.length,
-      analysisScores_size: analysisScores.size,
-      node_ids_with_scores: Array.from(analysisScores.keys())
-    })
+  // Remove existing badges first
+  nodeUpdate.selectAll('.node-analysis-badges').remove()
 
-    // Remove existing badges first
-    nodeUpdate.selectAll('.node-analysis-badges').remove()
+  let badgesRendered = 0
 
-    let badgesRendered = 0
-    let nodesWithoutScores = 0
+  // Add analysis badges to nodes that have scores
+  nodeUpdate.each(function (this: SVGGElement, d: PositionedNode) {
+    const nodeScores = analysisScores.get(d.node.data.id)
 
-    // Add analysis badges to nodes that have scores
-    nodeUpdate.each(function (this: SVGGElement, d: PositionedNode) {
-      const nodeScores = analysisScores.get(d.node.data.id)
+    if (nodeScores) {
+      badgesRendered++
+      console.log(`   ✓ Rendering badges for node ${d.node.data.id}`)
 
-      if (nodeScores) {
-        badgesRendered++
-        console.log(`   ✓ Rendering badges for node ${d.node.data.id}`)
+      const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
 
-        const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
+      // Create a group for analysis bars positioned below the node
+      const barGroup = nodeGroup
+        .append('g')
+        .attr('class', 'node-analysis-badges')
+        .attr('transform', `translate(${-NODE_RADIUS}, ${NODE_RADIUS + 8})`)
 
-        // Create a group for analysis bars positioned below the node
-        const barGroup = nodeGroup
-          .append('g')
-          .attr('class', 'node-analysis-badges')
-          .attr('transform', `translate(${-NODE_RADIUS}, ${NODE_RADIUS + 8})`)
+      const barHeight = 4
+      const barSpacing = 2
+      const maxBarWidth = NODE_RADIUS * 2 // Match node width
 
-        const barHeight = 4
-        const barSpacing = 2
-        const maxBarWidth = NODE_RADIUS * 2 // Match node width
+      // Render horizontal bars for each component
+      analysisComponents.forEach((component, index) => {
+        const score = nodeScores.scores[component.label]?.score || 0
+        const barWidth = (score / 10) * maxBarWidth // Scale 0-10 to bar width
 
-        // Render horizontal bars for each component
-        analysisComponents.forEach((component, index) => {
-          const score = nodeScores.scores[component.label]?.score || 0
-          const barWidth = (score / 10) * maxBarWidth // Scale 0-10 to bar width
+        // Background bar (light gray)
+        barGroup
+          .append('rect')
+          .attr('x', 0)
+          .attr('y', index * (barHeight + barSpacing))
+          .attr('width', maxBarWidth)
+          .attr('height', barHeight)
+          .attr('fill', '#2a2a2a')
+          .attr('rx', 1)
 
-          // Background bar (light gray)
-          barGroup
-            .append('rect')
-            .attr('x', 0)
-            .attr('y', index * (barHeight + barSpacing))
-            .attr('width', maxBarWidth)
-            .attr('height', barHeight)
-            .attr('fill', '#2a2a2a')
-            .attr('rx', 1)
-
-          // Foreground bar (colored by score)
-          barGroup
-            .append('rect')
-            .attr('x', 0)
-            .attr('y', index * (barHeight + barSpacing))
-            .attr('width', barWidth)
-            .attr('height', barHeight)
-            .attr('fill', component.color)
-            .attr('opacity', 0.8)
-            .attr('rx', 1)
-            .style('cursor', 'pointer')
-            .append('title')
-            .text(`${component.label}: ${score}/10\n${nodeScores.scores[component.label]?.reasoning || ''}`)
-        })
-      } else {
-        nodesWithoutScores++
-        // Log the first few nodes without scores to see what IDs they have
-        if (nodesWithoutScores <= 3) {
-          console.log(`   ❌ Node ${d.node.data.id} has no scores. Available score IDs:`, Array.from(analysisScores.keys()))
-        }
-      }
-    })
-
-    console.log(`🎨 [D3] Badge rendering complete:`, {
-      badges_rendered: badgesRendered,
-      nodes_without_scores: nodesWithoutScores,
-      all_tree_node_ids: positionedNodes.map(n => n.node.data.id)
-    })
-
-    console.log(`🎨 [D3] Badge rendering complete:`, {
-      badges_rendered: badgesRendered,
-      nodes_without_scores: nodesWithoutScores
-    })
-  } else {
-    console.log('⚠️ [D3] No analysis components configured, skipping badge rendering')
-  }
+        // Foreground bar (colored by score)
+        barGroup
+          .append('rect')
+          .attr('x', 0)
+          .attr('y', index * (barHeight + barSpacing))
+          .attr('width', barWidth)
+          .attr('height', barHeight)
+          .attr('fill', component.color)
+          .attr('opacity', 0.8)
+          .attr('rx', 1)
+          .style('cursor', 'pointer')
+          .append('title')
+          .text(`${component.label}: ${score}/10\n${nodeScores.scores[component.label]?.reasoning || ''}`)
+      })
+    }
+  })
 
   // Add triggered node indicator (warning icon)
   nodeUpdate.selectAll('.node-triggered-indicator').remove()
