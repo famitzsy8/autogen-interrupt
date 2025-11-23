@@ -384,3 +384,27 @@ export function useChatDisplayActions() {
       clearAnalysisData: state.clearAnalysisData,
     }))
   }
+
+  /**
+   * Hook to access generated components for review.
+   */
+  export function useGeneratedComponents() {
+    return useStore((state) => state.generatedComponents)
+  }
+
+  /**
+   * Hook to check if components are being generated.
+   */
+  export function useIsGeneratingComponents(): boolean {
+    return useStore((state) => state.isGeneratingComponents)
+  }
+
+  /**
+   * Hook to access component generation actions.
+   */
+  export function useComponentGenerationActions() {
+    return useStore((state) => ({
+      sendComponentGenerationRequest: state.sendComponentGenerationRequest,
+      sendRunStartConfirmed: state.sendRunStartConfirmed,
+    }))
+  }

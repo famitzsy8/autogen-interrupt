@@ -31,6 +31,9 @@ class MessageType(str, Enum):
     RUN_TERMINATION = 'run_termination'
     ANALYSIS_UPDATE = 'analysis_update'
     ANALYSIS_COMPONENTS_INIT = 'analysis_components_init'
+    COMPONENT_GENERATION_REQUEST = 'component_generation_request'
+    COMPONENT_GENERATION_RESPONSE = 'component_generation_response'
+    RUN_START_CONFIRMED = 'run_start_confirmed'
 
 
 class AgentTeamNames(BaseModel):
@@ -535,3 +538,68 @@ class AnalysisComponentsInit(BaseModel):
         if not v:
             raise ValueError("components cannot be empty")
         return v
+
+
+class ComponentGenerationRequest(BaseModel):
+    # Request from frontend to generate analysis components without starting run.
+
+    type: Literal[MessageType.COMPONENT_GENERATION_REQUEST] = MessageType.COMPONENT_GENERATION_REQUEST
+    analysis_prompt: str = Field(..., description="User's free-form criteria description")
+    trigger_threshold: int = Field(
+        default=8,
+        ge=1,
+        le=10,
+        description="Score threshold for triggering analysis alerts (1-10 scale)"
+    )
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("analysis_prompt")
+    @classmethod
+    def validate_analysis_prompt(cls, v: str) -> str:
+        # Analysis prompt must not be empty
+        if not v or not v.strip():
+            raise ValueError("analysis_prompt cannot be empty")
+        return v.strip()
+
+
+class ComponentGenerationResponse(BaseModel):
+    # Response from backend with generated components for user review.
+
+    type: Literal[MessageType.COMPONENT_GENERATION_RESPONSE] = MessageType.COMPONENT_GENERATION_RESPONSE
+    components: list[AnalysisComponent] = Field(
+        ...,
+        description="AI-generated components for user review (can be empty if generation failed)"
+    )
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class RunStartConfirmed(BaseModel):
+    # Final confirmation from frontend to start run with user-approved components.
+
+    type: Literal[MessageType.RUN_START_CONFIRMED] = MessageType.RUN_START_CONFIRMED
+
+    session_id: str = Field(..., description="Unique session ID for this conversation")
+
+    initial_topic: str | None = Field(
+        default=None,
+        description="The task of the agent team (optional, uses backend default if not provided)",
+    )
+
+    # Company-bill investigation parameters
+    company_name: str | None = Field(default=None, description="Name of the company being investigated")
+    bill_name: str | None = Field(default=None, description="Bill identifier (e.g., S.1593)")
+    congress: str | None = Field(default=None, description="Congress number (e.g., 116th, 117th)")
+
+    # User-approved analysis components
+    approved_components: list[AnalysisComponent] = Field(
+        default_factory=list,
+        description="Analysis components approved/edited by user (can be empty)"
+    )
+    trigger_threshold: int = Field(
+        default=8,
+        ge=1,
+        le=10,
+        description="Score threshold for triggering analysis alerts (1-10 scale)"
+    )
+
+    timestamp: datetime = Field(default_factory=datetime.now)

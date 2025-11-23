@@ -25,6 +25,9 @@ export enum MessageType {
     RUN_TERMINATION = 'run_termination',
     ANALYSIS_UPDATE = 'analysis_update',
     ANALYSIS_COMPONENTS_INIT = 'analysis_components_init',
+    COMPONENT_GENERATION_REQUEST = 'component_generation_request',
+    COMPONENT_GENERATION_RESPONSE = 'component_generation_response',
+    RUN_START_CONFIRMED = 'run_start_confirmed',
 }
 
 /**
@@ -301,6 +304,37 @@ export interface AnalysisComponentsInit extends BaseMessage {
 }
 
 /**
+ * Request to generate analysis components without starting run.
+ */
+export interface ComponentGenerationRequest extends BaseMessage {
+    type: MessageType.COMPONENT_GENERATION_REQUEST
+    analysis_prompt: string
+    trigger_threshold: number
+}
+
+/**
+ * Response with generated components for user review.
+ */
+export interface ComponentGenerationResponse extends BaseMessage {
+    type: MessageType.COMPONENT_GENERATION_RESPONSE
+    components: AnalysisComponent[]
+}
+
+/**
+ * Final confirmation to start run with user-approved components.
+ */
+export interface RunStartConfirmed extends BaseMessage {
+    type: MessageType.RUN_START_CONFIRMED
+    session_id: string
+    initial_topic?: string
+    company_name?: string
+    bill_name?: string
+    congress?: string
+    approved_components: AnalysisComponent[]
+    trigger_threshold: number
+}
+
+/**
  * Union type of all possible WebSocket messages from server.
  * We declare this to do neat case distinction when the frontend recieves a message from the agent team.
  */
@@ -321,12 +355,13 @@ export type ServerMessage =
   | StateUpdate
   | AnalysisUpdate
   | AnalysisComponentsInit
+  | ComponentGenerationResponse
 
 /**
  * Union type of all possible WebSocket messages sent to server.
  * We declare this to do neat case distinction when the frontend sends a message to the agent team.
  */
-export type ClientMessage = RunConfig | UserInterrupt | UserDirectedMessage | HumanInputResponse
+export type ClientMessage = RunConfig | UserInterrupt | UserDirectedMessage | HumanInputResponse | ComponentGenerationRequest | RunStartConfirmed
 
 /**
  * State of the WebSocket connection between frontend and backend.

@@ -34,6 +34,9 @@ import type {
     AnalysisScores,
     AnalysisUpdate,
     AnalysisComponentsInit,
+    ComponentGenerationRequest,
+    ComponentGenerationResponse,
+    RunStartConfirmed,
 } from '../types'
 
 import {
@@ -99,6 +102,10 @@ interface State {
     analysisScores: Map<string, AnalysisScores>
     triggeredNodes: Set<string>
 
+    // Component generation state (for review modal)
+    generatedComponents: AnalysisComponent[] | null
+    isGeneratingComponents: boolean
+
     // State display state
     isStateDisplayVisible: boolean
     currentState: StateUpdate | null
@@ -114,6 +121,8 @@ interface State {
     // Actions: WebSocket management
     connect: (url: string) => void
     sendConfig: (config: RunConfig) => void
+    sendComponentGenerationRequest: (analysisPrompt: string, triggerThreshold: number) => void
+    sendRunStartConfirmed: (config: RunStartConfirmed) => void
     disconnect: () => void
     reconnect: () => void
 
@@ -186,6 +195,8 @@ const initialState = {
     analysisComponents: [] as AnalysisComponent[],
     analysisScores: new Map<string, AnalysisScores>(),
     triggeredNodes: new Set<string>(),
+    generatedComponents: null as AnalysisComponent[] | null,
+    isGeneratingComponents: false,
     isStateDisplayVisible: false,  // Hidden by default
     currentState: null as StateUpdate | null,
     stateUpdates: [] as StateUpdate[],
@@ -329,6 +340,38 @@ export const useStore = create<State>()(
                 }
 
                 console.log('=== Sending config to backend ===', config)
+                wsConnection.ws.send(JSON.stringify(config))
+            },
+
+            // Send component generation request
+            sendComponentGenerationRequest: (analysisPrompt: string, triggerThreshold: number) => {
+                const { wsConnection, connectionState } = get()
+
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
+                    throw new Error('WebSocket is not connected')
+                }
+
+                const request: ComponentGenerationRequest = {
+                    type: MessageType.COMPONENT_GENERATION_REQUEST,
+                    analysis_prompt: analysisPrompt,
+                    trigger_threshold: triggerThreshold,
+                    timestamp: new Date().toISOString(),
+                }
+
+                console.log('=== Requesting component generation ===', request)
+                set({ isGeneratingComponents: true })
+                wsConnection.ws.send(JSON.stringify(request))
+            },
+
+            // Send run start confirmation with approved components
+            sendRunStartConfirmed: (config: RunStartConfirmed) => {
+                const { wsConnection, connectionState } = get()
+
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
+                    throw new Error('WebSocket is not connected')
+                }
+
+                console.log('=== Sending run start confirmation ===', config)
                 wsConnection.ws.send(JSON.stringify(config))
             },
 
@@ -491,6 +534,16 @@ export const useStore = create<State>()(
                         }))
                         // console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState and appended to stateUpdates')
                         break
+
+                    case 'component_generation_response': {
+                        const typedMessage = message as ComponentGenerationResponse
+                        console.log(`✅ [Component Generation] Received ${typedMessage.components.length} components`)
+                        set({
+                            generatedComponents: typedMessage.components,
+                            isGeneratingComponents: false,
+                        })
+                        break
+                    }
 
                     case 'analysis_components_init': {
                         // console.log('🔔 [FRONTEND] Received ANALYSIS_COMPONENTS_INIT message:', message)

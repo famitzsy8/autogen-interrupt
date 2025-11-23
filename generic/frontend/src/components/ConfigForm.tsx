@@ -5,11 +5,17 @@
  * before starting a conversation session.
  */
 
-import React, { useState } from 'react'
-import type { RunConfig, Agent } from '../types'
+import React, { useState, useEffect } from 'react'
+import type { RunConfig, Agent, AnalysisComponent, RunStartConfirmed } from '../types'
 import { MessageType } from '../types'
 import { getOrCreateSessionId } from '../utils/session'
 import { AgentSelector } from './AgentSelector'
+import { ComponentReviewModal } from './ComponentReviewModal'
+import {
+  useGeneratedComponents,
+  useIsGeneratingComponents,
+  useComponentGenerationActions,
+} from '../hooks/useStore'
 
 interface ConfigFormProps {
   onSubmit: (config: RunConfig) => void
@@ -51,6 +57,26 @@ export function ConfigForm({
   const [analysisPrompt, setAnalysisPrompt] = useState<string>('')
   const [triggerThreshold, setTriggerThreshold] = useState<number>(8)
 
+  // Component generation state
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [configData, setConfigData] = useState<{
+    initial_topic?: string
+    company_name?: string
+    bill_name?: string
+    congress?: string
+  } | null>(null)
+
+  const generatedComponents = useGeneratedComponents()
+  const isGeneratingComponents = useIsGeneratingComponents()
+  const { sendComponentGenerationRequest, sendRunStartConfirmed } = useComponentGenerationActions()
+
+  // Show modal when components are generated
+  useEffect(() => {
+    if (generatedComponents !== null && configData !== null) {
+      setShowReviewModal(true)
+    }
+  }, [generatedComponents, configData])
+
   const normalizedTeamNames = agentTeamNames?.map((name) => name.toLowerCase()) ?? []
   const isCongressTeam = normalizedTeamNames.some((name) => name.includes('congress'))
   const isResearchTeam = normalizedTeamNames.some((name) => name.includes('research'))
@@ -70,9 +96,8 @@ export function ConfigForm({
     // Find the selected company-bill pair
     const selectedPair = COMPANY_BILL_PAIRS.find(pair => pair.id === selectedPairId)
 
-    const config: RunConfig = {
-      type: MessageType.START_RUN,
-      session_id: getOrCreateSessionId(),
+    // Store config data for later use
+    const data = {
       initial_topic: showTaskField ? (topic.trim() || undefined) : undefined,
       ...(showCompanyBillField && selectedPair
         ? {
@@ -81,12 +106,45 @@ export function ConfigForm({
           congress: selectedPair.congress,
         }
         : {}),
-      analysis_prompt: analysisPrompt.trim() || undefined,
-      trigger_threshold: analysisPrompt.trim() ? triggerThreshold : undefined,
+    }
+    setConfigData(data)
+
+    // If analysis prompt provided, request component generation first
+    if (analysisPrompt.trim()) {
+      sendComponentGenerationRequest(analysisPrompt.trim(), triggerThreshold)
+    } else {
+      // No analysis - send old-style RunConfig directly
+      const config: RunConfig = {
+        type: MessageType.START_RUN,
+        session_id: getOrCreateSessionId(),
+        ...data,
+        timestamp: new Date().toISOString(),
+      }
+      onSubmit(config)
+    }
+  }
+
+  const handleComponentsApproved = (approvedComponents: AnalysisComponent[]) => {
+    if (!configData) return
+
+    const config: RunStartConfirmed = {
+      type: MessageType.RUN_START_CONFIRMED,
+      session_id: getOrCreateSessionId(),
+      ...configData,
+      approved_components: approvedComponents,
+      trigger_threshold: triggerThreshold,
       timestamp: new Date().toISOString(),
     }
 
-    onSubmit(config)
+    sendRunStartConfirmed(config)
+    setShowReviewModal(false)
+    // Trigger onSubmit to mark as configured in App
+    onSubmit(config as unknown as RunConfig)
+  }
+
+  const handleCancelReview = () => {
+    setShowReviewModal(false)
+    setConfigData(null)
   }
 
   return (
@@ -226,13 +284,30 @@ export function ConfigForm({
         <div className="flex gap-3 pt-6">
           <button
             type="submit"
-            disabled={isLoading || !agentTeamNames || agentTeamNames.length === 0}
+            disabled={isLoading || isGeneratingComponents || !agentTeamNames || agentTeamNames.length === 0}
             className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition"
           >
-            {isLoading ? '🔄 Connecting...' : agentTeamNames && agentTeamNames.length > 0 ? '▶ Start' : '⏳ Waiting...'}
+            {isGeneratingComponents
+              ? '⏳ Generating Components...'
+              : isLoading
+              ? '🔄 Connecting...'
+              : agentTeamNames && agentTeamNames.length > 0
+              ? '▶ Start'
+              : '⏳ Waiting...'}
           </button>
         </div>
       </form>
+
+      {/* Component Review Modal */}
+      {showReviewModal && generatedComponents !== null && (
+        <ComponentReviewModal
+          components={generatedComponents}
+          trigger_threshold={triggerThreshold}
+          onApprove={handleComponentsApproved}
+          onCancel={handleCancelReview}
+          isGenerating={isGeneratingComponents}
+        />
+      )}
     </div>
   )
 }
