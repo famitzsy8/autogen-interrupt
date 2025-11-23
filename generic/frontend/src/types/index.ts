@@ -263,7 +263,8 @@ export interface StateUpdate extends BaseMessage {
 export interface AnalysisComponent {
     label: string
     description: string
-    color: string
+    color: string // Legacy: kept for backwards compatibility, but prefer using sequentialScheme
+    sequentialScheme?: string // D3 sequential scheme name (e.g., 'Blues', 'Reds', 'Greys')
 }
 
 /**

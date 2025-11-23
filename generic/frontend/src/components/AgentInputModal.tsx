@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
 import { useAgentInputActions, useAgentInputDraft } from '../hooks/useStore'
 import { useStore } from '../store/store'
-import { AnalysisScoreDisplay } from './TreeVisualization/AnalysisScoreDisplay'
+import { AgentBadge } from './AgentBadge'
 import type { AgentInputRequest } from '../types'
 
 interface AgentInputModalProps {
@@ -101,7 +101,8 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
                 d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            {request.agent_name} needs input
+            <AgentBadge agentName={request.agent_name} size="sm" />
+            <span>needs input</span>
           </h3>
         </div>
 
@@ -205,39 +206,39 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
               ) : (
                 /* Fallback to original display if no triggered_with_details */
                 <div className="space-y-2">
-                {feedback_context.triggered.map((label) => {
+                  {feedback_context.triggered.map((label) => {
                     const component = analysisComponents.find((c) => c.label === label)
-                  const score = feedback_context.scores[label]
+                    const score = feedback_context.scores[label]
 
-                  if (!score) return null
+                    if (!score) return null
 
-                  return (
-                    <div
-                      key={label}
-                      className="p-3 bg-gray-900/50 rounded border-l-3 border-red-500"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span
-                          className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
-                          style={{
-                            backgroundColor: component?.color || '#6b7280',
-                          }}
-                        >
-                          {label}
-                        </span>
-                        <span className="text-sm font-semibold text-red-400">
-                          Score: {score.score}/10
-                        </span>
-                      </div>
-                      {score.reasoning && (
-                        <div className="mt-2 text-xs text-gray-400">
-                          {score.reasoning}
+                    return (
+                      <div
+                        key={label}
+                        className="p-3 bg-gray-900/50 rounded border-l-3 border-red-500"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <span
+                            className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                            style={{
+                              backgroundColor: component?.color || '#6b7280',
+                            }}
+                          >
+                            {label}
+                          </span>
+                          <span className="text-sm font-semibold text-red-400">
+                            Score: {score.score}/10
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+                        {score.reasoning && (
+                          <div className="mt-2 text-xs text-gray-400">
+                            {score.reasoning}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               )}
 
               {/* Expandable Details Section */}

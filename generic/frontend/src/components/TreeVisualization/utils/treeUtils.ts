@@ -257,21 +257,26 @@ export function formatStateOfRunForDisplay(text: string): string {
 /**
  * Extract all unique agent names from the tree in order of first appearance.
  * Performs depth-first traversal to maintain consistent ordering.
+ * Order of first appearance is preserved (NOT sorted) to ensure sequential color assignment.
  * @param root - Root TreeNode of the conversation tree
- * @returns Sorted array of unique agent names
+ * @returns Array of unique agent names in order of first appearance
  */
 export function extractAgentNames(root: TreeNode): string[] {
-    const agentNamesSet = new Set<string>()
+    const agentNamesArray: string[] = []
+    const seenNames = new Set<string>()
 
     function traverse(node: TreeNode): void {
-        agentNamesSet.add(node.agent_name)
+        if (!seenNames.has(node.agent_name)) {
+            seenNames.add(node.agent_name)
+            agentNamesArray.push(node.agent_name)
+        }
         if (node.children) {
             node.children.forEach(traverse)
         }
     }
 
     traverse(root)
-    return Array.from(agentNamesSet).sort()
+    return agentNamesArray
 }
 
 /**

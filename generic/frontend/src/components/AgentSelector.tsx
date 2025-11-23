@@ -6,6 +6,7 @@
 
 import React, { useEffect } from 'react'
 import type { Agent } from '../types'
+import { AgentBadge } from './AgentBadge'
 
 interface AgentSelectorProps {
   agents: Agent[] | null
@@ -61,10 +62,11 @@ export function AgentSelector({ agents, selectedAgent, onSelectAgent, disabled }
       <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700/50">
         <div className="space-y-3">
           <div>
-            <h3 className="text-lg font-semibold text-purple-300">
-              {currentAgent.display_name}
-            </h3>
-            <p className="text-xs text-gray-500">{currentAgent.name}</p>
+            <AgentBadge
+              agentName={currentAgent.name}
+              displayName={currentAgent.display_name}
+              size="lg"
+            />
           </div>
           <p className="text-sm text-gray-300 leading-relaxed">
             {currentAgent.summary}

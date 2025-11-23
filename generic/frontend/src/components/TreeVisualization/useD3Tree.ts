@@ -10,6 +10,7 @@ import {
   DEFAULT_TREE_CONFIG,
   extractAgentNames,
 } from './utils/treeUtils'
+import { getColorForScore, assignSequentialScheme, type SequentialSchemeName, getAgentColorD3, registerAgentColors } from '../../utils/colorSchemes'
 
 interface UseD3TreeOptions {
   width: number
@@ -235,6 +236,11 @@ export function useD3Tree(
 
     // Convert tree data to D3 hierarchy
     const hierarchy = convertToD3Hierarchy(treeData)
+
+    // Extract agent names in order of first appearance and register colors
+    // This ensures consistent sequential color assignment across all components
+    const agentNames = extractAgentNames(treeData)
+    registerAgentColors(agentNames)
 
     // Initialize node positions
     hierarchy.x0 = width / 2
@@ -773,35 +779,99 @@ function updateTree(
     })
     .attr('width', 10000)
     .attr('height', SWIMLANE_HEIGHT)
-    .attr('fill', (_d: string, i: number) => {
+    .attr('rx', 8)
+    .attr('ry', 8)
+    .attr('fill', (d: string, i: number) => {
+      // Use distinct color for User/You lane
+      if (d === 'User') {
+        return '#2d3748' // Darker blue-gray for User lane
+      }
       return i % 2 === 0 ? '#1c1f26' : '#21242b'
     })
-    .attr('opacity', 0.6)
+    .attr('opacity', (d: string) => {
+      // Higher opacity for User lane to make it stand out
+      return d === 'User' ? 0.85 : 0.6
+    })
+    .attr('stroke', (d: string) => {
+      // Subtle border accent for User lane
+      return d === 'User' ? '#4a5568' : 'none'
+    })
+    .attr('stroke-width', (d: string) => {
+      return d === 'User' ? 1 : 0
+    })
 
   swimlanes.exit().remove()
 
-  // Render agent name labels on left
-  const labels = g
-    .selectAll<SVGTextElement, string>('.swimlane-label')
+  // Render agent name labels on left with colored boxes
+  const labelGroups = g
+    .selectAll<SVGGElement, string>('.swimlane-label-group')
     .data(swimlaneNames, (d: string) => d)
 
-  const labelsEnter = labels
+  const labelGroupsEnter = labelGroups
     .enter()
-    .append('text')
-    .attr('class', 'swimlane-label')
+    .append('g')
+    .attr('class', 'swimlane-label-group')
 
-  labelsEnter
-    .merge(labels)
-    .attr('x', 10)
-    .attr('y', (d: string) => {
+  // Add colored background rectangle to each label
+  labelGroupsEnter
+    .append('rect')
+    .attr('class', 'swimlane-label-bg')
+
+  // Add text to each label
+  labelGroupsEnter
+    .append('text')
+    .attr('class', 'swimlane-label-text')
+
+  const labelGroupsMerged = labelGroupsEnter.merge(labelGroups)
+
+  // Update group position
+  labelGroupsMerged
+    .attr('transform', (d: string) => {
       const centerY = swimlaneYMap.get(d)
       if (centerY === undefined) {
         throw new Error(`Swimlane ${d} not found in map`)
       }
-      return centerY
+      return `translate(10, ${centerY})`
     })
-    .attr('dy', '0.35em')
+
+  // Update background rectangles with agent colors
+  labelGroupsMerged.selectAll<SVGRectElement, string>('.swimlane-label-bg')
+    .data((d: string) => [d])
+    .attr('x', 0)
+    .attr('y', -10)
+    .attr('width', (d: string) => {
+      const displayName = swimlaneDisplayNames.get(d)
+      if (displayName === undefined) {
+        throw new Error(`Display name for swimlane ${d} not found`)
+      }
+      // Estimate width based on text length (rough approximation)
+      return displayName.length * 8 + 12
+    })
+    .attr('height', 20)
+    .attr('rx', 10)
+    .attr('fill', (d: string) => {
+      // Get the first agent_name that maps to this normalized swimlane name
+      // to determine the color
+      let agentNameForColor = d
+      rawAgentNames.forEach(name => {
+        const normalized = normalizeAgentName(name)
+        if (normalized === d) {
+          agentNameForColor = name
+        }
+      })
+      return getAgentColorD3(agentNameForColor)
+    })
+    .attr('opacity', 0.9)
+    .style('pointer-events', 'none')
+
+  // Update text labels
+  labelGroupsMerged.selectAll<SVGTextElement, string>('.swimlane-label-text')
+    .data((d: string) => [d])
+    .attr('x', 6)
+    .attr('y', 0)
+    .attr('dy', '0.05em')
     .attr('text-anchor', 'start')
+    .attr('dominant-baseline', 'middle')
     .text((d: string) => {
       const displayName = swimlaneDisplayNames.get(d)
       if (displayName === undefined) {
@@ -809,13 +879,14 @@ function updateTree(
       }
       return displayName
     })
-    .style('fill', '#8b949e')
+    .style('fill', '#ffffff')
     .style('font-size', '13px')
     .style('font-weight', '600')
+    .style('line-height', '1')
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
     .style('pointer-events', 'none')
 
-  labels.exit().remove()
+  labelGroups.exit().remove()
 
   // ============================================================
   // PHASE 3: RENDER EDGES
@@ -846,7 +917,8 @@ function updateTree(
       if (edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id) {
         return '#ef4444'
       }
-      return d.target.node.data.is_active ? '#58a6ff' : '#30363d'
+      // Use neutral gray for all edges
+      return '#6b7280'
     })
     .attr('stroke-width', (d: Edge) => {
       if (edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id) {
@@ -854,7 +926,7 @@ function updateTree(
       }
       return d.target.node.data.is_active ? 2 : 1
     })
-    .attr('opacity', (d: Edge) => d.target.node.data.is_active ? 1 : 0.3)
+    .attr('opacity', (d: Edge) => d.target.node.data.is_active ? 1 : 0.5)
     .style('cursor', (d: Edge) => d.target.node.data.is_active ? 'pointer' : 'default')
     .on('mouseenter', function (this: SVGPathElement, _event: MouseEvent, d: Edge) {
       if (d.target.node.data.is_active) {
@@ -901,10 +973,16 @@ function updateTree(
     .attr('r', NODE_RADIUS)
     .attr('fill', (d: PositionedNode) => {
       const node = d.node.data
+      // Get agent color for this node
+      return getAgentColorD3(node.agent_name)
+    })
+    .attr('fill-opacity', (d: PositionedNode) => {
+      const node = d.node.data
+      // Tool calls have lower opacity (0.5), messages have higher opacity (0.9)
       if (node.node_type === 'tool_call' || node.node_type === 'tool_execution') {
-        return '#1f6feb'
+        return 0.5
       }
-      return node.is_active ? '#238636' : '#30363d'
+      return 0.9
     })
     .attr('stroke', (d: PositionedNode) => {
       // Yellow border for triggered nodes
@@ -924,16 +1002,22 @@ function updateTree(
     .transition()
     .duration(ANIMATION_DURATION)
     .attr('transform', (d: PositionedNode) => `translate(${d.x},${d.y})`)
-    .attr('opacity', (d: PositionedNode) => d.node.data.is_active ? 1 : 0.4)
+    .attr('opacity', (d: PositionedNode) => d.node.data.is_active ? 1 : 0.6)
     .style('cursor', 'pointer')
 
   nodeUpdate.selectAll<SVGCircleElement, PositionedNode>('.node-circle')
     .attr('fill', (d: PositionedNode) => {
       const node = d.node.data
+      // Get agent color for this node
+      return getAgentColorD3(node.agent_name)
+    })
+    .attr('fill-opacity', (d: PositionedNode) => {
+      const node = d.node.data
+      // Tool calls have lower opacity (0.5), messages have higher opacity (0.9)
       if (node.node_type === 'tool_call' || node.node_type === 'tool_execution') {
-        return '#1f6feb'
+        return 0.5
       }
-      return node.is_active ? '#238636' : '#30363d'
+      return 0.9
     })
     .attr('stroke', (d: PositionedNode) => {
       // Yellow border for triggered nodes
@@ -980,38 +1064,67 @@ function updateTree(
         .attr('class', 'node-analysis-badges')
         .attr('transform', `translate(${-NODE_RADIUS}, ${NODE_RADIUS + 8})`)
 
-      const barHeight = 4
-      const barSpacing = 2
-      const maxBarWidth = NODE_RADIUS * 2 // Match node width
+      const barHeight = 12
+      const barSpacing = 3
+      const maxBarWidth = NODE_RADIUS * 2 * 3 // 3x wider to match 3x height increase
+      const dotRadius = 3
+      const dotOffset = 4 // Space between bar and dot
 
-      // Render horizontal bars for each component
+      // Render horizontal bars for each component with score-based colors
       analysisComponents.forEach((component, index) => {
         const score = nodeScores.scores[component.label]?.score || 0
         const barWidth = (score / 10) * maxBarWidth // Scale 0-10 to bar width
 
-        // Background bar (light gray)
+        // Determine sequential scheme for this component
+        const schemeName = (component.sequentialScheme as SequentialSchemeName) || assignSequentialScheme(component.label, index)
+
+        // Get color based on the actual score value
+        const barColor = getColorForScore(schemeName, score)
+
+        // Get the darkest color (index 8) for the visual marker
+        const markerColor = getColorForScore(schemeName, 10) // Score 10 maps to index 8 (darkest)
+
+        const barY = index * (barHeight + barSpacing)
+
+        // Background bar (lighter gray with border for better visibility)
         barGroup
           .append('rect')
           .attr('x', 0)
-          .attr('y', index * (barHeight + barSpacing))
+          .attr('y', barY)
           .attr('width', maxBarWidth)
           .attr('height', barHeight)
-          .attr('fill', '#2a2a2a')
-          .attr('rx', 1)
+          .attr('fill', '#3a3a3a')
+          .attr('stroke', '#4a4a4a')
+          .attr('stroke-width', 1)
+          .attr('rx', 6)
+          .attr('ry', 6)
 
-        // Foreground bar (colored by score)
+        // Foreground bar (colored by score using D3 sequential scheme)
         barGroup
           .append('rect')
           .attr('x', 0)
-          .attr('y', index * (barHeight + barSpacing))
+          .attr('y', barY)
           .attr('width', barWidth)
           .attr('height', barHeight)
-          .attr('fill', component.color)
-          .attr('opacity', 0.8)
-          .attr('rx', 1)
+          .attr('fill', barColor)
+          .attr('opacity', 0.9)
+          .attr('rx', 6)
+          .attr('ry', 6)
           .style('cursor', 'pointer')
           .append('title')
           .text(`${component.label}: ${score}/10\n${nodeScores.scores[component.label]?.reasoning || ''}`)
+
+        // Add visual marker dot (using darkest color from scheme)
+        barGroup
+          .append('circle')
+          .attr('cx', -(dotOffset + dotRadius))
+          .attr('cy', barY + (barHeight / 2)) // Center vertically with bar
+          .attr('r', dotRadius)
+          .attr('fill', markerColor)
+          .attr('opacity', 0.9)
+          .style('cursor', 'pointer')
+          .append('title')
+          .text(`${component.label} (color scheme indicator)`)
       })
     }
   })

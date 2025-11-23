@@ -3,7 +3,7 @@
  *
  * Features:
  * - Displays all component scores with visual indicators
- * - Color-coded score values (red for high scores >= 8, green for low scores)
+ * - Color-coded score values using D3 sequential schemes based on score intensity
  * - Visual progress bar showing score magnitude
  * - Conditional reasoning display (only shown when score >= threshold)
  * - Highlighted display for triggered components
@@ -12,6 +12,7 @@
 
 import React from 'react'
 import type { AnalysisComponent, ComponentScore } from '../../types'
+import { getColorForScore, assignSequentialScheme, type SequentialSchemeName } from '../../utils/colorSchemes'
 
 interface AnalysisScoreDisplayProps {
   components: AnalysisComponent[]
@@ -37,7 +38,7 @@ export function AnalysisScoreDisplay({
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-dark-accent mb-3">Analysis Scores</h3>
 
-      {components.map((component) => {
+      {components.map((component, index) => {
         const score = scores[component.label]
 
         // Skip if no score for this component
@@ -48,9 +49,12 @@ export function AnalysisScoreDisplay({
         const isTriggered = score.score >= triggerThreshold
         const scorePercentage = score.score * 10
 
-        // Determine score color (red for high, green for low)
-        const scoreColorClass = isTriggered ? 'text-red-400' : 'text-green-400'
-        const barColor = isTriggered ? '#ef4444' : '#10b981'
+        // Determine sequential scheme for this component
+        const schemeName = (component.sequentialScheme as SequentialSchemeName) || assignSequentialScheme(component.label, index)
+
+        // Get color based on the actual score value
+        const scoreColor = getColorForScore(schemeName, score.score)
+        const badgeColor = getColorForScore(schemeName, 5) // Mid-range color for badge
 
         return (
           <div
@@ -64,16 +68,19 @@ export function AnalysisScoreDisplay({
             {/* Score Header */}
             <div className="p-3">
               <div className="flex items-center justify-between mb-2">
-                {/* Component Badge */}
+                {/* Component Badge - uses mid-range color from scheme */}
                 <span
                   className="px-3 py-1 rounded-full text-xs font-medium text-white"
-                  style={{ backgroundColor: component.color }}
+                  style={{ backgroundColor: badgeColor }}
                 >
                   {component.label}
                 </span>
 
-                {/* Score Value */}
-                <span className={`text-lg font-bold ${scoreColorClass}`}>
+                {/* Score Value - uses score-based color */}
+                <span
+                  className="text-lg font-bold"
+                  style={{ color: scoreColor }}
+                >
                   {score.score}/10
                 </span>
               </div>
@@ -91,15 +98,25 @@ export function AnalysisScoreDisplay({
                 </div>
               )}
 
-              {/* Visual Score Bar */}
-              <div className="mt-3 h-1.5 bg-dark-border rounded-full overflow-hidden">
+              {/* Visual Score Bar - uses score-based color */}
+              <div className="mt-3 flex items-center gap-2">
+                {/* Visual marker dot using darkest color from scheme */}
                 <div
-                  className="h-full transition-all duration-300 ease-out"
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{
-                    width: `${scorePercentage}%`,
-                    backgroundColor: barColor,
+                    backgroundColor: getColorForScore(schemeName, 10), // Score 10 = index 8 (darkest)
                   }}
+                  title={`${component.label} color scheme indicator`}
                 />
+                <div className="flex-1 h-4.5 rounded-full overflow-hidden border border-gray-600" style={{ backgroundColor: '#3a3a3a' }}>
+                  <div
+                    className="h-full transition-all duration-300 ease-out rounded-full"
+                    style={{
+                      width: `${scorePercentage}%`,
+                      backgroundColor: scoreColor,
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>

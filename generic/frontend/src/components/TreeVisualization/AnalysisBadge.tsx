@@ -2,14 +2,16 @@
  * AnalysisBadge component for displaying analysis component badges on tree nodes.
  *
  * Features:
- * - Displays analysis components as colored circles (collapsed) or labeled badges (expanded)
+ * - Displays analysis components as colored badges based on their scores
+ * - Uses D3 sequential color schemes for score-based coloring
  * - Shows tooltips with component descriptions on hover
  * - Supports click interactions for each component
  * - Responsive and non-cluttered design
  */
 
 import React from 'react'
-import type { AnalysisComponent } from '../../types'
+import type { AnalysisComponent, ComponentScore } from '../../types'
+import { getColorForScore, assignSequentialScheme, type SequentialSchemeName } from '../../utils/colorSchemes'
 
 /**
  * Props for AnalysisBadge component.
@@ -17,6 +19,8 @@ import type { AnalysisComponent } from '../../types'
 interface AnalysisBadgeProps {
   /** List of analysis components to display */
   components: AnalysisComponent[]
+  /** Scores for each component (optional - if not provided, uses mid-range colors) */
+  scores?: Record<string, ComponentScore>
   /** Show labels (true) or circles (false). Default: false */
   isExpanded?: boolean
   /** Click handler for individual components */
@@ -29,6 +33,7 @@ interface AnalysisBadgeProps {
  */
 export function AnalysisBadge({
   components,
+  scores,
   isExpanded = false,
   onClick,
 }: AnalysisBadgeProps): React.ReactElement | null {
@@ -50,31 +55,43 @@ export function AnalysisBadge({
   return (
     <div className="flex flex-wrap gap-1">
       {isExpanded ? (
-        // Expanded mode: Show labeled badges
-        components.map((component) => (
-          <button
-            key={component.label}
-            className="px-2 py-0.5 rounded-xl text-[11px] text-white font-medium cursor-pointer transition-opacity hover:opacity-80"
-            style={{ backgroundColor: component.color }}
-            onClick={(event) => handleClick(component, event)}
-            title={component.description}
-            aria-label={`${component.label}: ${component.description}`}
-          >
-            {component.label}
-          </button>
-        ))
+        // Expanded mode: Show labeled badges with score-based colors
+        components.map((component, index) => {
+          const schemeName = (component.sequentialScheme as SequentialSchemeName) || assignSequentialScheme(component.label, index)
+          const score = scores?.[component.label]?.score ?? 5 // Default to mid-range if no score
+          const badgeColor = getColorForScore(schemeName, score)
+
+          return (
+            <button
+              key={component.label}
+              className="px-2 py-0.5 rounded-xl text-[11px] text-white font-medium cursor-pointer transition-opacity hover:opacity-80"
+              style={{ backgroundColor: badgeColor }}
+              onClick={(event) => handleClick(component, event)}
+              title={`${component.label}: ${component.description}${score ? ` (${score}/10)` : ''}`}
+              aria-label={`${component.label}: ${component.description}`}
+            >
+              {component.label}
+            </button>
+          )
+        })
       ) : (
-        // Collapsed mode: Show colored circles
-        components.map((component) => (
-          <button
-            key={component.label}
-            className="w-3 h-3 rounded-full cursor-pointer transition-transform hover:scale-125"
-            style={{ backgroundColor: component.color }}
-            onClick={(event) => handleClick(component, event)}
-            title={component.label}
-            aria-label={component.label}
-          />
-        ))
+        // Collapsed mode: Show colored circles with score-based colors
+        components.map((component, index) => {
+          const schemeName = (component.sequentialScheme as SequentialSchemeName) || assignSequentialScheme(component.label, index)
+          const score = scores?.[component.label]?.score ?? 5 // Default to mid-range if no score
+          const badgeColor = getColorForScore(schemeName, score)
+
+          return (
+            <button
+              key={component.label}
+              className="w-3 h-3 rounded-full cursor-pointer transition-transform hover:scale-125"
+              style={{ backgroundColor: badgeColor }}
+              onClick={(event) => handleClick(component, event)}
+              title={`${component.label}${score ? `: ${score}/10` : ''}`}
+              aria-label={component.label}
+            />
+          )
+        })
       )}
     </div>
   )

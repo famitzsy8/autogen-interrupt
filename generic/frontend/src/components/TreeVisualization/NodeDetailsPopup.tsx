@@ -16,6 +16,7 @@ import ReactMarkdown from 'react-markdown'
 import type { TreeNode, StateUpdate, ToolCall, ToolExecution } from '../../types'
 import { useStore } from '../../store/store'
 import { AnalysisScoreDisplay } from './AnalysisScoreDisplay'
+import { AgentBadge } from '../AgentBadge'
 
 interface NodeDetailsPopupProps {
   node: TreeNode
@@ -97,7 +98,16 @@ export function NodeDetailsPopup({
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-dark-accent mb-2">Message Content</h3>
-              {node.message ? (
+              {node.node_type === 'tool_call' && toolCall ? (
+                <div className="space-y-3">
+                  {toolCall.tools.map((tool) => (
+                    <div key={tool.id} className="space-y-2">
+                      <h4 className="font-semibold text-dark-text">{tool.name}</h4>
+                      <ToolArgumentsList tool={tool} />
+                    </div>
+                  ))}
+                </div>
+              ) : node.message ? (
                 <div className="text-sm text-dark-text leading-relaxed whitespace-pre-wrap font-mono">
                   <ReactMarkdown>{node.message}</ReactMarkdown>
                 </div>
@@ -230,17 +240,16 @@ export function NodeDetailsPopup({
         <div className="border-b border-dark-border p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-semibold text-dark-text mb-1">
-                {node.display_name}
-              </h2>
-              {node.summary && (
-                <p className="text-sm text-gray-400 mb-2 line-clamp-2">{node.summary}</p>
-              )}
-              <div className="flex items-center gap-3 text-xs text-gray-500">
-                <span>{formatTimestamp(node.timestamp)}</span>
-                <span className="w-1 h-1 rounded-full bg-gray-600"></span>
-                <span>Node ID: {node.id}</span>
+              <div className="mb-2">
+                <AgentBadge
+                  agentName={node.agent_name}
+                  displayName={node.display_name}
+                  size="lg"
+                />
               </div>
+              {node.summary && (
+                <p className="text-sm text-gray-400">{node.summary}</p>
+              )}
             </div>
             <button
               onClick={onClose}
