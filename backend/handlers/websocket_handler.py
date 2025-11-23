@@ -5,6 +5,7 @@ import contextlib
 import json
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 import uuid
@@ -53,7 +54,10 @@ from models import (
     ToolExecution,
     ToolExecutionResult,
     UserDirectedMessage,
-    UserInterrupt
+    UserInterrupt,
+    ComponentGenerationRequest,
+    ComponentGenerationResponse,
+    RunStartConfirmed
 )
 from utils.yaml_utils import get_agent_team_names, get_agent_details, get_team_main_tasks, get_summarization_system_prompt
 from utils.summarization import init_summarizer, summarize_message
@@ -95,13 +99,38 @@ class WebSocketHandler:
 
             await self._send_agent_details()
 
-            # Step 2: Wait for config from frontend
-            print("→ Waiting for config from frontend...")
-            config_data = await self.websocket.receive_text()
-            print(f"✓ Received config: {config_data[:100]}...")
-            config_dict = json.loads(config_data)
+            # Step 2: Wait for either component generation request OR run start confirmation
+            print("→ Waiting for message from frontend...")
 
-            self.agent_team_config = RunConfig(**config_dict)
+            while True:
+                message_data = await self.websocket.receive_text()
+                print(f"✓ Received message: {message_data[:100]}...")
+                message_dict = json.loads(message_data)
+                message_type = message_dict.get('type')
+
+                if message_type == MessageType.COMPONENT_GENERATION_REQUEST:
+                    # Phase 1: Generate components and send back for review
+                    print("→ Handling component generation request...")
+                    await self._handle_component_generation(message_dict)
+                    print("✓ Components generated and sent")
+                    # Continue loop, wait for run start confirmation
+
+                elif message_type == MessageType.RUN_START_CONFIRMED:
+                    # Phase 2: Start run with approved components
+                    print("→ Handling run start confirmation...")
+                    self.agent_team_config = RunStartConfirmed(**message_dict)
+                    break  # Exit loop, proceed to initialization
+
+                elif message_type == MessageType.START_RUN:
+                    # Legacy path: Direct run start without component review
+                    print("→ Handling legacy run config...")
+                    self.agent_team_config = RunConfig(**message_dict)
+                    break  # Exit loop, proceed to initialization
+
+                else:
+                    print(f"✗ Unexpected message type: {message_type}")
+                    await self._send_error("INVALID_MESSAGE_TYPE", f"Unexpected message type: {message_type}")
+                    continue
 
             # Get or create session based on session_id
             session_id = self.agent_team_config.session_id
@@ -183,6 +212,50 @@ class WebSocketHandler:
             await self._cleanup()
 
 
+    async def _handle_component_generation(self, request_dict: dict) -> None:
+        """Generate analysis components from user prompt without starting run."""
+        try:
+            request = ComponentGenerationRequest(**request_dict)
+
+            # Get API key for temporary model client
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                raise RuntimeError("OPENAI_API_KEY not set in environment")
+
+            # Create temporary model client for component generation
+            from autogen_ext.models.openai import OpenAIChatCompletionClient
+            temp_client = OpenAIChatCompletionClient(
+                model="gpt-4o-mini",
+                api_key=api_key
+            )
+
+            # Create analysis service and parse prompt
+            from analysis_service import AnalysisService
+            analysis_service = AnalysisService(model_client=temp_client)
+
+            logger.info(f"Generating components from prompt: {request.analysis_prompt[:100]}...")
+            components = await analysis_service.parse_prompt(request.analysis_prompt)
+
+            # Send components back to frontend for review
+            response = ComponentGenerationResponse(
+                type=MessageType.COMPONENT_GENERATION_RESPONSE,
+                components=components,
+                timestamp=datetime.now()
+            )
+
+            await self.websocket.send_text(response.model_dump_json())
+            logger.info(f"Sent {len(components)} components to frontend for review")
+
+        except Exception as e:
+            logger.error(f"Component generation failed: {e}", exc_info=True)
+            # Send empty components list on failure - user can add manually
+            response = ComponentGenerationResponse(
+                type=MessageType.COMPONENT_GENERATION_RESPONSE,
+                components=[],
+                timestamp=datetime.now()
+            )
+            await self.websocket.send_text(response.model_dump_json())
+
     async def _initialize_run(self) -> None:
 
         if not self.session:
@@ -210,13 +283,40 @@ class WebSocketHandler:
         # Update StateManager with display_names from agent team context
         self.session.state_manager.display_names = self.session.agent_team_context.display_names
 
-        # Initialize analysis service if analysis_prompt provided
-        if self.agent_team_config.analysis_prompt:
-            logger.info(f"Initializing analysis service with prompt: {self.agent_team_config.analysis_prompt[:100]}...")
+        # Initialize analysis service with user-approved components if provided
+        # Check if config is RunStartConfirmed (new flow) or RunConfig (legacy flow)
+        approved_components = []
+        trigger_threshold = 8
 
-            # Import here to avoid circular dependency
+        if isinstance(self.agent_team_config, RunStartConfirmed):
+            # New flow: Use user-approved components
+            approved_components = self.agent_team_config.approved_components
+            trigger_threshold = self.agent_team_config.trigger_threshold
+            logger.info(f"Using {len(approved_components)} user-approved components")
+
+        elif isinstance(self.agent_team_config, RunConfig) and self.agent_team_config.analysis_prompt:
+            # Legacy flow: Parse analysis_prompt directly
+            logger.info(f"Legacy flow: Parsing analysis prompt: {self.agent_team_config.analysis_prompt[:100]}...")
+
             from analysis_service import AnalysisService
-            from datetime import datetime, timezone
+
+            model_client = self.session.agent_team_context.team._model_client
+            analysis_service = AnalysisService(model_client=model_client)
+
+            try:
+                approved_components = await analysis_service.parse_prompt(
+                    self.agent_team_config.analysis_prompt
+                )
+                trigger_threshold = self.agent_team_config.trigger_threshold
+                logger.info(f"Parsed {len(approved_components)} components in legacy mode")
+            except Exception as e:
+                logger.error(f"Failed to parse prompt in legacy mode: {e}", exc_info=True)
+                approved_components = []
+
+        # Setup analysis if we have components
+        if approved_components:
+            from analysis_service import AnalysisService
+            from datetime import timezone
 
             # Get model client from team
             model_client = self.session.agent_team_context.team._model_client
@@ -224,45 +324,32 @@ class WebSocketHandler:
             # Create analysis service
             analysis_service = AnalysisService(model_client=model_client)
 
-            # Parse analysis prompt into components
-            try:
-                components = await analysis_service.parse_prompt(
-                    self.agent_team_config.analysis_prompt
-                )
+            # Store in session
+            self.session.analysis_service = analysis_service
+            self.session.active_components = approved_components
+            self.session.trigger_threshold = trigger_threshold
 
-                if components:
-                    logger.info(f"Parsed {len(components)} analysis components: {[c.label for c in components]}")
+            # Pass analysis fields to team
+            self.session.agent_team_context.team._analysis_service = analysis_service
+            self.session.agent_team_context.team._analysis_components = approved_components
+            self.session.agent_team_context.team._trigger_threshold = trigger_threshold
 
-                    # Store in session
-                    self.session.analysis_service = analysis_service
-                    self.session.active_components = components
-                    self.session.trigger_threshold = self.agent_team_config.trigger_threshold
+            # Send to frontend
+            init_message = AnalysisComponentsInit(
+                type="analysis_components_init",
+                components=approved_components,
+                timestamp=datetime.now(timezone.utc)
+            )
 
-                    # Pass analysis fields to team (they will be passed to manager via factory)
-                    self.session.agent_team_context.team._analysis_service = analysis_service
-                    self.session.agent_team_context.team._analysis_components = components
-                    self.session.agent_team_context.team._trigger_threshold = self.agent_team_config.trigger_threshold
+            # Broadcast to all connections in session
+            await self.session_manager.broadcast_to_session(
+                session_id=self.session.session_id,
+                message=init_message.model_dump_json()
+            )
 
-                    # Send to frontend
-                    init_message = AnalysisComponentsInit(
-                        type="analysis_components_init",
-                        components=components,
-                        timestamp=datetime.now(timezone.utc)
-                    )
-
-                    # Broadcast to all connections in session
-                    await self.session_manager.broadcast_to_session(
-                        session_id=self.session.session_id,
-                        message=init_message.model_dump_json()
-                    )
-
-                    logger.info("Analysis components initialized and sent to frontend")
-                else:
-                    logger.warning("Component parsing returned empty list, analysis disabled")
-
-            except Exception as e:
-                logger.error(f"Failed to initialize analysis service: {e}", exc_info=True)
-                # Don't fail the run, just disable analysis
+            logger.info(f"Analysis initialized with {len(approved_components)} components")
+        else:
+            logger.info("No analysis components configured")
 
     async def _conversation_stream(self, initial_topic: str) -> None:
 
