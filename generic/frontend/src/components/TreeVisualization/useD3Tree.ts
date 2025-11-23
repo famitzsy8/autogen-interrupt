@@ -154,6 +154,7 @@ export function useD3Tree(
   const [activeNodeIds, setActiveNodeIds] = useState<Set<string>>(new Set())
   const [centerNodeId, setCenterNodeId] = useState<string | null>(null)
   const [autoCenterEnabled, setAutoCenterEnabled] = useState<boolean>(true)
+  const [hoveredSummaryNodeIds, setHoveredSummaryNodeIds] = useState<Set<string>>(new Set())
   const lastMouseActivityRef = useRef<number>(Date.now())
   const throttleTimeoutRef = useRef<number | null>(null)
   const isInitializedRef = useRef<boolean>(false)
@@ -325,6 +326,21 @@ export function useD3Tree(
       analysisComponents,
       analysisScores,
       triggeredNodes,
+      hoveredSummaryNodeIds,
+      onSummaryHover: (nodeId: string | null) => {
+        if (nodeId) {
+          setHoveredSummaryNodeIds(prev => new Set([...prev, nodeId]))
+        }
+      },
+      onSummaryHoverOut: (nodeId: string | null) => {
+        if (nodeId) {
+          setHoveredSummaryNodeIds(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(nodeId)
+            return newSet
+          })
+        }
+      },
     })
 
     // After tree updates, preserve transform in navigation mode
@@ -335,7 +351,7 @@ export function useD3Tree(
         svg.call(zoomRef.current!.transform, transformRef.current)
       }, 0)
     }
-  }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick, analysisComponents, analysisScores, triggeredNodes])
+  }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick, analysisComponents, analysisScores, triggeredNodes, hoveredSummaryNodeIds])
 
   /**
    * Update center node when tree data changes to keep view on latest messages.
@@ -556,6 +572,9 @@ interface UpdateTreeOptions {
   analysisComponents: AnalysisComponent[]
   analysisScores: Map<string, AnalysisScores>
   triggeredNodes: Set<string>
+  hoveredSummaryNodeIds: Set<string>
+  onSummaryHover: (nodeId: string | null) => void
+  onSummaryHoverOut: (nodeId: string | null) => void
 }
 
 /**
@@ -592,6 +611,9 @@ function updateTree(
     analysisComponents,
     analysisScores,
     triggeredNodes,
+    hoveredSummaryNodeIds,
+    onSummaryHover,
+    onSummaryHoverOut,
   } = options
 
   // Expand all nodes to show full tree
@@ -1163,4 +1185,179 @@ function updateTree(
         .text('Analysis triggered feedback')
     }
   })
+
+  // ============================================================
+  // PHASE 6: RENDER NODE SUMMARIES BELOW SWIMLANES
+  // ============================================================
+
+  // Calculate the Y position for the summary area (below all swimlanes)
+  const totalTreeHeight = swimlaneNames.length * SWIMLANE_HEIGHT
+  const summaryAreaY = totalTreeHeight + 40 // 40px gap below last swimlane
+  const collapsedBoxWidth = 40
+  const collapsedBoxHeight = 20
+
+  // Helper function to calculate dynamic box dimensions based on text length
+  const calculateBoxDimensions = (text: string): { width: number; height: number } => {
+    const minWidth = 200
+    const maxWidth = 500
+    const minHeight = 50
+    const maxHeight = 120
+    const avgCharWidth = 7 // approximate pixel width per character
+    const charsPerLine = 50 // target characters per line
+
+    // Estimate width based on text length
+    const estimatedWidth = Math.min(maxWidth, Math.max(minWidth, text.length * avgCharWidth / 2))
+
+    // Estimate height based on number of lines needed
+    const estimatedLines = Math.ceil(text.length / charsPerLine)
+    const estimatedHeight = Math.min(maxHeight, Math.max(minHeight, estimatedLines * 20 + 20)) // 20px per line + padding
+
+    return { width: estimatedWidth, height: estimatedHeight }
+  }
+
+  // Remove existing summary elements
+  g.selectAll('.node-summary-group').remove()
+
+  // Filter nodes that have summaries and are in the active branch
+  const nodesWithSummaries = positionedNodes.filter(
+    pNode => pNode.node.data.summary && pNode.node.data.summary.trim() !== '' && pNode.node.data.is_active
+  )
+
+  // Create summary groups for each node with a summary
+  const summaryGroups = g
+    .selectAll<SVGGElement, PositionedNode>('.node-summary-group')
+    .data(nodesWithSummaries, (d: PositionedNode) => d.node.data.id)
+
+  summaryGroups.exit().remove()
+
+  const summaryGroupsEnter = summaryGroups
+    .enter()
+    .append('g')
+    .attr('class', 'node-summary-group')
+
+  const summaryGroupsMerged = summaryGroupsEnter.merge(summaryGroups)
+
+  // Position summary groups at node X position
+  summaryGroupsMerged
+    .attr('transform', (d: PositionedNode) => {
+      const isExpanded = hoveredSummaryNodeIds.has(d.node.data.id)
+
+      if (isExpanded) {
+        // Center the expanded summary box horizontally at the node's X position
+        const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+        const summaryX = d.x - (boxDimensions.width / 2)
+        return `translate(${summaryX}, ${summaryAreaY})`
+      } else {
+        // Center the collapsed box at node's X position
+        const summaryX = d.x - (collapsedBoxWidth / 2)
+        return `translate(${summaryX}, ${summaryAreaY})`
+      }
+    })
+    .on('mouseleave', function(_event: MouseEvent, d: PositionedNode) {
+      // Collapse when mouse leaves the entire summary group area
+      onSummaryHoverOut(d.node.data.id)
+    })
+
+  // Add small collapsed box (when not expanded)
+  summaryGroupsMerged.selectAll('.summary-collapsed-box').remove()
+  summaryGroupsMerged
+    .filter((d: PositionedNode) => !hoveredSummaryNodeIds.has(d.node.data.id))
+    .append('rect')
+    .attr('class', 'summary-collapsed-box')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('width', collapsedBoxWidth)
+    .attr('height', collapsedBoxHeight)
+    .attr('rx', 6)
+    .attr('ry', 6)
+    .attr('fill', '#374151')
+    .attr('stroke', '#6b7280')
+    .attr('stroke-width', 1)
+    .attr('opacity', 0.9)
+    .style('cursor', 'pointer')
+    .on('mouseenter', function(_event: MouseEvent, d: PositionedNode) {
+      onSummaryHover(d.node.data.id)
+    })
+    .on('mouseleave', function(_event: MouseEvent, d: PositionedNode) {
+      onSummaryHoverOut(d.node.data.id)
+    })
+
+  // Add summary box background (only when expanded)
+  summaryGroupsMerged.selectAll('.summary-box-bg').remove()
+
+  const expandedBoxes = summaryGroupsMerged
+    .filter((d: PositionedNode) => hoveredSummaryNodeIds.has(d.node.data.id))
+
+  // Create a clipPath for each expanded box for the left-to-right animation
+  expandedBoxes.each(function(d: PositionedNode) {
+    const group = d3.select<SVGGElement, PositionedNode>(this)
+    const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+    const clipId = `summary-clip-${d.node.data.id}`
+
+    // Remove existing clipPath if any
+    group.selectAll(`#${clipId}`).remove()
+
+    // Create clipPath with animated rect
+    const clipPath = group.append('clipPath').attr('id', clipId)
+    clipPath.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('height', boxDimensions.height)
+      .attr('width', 0) // Start with 0 width
+      .transition()
+      .duration(200)
+      .ease(d3.easeQuadOut)
+      .attr('width', boxDimensions.width) // Expand to full width
+  })
+
+  expandedBoxes
+    .append('rect')
+    .attr('class', 'summary-box-bg')
+    .attr('clip-path', (d: PositionedNode) => `url(#summary-clip-${d.node.data.id})`)
+    .attr('width', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      return boxDimensions.width
+    })
+    .attr('height', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      return boxDimensions.height
+    })
+    .attr('rx', 8)
+    .attr('ry', 8)
+    .attr('fill', '#1f2937')
+    .attr('stroke', '#4b5563')
+    .attr('stroke-width', 1)
+    .attr('opacity', 0.95)
+
+  // Add summary text (only for expanded summaries)
+  summaryGroupsMerged.selectAll('.summary-text').remove()
+  expandedBoxes
+    .append('foreignObject')
+    .attr('class', 'summary-text')
+    .attr('clip-path', (d: PositionedNode) => `url(#summary-clip-${d.node.data.id})`)
+    .attr('x', 10)
+    .attr('y', 10)
+    .attr('width', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      return boxDimensions.width - 20
+    })
+    .attr('height', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      return boxDimensions.height - 20
+    })
+    .style('pointer-events', 'none')
+    .append('xhtml:div')
+    .style('font-size', '12px')
+    .style('font-family', 'system-ui, -apple-system, sans-serif')
+    .style('color', '#d1d5db')
+    .style('line-height', '1.4')
+    .style('overflow', 'hidden')
+    .style('text-overflow', 'ellipsis')
+    .style('display', 'flex')
+    .style('align-items', 'center')
+    .style('justify-content', 'center')
+    .style('text-align', 'center')
+    .style('width', '100%')
+    .style('height', '100%')
+    .text((d: PositionedNode) => d.node.data.summary)
 }
