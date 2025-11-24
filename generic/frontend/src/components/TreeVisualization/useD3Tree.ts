@@ -1076,7 +1076,6 @@ function updateTree(
 
     if (nodeScores) {
       badgesRendered++
-      console.log(`   ✓ Rendering badges for node ${d.node.data.id}`)
 
       const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
 
@@ -1253,7 +1252,7 @@ function updateTree(
         return `translate(${summaryX}, ${summaryAreaY})`
       }
     })
-    .on('mouseleave', function(_event: MouseEvent, d: PositionedNode) {
+    .on('mouseleave', function (_event: MouseEvent, d: PositionedNode) {
       // Collapse when mouse leaves the entire summary group area
       onSummaryHoverOut(d.node.data.id)
     })
@@ -1275,10 +1274,10 @@ function updateTree(
     .attr('stroke-width', 1)
     .attr('opacity', 0.9)
     .style('cursor', 'pointer')
-    .on('mouseenter', function(_event: MouseEvent, d: PositionedNode) {
+    .on('mouseenter', function (_event: MouseEvent, d: PositionedNode) {
       onSummaryHover(d.node.data.id)
     })
-    .on('mouseleave', function(_event: MouseEvent, d: PositionedNode) {
+    .on('mouseleave', function (_event: MouseEvent, d: PositionedNode) {
       onSummaryHoverOut(d.node.data.id)
     })
 
@@ -1289,7 +1288,7 @@ function updateTree(
     .filter((d: PositionedNode) => hoveredSummaryNodeIds.has(d.node.data.id))
 
   // Create a clipPath for each expanded box for the left-to-right animation
-  expandedBoxes.each(function(d: PositionedNode) {
+  expandedBoxes.each(function (d: PositionedNode) {
     const group = d3.select<SVGGElement, PositionedNode>(this)
     const boxDimensions = calculateBoxDimensions(d.node.data.summary)
     const clipId = `summary-clip-${d.node.data.id}`

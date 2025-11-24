@@ -70,7 +70,7 @@ function applyPulsingAnimation(
         .transition()
         .duration(800)
         .style('opacity', 1)
-        .on('end', function() {
+        .on('end', function () {
           // Check if badge still exists and should continue pulsing
           const element = d3.select(this)
           if (element.node() && element.attr('data-pulsing') === 'true') {
@@ -189,14 +189,6 @@ export function useD3Tree(
     const lastMessageNode = findLastMessageNode(hierarchy, currentBranchId)
     if (lastMessageNode) {
       setCenterNodeId(lastMessageNode.data.id)
-      console.log('lastMessageNode', lastMessageNode)
-      console.log('lastMessageNode.data.id', lastMessageNode.data.id)
-      console.log('lastMessageNode.data.agent_name', lastMessageNode.data.agent_name)
-      console.log('lastMessageNode.data.is_active', lastMessageNode.data.is_active)
-      console.log('lastMessageNode.data.timestamp', lastMessageNode.data.timestamp)
-      console.log('lastMessageNode.data.message', lastMessageNode.data.message)
-      console.log('lastMessageNode.data.parent', lastMessageNode.data.parent)
-      console.log('lastMessageNode.data.children', lastMessageNode.data.children)
     }
   }, [treeData, currentBranchId, width, height])
 
@@ -464,7 +456,7 @@ function updateTree(
     })
 
   // For each node, check if it has tool calls
-  toolBadgeContainer.each(function(d) {
+  toolBadgeContainer.each(function (d) {
     const container = d3.select(this)
     const toolCall = toolCallsByNodeId[d.data.id]
 
@@ -523,18 +515,11 @@ function updateTree(
         if (!isExecuting) {
           badge
             .style('cursor', 'pointer')
-            .on('click', function(event: MouseEvent) {
+            .on('click', function (event: MouseEvent) {
               event.stopPropagation()
               const execution = toolExecutionsByNodeId[d.data.id]
               if (execution && execution.results) {
-                // Show results in console for now (will add modal later)
-                console.log('=== Tool Execution Results ===')
-                console.log('Agent:', execution.agent_name)
-                execution.results.forEach((result: ToolExecutionResult, idx: number) => {
-                  console.log(`\nTool ${idx + 1}: ${result.tool_name}`)
-                  console.log('Success:', result.success)
-                  console.log('Result:', result.result)
-                })
+                // TODO: Add modal to display results
               }
             })
         }
@@ -567,7 +552,7 @@ function updateTree(
     })
 
   // Update tool badges for existing nodes
-  nodeUpdate.each(function(d) {
+  nodeUpdate.each(function (d) {
     const nodeElement = d3.select(this)
     const existingBadges = nodeElement.select('.tool-badges')
 
@@ -627,18 +612,11 @@ function updateTree(
         if (!isExecuting) {
           badge
             .style('cursor', 'pointer')
-            .on('click', function(event: MouseEvent) {
+            .on('click', function (event: MouseEvent) {
               event.stopPropagation()
               const execution = toolExecutionsByNodeId[d.data.id]
               if (execution && execution.results) {
-                // Show results in console for now (will add modal later)
-                console.log('=== Tool Execution Results ===')
-                console.log('Agent:', execution.agent_name)
-                execution.results.forEach((result: ToolExecutionResult, idx: number) => {
-                  console.log(`\nTool ${idx + 1}: ${result.tool_name}`)
-                  console.log('Success:', result.success)
-                  console.log('Result:', result.result)
-                })
+                // TODO: Add modal to display results
               }
             })
         }

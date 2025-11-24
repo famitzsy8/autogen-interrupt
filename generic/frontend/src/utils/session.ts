@@ -26,6 +26,5 @@ function generateUUID(): string {
  */
 export function getOrCreateSessionId(): string {
   const newSessionId = `session_${generateUUID()}`
-  console.log(`[Session] Created fresh session ID for this tab: ${newSessionId}`)
   return newSessionId
 }

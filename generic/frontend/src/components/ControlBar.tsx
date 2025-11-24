@@ -27,7 +27,7 @@ export function ControlBar(): React.ReactElement | null {
         try {
             sendUserMessage(content, targetAgent, currentTrimCount)
         } catch (error) {
-            console.error('Failed to send user message:', error)
+            // Handle error silently
         }
     }
 

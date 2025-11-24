@@ -137,7 +137,7 @@ export function TreeVisualization({
         setEdgeInterrupt(targetNodeId, { x: containerX, y: containerY }, trimCount)
       }
     } catch (error) {
-      console.error('Failed to send interrupt:', error)
+      // Handle error silently
     }
   }
 
