@@ -34,6 +34,32 @@ interface Tab {
   isEnabled: boolean
 }
 
+// Component to display tool arguments
+function ToolArgumentsList({ tool }: { tool: { id: string; name: string; arguments: string } }): React.ReactElement {
+  try {
+    const args = JSON.parse(tool.arguments)
+    return (
+      <div className="bg-black bg-opacity-30 p-3 rounded text-xs font-mono">
+        {Object.entries(args).map(([key, value]) => (
+          <div key={key} className="mb-1">
+            <span className="text-dark-accent">{key}:</span>{' '}
+            <span className="text-gray-300">
+              {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  } catch {
+    // If JSON parsing fails, show raw arguments
+    return (
+      <pre className="bg-black bg-opacity-30 p-3 rounded text-xs font-mono text-gray-300 overflow-x-auto">
+        {tool.arguments}
+      </pre>
+    )
+  }
+}
+
 export function NodeDetailsPopup({
   node,
   stateUpdate,
