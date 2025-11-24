@@ -1109,10 +1109,14 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             if p != self._user_proxy_name
         ]
 
-        # Fallback: if somehow only user_proxy available, select it
+        # INVARIANT ENFORCEMENT: user_proxy can ONLY be selected via analysis trigger
+        # This method is called from non-trigger paths, so we must never select user_proxy
         if len(ai_agents) == 0:
-            logger.warning("No AI agents available, falling back to user_proxy")
-            return self._user_proxy_name
+            raise RuntimeError(
+                f"INVARIANT VIOLATION: No AI agents available for selection. "
+                f"user_proxy '{self._user_proxy_name}' can ONLY be selected when analysis components trigger. "
+                f"Available participants were: {participants}"
+            )
 
         # Single agent optimization
         if len(ai_agents) == 1:
