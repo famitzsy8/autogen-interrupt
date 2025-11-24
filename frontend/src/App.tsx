@@ -77,11 +77,10 @@ function App(): React.ReactElement {
 
   const handleConfigSubmit = async (config: RunConfig) => {
     try {
-      console.log('=== Config submitted, sending to backend ===')
       sendConfig(config)
       setIsConfigured(true)
     } catch (error) {
-      console.error('Failed to send config:', error)
+      // Handle error silently
     }
   }
 
