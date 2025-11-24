@@ -187,6 +187,12 @@ Example:
         facts_section = tool_call_facts if tool_call_facts and tool_call_facts.strip() else "(No trusted facts yet)"
         context_section = state_of_run if state_of_run and state_of_run.strip() else "(No context yet)"
 
+        # Create example using actual component labels
+        component_labels = [comp.label for comp in components]
+        example_scores = {label: 5 for label in component_labels[:2]}  # Use first 2 for example
+        example_reasoning = {label: "Example reasoning" if i == 0 else ""
+                            for i, label in enumerate(component_labels[:2])}
+
         scoring_prompt = f"""Analyze this agent message for accuracy and consistency against known facts.
 
 === TRUSTED FACTS (from verified tool calls) ===
@@ -198,8 +204,10 @@ Example:
 === RESEARCH CONTEXT (for reference) ===
 {context_section}
 
-=== CRITERIA TO SCORE ===
+=== CRITERIA TO SCORE (YOU MUST USE EXACTLY THESE LABELS) ===
 {components_text}
+
+IMPORTANT: You MUST score ALL and ONLY these components: {', '.join(component_labels)}
 
 For each criterion, score 1-10:
 - 1-3: Claim is fully supported by trusted facts
@@ -207,18 +215,12 @@ For each criterion, score 1-10:
 - 8-10: Claim contradicts trusted facts or shows hallucination
 
 Only include reasoning if score >= {trigger_threshold}.
-Return valid JSON only, no other text.
+Return valid JSON with EXACTLY the component labels provided above.
 
-Example format:
+Example format (using YOUR component labels):
 {{
-  "component_scores": {{
-    "committee-membership": 9,
-    "geographic-hallucination": 3
-  }},
-  "component_reasoning": {{
-    "committee-membership": "Claimed Jane Smith is ranking member but API shows John Doe",
-    "geographic-hallucination": ""
-  }}
+  "component_scores": {json.dumps(example_scores, indent=4)},
+  "component_reasoning": {json.dumps(example_reasoning, indent=4)}
 }}
 """
 
@@ -279,12 +281,26 @@ Example format:
                 # Already in nested format
                 scores_data = raw_data["scores"]
             else:
-                logger.warning("[SCORE_MESSAGE] Unexpected response format, no scores found")
-                return {}
+                logger.warning("[SCORE_MESSAGE] Unexpected response format, no scores found - using default scores")
+                # Return default scores (5/10) for all components when format is unexpected
+                default_scores = {}
+                for component in components:
+                    default_scores[component.label] = ComponentScore(
+                        score=5,
+                        reasoning="Default score - unexpected response format"
+                    )
+                return default_scores
 
             if not scores_data:
-                logger.warning("[SCORE_MESSAGE] No scores found in LLM response")
-                return {}
+                logger.warning("[SCORE_MESSAGE] No scores found in LLM response - using default scores")
+                # Return default scores (5/10) for all components when LLM fails
+                default_scores = {}
+                for component in components:
+                    default_scores[component.label] = ComponentScore(
+                        score=5,
+                        reasoning="Default score - analysis unavailable"
+                    )
+                return default_scores
 
             # Build ComponentScore objects
             scores: dict[str, ComponentScore] = {}
@@ -316,7 +332,21 @@ Example format:
         except json.JSONDecodeError as e:
             logger.error(f"[SCORE_MESSAGE] JSON parsing failed: {e}")
             logger.debug(f"[SCORE_MESSAGE] Invalid JSON response: {response.content if 'response' in locals() else 'N/A'}")
-            return {}
+            # Return default scores on JSON parsing failure
+            default_scores = {}
+            for component in components:
+                default_scores[component.label] = ComponentScore(
+                    score=5,
+                    reasoning="Default score - JSON parsing failed"
+                )
+            return default_scores
         except Exception as e:
             logger.error(f"[SCORE_MESSAGE] Failed to score message: {e}", exc_info=True)
-            return {}
+            # Return default scores on any failure
+            default_scores = {}
+            for component in components:
+                default_scores[component.label] = ComponentScore(
+                    score=5,
+                    reasoning="Default score - analysis error"
+                )
+            return default_scores
