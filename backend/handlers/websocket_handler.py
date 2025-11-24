@@ -408,6 +408,13 @@ class WebSocketHandler:
                     elif isinstance(message, BaseChatMessage):
                         total_messages += 1
                         print(f"[{total_messages}] [{message.source}]: {message.content}")
+                        # Skip processing "You" messages from the stream since they're already handled
+                        # in create_branch when the user sends a directed message
+                        if message.source == "You":
+                            print(f"[SKIP] Skipping duplicate 'You' message from stream")
+                            # Still need to create the next task
+                            message_task = asyncio.create_task(stream.__anext__())
+                            continue
                         await self._process_agent_message(message)
                     
                     elif isinstance(message, ToolCallRequestEvent):
@@ -584,9 +591,9 @@ class WebSocketHandler:
 
             if result and getattr(result, "messages", None):
                 for response in result.messages:
-                    # This is to avoid displaying the UserDirectedMessage twice
-                    print("[WS]: This is the source of the response: ", response.source)
+                    # Skip "You" messages as they're already handled via create_branch
                     if isinstance(response, BaseChatMessage) and response.source == "You":
+                        print("[WS]: Skipping 'You' message from result.messages")
                         continue
 
 
