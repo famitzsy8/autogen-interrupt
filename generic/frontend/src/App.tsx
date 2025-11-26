@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { FloatingInputPanel } from './components/FloatingInputPanel'
 import { InterruptButton } from './components/InterruptButton'
+import { TerminateButton } from './components/TerminateButton'
 import { StateDisplay } from './components/StateDisplay'
 import { TreeVisualization } from './components/TreeVisualization'
-import AgentInputModal from './components/AgentInputModal'
+import AgentInputModal, { AgentInputMinimizedTab } from './components/AgentInputModal'
+import TerminationModal from './components/TerminationModal'
 import { ConfigForm } from './components/ConfigForm'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { FileText } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import type { RunConfig } from './types'
 import {
   useAgentInputActions,
@@ -22,11 +24,13 @@ import {
   useMessageActions,
   useUserInteractionActions,
   useIsStateDisplayVisible,
-  useStateDisplayActions,
   useIsInterrupted,
   useTrimCount,
   useEdgeInterrupt,
+  useEdgeInterruptActions,
+  useAnalysisActions,
 } from './hooks/useStore'
+import type { TreeNode } from './types'
 
 function App(): React.ReactElement {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -46,24 +50,50 @@ function App(): React.ReactElement {
   const { setTrimCount } = useUserInteractionActions()
   const isStateDisplayVisible = useIsStateDisplayVisible()
   const { sendHumanInputResponse } = useAgentInputActions()
-  const { setStateDisplayVisible } = useStateDisplayActions()
   const isInterrupted = useIsInterrupted()
   const trimCount = useTrimCount()
   const edgeInterrupt = useEdgeInterrupt()
+  const { clearEdgeInterrupt } = useEdgeInterruptActions()
+  const { markNodeUserInterrupted } = useAnalysisActions()
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
+  const [isInputPanelMinimized, setIsInputPanelMinimized] = useState(false)
+  const [isAgentInputMinimized, setIsAgentInputMinimized] = useState(false)
 
+  // Find the last active node in the tree (deepest node in active branch)
+  const findLastActiveNode = (node: TreeNode): TreeNode | null => {
+    if (!node.is_active) return null
 
-  const handleToggleStateDisplay = () => {
-    setStateDisplayVisible(!isStateDisplayVisible)
+    // Check children for deeper active nodes
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        const deeperNode = findLastActiveNode(child)
+        if (deeperNode) return deeperNode
+      }
+    }
+
+    // This node is active and has no active children, so it's the last
+    return node
   }
 
   const handleInterrupt = () => {
     sendInterrupt()
     setTrimCount(0)
+
+    // Mark the last active node as user-interrupted
+    if (conversationTree) {
+      const lastNode = findLastActiveNode(conversationTree)
+      if (lastNode) {
+        markNodeUserInterrupted(lastNode.id)
+      }
+    }
   }
 
   const handleSendMessage = (content: string, targetAgent: string, trimCount: number) => {
     sendUserMessage(content, targetAgent, trimCount)
+    // Clear edge interrupt state after sending message
+    if (edgeInterrupt) {
+      clearEdgeInterrupt()
+    }
   }
 
   // Connect to WebSocket on mount (only once)
@@ -74,6 +104,20 @@ function App(): React.ReactElement {
     }
     // No cleanup function - let WebSocket stay open across Strict Mode remounts
   }, [])
+
+  // Reset minimized state when interrupt happens so panel shows again
+  useEffect(() => {
+    if (isInterrupted) {
+      setIsInputPanelMinimized(false)
+    }
+  }, [isInterrupted])
+
+  // Reset agent input minimized state when new request comes in
+  useEffect(() => {
+    if (agentInputRequest) {
+      setIsAgentInputMinimized(false)
+    }
+  }, [agentInputRequest])
 
   const handleConfigSubmit = async (config: RunConfig) => {
     try {
@@ -108,8 +152,55 @@ function App(): React.ReactElement {
               currentBranchId={currentBranchId}
             />
 
-            {/* Agent Input Modal - positioned in tree area */}
-            {agentInputRequest && (
+
+
+
+            {/* Top right controls */}
+            <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+              {/* Interrupt Button */}
+              <InterruptButton onInterrupt={handleInterrupt} isStreaming={isStreaming} />
+
+              {/* Terminate Button - ends run and shows final state */}
+              <TerminateButton />
+            </div>
+          </div>
+
+          {/* Floating Input Panel - slides in from right side for both button and edge interrupts */}
+          {(isInterrupted || edgeInterrupt) && !agentInputRequest && (
+            <>
+              {/* Expanded panel */}
+              <div
+                className={`fixed right-0 top-1/2 -translate-y-1/2 z-50 transition-transform duration-300 ease-in-out ${isInputPanelMinimized ? 'translate-x-full' : 'translate-x-0'
+                  }`}
+              >
+                <FloatingInputPanel
+                  onSendMessage={handleSendMessage}
+                  isInterrupted={isInterrupted || !!edgeInterrupt}
+                  selectedAgent={selectedAgent}
+                  onSelectAgent={setSelectedAgent}
+                  trimCount={edgeInterrupt?.trimCount ?? trimCount}
+                  onMinimize={() => setIsInputPanelMinimized(true)}
+                  className="rounded-l-lg rounded-r-none border-r-0"
+                />
+              </div>
+
+              {/* Collapsed tab button - only show when minimized */}
+              {isInputPanelMinimized && (
+                <button
+                  onClick={() => setIsInputPanelMinimized(false)}
+                  className="fixed right-0 top-1/2 -translate-y-1/2 z-50 bg-dark-accent hover:bg-dark-accent/80 text-white px-3 py-2 rounded-l-lg shadow-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
+                  title="Open message panel"
+                >
+                  <ChevronLeft size={18} />
+                  <span>Complete your interruption!</span>
+                </button>
+              )}
+            </>
+          )}
+
+          {/* Agent Input Modal - slides in from right side */}
+          {agentInputRequest && (
+            <>
               <AgentInputModal
                 request={agentInputRequest}
                 onSubmit={(userInput) => {
@@ -119,41 +210,18 @@ function App(): React.ReactElement {
                   // Send 'continue' when user cancels
                   sendHumanInputResponse(agentInputRequest.request_id, 'continue')
                 }}
+                isMinimized={isAgentInputMinimized}
+                onMinimize={() => setIsAgentInputMinimized(true)}
               />
-            )}
 
-
-
-            {/* Top right controls */}
-            <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
-              {/* Interrupt Button */}
-              <InterruptButton onInterrupt={handleInterrupt} isStreaming={isStreaming} />
-
-              {/* Floating toggle button for state display */}
-              {!isStateDisplayVisible && (
-                <button
-                  onClick={handleToggleStateDisplay}
-                  className="p-3 bg-dark-surface hover:bg-dark-accent text-dark-text rounded-full shadow-lg transition-colors"
-                  aria-label="Show state display"
-                  title="Show state history"
-                >
-                  <FileText size={24} />
-                </button>
+              {/* Collapsed tab button for agent input - only show when minimized */}
+              {isAgentInputMinimized && (
+                <AgentInputMinimizedTab
+                  onClick={() => setIsAgentInputMinimized(false)}
+                  hasFeedbackContext={!!agentInputRequest.feedback_context}
+                />
               )}
-            </div>
-          </div>
-
-          {/* Floating Input Panel (replaces ControlBar) - Only show when no edge interrupt is active */}
-          {!edgeInterrupt && (
-            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-              <FloatingInputPanel
-                onSendMessage={handleSendMessage}
-                isInterrupted={isInterrupted}
-                selectedAgent={selectedAgent}
-                onSelectAgent={setSelectedAgent}
-                trimCount={trimCount}
-              />
-            </div>
+            </>
           )}
 
           {/* State display overlay (slides in from left) */}
@@ -164,27 +232,8 @@ function App(): React.ReactElement {
           )}
         </div>
 
-        {/* Connection status indicator */}
-        <div className="fixed bottom-4 right-4 z-50">
-          <div
-            className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-xs ${connectionState === 'connected'
-              ? 'bg-green-900 text-green-300'
-              : connectionState === 'connecting' || connectionState === 'reconnecting'
-                ? 'bg-yellow-900 text-yellow-300'
-                : 'bg-red-900 text-red-300'
-              }`}
-          >
-            <div
-              className={`w-2 h-2 rounded-full ${connectionState === 'connected'
-                ? 'bg-green-400 animate-pulse'
-                : connectionState === 'connecting' || connectionState === 'reconnecting'
-                  ? 'bg-yellow-400 animate-pulse'
-                  : 'bg-red-400'
-                }`}
-            />
-            <span className="font-medium">{connectionState}</span>
-          </div>
-        </div>
+        {/* Termination Modal - displays when run is terminated by user */}
+        <TerminationModal />
       </div>
     </ErrorBoundary>
   )

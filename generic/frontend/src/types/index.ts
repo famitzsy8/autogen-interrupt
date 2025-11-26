@@ -28,6 +28,8 @@ export enum MessageType {
     COMPONENT_GENERATION_REQUEST = 'component_generation_request',
     COMPONENT_GENERATION_RESPONSE = 'component_generation_response',
     RUN_START_CONFIRMED = 'run_start_confirmed',
+    TERMINATE_REQUEST = 'terminate_request',
+    TERMINATE_ACK = 'terminate_ack',
 }
 
 /**
@@ -335,6 +337,26 @@ export interface RunStartConfirmed extends BaseMessage {
 }
 
 /**
+ * User-initiated request to gracefully terminate the agent run.
+ * Unlike USER_INTERRUPT which pauses for user input, this fully ends the run.
+ */
+export interface TerminateRequest extends BaseMessage {
+    type: MessageType.TERMINATE_REQUEST
+}
+
+/**
+ * Acknowledgment of user-initiated termination with final state data.
+ * Contains the final research state and last message for display in a modal.
+ */
+export interface TerminateAck extends BaseMessage {
+    type: MessageType.TERMINATE_ACK
+    state_of_run: string
+    tool_call_facts: string
+    last_message_content: string
+    last_message_source: string
+}
+
+/**
  * Union type of all possible WebSocket messages from server.
  * We declare this to do neat case distinction when the frontend recieves a message from the agent team.
  */
@@ -356,12 +378,13 @@ export type ServerMessage =
   | AnalysisUpdate
   | AnalysisComponentsInit
   | ComponentGenerationResponse
+  | TerminateAck
 
 /**
  * Union type of all possible WebSocket messages sent to server.
  * We declare this to do neat case distinction when the frontend sends a message to the agent team.
  */
-export type ClientMessage = RunConfig | UserInterrupt | UserDirectedMessage | HumanInputResponse | ComponentGenerationRequest | RunStartConfirmed
+export type ClientMessage = RunConfig | UserInterrupt | UserDirectedMessage | HumanInputResponse | ComponentGenerationRequest | RunStartConfirmed | TerminateRequest
 
 /**
  * State of the WebSocket connection between frontend and backend.

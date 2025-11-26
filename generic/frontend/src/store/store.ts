@@ -37,6 +37,8 @@ import type {
     ComponentGenerationRequest,
     ComponentGenerationResponse,
     RunStartConfirmed,
+    TerminateRequest,
+    TerminateAck,
 } from '../types'
 
 import {
@@ -101,6 +103,7 @@ interface State {
     analysisComponents: AnalysisComponent[]
     analysisScores: Map<string, AnalysisScores>
     triggeredNodes: Set<string>
+    userInterruptedNodes: Set<string>
 
     // Component generation state (for review modal)
     generatedComponents: AnalysisComponent[] | null
@@ -113,6 +116,9 @@ interface State {
 
     // Error state
     error: AppError | null
+
+    // Termination state (for graceful user-initiated termination)
+    terminationData: TerminateAck | null
 
     // Below are the functions that are used to manage (add/remove/update) different fields of our above-defined
     // Zustand state
@@ -165,6 +171,12 @@ interface State {
     setStateDisplayVisible: (visible: boolean) => void
     setError: (error: AppError | null) => void
     clearError: () => void
+
+    // Actions: Termination management
+    sendTerminateRequest: () => void
+    setTerminationData: (data: TerminateAck) => void
+    clearTerminationData: () => void
+
     reset: () => void
 }
 
@@ -547,6 +559,15 @@ export const useStore = create<State>()(
                         break
                     }
 
+                    case 'terminate_ack': {
+                        const typedMessage = message as TerminateAck
+                        set({
+                            terminationData: typedMessage,
+                            streamState: StreamStateEnum.ENDED,
+                        })
+                        break
+                    }
+
                     default:
                         set({
                             error: {
@@ -748,6 +769,34 @@ export const useStore = create<State>()(
 
             clearError: () => {
                 set({ error: null })
+            },
+
+            // Termination actions
+            sendTerminateRequest: () => {
+                const { wsConnection, connectionState, streamState } = get()
+
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
+                    throw new Error('WebSocket is not connected')
+                }
+
+                if (streamState !== StreamStateEnum.STREAMING) {
+                    throw new Error('Cannot terminate when stream is not active')
+                }
+
+                const message: TerminateRequest = {
+                    type: MessageType.TERMINATE_REQUEST,
+                    timestamp: new Date().toISOString()
+                }
+
+                wsConnection.ws.send(JSON.stringify(message))
+            },
+
+            setTerminationData: (data: TerminateAck) => {
+                set({ terminationData: data })
+            },
+
+            clearTerminationData: () => {
+                set({ terminationData: null })
             },
 
             reset: () => {

@@ -34,6 +34,8 @@ class MessageType(str, Enum):
     COMPONENT_GENERATION_REQUEST = 'component_generation_request'
     COMPONENT_GENERATION_RESPONSE = 'component_generation_response'
     RUN_START_CONFIRMED = 'run_start_confirmed'
+    TERMINATE_REQUEST = 'terminate_request'
+    TERMINATE_ACK = 'terminate_ack'
 
 
 class AgentTeamNames(BaseModel):
@@ -604,4 +606,38 @@ class RunStartConfirmed(BaseModel):
         description="Score threshold for triggering analysis alerts (1-10 scale)"
     )
 
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class TerminateRequest(BaseModel):
+    # User-initiated request to gracefully terminate the agent run.
+    # Unlike USER_INTERRUPT which pauses for user input, this fully ends the run
+    # and returns final state data.
+
+    type: Literal[MessageType.TERMINATE_REQUEST] = MessageType.TERMINATE_REQUEST
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class TerminateAck(BaseModel):
+    # Acknowledgment of user-initiated termination with final state data.
+    # Sent after the run is terminated, containing the final research state
+    # and the last message for display in a termination modal.
+
+    type: Literal[MessageType.TERMINATE_ACK] = MessageType.TERMINATE_ACK
+    state_of_run: str = Field(
+        ...,
+        description="Final research progress state at time of termination"
+    )
+    tool_call_facts: str = Field(
+        ...,
+        description="Accumulated facts from tool executions"
+    )
+    last_message_content: str = Field(
+        ...,
+        description="Content of the last TextMessage before termination"
+    )
+    last_message_source: str = Field(
+        ...,
+        description="Agent who sent the last message"
+    )
     timestamp: datetime = Field(default_factory=datetime.now)
