@@ -145,10 +145,6 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
           {/* Feedback Context Section - Only shown when analysis triggered */}
           {hasFeedbackContext && feedback_context && (
             <div className="mb-4 space-y-3">
-              {/* Info text */}
-              <p className="text-xs text-gray-300">
-                The following components triggered above the threshold. Review the details and provide feedback.
-              </p>
 
               {/* Triggered Components with Details */}
               {feedback_context.triggered_with_details && Object.entries(feedback_context.triggered_with_details).length > 0 ? (
@@ -263,9 +259,6 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 
               {/* Expandable Details Section */}
               <details className="p-3 bg-gray-900/50 rounded border border-gray-600/30">
-                <strong className="cursor-pointer font-medium text-sm text-gray-300 hover:text-gray-100 transition-colors">
-                  View The Message That Triggered
-                </strong>
 
                 <div className="mt-3 space-y-3">
                   {/* Agent Message */}
