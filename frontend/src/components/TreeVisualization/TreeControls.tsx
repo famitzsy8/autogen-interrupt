@@ -10,18 +10,11 @@
  */
 
 import React from 'react'
-import { ZoomIn, ZoomOut, Maximize2, Focus } from 'lucide-react'
 
 /**
  * Props for TreeControls component.
  */
 interface TreeControlsProps {
-  onRecenter: () => void
-  onZoomIn: () => void
-  onZoomOut: () => void
-  onResetZoom: () => void
-  nodeCount?: number
-  treeDepth?: number
   isNavigationMode?: boolean
   onEnableAutoCenter?: () => void
 }
@@ -30,12 +23,6 @@ interface TreeControlsProps {
  * TreeControls component for tree navigation and zoom controls.
  */
 export function TreeControls({
-  onRecenter,
-  onZoomIn,
-  onZoomOut,
-  onResetZoom,
-  nodeCount = 0,
-  treeDepth = 0,
   isNavigationMode = false,
   onEnableAutoCenter,
 }: TreeControlsProps): React.ReactElement {
@@ -60,127 +47,7 @@ export function TreeControls({
           </button>
         </div>
       )}
-      {/* Stats panel */}
-      <div className="bg-dark-hover border border-dark-border rounded-lg p-3 shadow-lg">
-        <h3 className="text-xs font-semibold text-gray-400 mb-2">Tree Stats</h3>
-        <div className="space-y-1 text-xs text-gray-500">
-          <div className="flex items-center justify-between gap-4">
-            <span>Nodes:</span>
-            <span className="text-dark-text font-medium">{nodeCount}</span>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <span>Depth:</span>
-            <span className="text-dark-text font-medium">{treeDepth}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Control buttons */}
-      <div className="bg-dark-hover border border-dark-border rounded-lg p-2 shadow-lg">
-        <div className="flex flex-col gap-1">
-          {/* Recenter button */}
-          <ControlButton
-            onClick={onRecenter}
-            icon={<Focus size={16} />}
-            label="Recenter (C)"
-            title="Recenter view on last user message"
-          />
-
-          {/* Zoom controls */}
-          <div className="h-px bg-dark-border my-1" />
-
-          <ControlButton
-            onClick={onZoomIn}
-            icon={<ZoomIn size={16} />}
-            label="Zoom In (+)"
-            title="Zoom in"
-          />
-
-          <ControlButton
-            onClick={onZoomOut}
-            icon={<ZoomOut size={16} />}
-            label="Zoom Out (-)"
-            title="Zoom out"
-          />
-
-          <ControlButton
-            onClick={onResetZoom}
-            icon={<Maximize2 size={16} />}
-            label="Reset (0)"
-            title="Reset zoom to default"
-          />
-        </div>
-      </div>
-
-      {/* Keyboard shortcuts help */}
-      <div className="bg-dark-hover border border-dark-border rounded-lg p-3 shadow-lg">
-        <h3 className="text-xs font-semibold text-gray-400 mb-2">Shortcuts</h3>
-        <div className="space-y-1 text-xs text-gray-500">
-          <div className="flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 bg-dark-bg border border-dark-border rounded text-xs">
-              C
-            </kbd>
-            <span>Recenter</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 bg-dark-bg border border-dark-border rounded text-xs">
-              +
-            </kbd>
-            <span>Zoom in</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 bg-dark-bg border border-dark-border rounded text-xs">
-              -
-            </kbd>
-            <span>Zoom out</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 bg-dark-bg border border-dark-border rounded text-xs">
-              0
-            </kbd>
-            <span>Reset zoom</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 bg-dark-bg border border-dark-border rounded text-xs">
-              Drag
-            </kbd>
-            <span>Pan view</span>
-          </div>
-        </div>
-      </div>
     </div>
-  )
-}
-
-/**
- * Props for ControlButton component.
- */
-interface ControlButtonProps {
-  onClick: () => void
-  icon: React.ReactNode
-  label: string
-  title: string
-}
-
-/**
- * Reusable button component for tree controls.
- */
-function ControlButton({
-  onClick,
-  icon,
-  label,
-  title,
-}: ControlButtonProps): React.ReactElement {
-  return (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-2 px-3 py-2 rounded text-gray-400 hover:text-dark-text hover:bg-dark-bg transition-colors"
-      title={title}
-      aria-label={label}
-    >
-      {icon}
-      <span className="text-xs font-medium">{label}</span>
-    </button>
   )
 }
 

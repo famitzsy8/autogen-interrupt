@@ -164,14 +164,8 @@ function EmptyTreeState(): React.ReactElement {
           </svg>
         </div>
         <h3 className="text-lg font-semibold text-gray-500 mb-2">
-          No Conversation Tree Yet
+          Waiting for the conversation to start...
         </h3>
-        <p className="text-sm text-gray-600">
-          The conversation tree will appear here once agents start conversing.
-        </p>
-        <p className="text-xs text-gray-700 mt-2">
-          Each node represents an agent message, and branches show conversation flow.
-        </p>
       </div>
     </div>
   )

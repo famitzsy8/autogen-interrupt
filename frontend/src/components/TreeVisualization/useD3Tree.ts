@@ -1,92 +1,120 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as d3 from 'd3'
-import type { ConversationItemType, TreeNode, ToolCall, ToolExecution } from "../../types"
+import type { ConversationItemType, TreeNode, ToolCall, ToolExecution, AnalysisComponent, AnalysisScores } from "../../types"
 import type { D3TreeNode, TreeConfig } from './utils/treeUtils'
 import {
-    convertToD3Hierarchy,
-    findActivePath,
-    findVisibleNodes,
-    expandAllNodes,
-    findLastMessageNode,
-    DEFAULT_TREE_CONFIG,
-  } from './utils/treeUtils'
+  convertToD3Hierarchy,
+  findActivePath,
+  expandAllNodes,
+  findLastMessageNode,
+  DEFAULT_TREE_CONFIG,
+  extractAgentNames,
+} from './utils/treeUtils'
+import { getColorForScore, assignSequentialScheme, type SequentialSchemeName, getAgentColorD3, registerAgentColors } from '../../utils/colorSchemes'
 
 interface UseD3TreeOptions {
-    width: number
-    height: number
-    config?: Partial<TreeConfig>
-    toolCallsByNodeId?: Record<string, ToolCall>
-    toolExecutionsByNodeId?: Record<string, ToolExecution>
-    isInterrupted?: boolean
-    onNodeClick?: (nodeId: string, itemType: ConversationItemType) => void
-    edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null
-    onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }) => void
+  width: number
+  height: number
+  config?: Partial<TreeConfig>
+  toolCallsByNodeId?: Record<string, ToolCall>
+  toolExecutionsByNodeId?: Record<string, ToolExecution>
+  isInterrupted?: boolean
+  onNodeClick?: (nodeId: string, itemType: ConversationItemType) => void
+  edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null
+  onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
+  analysisComponents?: AnalysisComponent[]
+  analysisScores?: Map<string, AnalysisScores>
+  triggeredNodes?: Set<string>
+  userInterruptedNodes?: Set<string>
 }
 
 interface UseD3TreeReturn {
-    svgRef: React.RefObject<SVGSVGElement>
-    root: D3TreeNode | null
-    activeNodeIds: Set<string>
-    centerNodeId: string | null
-    recenter: () => void
-    zoomIn: () => void
-    zoomOut: () => void
-    resetZoom: () => void
-    isNavigationMode: boolean
-    enableAutoCenter: () => void
+  svgRef: React.RefObject<SVGSVGElement>
+  root: D3TreeNode | null
+  activeNodeIds: Set<string>
+  centerNodeId: string | null
+  recenter: () => void
+  zoomIn: () => void
+  zoomOut: () => void
+  resetZoom: () => void
+  isNavigationMode: boolean
+  enableAutoCenter: () => void
 }
 
 
 const ANIMATION_DURATION = 300
 
+// Swimlane layout constants for horizontal visualization
+const SWIMLANE_HEIGHT = 120          // Height of each agent swimlane in pixels
+const LEFT_MARGIN = 150              // Left margin before first nodes
+const NODE_RADIUS = 13               // Radius of node circles (60% larger than original 8)
 
-/**
- * Apply pulsing animation to a badge while it's executing.
- */
-function applyPulsingAnimation(
-    badge: d3.Selection<SVGGElement, unknown, null, undefined>,
-    isExecuting: boolean
-  ): void {
-    if (isExecuting) {
-      // Start pulsing animation
-      function pulse(this: SVGGElement) {
-        d3.select(this)
-          .transition()
-          .duration(800)
-          .style('opacity', 0.2)
-          .transition()
-          .duration(800)
-          .style('opacity', 1)
-          .on('end', function() {
-            // Check if badge still exists and should continue pulsing
-            const element = d3.select(this)
-            if (element.node() && element.attr('data-pulsing') === 'true') {
-              pulse.call(this)
-            }
-          })
-      }
-  
-      badge.attr('data-pulsing', 'true')
-      pulse.call(badge.node() as SVGGElement)
-    } else {
-      // Stop pulsing, ensure full opacity
-      badge.attr('data-pulsing', 'false')
-      badge.interrupt() // Stop any ongoing transitions
-      badge.style('opacity', 1)
-    }
-}
+// Dynamic spacing parameters
+const RECENT_NODE_MAX_SPACING = 300  // Maximum spacing for the most recent nodes
+const RECENT_NODE_MIN_SPACING = 150  // Minimum spacing for recent nodes (within 5 nodes)
+const OLD_NODE_SPACING = 80          // Fixed spacing for older nodes (5+ positions back)
+const RECENT_NODE_THRESHOLD = 5      // Number of nodes considered "recent"
 
-/**
- * Get fixed color for tool badges.
- */
-function getToolColor(): { bg: string; border: string } {
-  return { bg: '#1f6feb', border: '#58a6ff' }
-}
 
 function getConversationItemTypeForNode(node: TreeNode): ConversationItemType {
   if (node.node_type === 'tool_call') return 'tool_call'
   if (node.node_type === 'tool_execution') return 'tool_execution'
   return 'message'
+}
+
+/**
+ * Calculate number of nodes to trim when branching at a given edge.
+ * Trim count = number of active nodes in current branch AFTER the target node.
+ */
+function calculateTrimCount(targetNodeId: string, treeRoot: TreeNode): number {
+  let count = 0
+  let foundTarget = false
+
+  function traverse(node: TreeNode): void {
+    // If we already found the target, count this active node
+    if (foundTarget && node.id !== targetNodeId && node.is_active) {
+      count++
+    }
+
+    // Check if this is the target node
+    if (node.id === targetNodeId) {
+      foundTarget = true
+    }
+
+    // Traverse children
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(child => traverse(child))
+    }
+  }
+
+  traverse(treeRoot)
+  return count
+}
+
+/**
+ * Calculate dynamic spacing for a node based on its distance from the latest node.
+ * - Last 2 nodes: maximum spacing (300px)
+ * - Nodes 3-5 back: linearly decreasing spacing (150-300px)
+ * - Nodes 5+ back: fixed small spacing (80px)
+ *
+ * @param distanceFromLatest - How many positions back from the latest node (0 = latest)
+ * @returns Spacing in pixels to use after this node
+ */
+function calculateDynamicSpacing(distanceFromLatest: number): number {
+  if (distanceFromLatest === 0) {
+    return RECENT_NODE_MAX_SPACING
+  }
+
+  if (distanceFromLatest === 1) {
+    return RECENT_NODE_MAX_SPACING
+  }
+
+  if (distanceFromLatest < RECENT_NODE_THRESHOLD) {
+    const progressionRatio = (RECENT_NODE_THRESHOLD - distanceFromLatest) / (RECENT_NODE_THRESHOLD - 2)
+    return RECENT_NODE_MIN_SPACING + (RECENT_NODE_MAX_SPACING - RECENT_NODE_MIN_SPACING) * progressionRatio
+  }
+
+  return OLD_NODE_SPACING
 }
 
 /**
@@ -97,902 +125,1477 @@ function getConversationItemTypeForNode(node: TreeNode): ConversationItemType {
  * @returns Tree state and control functions
  */
 export function useD3Tree(
-    treeData: TreeNode | null,
-    currentBranchId: string,
-    options: UseD3TreeOptions
-  ): UseD3TreeReturn {
-    const {
-      width,
-      height,
-      config = {},
-      toolCallsByNodeId = {},
-      toolExecutionsByNodeId = {},
-      isInterrupted = false,
-      edgeInterrupt = null,
-      onEdgeClick,
-      onNodeClick,
-    } = options
+  treeData: TreeNode | null,
+  currentBranchId: string,
+  options: UseD3TreeOptions
+): UseD3TreeReturn {
+  const {
+    width,
+    height,
+    config = {},
+    toolCallsByNodeId = {},
+    toolExecutionsByNodeId = {},
+    isInterrupted = false,
+    edgeInterrupt = null,
+    onEdgeClick,
+    onNodeClick,
+    analysisComponents = [],
+    analysisScores = new Map(),
+    triggeredNodes = new Set(),
+    userInterruptedNodes = new Set(),
+  } = options
 
-    const svgRef = useRef<SVGSVGElement>(null)
-    const gRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null)
-    const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
-    const transformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity)
-    const userInteractionTimeoutRef = useRef<number | null>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+  const gRef = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null)
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
+  const transformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity)
+  const userInteractionTimeoutRef = useRef<number | null>(null)
 
-    const [root, setRoot] = useState<D3TreeNode | null>(null)
-    const [activeNodeIds, setActiveNodeIds] = useState<Set<string>>(new Set())
-    const [centerNodeId, setCenterNodeId] = useState<string | null>(null)
-    const [autoCenterEnabled, setAutoCenterEnabled] = useState<boolean>(true)
-    const lastMouseActivityRef = useRef<number>(Date.now())
-    const throttleTimeoutRef = useRef<number | null>(null)
-    const isInitializedRef = useRef<boolean>(false)
+  const [root, setRoot] = useState<D3TreeNode | null>(null)
+  const [activeNodeIds, setActiveNodeIds] = useState<Set<string>>(new Set())
+  const [centerNodeId, setCenterNodeId] = useState<string | null>(null)
+  const [autoCenterEnabled, setAutoCenterEnabled] = useState<boolean>(true)
+  const [hoveredSummaryNodeIds, setHoveredSummaryNodeIds] = useState<Set<string>>(new Set())
+  const [foregroundSummaryId, setForegroundSummaryId] = useState<string | null>(null)
+  const lastMouseActivityRef = useRef<number>(Date.now())
+  const throttleTimeoutRef = useRef<number | null>(null)
+  const isInitializedRef = useRef<boolean>(false)
 
-    const treeConfig: TreeConfig = { ...DEFAULT_TREE_CONFIG, ...config }
+  const treeConfig: TreeConfig = { ...DEFAULT_TREE_CONFIG, ...config }
 
-    /**
-     * Reset the auto-center timeout whenever user interacts with the tree.
-     * This ensures auto-centering is disabled during active interaction
-     * and only re-enables after 15 seconds of inactivity.
-     * Throttled to avoid excessive calls during continuous movement.
-     */
-    const handleUserActivity = useCallback(() => {
-      // Ignore activity during initial setup
-      if (!isInitializedRef.current) {
-        return
+  /**
+   * Reset the auto-center timeout whenever user interacts with the tree.
+   * This ensures auto-centering is disabled during active interaction
+   * and only re-enables after 15 seconds of inactivity.
+   * Throttled to avoid excessive calls during continuous movement.
+   */
+  const handleUserActivity = useCallback(() => {
+    // Ignore activity during initial setup
+    if (!isInitializedRef.current) {
+      return
+    }
+
+    const now = Date.now()
+
+    // Throttle to max once per 100ms to avoid excessive state updates
+    if (throttleTimeoutRef.current && now - lastMouseActivityRef.current < 100) {
+      return
+    }
+
+    lastMouseActivityRef.current = now
+
+    // Disable auto-centering immediately (only if not already disabled)
+    setAutoCenterEnabled(prev => {
+      if (prev) {
+        return false
       }
+      return prev
+    })
 
-      const now = Date.now()
+    // Clear any existing timeout
+    if (userInteractionTimeoutRef.current) {
+      clearTimeout(userInteractionTimeoutRef.current)
+    }
 
-      // Throttle to max once per 100ms to avoid excessive state updates
-      if (throttleTimeoutRef.current && now - lastMouseActivityRef.current < 100) {
-        return
-      }
+    // Set a 15-second timeout to re-enable auto-centering
+    userInteractionTimeoutRef.current = window.setTimeout(() => {
+      setAutoCenterEnabled(true)
+    }, 15000)
+  }, [])
 
-      lastMouseActivityRef.current = now
+  /**
+   * Initialize D3 tree and setup zoom behavior.
+   */
+  useEffect(() => {
+    if (!svgRef.current || !treeData) return
 
-      // Disable auto-centering immediately (only if not already disabled)
-      setAutoCenterEnabled(prev => {
-        if (prev) {
-          return false
-        }
-        return prev
-      })
+    const svg = d3.select(svgRef.current)
 
-      // Clear any existing timeout
-      if (userInteractionTimeoutRef.current) {
-        clearTimeout(userInteractionTimeoutRef.current)
-      }
+    // Clear existing content
+    svg.selectAll('*').remove()
 
-      // Set a 15-second timeout to re-enable auto-centering
-      userInteractionTimeoutRef.current = window.setTimeout(() => {
-        setAutoCenterEnabled(true)
-      }, 15000)
-    }, [])
-  
-    /**
-     * Initialize D3 tree and setup zoom behavior.
-     */
-    useEffect(() => {
-      if (!svgRef.current || !treeData) return
+    // Create main group for tree content
+    const g = svg.append('g').attr('class', 'tree-container')
+    gRef.current = g
 
-      const svg = d3.select(svgRef.current)
-
-      // Clear existing content
-      svg.selectAll('*').remove()
-
-      // Create main group for tree content
-      const g = svg.append('g').attr('class', 'tree-container')
-      gRef.current = g
-
-      // Setup zoom behavior - only track zoom START for user interaction
-      const zoom = d3
-        .zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.1, 3])
-        .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-          g.attr('transform', event.transform.toString())
-          transformRef.current = event.transform
-        })
-        .on('start', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-          // Only trigger user activity if it's an actual user interaction (not programmatic)
-          if (event.sourceEvent) {
-            handleUserActivity()
+    // Setup zoom behavior - optimized for horizontal swimlane layout
+    // Scale extent [0.5, 3] allows 50% zoom out to 300% zoom in
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.5, 3])
+      .filter((event: Event) => {
+        // Allow wheel events for zooming
+        if (event.type === 'wheel') return true
+        // Allow double-click zoom
+        if (event.type === 'dblclick') return true
+        // For mouse/touch events, check if target is an interactive element
+        if (event.type === 'mousedown' || event.type === 'touchstart') {
+          const target = event.target as Element
+          // Don't initiate pan/drag if clicking on interactive elements (circles, nodes, edges)
+          if (target.classList.contains('summary-circle') ||
+              target.classList.contains('node-circle') ||
+              target.classList.contains('edge-path') ||
+              target.closest('.summary-circle') ||
+              target.closest('.node-group') ||
+              target.closest('.edge-group')) {
+            return false
           }
-        })
-
-      svg.call(zoom)
-      zoomRef.current = zoom
-
-      // Convert tree data to D3 hierarchy
-      const hierarchy = convertToD3Hierarchy(treeData)
-
-      // Initialize node positions
-      hierarchy.x0 = width / 2
-      hierarchy.y0 = 0
-
-      // Store hierarchy in state
-      setRoot(hierarchy)
-
-      // Find active path
-      const activePath = findActivePath(hierarchy, currentBranchId)
-      setActiveNodeIds(activePath)
-
-      // Find last message node to center on
-      const lastMessageNode = findLastMessageNode(hierarchy, currentBranchId)
-      if (lastMessageNode) {
-        setCenterNodeId(lastMessageNode.data.id)
-      }
-
-      // Track mouse drag specifically (mousedown + mousemove = drag)
-      const svgElement = svgRef.current
-      let isDragging = false
-
-      const handleMouseDown = () => {
-        isDragging = true
-      }
-
-      const handleMouseMove = () => {
-        if (isDragging) {
+          return true // Allow drag on empty space
+        }
+        return false
+      })
+      .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+        g.attr('transform', event.transform.toString())
+        transformRef.current = event.transform
+      })
+      .on('start', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+        // Only trigger user activity if it's an actual user interaction (not programmatic)
+        if (event.sourceEvent) {
           handleUserActivity()
         }
-      }
-
-      const handleMouseUp = () => {
-        isDragging = false
-      }
-
-      // Only track wheel events (scroll to zoom)
-      const handleWheel = () => {
-        handleUserActivity()
-      }
-
-      svgElement.addEventListener('mousedown', handleMouseDown)
-      svgElement.addEventListener('mousemove', handleMouseMove)
-      svgElement.addEventListener('mouseup', handleMouseUp)
-      svgElement.addEventListener('wheel', handleWheel)
-
-      // Mark as initialized after a short delay to avoid capturing setup events
-      setTimeout(() => {
-        isInitializedRef.current = true
-      }, 500)
-
-      // Cleanup function - runs when component unmounts or dependencies change
-      return () => {
-        if (userInteractionTimeoutRef.current) {
-          clearTimeout(userInteractionTimeoutRef.current)
-        }
-        svgElement.removeEventListener('mousedown', handleMouseDown)
-        svgElement.removeEventListener('mousemove', handleMouseMove)
-        svgElement.removeEventListener('mouseup', handleMouseUp)
-        svgElement.removeEventListener('wheel', handleWheel)
-        isInitializedRef.current = false
-      }
-    }, [treeData, currentBranchId, width, height, handleUserActivity])
-  
-    /**
-     * Update tree visualization when data or configuration changes.
-     */
-    useEffect(() => {
-      if (!root || !gRef.current) return
-
-      updateTree(root, gRef.current, {
-        width,
-        height,
-        config: treeConfig,
-        activeNodeIds,
-        toolCallsByNodeId,
-        toolExecutionsByNodeId,
-        edgeInterrupt,
-        onEdgeClick,
-        onNodeClick,
       })
 
-      // After tree updates, preserve transform in navigation mode
-      if (!autoCenterEnabled && svgRef.current && zoomRef.current) {
-        const svg = d3.select(svgRef.current)
-        // Use a very short timeout to let D3 finish its update first
-        setTimeout(() => {
-          svg.call(zoomRef.current!.transform, transformRef.current)
-        }, 0)
+    svg.call(zoom)
+    zoomRef.current = zoom
+
+    // Convert tree data to D3 hierarchy
+    const hierarchy = convertToD3Hierarchy(treeData)
+
+    // Extract agent names in order of first appearance and register colors
+    // This ensures consistent sequential color assignment across all components
+    const agentNames = extractAgentNames(treeData)
+    registerAgentColors(agentNames)
+
+    // Initialize node positions
+    hierarchy.x0 = width / 2
+    hierarchy.y0 = 0
+
+    // Store hierarchy in state
+    setRoot(hierarchy)
+
+    // Find active path
+    const activePath = findActivePath(hierarchy, currentBranchId)
+    setActiveNodeIds(activePath)
+
+    // Find last message node to center on
+    const lastMessageNode = findLastMessageNode(hierarchy, currentBranchId)
+    if (lastMessageNode) {
+      setCenterNodeId(lastMessageNode.data.id)
+    }
+
+    // Track mouse drag specifically (mousedown + mousemove = drag)
+    const svgElement = svgRef.current
+    let isDragging = false
+
+    const handleMouseDown = () => {
+      isDragging = true
+    }
+
+    const handleMouseMove = () => {
+      if (isDragging) {
+        handleUserActivity()
       }
-    }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick])
-  
-    /**
-     * Update center node when tree data changes to keep view on latest messages.
-     * Only auto-center if:
-     * - Not interrupted
-     * - Auto-centering is enabled (user hasn't interacted recently)
-     */
-    useEffect(() => {
-      if (!root || isInterrupted || !autoCenterEnabled) {
-        return
-      }
+    }
 
-      const lastMessageNode = findLastMessageNode(root, currentBranchId)
-      if (lastMessageNode && lastMessageNode.data.id !== centerNodeId) {
-        setCenterNodeId(lastMessageNode.data.id)
-      }
-    }, [root, centerNodeId, currentBranchId, isInterrupted, autoCenterEnabled])
-  
-    /**
-     * Recenter the view on the specified center node or root.
-     */
-    const recenter = useCallback(() => {
-      if (!root || !svgRef.current || !zoomRef.current) return
+    const handleMouseUp = () => {
+      isDragging = false
+    }
 
-      // Find the target node by centerNodeId if provided
-      let targetNode: D3TreeNode | null = null
-      if (centerNodeId) {
-        root.each((node) => {
-          if (node.data.id === centerNodeId) {
-            targetNode = node
-          }
-        })
-      }
+    // Only track wheel events (scroll to zoom)
+    const handleWheel = () => {
+      handleUserActivity()
+    }
 
-      // Fallback to root if node not found
-      if (!targetNode) {
-        targetNode = root
-      }
+    svgElement.addEventListener('mousedown', handleMouseDown)
+    svgElement.addEventListener('mousemove', handleMouseMove)
+    svgElement.addEventListener('mouseup', handleMouseUp)
+    svgElement.addEventListener('wheel', handleWheel)
 
-      if (targetNode) {
-        // Calculate transform to position the node optimally
-        const svg = d3.select(svgRef.current)
-        const scale = transformRef.current.k
+    // Mark as initialized after a short delay to avoid capturing setup events
+    setTimeout(() => {
+      isInitializedRef.current = true
+    }, 500)
 
-        // Center horizontally
-        const x = -targetNode.x! * scale + width / 2
-
-        // Position vertically at 1/3 from bottom (2/3 from top)
-        // This shows more tree context above the new node, which is better
-        // for viewing new messages at the bottom of the tree
-        const y = -targetNode.y! * scale + (height * 2 / 3)
-
-
-        svg
-          .transition()
-          .duration(ANIMATION_DURATION)
-          .call(zoomRef.current.transform, d3.zoomIdentity.translate(x, y).scale(scale))
-      }
-    }, [root, width, height, centerNodeId])
-  
-    /**
-     * Automatically recenter the view when the centerNodeId changes.
-     * Only if auto-centering is enabled and not interrupted.
-     * If in navigation mode, preserve the current transform.
-     */
-    useEffect(() => {
-      if (centerNodeId && autoCenterEnabled && !isInterrupted) {
-        recenter()
-      } else if (!autoCenterEnabled && svgRef.current && zoomRef.current) {
-        // In navigation mode: preserve the current transform when tree updates
-        const svg = d3.select(svgRef.current)
-        const currentTransform = transformRef.current
-
-        // Re-apply the current transform (without animation to avoid jarring movement)
-        svg.call(zoomRef.current.transform, currentTransform)
-      }
-    }, [centerNodeId, recenter, autoCenterEnabled, isInterrupted])
-
-    /**
-     * Cleanup timeout on unmount.
-     */
-    useEffect(() => {
-      return () => {
-        if (userInteractionTimeoutRef.current) {
-          clearTimeout(userInteractionTimeoutRef.current)
-        }
-      }
-    }, [])
-  
-    /**
-     * Zoom in on the tree.
-     */
-    const zoomIn = useCallback(() => {
-      if (!svgRef.current || !zoomRef.current) return
-  
-      const svg = d3.select(svgRef.current)
-      svg.transition().duration(ANIMATION_DURATION).call(zoomRef.current.scaleBy, 1.3)
-    }, [])
-  
-    /**
-     * Zoom out on the tree.
-     */
-    const zoomOut = useCallback(() => {
-      if (!svgRef.current || !zoomRef.current) return
-  
-      const svg = d3.select(svgRef.current)
-      svg.transition().duration(ANIMATION_DURATION).call(zoomRef.current.scaleBy, 0.7)
-    }, [])
-  
-    /**
-     * Reset zoom to default view.
-     */
-    const resetZoom = useCallback(() => {
-      if (!svgRef.current || !zoomRef.current) return
-
-      const svg = d3.select(svgRef.current)
-      svg
-        .transition()
-        .duration(ANIMATION_DURATION)
-        .call(zoomRef.current.transform, d3.zoomIdentity.translate(50, height / 2))
-    }, [height])
-
-    /**
-     * Manually enable auto-centering (exit navigation mode).
-     */
-    const enableAutoCenter = useCallback(() => {
-
-      // Clear any existing timeout
+    // Cleanup function - runs when component unmounts or dependencies change
+    return () => {
       if (userInteractionTimeoutRef.current) {
         clearTimeout(userInteractionTimeoutRef.current)
-        userInteractionTimeoutRef.current = null
       }
-
-      // Enable auto-centering
-      setAutoCenterEnabled(true)
-
-      // Immediately recenter to the last message node
-      if (centerNodeId) {
-        setTimeout(() => recenter(), 0)
-      }
-    }, [centerNodeId, recenter])
-
-    return {
-      svgRef,
-      root,
-      activeNodeIds,
-      centerNodeId,
-      recenter,
-      zoomIn,
-      zoomOut,
-      resetZoom,
-      isNavigationMode: !autoCenterEnabled,
-      enableAutoCenter,
+      svgElement.removeEventListener('mousedown', handleMouseDown)
+      svgElement.removeEventListener('mousemove', handleMouseMove)
+      svgElement.removeEventListener('mouseup', handleMouseUp)
+      svgElement.removeEventListener('wheel', handleWheel)
+      isInitializedRef.current = false
     }
-  }
-  
-  /**
-   * Update tree visualization with new data.
-   */
-  interface UpdateTreeOptions {
-    width: number
-    height: number
-    config: TreeConfig
-    activeNodeIds: Set<string>
-    toolCallsByNodeId: Record<string, ToolCall>
-    toolExecutionsByNodeId: Record<string, ToolExecution>
-    onNodeClick?: (nodeId: string, itemType: ConversationItemType) => void
-    edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number } } | null
-    onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }) => void
-  }
+  }, [treeData, currentBranchId, width, height, handleUserActivity])
 
-  function updateTree(
-    root: D3TreeNode,
-    g: d3.Selection<SVGGElement, unknown, null, undefined>,
-    options: UpdateTreeOptions
-  ): void {
-    const {
+  /**
+   * Update tree visualization when data or configuration changes.
+   */
+  useEffect(() => {
+    if (!root || !gRef.current) return
+
+    updateTree(root, gRef.current, {
       width,
       height,
-      config,
+      config: treeConfig,
       activeNodeIds,
       toolCallsByNodeId,
       toolExecutionsByNodeId,
       edgeInterrupt,
       onEdgeClick,
       onNodeClick,
-    } = options
-
-    // Expand all nodes to show full tree
-    expandAllNodes(root)
-  
-    // Create tree layout
-    const treeLayout = d3
-      .tree<TreeNode>()
-      .size([width - 200, height - 100])
-      .separation((a, b) => (a.parent === b.parent ? 1 : 2))
-  
-    // Apply layout
-    const treeData = treeLayout(root)
-    const nodes = treeData.descendants() as D3TreeNode[]
-    const links = treeData.links() as d3.HierarchyPointLink<TreeNode>[]
-  
-    // Normalize horizontal position based on depth
-    nodes.forEach((node) => {
-      node.y = node.depth * config.verticalSpacing
+      treeData,
+      analysisComponents,
+      analysisScores,
+      triggeredNodes,
+      userInterruptedNodes,
+      hoveredSummaryNodeIds,
+      onSummaryHover: (nodeId: string | null) => {
+        if (nodeId) {
+          setHoveredSummaryNodeIds(prev => new Set([...prev, nodeId]))
+        }
+      },
+      onSummaryHoverOut: (nodeId: string | null) => {
+        if (nodeId) {
+          setHoveredSummaryNodeIds(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(nodeId)
+            return newSet
+          })
+        }
+      },
+      foregroundSummaryId,
+      onSummaryForeground: (nodeId: string | null) => {
+        setForegroundSummaryId(nodeId)
+      },
     })
-  
-    // Update links
-    const link = g
-      .selectAll<SVGPathElement, d3.HierarchyPointLink<TreeNode>>('.link')
-      .data(links, (d) => (d.target as D3TreeNode).data.id)
-  
-    // Enter new links
-    const linkEnter = link
-      .enter()
-      .insert('path', 'g')
-      .attr('class', 'link')
-      .attr('fill', 'none')
-      .attr('stroke', '#30363d')
-      .attr('stroke-width', 3)
-      .style('cursor', (d) => {
-        const target = d.target as D3TreeNode
-        return target.data.is_active ? 'pointer' : 'default'
-      })
-      .style('transition', 'stroke-width 0.2s ease-in-out')
-      .attr('d', (d) => {
-        const source = d.source as D3TreeNode
-        const o = { x: source.x0 ?? source.x, y: source.y0 ?? source.y }
-        return createCurvedPath(o, o)
-      })
-      .on('mouseenter', function(this: SVGPathElement, event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
-        const target = d.target as D3TreeNode
-        if (target.data.is_active) {
-          // Immediate jump to 4px
-          d3.select(this).attr('stroke-width', 4)
-          // Then smoothly transition to 6px
-          d3.select(this)
-            .transition()
-            .duration(150)
-            .attr('stroke-width', 6)
-        }
-      })
-      .on('mouseleave', function(this: SVGPathElement, event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
-        const target = d.target as D3TreeNode
-        const isInterrupting = edgeInterrupt && edgeInterrupt.targetNodeId === target.data.id
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('stroke-width', isInterrupting ? 4 : 3)
-      })
-      .on('click', function(event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
-        const target = d.target as D3TreeNode
-        // Only allow clicking on active branch edges
-        if (onEdgeClick && target.data.is_active) {
-          event.stopPropagation()
 
-          // Use the mouse event position directly - these are screen coordinates
-          // which we'll convert to container-relative coordinates in the handler
-          onEdgeClick(target.data.id, { x: event.clientX, y: event.clientY })
-        }
-      })
-  
-    // Update existing links
-    const linkUpdate = linkEnter.merge(link)
-
-    // Apply non-animated styles and event handlers BEFORE transition
-    linkUpdate
-      .style('cursor', (d) => {
-        const target = d.target as D3TreeNode
-        return target.data.is_active ? 'pointer' : 'default'
-      })
-      .on('mouseenter', function(this: SVGPathElement, event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
-        const target = d.target as D3TreeNode
-        if (target.data.is_active) {
-          // Immediate jump to 4px
-          d3.select(this).attr('stroke-width', 4)
-          // Then smoothly transition to 6px
-          d3.select(this)
-            .transition()
-            .duration(150)
-            .attr('stroke-width', 6)
-        }
-      })
-      .on('mouseleave', function(this: SVGPathElement, event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
-        const target = d.target as D3TreeNode
-        const isInterrupting = edgeInterrupt && edgeInterrupt.targetNodeId === target.data.id
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('stroke-width', isInterrupting ? 4 : 3)
-      })
-      .on('click', function(event: MouseEvent, d: d3.HierarchyPointLink<TreeNode>) {
-        const target = d.target as D3TreeNode
-        // Only allow clicking on active branch edges
-        if (onEdgeClick && target.data.is_active) {
-          event.stopPropagation()
-
-          // Use the mouse event position directly - these are screen coordinates
-          // which we'll convert to container-relative coordinates in the handler
-          onEdgeClick(target.data.id, { x: event.clientX, y: event.clientY })
-        }
-      })
-
-    // Apply animated attributes with transition
-    linkUpdate
-      .transition()
-      .duration(ANIMATION_DURATION)
-      .attr('d', (d) => {
-        const source = d.source as D3TreeNode
-        const target = d.target as D3TreeNode
-        return createCurvedPath(
-          { x: source.x, y: source.y },
-          { x: target.x, y: target.y }
-        )
-      })
-      .attr('opacity', (d) => {
-        const target = d.target as D3TreeNode
-        return target.data.is_active ? 1 : 0.3
-      })
-      .attr('stroke', (d) => {
-        const target = d.target as D3TreeNode
-        // If this edge is being interrupted, color it red
-        if (edgeInterrupt && edgeInterrupt.targetNodeId === target.data.id) {
-          return '#ef4444' // red color for interrupting edge
-        }
-        return '#30363d' // default color
-      })
-      .attr('stroke-width', (d) => {
-        const target = d.target as D3TreeNode
-        // If this edge is being interrupted, make it thicker
-        if (edgeInterrupt && edgeInterrupt.targetNodeId === target.data.id) {
-          return 4
-        }
-        return 3
-      })
-  
-    // Remove old links
-    link.exit().transition().duration(ANIMATION_DURATION).attr('opacity', 0).remove()
-
-    // Add "interrupting..." label to the edge being interrupted
-    const interruptLabel = g
-      .selectAll<SVGTextElement, d3.HierarchyPointLink<TreeNode>>('.interrupt-label')
-      .data(
-        edgeInterrupt
-          ? links.filter((d) => (d.target as D3TreeNode).data.id === edgeInterrupt.targetNodeId)
-          : [],
-        (d: d3.HierarchyPointLink<TreeNode>) => (d.target as D3TreeNode).data.id
-      )
-
-    // Enter new labels
-    const interruptLabelEnter = interruptLabel
-      .enter()
-      .append('text')
-      .attr('class', 'interrupt-label')
-      .style('fill', '#ef4444')
-      .style('font-size', '12px')
-      .style('font-weight', 'bold')
-      .style('pointer-events', 'none')
-      .text('interrupting...')
-
-    // Update existing labels
-    const interruptLabelUpdate = interruptLabelEnter.merge(interruptLabel)
-
-    interruptLabelUpdate
-      .attr('x', (d: d3.HierarchyPointLink<TreeNode>) => {
-        const source = d.source as D3TreeNode
-        const target = d.target as D3TreeNode
-        return (source.x + target.x) / 2 + 10
-      })
-      .attr('y', (d: d3.HierarchyPointLink<TreeNode>) => {
-        const source = d.source as D3TreeNode
-        const target = d.target as D3TreeNode
-        return (source.y + target.y) / 2
-      })
-
-    // Remove old labels
-    interruptLabel.exit().remove()
-
-    // Update nodes
-    const node = g
-      .selectAll<SVGGElement, D3TreeNode>('.node')
-      .data(nodes, (d) => d.data.id)
-  
-    // Enter new nodes
-    const nodeEnter = node
-      .enter()
-      .append('g')
-      .attr('class', 'node')
-      .attr('transform', (d) => {
-        const x = d.x0 ?? d.x
-        const y = d.y0 ?? d.y
-        return `translate(${x},${y})`
-      })
-      .style('opacity', 0)
-  
-    // Add circles to nodes
-    nodeEnter
-      .append('circle')
-      .attr('r', 10)
-      .attr('fill', (d) => {
-        const agentName = d.data.agent_name
-        return getAgentColor(agentName)
-      })
-      .attr('stroke', '#ffffff')
-      .attr('stroke-width', 1.5)
-      .style('cursor', 'pointer')
-  
-    // Add labels to nodes
-    const label = nodeEnter.append('g').attr('class', 'label')
-  
-    // Add a background rect for the text
-    label
-      .append('rect')
-      .style('fill', '#2a2a2e')
-      .style('stroke', '#444')
-      .style('stroke-width', 1)
-      .style('rx', 3)
-      .style('ry', 3)
-  
-    // Agent name in box (always on left, more distant from node)
-    label
-      .append('text')
-      .attr('dy', '0.31em')
-      .attr('x', -35)
-      .attr('text-anchor', 'end')
-      .text((d) => d.data.agent_name)
-      .style('fill', '#c9d1d9')
-      .style('font-size', '11px')
-      .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
-      .style('cursor', 'pointer')
-      .on('click', function(event: MouseEvent, d: D3TreeNode) {
-        event.stopPropagation()
-        if (onNodeClick) {
-          onNodeClick(d.data.id, getConversationItemTypeForNode(d.data))
-        }
-      })
-      .each(function () {
-        const bbox = this.getBBox()
-        const padding = 5
-        const rect = d3.select(this.parentNode as SVGGElement).select('rect')
-        rect
-          .attr('x', bbox.x - padding)
-          .attr('y', bbox.y - padding)
-          .attr('width', bbox.width + padding * 2)
-          .attr('height', bbox.height + padding * 2)
-      })
-
-    // Summary text on right (no box, grey text, max 3 lines, ~500 chars)
-    label
-      .append('foreignObject')
-      .attr('x', 25)
-      .attr('y', -18)
-      .attr('width', 400)
-      .attr('height', 50)
-      .style('overflow', 'visible')
-      .append('xhtml:div')
-      .style('color', '#8b949e')
-      .style('font-size', '10px')
-      .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
-      .style('line-height', '1.3')
-      .style('display', '-webkit-box')
-      .style('-webkit-line-clamp', '3')
-      .style('-webkit-box-orient', 'vertical')
-      .style('overflow', 'hidden')
-      .style('text-overflow', 'ellipsis')
-      .style('word-wrap', 'break-word')
-      .style('cursor', 'pointer')
-      .text((d) => d.data.summary || '')
-      .on('click', function(event: MouseEvent, d: D3TreeNode) {
-        event.stopPropagation()
-        if (onNodeClick) {
-          onNodeClick(d.data.id, getConversationItemTypeForNode(d.data))
-        }
-      })
-  
-    // Add tool badges
-    const toolBadgeContainer = nodeEnter
-      .append('g')
-      .attr('class', 'tool-badges')
-      .attr('transform', 'translate(35, -8)') // Position on the right, aligned with summary
-  
-    // For each node, check if it has tool calls
-    toolBadgeContainer.each(function(d) {
-      const container = d3.select(this)
-      const toolCall = toolCallsByNodeId[d.data.id]
-  
-      if (toolCall && toolCall.tools && toolCall.tools.length > 0) {
-        // Check if tool execution has completed
-        const toolExecution = toolExecutionsByNodeId[d.data.id]
-        const isExecuting = !toolExecution
-
-        // Track horizontal position for badges
-        let xPosition = 0
-
-        // Create badges for each tool (arranged horizontally, max 6)
-        const toolsToShow = toolCall.tools.slice(0, 6)
-        toolsToShow.forEach((tool) => {
-          const colors = getToolColor()
-          const badge = container.append('g')
-            .attr('transform', `translate(${xPosition}, 0)`)
-  
-          // Add background rect for the badge
-          const badgeRect = badge
-            .append('rect')
-            .attr('rx', 8)
-            .attr('ry', 8)
-            .style('fill', colors.bg)
-            .style('opacity', 0.9)
-            .style('stroke', colors.border)
-            .style('stroke-width', 1)
-  
-          // Add tool name
-          const toolText = badge
-            .append('text')
-            .attr('text-anchor', 'start')
-            .attr('dominant-baseline', 'middle')
-            .style('fill', '#ffffff')
-            .style('font-size', '10px')
-            .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
-            .style('font-weight', '500')
-            .text(tool.name)
-  
-          // Get text dimensions and position rect around it
-          const bbox = (toolText.node() as SVGTextElement).getBBox()
-          const padding = 4
-  
-          // Position text with padding
-          toolText
-            .attr('x', padding)
-            .attr('y', bbox.height / 2 + padding)
-  
-          // Size and position rect to contain text
-          badgeRect
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', bbox.width + padding * 2)
-            .attr('height', bbox.height + padding * 2)
-
-          // Update horizontal position for next badge
-          xPosition += bbox.width + padding * 2 + 5 // 5px gap between badges
-
-          // Apply pulsing animation if still executing
-          applyPulsingAnimation(badge, isExecuting)
-
-          // TODO: Add click handler for tool badges to navigate to tool call details
-          // See TOOL_CLICKING_FEATURE_DOCUMENTATION.md for implementation details
-          // badge.style('cursor', 'pointer').on('click', function(event: MouseEvent) { ... })
-        })
-      }
-    })
-  
-    // Update existing nodes
-    const nodeUpdate = nodeEnter.merge(node)
-  
-    nodeUpdate
-      .transition()
-      .duration(ANIMATION_DURATION)
-      .attr('transform', (d) => `translate(${d.x},${d.y})`)
-      .style('opacity', (d) => {
-        const isActive = activeNodeIds.has(d.data.id)
-        return d.data.is_active ? (isActive ? 1 : 0.6) : 0.3
-      })
-  
-    nodeUpdate
-      .select('circle')
-      .attr('fill', (d: D3TreeNode) => getAgentColor(d.data.agent_name))
-      .attr('stroke', (d: D3TreeNode) => {
-        const isActive = activeNodeIds.has(d.data.id)
-        return isActive ? '#58a6ff' : '#c9d1d9'
-      })
-      .attr('stroke-width', (d: D3TreeNode) => {
-        const isActive = activeNodeIds.has(d.data.id)
-        return isActive ? 3 : 2
-      })
-  
-    // Update tool badges for existing nodes
-    nodeUpdate.each(function(d) {
-      const nodeElement = d3.select(this)
-      const existingBadges = nodeElement.select('.tool-badges')
-  
-      // Clear existing badges
-      existingBadges.selectAll('*').remove()
-  
-      // Re-add badges if tools exist
-      const toolCall = toolCallsByNodeId[d.data.id]
-      if (toolCall && toolCall.tools && toolCall.tools.length > 0) {
-        // Check if tool execution has completed
-        const toolExecution = toolExecutionsByNodeId[d.data.id]
-        const isExecuting = !toolExecution
-
-        // Track horizontal position for badges
-        let xPosition = 0
-
-        // Limit to max 6 tools arranged horizontally
-        const toolsToShow = toolCall.tools.slice(0, 6)
-        toolsToShow.forEach((tool) => {
-          const colors = getToolColor()
-          const badge = existingBadges.append('g')
-            .attr('transform', `translate(${xPosition}, 0)`)
-  
-          const badgeRect = badge
-            .append('rect')
-            .attr('rx', 8)
-            .attr('ry', 8)
-            .style('fill', colors.bg)
-            .style('opacity', 0.9)
-            .style('stroke', colors.border)
-            .style('stroke-width', 1)
-  
-          const toolText = badge
-            .append('text')
-            .attr('text-anchor', 'start')
-            .attr('dominant-baseline', 'middle')
-            .style('fill', '#ffffff')
-            .style('font-size', '10px')
-            .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
-            .style('font-weight', '500')
-            .text(tool.name)
-  
-          const bbox = (toolText.node() as SVGTextElement).getBBox()
-          const padding = 4
-  
-          // Position text with padding
-          toolText
-            .attr('x', padding)
-            .attr('y', bbox.height / 2 + padding)
-  
-          // Size and position rect to contain text
-          badgeRect
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', bbox.width + padding * 2)
-            .attr('height', bbox.height + padding * 2)
-
-          // Update horizontal position for next badge
-          xPosition += bbox.width + padding * 2 + 5 // 5px gap between badges
-
-          // Apply pulsing animation if still executing
-          applyPulsingAnimation(badge, isExecuting)
-
-          // TODO: Add click handler for tool badges to navigate to tool call details
-          // See TOOL_CLICKING_FEATURE_DOCUMENTATION.md for implementation details
-          // badge.style('cursor', 'pointer').on('click', function(event: MouseEvent) { ... })
-        })
-      }
-    })
-  
-    // Remove old nodes
-    const nodeExit = node.exit()
-  
-    nodeExit
-      .transition()
-      .duration(ANIMATION_DURATION)
-      .attr('transform', () => {
-        // Move exiting nodes to parent's position
-        return `translate(${root.x ?? 0},${root.y ?? 0})`
-      })
-      .style('opacity', 0)
-      .remove()
-  
-    // Store old positions for smooth transitions
-    nodes.forEach((d) => {
-      d.x0 = d.x
-      d.y0 = d.y
-    })
-  }
-  
-  /**
-   * Create a curved path for GitHub-style branch arrows.
-   */
-  function createCurvedPath(
-    source: { x: number; y: number },
-    target: { x: number; y: number }
-  ): string {
-    const midX = (source.x + target.x) / 2
-  
-    return `M ${source.x} ${source.y}
-            C ${midX} ${source.y},
-              ${midX} ${target.y},
-              ${target.x} ${target.y}`
-  }
-  
-  /**
-   * Get agent color based on agent name.
-   */
-  function getAgentColor(agentName: string): string {
-    const colorMap: Record<string, string> = {
-      User_proxy: 'rgba(147, 51, 234, 0.4)',
-      Developer: 'rgba(59, 130, 246, 0.4)',
-      Planner: 'rgba(236, 72, 153, 0.4)',
-      Executor: 'rgba(34, 197, 94, 0.4)',
-      Quality_assurance: 'rgba(251, 146, 60, 0.4)',
-      Web_search_agent: 'rgba(20, 184, 166, 0.4)',
-      Report_writer: 'rgba(139, 92, 246, 0.4)',
-      User: 'rgba(255, 255, 255, 0.4)',
-      System: 'rgba(156, 163, 175, 0.4)',
+    // After tree updates, preserve transform in navigation mode
+    if (!autoCenterEnabled && svgRef.current && zoomRef.current) {
+      const svg = d3.select(svgRef.current)
+      // Use a very short timeout to let D3 finish its update first
+      setTimeout(() => {
+        svg.call(zoomRef.current!.transform, transformRef.current)
+      }, 0)
     }
-  
-    return colorMap[agentName] ?? 'rgba(156, 163, 175, 0.4)'
+  }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick, analysisComponents, analysisScores, triggeredNodes, userInterruptedNodes, hoveredSummaryNodeIds, foregroundSummaryId])
+
+  /**
+   * Update center node when tree data changes to keep view on latest messages.
+   * Only auto-center if:
+   * - Not interrupted
+   * - Auto-centering is enabled (user hasn't interacted recently)
+   */
+  useEffect(() => {
+    if (!root || isInterrupted || !autoCenterEnabled) {
+      return
+    }
+
+    const lastMessageNode = findLastMessageNode(root, currentBranchId)
+    if (lastMessageNode && lastMessageNode.data.id !== centerNodeId) {
+      setCenterNodeId(lastMessageNode.data.id)
+    }
+  }, [root, centerNodeId, currentBranchId, isInterrupted, autoCenterEnabled])
+
+  /**
+   * Recenter the view on the rightmost (most recent) node.
+   * For horizontal layout: pan to show the latest message on the right side,
+   * while keeping all agent swimlanes vertically centered in view.
+   */
+  const recenter = useCallback(() => {
+    if (!root || !svgRef.current || !zoomRef.current) return
+
+    // Find the target node by centerNodeId if provided
+    let targetNode: D3TreeNode | null = null
+    if (centerNodeId) {
+      root.each((node) => {
+        if (node.data.id === centerNodeId) {
+          targetNode = node
+        }
+      })
+    }
+
+    // Fallback to root if node not found
+    if (!targetNode) {
+      targetNode = root
+    }
+
+    if (targetNode) {
+      // Calculate transform to position the node optimally for horizontal layout
+      const svg = d3.select(svgRef.current)
+      const scale = transformRef.current.k
+
+      // Extract agent names to calculate total height
+      const rawAgentNames = extractAgentNames(root.data)
+
+      // Normalize for swimlane count
+      const swimlaneNamesSet = new Set<string>()
+      rawAgentNames.forEach(name => {
+        const lower = name.toLowerCase()
+        if (lower === 'you' || lower === 'user' || lower.includes('user_proxy') || lower.includes('userproxy')) {
+          swimlaneNamesSet.add('User')
+        } else {
+          swimlaneNamesSet.add(name)
+        }
+      })
+
+      const totalTreeHeight = swimlaneNamesSet.size * SWIMLANE_HEIGHT
+
+      // Position rightmost node at 70% from left (show some context on right)
+      // This allows users to see the most recent message while having room
+      // to see what comes after it
+      const x = -targetNode.x! * scale + (width * 0.7)
+
+      // Keep swimlanes vertically centered
+      const y = (height - totalTreeHeight * scale) / 2
+
+      svg
+        .transition()
+        .duration(ANIMATION_DURATION)
+        .call(zoomRef.current.transform, d3.zoomIdentity.translate(x, y).scale(scale))
+    }
+  }, [root, width, height, centerNodeId])
+
+  /**
+   * Automatically recenter the view when the centerNodeId changes.
+   * Only if auto-centering is enabled and not interrupted.
+   * If in navigation mode, preserve the current transform.
+   */
+  useEffect(() => {
+    if (centerNodeId && autoCenterEnabled && !isInterrupted) {
+      recenter()
+    } else if (!autoCenterEnabled && svgRef.current && zoomRef.current) {
+      // In navigation mode: preserve the current transform when tree updates
+      const svg = d3.select(svgRef.current)
+      const currentTransform = transformRef.current
+
+      // Re-apply the current transform (without animation to avoid jarring movement)
+      svg.call(zoomRef.current.transform, currentTransform)
+    }
+  }, [centerNodeId, recenter, autoCenterEnabled, isInterrupted])
+
+  /**
+   * Cleanup timeout on unmount.
+   */
+  useEffect(() => {
+    return () => {
+      if (userInteractionTimeoutRef.current) {
+        clearTimeout(userInteractionTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  /**
+   * Zoom in on the tree.
+   */
+  const zoomIn = useCallback(() => {
+    if (!svgRef.current || !zoomRef.current) return
+
+    const svg = d3.select(svgRef.current)
+    svg.transition().duration(ANIMATION_DURATION).call(zoomRef.current.scaleBy, 1.3)
+  }, [])
+
+  /**
+   * Zoom out on the tree.
+   */
+  const zoomOut = useCallback(() => {
+    if (!svgRef.current || !zoomRef.current) return
+
+    const svg = d3.select(svgRef.current)
+    svg.transition().duration(ANIMATION_DURATION).call(zoomRef.current.scaleBy, 0.7)
+  }, [])
+
+  /**
+   * Reset zoom to fit all agent swimlanes in viewport.
+   * For horizontal layout: zoom to show all agents vertically,
+   * and position view at left margin to show earliest messages.
+   */
+  const resetZoom = useCallback(() => {
+    if (!svgRef.current || !zoomRef.current || !root) return
+
+    const svg = d3.select(svgRef.current)
+
+    // Extract agent names to calculate total height needed
+    const rawAgentNames = extractAgentNames(root.data)
+
+    // Normalize for swimlane count
+    const swimlaneNamesSet = new Set<string>()
+    rawAgentNames.forEach(name => {
+      const lower = name.toLowerCase()
+      if (lower === 'you' || lower === 'user' || lower.includes('user_proxy') || lower.includes('userproxy')) {
+        swimlaneNamesSet.add('User')
+      } else {
+        swimlaneNamesSet.add(name)
+      }
+    })
+
+    const totalTreeHeight = swimlaneNamesSet.size * SWIMLANE_HEIGHT
+
+    // Calculate zoom scale to fit all agents in viewport height
+    // Leave some padding (80% of viewport height for tree content)
+    const zoomScale = Math.min(
+      (height * 0.8) / totalTreeHeight,
+      3 // Don't zoom in more than 3x
+    )
+
+    // Position at left margin horizontally, centered vertically
+    const translateX = LEFT_MARGIN / 2
+    const translateY = (height - totalTreeHeight * zoomScale) / 2
+
+    svg
+      .transition()
+      .duration(ANIMATION_DURATION)
+      .call(zoomRef.current.transform, d3.zoomIdentity.translate(translateX, translateY).scale(zoomScale))
+  }, [height, root])
+
+  /**
+   * Manually enable auto-centering (exit navigation mode).
+   */
+  const enableAutoCenter = useCallback(() => {
+
+    // Clear any existing timeout
+    if (userInteractionTimeoutRef.current) {
+      clearTimeout(userInteractionTimeoutRef.current)
+      userInteractionTimeoutRef.current = null
+    }
+
+    // Enable auto-centering
+    setAutoCenterEnabled(true)
+
+    // Immediately recenter to the last message node
+    if (centerNodeId) {
+      setTimeout(() => recenter(), 0)
+    }
+  }, [centerNodeId, recenter])
+
+  return {
+    svgRef,
+    root,
+    activeNodeIds,
+    centerNodeId,
+    recenter,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    isNavigationMode: !autoCenterEnabled,
+    enableAutoCenter,
+  }
 }
-  
+
+/**
+ * Update tree visualization with new data.
+ */
+interface UpdateTreeOptions {
+  width: number
+  height: number
+  config: TreeConfig
+  activeNodeIds: Set<string>
+  toolCallsByNodeId: Record<string, ToolCall>
+  toolExecutionsByNodeId: Record<string, ToolExecution>
+  onNodeClick?: (nodeId: string, itemType: ConversationItemType) => void
+  edgeInterrupt?: { targetNodeId: string; position: { x: number; y: number }; trimCount: number } | null
+  onEdgeClick?: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
+  treeData?: TreeNode | null
+  analysisComponents: AnalysisComponent[]
+  analysisScores: Map<string, AnalysisScores>
+  triggeredNodes: Set<string>
+  userInterruptedNodes: Set<string>
+  hoveredSummaryNodeIds: Set<string>
+  onSummaryHover: (nodeId: string | null) => void
+  onSummaryHoverOut: (nodeId: string | null) => void
+  foregroundSummaryId: string | null
+  onSummaryForeground: (nodeId: string | null) => void
+}
+
+/**
+ * A tree node with calculated X,Y position in swimlane layout.
+ */
+interface PositionedNode {
+  node: D3TreeNode   // Original D3 hierarchy node
+  x: number          // Horizontal position (depth-based)
+  y: number          // Vertical position (swimlane-based)
+}
+
+/**
+ * An edge representing a parent-child relationship in the tree.
+ */
+interface Edge {
+  source: PositionedNode     // Parent node
+  target: PositionedNode     // Child node
+  sourceX: number            // Pre-computed source X
+  sourceY: number            // Pre-computed source Y
+  targetX: number            // Pre-computed target X
+  targetY: number            // Pre-computed target Y
+}
+
+function updateTree(
+  root: D3TreeNode,
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  options: UpdateTreeOptions
+): void {
+  const {
+    edgeInterrupt,
+    onEdgeClick,
+    onNodeClick,
+    treeData,
+    analysisComponents,
+    analysisScores,
+    triggeredNodes,
+    userInterruptedNodes,
+    hoveredSummaryNodeIds,
+    onSummaryHover,
+    onSummaryHoverOut,
+    foregroundSummaryId,
+    onSummaryForeground,
+  } = options
+
+  // Expand all nodes to show full tree
+  expandAllNodes(root)
+
+  // ============================================================
+  // PHASE 1: DATA PREPARATION
+  // ============================================================
+
+  // Extract unique agent names from tree
+  const rawAgentNames: string[] = extractAgentNames(root.data)
+
+  // Normalize agent names for swimlane grouping
+  // "You", "User", "UserProxy", "user_proxy" -> "User"
+  const normalizeAgentName = (name: string): string => {
+    const lower = name.toLowerCase()
+    if (lower === 'you' || lower === 'user' || lower.includes('user_proxy') || lower.includes('userproxy')) {
+      return 'User'
+    }
+    return name
+  }
+
+  // Collect unique swimlanes with their display names
+  // Maps normalized agent_name -> display_name for swimlane labels
+  const swimlaneDisplayNames = new Map<string, string>()
+  const swimlaneNamesSet = new Set<string>()
+
+  // Traverse tree to collect agent names and their display names
+  function collectSwimlaneInfo(node: TreeNode): void {
+    const normalized = normalizeAgentName(node.agent_name)
+    swimlaneNamesSet.add(normalized)
+
+    // Store display name for this normalized swimlane (prefer display_name over agent_name)
+    if (!swimlaneDisplayNames.has(normalized)) {
+      swimlaneDisplayNames.set(normalized, node.display_name || normalized)
+    }
+
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(child => collectSwimlaneInfo(child))
+    }
+  }
+
+  collectSwimlaneInfo(root.data)
+
+  const swimlaneNames = Array.from(swimlaneNamesSet).sort()
+
+  // Create swimlane Y-map (mapping normalized name to Y position)
+  const swimlaneYMap = new Map<string, number>()
+  swimlaneNames.forEach((name, index) => {
+    const y = index * SWIMLANE_HEIGHT + (SWIMLANE_HEIGHT / 2)
+    swimlaneYMap.set(name, y)
+  })
+
+  // Create a map from original agent name to Y position
+  const agentYMap = new Map<string, number>()
+  rawAgentNames.forEach(name => {
+    const normalized = normalizeAgentName(name)
+    const y = swimlaneYMap.get(normalized)
+    if (y !== undefined) {
+      agentYMap.set(name, y)
+    }
+  })
+
+  // Calculate maximum depth across ALL nodes (not just active branch)
+  // This ensures we have X positions for all nodes, including new branches
+  let maxDepth = 0
+  let maxActiveDepth = 0
+  root.each((node: D3TreeNode) => {
+    if (node.depth > maxDepth) {
+      maxDepth = node.depth
+    }
+    if (node.data.is_active && node.depth > maxActiveDepth) {
+      maxActiveDepth = node.depth
+    }
+  })
+
+  // Build depth-to-spacing map for ALL depths to handle branches
+  const depthSpacingMap = new Map<number, number>()
+  for (let depth = 0; depth <= maxDepth; depth++) {
+    // Use distance from maxActiveDepth for spacing calculation to maintain visual hierarchy
+    const distanceFromLatest = Math.max(0, maxActiveDepth - depth)
+    const spacing = calculateDynamicSpacing(distanceFromLatest)
+    depthSpacingMap.set(depth, spacing)
+  }
+
+  // Calculate cumulative X positions for ALL depths (not just active branch)
+  const depthToXMap = new Map<number, number>()
+  let cumulativeX = LEFT_MARGIN
+  depthToXMap.set(0, cumulativeX)
+  for (let depth = 0; depth < maxDepth; depth++) {
+    const spacing = depthSpacingMap.get(depth)
+    if (spacing === undefined) {
+      throw new Error(`Spacing not found for depth ${depth}`)
+    }
+    cumulativeX += spacing
+    depthToXMap.set(depth + 1, cumulativeX)
+  }
+
+  // Assign X,Y positions to all nodes
+  const positionedNodes: PositionedNode[] = []
+
+  function assignPositions(node: D3TreeNode, depth: number): void {
+    let x = depthToXMap.get(depth)
+    if (x === undefined) {
+      // Fallback: calculate position for unexpected depths
+      const lastDepth = Math.max(...Array.from(depthToXMap.keys()))
+      const lastX = depthToXMap.get(lastDepth) || LEFT_MARGIN
+      // Use default spacing for depths beyond what we calculated
+      const defaultSpacing = calculateDynamicSpacing(0)
+      x = lastX + (depth - lastDepth) * defaultSpacing
+      depthToXMap.set(depth, x)
+    }
+    const y = agentYMap.get(node.data.agent_name)
+    if (y === undefined) {
+      throw new Error(`Agent ${node.data.agent_name} not found in swimlane map`)
+    }
+
+    // Store position on node for D3
+    node.x = x
+    node.y = y
+
+    positionedNodes.push({ node, x, y })
+
+    // Recursively process children
+    if (node.children) {
+      node.children.forEach(child => {
+        assignPositions(child as D3TreeNode, depth + 1)
+      })
+    }
+  }
+
+  assignPositions(root, 0)
+
+  // Collect all edges
+  const edges: Edge[] = []
+  const nodeMap = new Map<string, PositionedNode>()
+  positionedNodes.forEach(pNode => {
+    nodeMap.set(pNode.node.data.id, pNode)
+  })
+
+  positionedNodes.forEach(pNode => {
+    if (pNode.node.children) {
+      pNode.node.children.forEach(child => {
+        const childPositioned = nodeMap.get((child as D3TreeNode).data.id)
+
+        if (!childPositioned) {
+          throw new Error(`Child node ${(child as D3TreeNode).data.id} not found`)
+        }
+
+        edges.push({
+          source: pNode,
+          target: childPositioned,
+          sourceX: pNode.x,
+          sourceY: pNode.y,
+          targetX: childPositioned.x,
+          targetY: childPositioned.y,
+        })
+      })
+    }
+  })
+
+  // ============================================================
+  // PHASE 2: RENDER SWIMLANE INFRASTRUCTURE
+  // ============================================================
+
+  // Render alternating background rectangles
+  const swimlanes = g
+    .selectAll<SVGRectElement, string>('.swimlane-bg')
+    .data(swimlaneNames, (d: string) => d)
+
+  const swimlanesEnter = swimlanes
+    .enter()
+    .insert('rect', ':first-child')
+    .attr('class', 'swimlane-bg')
+
+  swimlanesEnter
+    .merge(swimlanes)
+    .attr('x', 0)
+    .attr('y', (d: string) => {
+      const centerY = swimlaneYMap.get(d)
+      if (centerY === undefined) {
+        throw new Error(`Swimlane ${d} not found in map`)
+      }
+      return centerY - (SWIMLANE_HEIGHT / 2)
+    })
+    .attr('width', 10000)
+    .attr('height', SWIMLANE_HEIGHT)
+    .attr('rx', 8)
+    .attr('ry', 8)
+    .attr('fill', (d: string, i: number) => {
+      // Use distinct color for User/You lane
+      if (d === 'User') {
+        return '#2d3748' // Darker blue-gray for User lane
+      }
+      return i % 2 === 0 ? '#1c1f26' : '#21242b'
+    })
+    .attr('opacity', (d: string) => {
+      // Higher opacity for User lane to make it stand out
+      return d === 'User' ? 0.85 : 0.6
+    })
+    .attr('stroke', (d: string) => {
+      // Subtle border accent for User lane
+      return d === 'User' ? '#4a5568' : 'none'
+    })
+    .attr('stroke-width', (d: string) => {
+      return d === 'User' ? 1 : 0
+    })
+
+  swimlanes.exit().remove()
+
+  // Render agent name labels on left with colored boxes
+  const labelGroups = g
+    .selectAll<SVGGElement, string>('.swimlane-label-group')
+    .data(swimlaneNames, (d: string) => d)
+
+  const labelGroupsEnter = labelGroups
+    .enter()
+    .append('g')
+    .attr('class', 'swimlane-label-group')
+
+  // Add colored background rectangle to each label
+  labelGroupsEnter
+    .append('rect')
+    .attr('class', 'swimlane-label-bg')
+
+  // Add text to each label
+  labelGroupsEnter
+    .append('text')
+    .attr('class', 'swimlane-label-text')
+
+  const labelGroupsMerged = labelGroupsEnter.merge(labelGroups)
+
+  // Update group position
+  labelGroupsMerged
+    .attr('transform', (d: string) => {
+      const centerY = swimlaneYMap.get(d)
+      if (centerY === undefined) {
+        throw new Error(`Swimlane ${d} not found in map`)
+      }
+      return `translate(10, ${centerY})`
+    })
+
+  // Update text labels FIRST (so we can measure their width)
+  labelGroupsMerged.selectAll<SVGTextElement, string>('.swimlane-label-text')
+    .data((d: string) => [d])
+    .attr('x', 6)
+    .attr('y', 0)
+    .attr('dy', '0.05em')
+    .attr('text-anchor', 'start')
+    .attr('dominant-baseline', 'middle')
+    .text((d: string) => {
+      const displayName = swimlaneDisplayNames.get(d)
+      if (displayName === undefined) {
+        throw new Error(`Display name for swimlane ${d} not found`)
+      }
+      return displayName
+    })
+    .style('fill', '#ffffff')
+    .style('font-size', '20px')
+    .style('font-weight', '600')
+    .style('line-height', '1')
+    .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
+    .style('pointer-events', 'none')
+
+  // Update background rectangles with agent colors (measure actual text width)
+  labelGroupsMerged.each(function (this: SVGGElement, d: string) {
+    const group = d3.select<SVGGElement, string>(this)
+    const textElement = group.select<SVGTextElement>('.swimlane-label-text').node()
+
+    if (!textElement) {
+      throw new Error(`Text element not found for swimlane ${d}`)
+    }
+
+    // Measure actual text width
+    const textBBox = textElement.getBBox()
+    const padding = 16 // 8px padding on each side
+    const actualWidth = textBBox.width + padding
+
+    // Get agent color
+    let agentNameForColor = d
+    rawAgentNames.forEach(name => {
+      const normalized = normalizeAgentName(name)
+      if (normalized === d) {
+        agentNameForColor = name
+      }
+    })
+
+    group.select<SVGRectElement>('.swimlane-label-bg')
+      .attr('x', 0)
+      .attr('y', -14)
+      .attr('width', actualWidth)
+      .attr('height', 28)
+      .attr('rx', 14)
+      .attr('fill', getAgentColorD3(agentNameForColor))
+      .attr('opacity', 0.9)
+      .style('pointer-events', 'none')
+  })
+
+  labelGroups.exit().remove()
+
+  // ============================================================
+  // PHASE 3: RENDER EDGES
+  // ============================================================
+
+  // Create horizontal Bezier curve path for edges
+  function createHorizontalPath(d: Edge): string {
+    const midX = (d.sourceX + d.targetX) / 2
+    return `M ${d.sourceX},${d.sourceY} C ${midX},${d.sourceY} ${midX},${d.targetY} ${d.targetX},${d.targetY}`
+  }
+
+  const link = g
+    .selectAll<SVGPathElement, Edge>('.link')
+    .data(edges, (d: Edge) => `${d.source.node.data.id}-${d.target.node.data.id}`)
+
+  link.exit().remove()
+
+  const linkEnter = link
+    .enter()
+    .append('path')
+    .attr('class', 'link')
+
+  linkEnter
+    .merge(link)
+    .attr('d', createHorizontalPath)
+    .attr('fill', 'none')
+    .attr('stroke', (d: Edge) => {
+      if (edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id) {
+        return '#ef4444'
+      }
+      // Use neutral gray for all edges
+      return '#6b7280'
+    })
+    .attr('stroke-width', (d: Edge) => {
+      if (edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id) {
+        return 8
+      }
+      return d.target.node.data.is_active ? 5 : 3
+    })
+    .attr('opacity', (d: Edge) => d.target.node.data.is_active ? 1 : 0.2)
+    .style('cursor', (d: Edge) => d.target.node.data.is_active ? 'pointer' : 'default')
+    .on('mouseenter', function (this: SVGPathElement, _event: MouseEvent, d: Edge) {
+      if (d.target.node.data.is_active) {
+        d3.select(this)
+          .transition()
+          .duration(150)
+          .attr('stroke-width', Number(d3.select(this).attr('stroke-width')) + 2)
+      }
+    })
+    .on('mouseleave', function (this: SVGPathElement, _event: MouseEvent, d: Edge) {
+      const baseWidth = d.target.node.data.is_active ? 5 : 3
+      const interrupted = edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .attr('stroke-width', interrupted ? 8 : baseWidth)
+    })
+    .on('click', function (event: MouseEvent, d: Edge) {
+      if (onEdgeClick && d.target.node.data.is_active && treeData) {
+        event.stopPropagation()
+        const trimCount = calculateTrimCount(d.target.node.data.id, treeData)
+        onEdgeClick(d.target.node.data.id, { x: event.clientX, y: event.clientY }, trimCount)
+      }
+    })
+
+  // ============================================================
+  // PHASE 4: RENDER NODES
+  // ============================================================
+
+  const nodes = g
+    .selectAll<SVGGElement, PositionedNode>('.node')
+    .data(positionedNodes, (d: PositionedNode) => d.node.data.id)
+
+  nodes.exit().remove()
+
+  const nodeEnter = nodes
+    .enter()
+    .append('g')
+    .attr('class', 'node')
+
+  // Append circles for non-tool nodes
+  nodeEnter
+    .filter((d: PositionedNode) => d.node.data.node_type !== 'tool_call' && d.node.data.node_type !== 'tool_execution')
+    .append('circle')
+    .attr('class', 'node-shape')
+    .attr('r', NODE_RADIUS)
+    .attr('fill', (d: PositionedNode) => getAgentColorD3(d.node.data.agent_name))
+    .attr('fill-opacity', 0.9)
+    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
+    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
+
+  // Append squares (rect) for tool_call and tool_execution nodes
+  const squareSize = NODE_RADIUS * 1.6
+  nodeEnter
+    .filter((d: PositionedNode) => d.node.data.node_type === 'tool_call' || d.node.data.node_type === 'tool_execution')
+    .append('rect')
+    .attr('class', 'node-shape')
+    .attr('x', -squareSize / 2)
+    .attr('y', -squareSize / 2)
+    .attr('width', squareSize)
+    .attr('height', squareSize)
+    .attr('rx', 2) // Slight corner rounding
+    .attr('fill', (d: PositionedNode) => getAgentColorD3(d.node.data.agent_name))
+    .attr('fill-opacity', 0.5)
+    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
+    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
+
+  const nodeUpdate = nodeEnter.merge(nodes)
+
+  nodeUpdate
+    .transition()
+    .duration(ANIMATION_DURATION)
+    .attr('transform', (d: PositionedNode) => `translate(${d.x},${d.y})`)
+    .attr('opacity', (d: PositionedNode) => d.node.data.is_active ? 1 : 0.25)
+    .style('cursor', 'pointer')
+
+  nodeUpdate.selectAll<SVGElement, PositionedNode>('.node-shape')
+    .attr('fill', (d: PositionedNode) => getAgentColorD3(d.node.data.agent_name))
+    .attr('fill-opacity', (d: PositionedNode) => {
+      // Tool calls have lower opacity (0.5), messages have higher opacity (0.9)
+      if (d.node.data.node_type === 'tool_call' || d.node.data.node_type === 'tool_execution') {
+        return 0.5
+      }
+      return 0.9
+    })
+    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
+    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
+
+  nodeUpdate
+    .on('click', function (event: MouseEvent, d: PositionedNode) {
+      event.stopPropagation()
+      if (onNodeClick) {
+        onNodeClick(d.node.data.id, getConversationItemTypeForNode(d.node.data))
+      }
+    })
+
+  // ============================================================
+  // PHASE 5: RENDER ANALYSIS BADGES
+  // ============================================================
+
+  // Remove existing badges first
+  nodeUpdate.selectAll('.node-analysis-badges').remove()
+
+  let badgesRendered = 0
+
+  // Add analysis badges to nodes that have scores
+  nodeUpdate.each(function (this: SVGGElement, d: PositionedNode) {
+    const nodeScores = analysisScores.get(d.node.data.id)
+
+    if (nodeScores) {
+      badgesRendered++
+
+      const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
+
+      // Create a group for analysis bars positioned below the node
+      const barGroup = nodeGroup
+        .append('g')
+        .attr('class', 'node-analysis-badges')
+        .attr('transform', `translate(${-NODE_RADIUS}, ${NODE_RADIUS + 8})`)
+
+      const barHeight = 12
+      const barSpacing = 3
+      const maxBarWidth = NODE_RADIUS * 2 * 3 // 3x wider to match 3x height increase
+      const dotRadius = 3
+      const dotOffset = 4 // Space between bar and dot
+
+      // Render horizontal bars for each component with score-based colors
+      analysisComponents.forEach((component, index) => {
+        const score = nodeScores.scores[component.label]?.score || 0
+        const barWidth = (score / 10) * maxBarWidth // Scale 0-10 to bar width
+
+        // Determine sequential scheme for this component
+        const schemeName = (component.sequentialScheme as SequentialSchemeName) || assignSequentialScheme(component.label, index)
+
+        // Get color based on the actual score value
+        const barColor = getColorForScore(schemeName, score)
+
+        // Get the darkest color (index 8) for the visual marker
+        const markerColor = getColorForScore(schemeName, 10) // Score 10 maps to index 8 (darkest)
+
+        const barY = index * (barHeight + barSpacing)
+
+        // Background bar (lighter gray with border for better visibility)
+        barGroup
+          .append('rect')
+          .attr('x', 0)
+          .attr('y', barY)
+          .attr('width', maxBarWidth)
+          .attr('height', barHeight)
+          .attr('fill', '#3a3a3a')
+          .attr('stroke', '#4a4a4a')
+          .attr('stroke-width', 1)
+          .attr('rx', 6)
+          .attr('ry', 6)
+
+        // Foreground bar (colored by score using D3 sequential scheme)
+        barGroup
+          .append('rect')
+          .attr('x', 0)
+          .attr('y', barY)
+          .attr('width', barWidth)
+          .attr('height', barHeight)
+          .attr('fill', barColor)
+          .attr('opacity', 0.9)
+          .attr('rx', 6)
+          .attr('ry', 6)
+          .style('cursor', 'pointer')
+          .append('title')
+          .text(`${component.label}: ${score}/10\n${nodeScores.scores[component.label]?.reasoning || ''}`)
+
+        // Add visual marker dot (using darkest color from scheme)
+        barGroup
+          .append('circle')
+          .attr('cx', -(dotOffset + dotRadius))
+          .attr('cy', barY + (barHeight / 2)) // Center vertically with bar
+          .attr('r', dotRadius)
+          .attr('fill', markerColor)
+          .attr('opacity', 0.9)
+          .style('cursor', 'pointer')
+          .append('title')
+          .text(`${component.label} (color scheme indicator)`)
+      })
+    }
+  })
+
+  // Add triggered node indicator (warning icon)
+  nodeUpdate.selectAll('.node-triggered-indicator').remove()
+
+  nodeUpdate.each(function (this: SVGGElement, d: PositionedNode) {
+    if (triggeredNodes.has(d.node.data.id)) {
+      const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
+
+      // Add a larger warning indicator positioned above the node
+      const indicatorGroup = nodeGroup
+        .append('g')
+        .attr('class', 'node-triggered-indicator')
+        .attr('transform', `translate(0, ${-NODE_RADIUS - 20})`)
+
+      // Background circle
+      indicatorGroup
+        .append('circle')
+        .attr('r', 16)
+        .attr('fill', '#fbbf24')
+        .attr('stroke', '#0d1117')
+        .attr('stroke-width', 2)
+
+      // Warning symbol (exclamation mark) using text
+      indicatorGroup
+        .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('font-size', '22px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#0d1117')
+        .text('!')
+        .append('title')
+        .text('Analysis triggered feedback')
+    }
+  })
+
+  // Add user-interrupted node indicator (red exclamation mark)
+  nodeUpdate.selectAll('.node-user-interrupted-indicator').remove()
+
+  nodeUpdate.each(function (this: SVGGElement, d: PositionedNode) {
+    if (userInterruptedNodes.has(d.node.data.id)) {
+      const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
+
+      // Check if this node already has a triggered indicator to offset position
+      const hasTriggeredIndicator = triggeredNodes.has(d.node.data.id)
+      const xOffset = hasTriggeredIndicator ? 24 : 0 // Offset to the right if triggered indicator exists
+
+      // Add a red indicator positioned above the node
+      const indicatorGroup = nodeGroup
+        .append('g')
+        .attr('class', 'node-user-interrupted-indicator')
+        .attr('transform', `translate(${xOffset}, ${-NODE_RADIUS - 20})`)
+
+      // Background circle (red)
+      indicatorGroup
+        .append('circle')
+        .attr('r', 16)
+        .attr('fill', '#ef4444')
+        .attr('stroke', '#0d1117')
+        .attr('stroke-width', 2)
+
+      // Exclamation mark symbol
+      indicatorGroup
+        .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('font-size', '22px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#ffffff')
+        .text('!')
+        .append('title')
+        .text('User interrupted at this point')
+    }
+  })
+
+  // ============================================================
+  // PHASE 6: RENDER NODE SUMMARIES BELOW SWIMLANES
+  // ============================================================
+
+  // Calculate the Y position for the summary area (below all swimlanes)
+  const totalTreeHeight = swimlaneNames.length * SWIMLANE_HEIGHT
+  const summaryAreaY = totalTreeHeight + 40 // 40px gap below last swimlane
+  // Circle dimensions for hoverable indicators (only for older summaries, not last 3)
+  const circleRadius = 14
+  const circleY = summaryAreaY // Y position for circles (above summaries)
+  const expandedSummaryY = summaryAreaY + 40 // Y position for expanded summaries (below circles)
+
+  // Add "Summaries" label on the left side (same position as agent name labels)
+  g.selectAll('.summaries-label-group').remove()
+  const summariesLabelGroup = g
+    .append('g')
+    .attr('class', 'summaries-label-group')
+    .attr('transform', `translate(10, ${circleY})`)
+
+  // Add colored background rectangle
+  const summariesLabelText = summariesLabelGroup
+    .append('text')
+    .attr('class', 'summaries-label-text')
+    .attr('x', 6)
+    .attr('y', 0)
+    .attr('dy', '0.05em')
+    .attr('text-anchor', 'start')
+    .attr('dominant-baseline', 'middle')
+    .text('Summaries')
+    .style('fill', '#ffffff')
+    .style('font-size', '16px')
+    .style('font-weight', '600')
+    .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
+    .style('pointer-events', 'none')
+
+  // Measure text and add background
+  const textNode = summariesLabelText.node()
+  if (textNode) {
+    const textBBox = textNode.getBBox()
+    const padding = 12
+    const actualWidth = textBBox.width + padding
+
+    // Insert background rect before text
+    summariesLabelGroup
+      .insert('rect', 'text')
+      .attr('class', 'summaries-label-bg')
+      .attr('x', 0)
+      .attr('y', -12)
+      .attr('width', actualWidth)
+      .attr('height', 24)
+      .attr('rx', 12)
+      .attr('fill', '#6b7280') // Gray color for summaries
+      .attr('opacity', 0.9)
+      .style('pointer-events', 'none')
+  }
+
+  // Helper function to calculate dynamic box dimensions based on text length
+  const calculateBoxDimensions = (text: string): { width: number; height: number } => {
+    const minWidth = 200
+    const maxWidth = 500
+    const minHeight = 50
+    const maxHeight = 120
+    const avgCharWidth = 7 // approximate pixel width per character
+    const charsPerLine = 50 // target characters per line
+
+    // Estimate width based on text length
+    const estimatedWidth = Math.min(maxWidth, Math.max(minWidth, text.length * avgCharWidth / 2))
+
+    // Estimate height based on number of lines needed
+    const estimatedLines = Math.ceil(text.length / charsPerLine)
+    const estimatedHeight = Math.min(maxHeight, Math.max(minHeight, estimatedLines * 20 + 20)) // 20px per line + padding
+
+    return { width: estimatedWidth, height: estimatedHeight }
+  }
+
+  // Remove existing summary elements
+  g.selectAll('.node-summary-group').remove()
+
+  // Filter nodes that have summaries and are in the active branch
+  const nodesWithSummaries = positionedNodes.filter(
+    pNode => pNode.node.data.summary && pNode.node.data.summary.trim() !== '' && pNode.node.data.is_active
+  )
+
+  // Sort by depth (position in active path) to find the last 3
+  const sortedNodesWithSummaries = [...nodesWithSummaries].sort((a, b) => b.node.depth - a.node.depth)
+
+  // Get the last 3 node IDs that should be always displayed (no hover needed)
+  const last3SummaryNodeIds = new Set(
+    sortedNodesWithSummaries.slice(0, 3).map(pNode => pNode.node.data.id)
+  )
+
+  // Get ALL visible summaries: last 3 + any toggled ones, sorted by depth (oldest first)
+  const visibleSummaries = nodesWithSummaries
+    .filter(pNode => last3SummaryNodeIds.has(pNode.node.data.id) || hoveredSummaryNodeIds.has(pNode.node.data.id))
+    .sort((a, b) => a.node.depth - b.node.depth) // Sort oldest first (lowest depth)
+
+  // Calculate y-offsets to fully separate overlapping summaries
+  // Each summary checks against all previously placed summaries and stacks below if overlapping
+  interface OverlapInfo {
+    yOffset: number       // Y offset to avoid overlap
+    boxHeight: number     // Height of this summary box
+  }
+  const overlapMap = new Map<string, OverlapInfo>()
+  const VERTICAL_GAP = 10 // Gap between stacked summaries
+
+  // Track placed summaries with their bounds
+  interface PlacedSummary {
+    id: string
+    left: number
+    right: number
+    yOffset: number
+    height: number
+  }
+  const placedSummaries: PlacedSummary[] = []
+
+  // Process summaries from oldest to newest (so newer ones stack on top/below older ones)
+  for (const current of visibleSummaries) {
+    const currentBox = calculateBoxDimensions(current.node.data.summary)
+    const currentLeft = current.x - currentBox.width / 2
+    const currentRight = current.x + currentBox.width / 2
+
+    // Find all summaries this one overlaps with horizontally
+    const overlappingPlacements = placedSummaries.filter(placed => {
+      return !(currentRight < placed.left || currentLeft > placed.right)
+    })
+
+    // Calculate y-offset: stack below all overlapping summaries
+    let yOffset = 0
+    if (overlappingPlacements.length > 0) {
+      // Find the bottom of the lowest overlapping summary
+      const maxBottom = Math.max(...overlappingPlacements.map(p => p.yOffset + p.height))
+      yOffset = maxBottom + VERTICAL_GAP
+    }
+
+    // If this summary is being hovered, bring it to front (y=0) and push others down
+    if (foregroundSummaryId === current.node.data.id) {
+      yOffset = 0
+    }
+
+    overlapMap.set(current.node.data.id, { yOffset, boxHeight: currentBox.height })
+
+    // Add to placed summaries
+    placedSummaries.push({
+      id: current.node.data.id,
+      left: currentLeft,
+      right: currentRight,
+      yOffset,
+      height: currentBox.height
+    })
+  }
+
+  // If a summary is hovered, recalculate offsets to push overlapping ones down
+  if (foregroundSummaryId) {
+    const hoveredSummary = visibleSummaries.find(s => s.node.data.id === foregroundSummaryId)
+    if (hoveredSummary) {
+      const hoveredBox = calculateBoxDimensions(hoveredSummary.node.data.summary)
+      const hoveredLeft = hoveredSummary.x - hoveredBox.width / 2
+      const hoveredRight = hoveredSummary.x + hoveredBox.width / 2
+
+      // Hovered summary is at y=0
+      overlapMap.set(foregroundSummaryId, { yOffset: 0, boxHeight: hoveredBox.height })
+
+      // Recalculate positions for non-hovered summaries
+      let currentYOffset = hoveredBox.height + VERTICAL_GAP
+
+      for (const summary of visibleSummaries) {
+        if (summary.node.data.id === foregroundSummaryId) continue
+
+        const box = calculateBoxDimensions(summary.node.data.summary)
+        const left = summary.x - box.width / 2
+        const right = summary.x + box.width / 2
+
+        // Check if this overlaps horizontally with hovered
+        const overlapsWithHovered = !(right < hoveredLeft || left > hoveredRight)
+
+        if (overlapsWithHovered) {
+          overlapMap.set(summary.node.data.id, { yOffset: currentYOffset, boxHeight: box.height })
+          currentYOffset += box.height + VERTICAL_GAP
+        }
+        // Non-overlapping summaries keep their original offset (already in overlapMap)
+      }
+    }
+  }
+
+  // Create summary groups for each node with a summary
+  const summaryGroups = g
+    .selectAll<SVGGElement, PositionedNode>('.node-summary-group')
+    .data(nodesWithSummaries, (d: PositionedNode) => d.node.data.id)
+
+  summaryGroups.exit().remove()
+
+  const summaryGroupsEnter = summaryGroups
+    .enter()
+    .append('g')
+    .attr('class', 'node-summary-group')
+
+  const summaryGroupsMerged = summaryGroupsEnter.merge(summaryGroups)
+
+  // Position summary groups at node X position (circles are always at circleY)
+  summaryGroupsMerged
+    .attr('transform', (d: PositionedNode) => {
+      // Position group at node's X, with circle at circleY
+      return `translate(${d.x}, ${circleY})`
+    })
+
+  // Add circle indicators only for OLDER summaries (not the last 3 which are always visible)
+  summaryGroupsMerged.selectAll('.summary-circle').remove()
+
+  // Filter to only show circles for nodes NOT in last 3
+  const olderSummaryGroups = summaryGroupsMerged
+    .filter((d: PositionedNode) => !last3SummaryNodeIds.has(d.node.data.id))
+
+  olderSummaryGroups
+    .append('circle')
+    .attr('class', 'summary-circle')
+    .attr('cx', 0)
+    .attr('cy', 0)
+    .attr('r', circleRadius)
+    .attr('fill', (d: PositionedNode) => {
+      // Grey when not toggled, slightly lighter when toggled
+      const isToggled = hoveredSummaryNodeIds.has(d.node.data.id)
+      return isToggled ? '#6b7280' : '#4b5563'
+    })
+    .attr('stroke', (d: PositionedNode) => {
+      const isToggled = hoveredSummaryNodeIds.has(d.node.data.id)
+      return isToggled ? '#9ca3af' : '#6b7280'
+    })
+    .attr('stroke-width', 2)
+    .attr('opacity', 0.9)
+    .style('pointer-events', 'all')
+    .style('cursor', 'pointer')
+    .on('click', function (event: MouseEvent, d: PositionedNode) {
+      // Stop propagation to prevent other handlers from interfering
+      event.stopPropagation()
+
+      const isToggled = hoveredSummaryNodeIds.has(d.node.data.id)
+
+      // Toggle: if already showing, hide it; if hidden, show it
+      if (isToggled) {
+        onSummaryHoverOut(d.node.data.id)
+      } else {
+        onSummaryHover(d.node.data.id)
+      }
+    })
+
+  // Offset from circle center to expanded summary box (positioned below circles)
+  const summaryOffsetY = expandedSummaryY - circleY
+
+  // Add summary box background (only when expanded) - positioned below circles
+  summaryGroupsMerged.selectAll('.summary-box-bg').remove()
+  summaryGroupsMerged.selectAll('.summary-expanded-group').remove()
+
+  // Show summary for: last 3 (always visible) OR currently toggled (for older summaries)
+  const expandedBoxes = summaryGroupsMerged
+    .filter((d: PositionedNode) => last3SummaryNodeIds.has(d.node.data.id) || hoveredSummaryNodeIds.has(d.node.data.id))
+
+  // Create a sub-group for expanded summaries positioned below the circles
+  // Apply y-offset based on overlap detection (works for both last 3 and toggled summaries)
+  const expandedGroups = expandedBoxes
+    .append('g')
+    .attr('class', 'summary-expanded-group')
+    .attr('transform', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      // Get overlap offset from the map (applies to all visible summaries)
+      const overlapInfo = overlapMap.get(d.node.data.id)
+      const yOffset = overlapInfo ? overlapInfo.yOffset : 0
+      // Center the box horizontally relative to the circle, position below with overlap offset
+      return `translate(${-boxDimensions.width / 2}, ${summaryOffsetY + yOffset})`
+    })
+    .style('cursor', 'pointer') // All visible summaries can be hovered for foreground
+    .on('mouseenter', function (_event: MouseEvent, d: PositionedNode) {
+      // Bring this summary to foreground when hovered (works for all visible summaries)
+      onSummaryForeground(d.node.data.id)
+    })
+    .on('mouseleave', function () {
+      // Remove from foreground when mouse leaves
+      onSummaryForeground(null)
+    })
+
+  // Create a clipPath for each expanded box (no animation, render immediately)
+  expandedGroups.each(function (d: PositionedNode) {
+    const group = d3.select<SVGGElement, PositionedNode>(this)
+    const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+    const clipId = `summary-clip-${d.node.data.id}`
+
+    // Remove existing clipPath if any
+    group.selectAll(`#${clipId}`).remove()
+
+    // Create clipPath - all summaries render immediately without animation
+    const clipPath = group.append('clipPath').attr('id', clipId)
+    clipPath.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('height', boxDimensions.height)
+      .attr('width', boxDimensions.width)
+  })
+
+  expandedGroups
+    .append('rect')
+    .attr('class', 'summary-box-bg')
+    .attr('clip-path', (d: PositionedNode) => `url(#summary-clip-${d.node.data.id})`)
+    .attr('width', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      return boxDimensions.width
+    })
+    .attr('height', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      return boxDimensions.height
+    })
+    .attr('rx', 8)
+    .attr('ry', 8)
+    .attr('fill', '#1f2937')
+    .attr('stroke', (d: PositionedNode) => {
+      // Highlight border when this summary is in foreground
+      return foregroundSummaryId === d.node.data.id ? '#818cf8' : '#4b5563'
+    })
+    .attr('stroke-width', (d: PositionedNode) => {
+      return foregroundSummaryId === d.node.data.id ? 2 : 1
+    })
+    .attr('opacity', 0.95)
+
+  // Add summary text (only for expanded summaries)
+  summaryGroupsMerged.selectAll('.summary-text').remove()
+  expandedGroups
+    .append('foreignObject')
+    .attr('class', 'summary-text')
+    .attr('clip-path', (d: PositionedNode) => `url(#summary-clip-${d.node.data.id})`)
+    .attr('x', 10)
+    .attr('y', 10)
+    .attr('width', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      return boxDimensions.width - 20
+    })
+    .attr('height', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      return boxDimensions.height - 20
+    })
+    .style('pointer-events', 'none')
+    .append('xhtml:div')
+    .style('font-size', '12px')
+    .style('font-family', 'system-ui, -apple-system, sans-serif')
+    .style('color', '#d1d5db')
+    .style('line-height', '1.4')
+    .style('overflow', 'hidden')
+    .style('text-overflow', 'ellipsis')
+    .style('display', 'flex')
+    .style('align-items', 'center')
+    .style('justify-content', 'center')
+    .style('text-align', 'center')
+    .style('width', '100%')
+    .style('height', '100%')
+    .text((d: PositionedNode) => d.node.data.summary)
+}

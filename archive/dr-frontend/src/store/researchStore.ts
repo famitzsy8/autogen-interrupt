@@ -198,7 +198,6 @@ export const useResearchStore = create<ResearchState>()(
           ws.onopen = () => {
             // Send config immediately after connection establishes
             if (config) {
-              console.log('=== Sending research config ===')
               ws.send(JSON.stringify(config))
             }
 
@@ -214,16 +213,12 @@ export const useResearchStore = create<ResearchState>()(
           }
 
           ws.onmessage = (event: MessageEvent) => {
-            console.log('=== Frontend received message ===', event.data)
             try {
               const message: ServerMessage = JSON.parse(event.data)
-              console.log('=== Parsed message type:', message.type, '===')
               get().handleServerMessage(message)
-              console.log('=== Message handled successfully ===')
             } catch (error) {
               const errorMessage =
                 error instanceof Error ? error.message : 'Unknown parsing error'
-              console.error('=== Error handling message:', errorMessage, '===')
               set({
                 error: {
                   code: 'MESSAGE_PARSE_ERROR',
@@ -348,25 +343,20 @@ export const useResearchStore = create<ResearchState>()(
        * Handle incoming server messages.
        */
       handleServerMessage: (message: ServerMessage) => {
-        console.log('=== Handling server message:', message.type, '===')
         switch (message.type) {
           case 'streaming_chunk':
-            console.log('=== Accumulating streaming chunk ===')
             get().appendStreamingChunk(message)
             break
 
           case 'agent_message':
-            console.log('=== Adding agent message ===')
             get().addMessage(message)
             break
 
           case 'tree_update':
-            console.log('=== Updating conversation tree ===')
             get().updateConversationTree(message)
             break
 
           case 'interrupt_acknowledged':
-            console.log('=== Interrupt acknowledged ===')
             set({
               isInterrupted: true,
               streamState: StreamStateEnum.INTERRUPTED,
@@ -374,14 +364,12 @@ export const useResearchStore = create<ResearchState>()(
             break
 
           case 'stream_end':
-            console.log('=== Stream ended ===')
             set({
               streamState: StreamStateEnum.ENDED,
             })
             break
 
           case 'agent_input_request':
-            console.log('=== Agent input request received ===')
             set({
               agentInputRequest: message,
               streamState: StreamStateEnum.WAITING_FOR_AGENT_INPUT,
@@ -389,7 +377,6 @@ export const useResearchStore = create<ResearchState>()(
             break
 
           case 'error':
-            console.log('=== Error message received ===')
             set({
               error: {
                 code: message.error_code,
@@ -400,7 +387,6 @@ export const useResearchStore = create<ResearchState>()(
             break
 
           case 'tool_call':
-            console.log('=== Tool call received ===', message)
             set((state) => ({
               toolCallsByNodeId: {
                 ...state.toolCallsByNodeId,
@@ -410,7 +396,6 @@ export const useResearchStore = create<ResearchState>()(
             break
 
           case 'tool_execution':
-            console.log('=== Tool execution received ===', message)
             set((state) => ({
               toolExecutionsByNodeId: {
                 ...state.toolExecutionsByNodeId,
@@ -420,8 +405,7 @@ export const useResearchStore = create<ResearchState>()(
             break
 
           default:
-            // Log unhandled message types but don't throw to avoid closing connection
-            console.error(`=== Unhandled message type: ${(message as any).type} ===`, message)
+            // Don't throw to avoid closing connection
             set({
               error: {
                 code: 'UNHANDLED_MESSAGE_TYPE',

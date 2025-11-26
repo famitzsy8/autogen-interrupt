@@ -49,7 +49,7 @@ export function ChatDisplay(): React.ReactElement {
       sendInterrupt()
       setTrimCount(0) // Reset trim count on interrupt
     } catch (error) {
-      console.error('Failed to send interrupt:', error)
+      // Handle error silently
     }
   }
 
@@ -57,7 +57,7 @@ export function ChatDisplay(): React.ReactElement {
     try {
       sendUserMessage(content, targetAgent, currentTrimCount)
     } catch (error) {
-      console.error('Failed to send user message:', error)
+      // Handle error silently
     }
   }
 

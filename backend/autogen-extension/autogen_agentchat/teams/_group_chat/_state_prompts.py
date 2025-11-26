@@ -75,14 +75,13 @@ Output the updates that should be added to the whiteboard with the same structur
 4. DO NOT OUTPUT THE ENITRE UPDATED WHITEBOARD! Your output will be concatenated to the old whiteboard.
 """
 
-HANDOFF_CONTEXT_UPDATING_PROMPT = """Your task is to update the instructions to determine when our agent team should request feedback from the human user running them.
+HANDOFF_CONTEXT_UPDATING_PROMPT = """Your task is to update the agent handoff instructions based on human user feedback.
 
 ## What you receive
 
 1. Information about the current state of research
-2. The previous instructions that determined when to invoke which agent, and when to invoke feedback from the human user
-3. The agent name of the human user (e.g. 'User_Proxy')
-4. The message received from the human user that addresses changes to the agent invocation logic
+2. The previous instructions that determined when to invoke which agent
+3. The message received from the human user that addresses changes to the agent invocation logic
 
 ## Information about the current state of research
 
@@ -91,10 +90,6 @@ HANDOFF_CONTEXT_UPDATING_PROMPT = """Your task is to update the instructions to 
 ## Previous Handoff Instructions
 
 {handoffContext}
-
-## Name of the Human User Agent
-
-{user_proxy_name}
 
 ## Message from the Human User
 
@@ -111,10 +106,6 @@ Output updated handoff instructions in the following manner:
 ## Output structure
 
 Same as the old handoff instructions
-
-# User Feedback Involvement
-
-clear instructions as to when involve {user_proxy_name}
 
 # Agent Responsibilities
 

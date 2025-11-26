@@ -28,11 +28,9 @@ function App(): React.ReactElement {
   const handleConfigSubmit = async (config: ResearchConfig) => {
     try {
       setIsStarting(true)
-      console.log('=== Config submitted, connecting to backend ===')
       connect(wsUrl, config)
       setIsConfigured(true)
     } catch (error) {
-      console.error('Failed to start research:', error)
       setIsStarting(false)
     }
   }
@@ -62,22 +60,20 @@ function App(): React.ReactElement {
       {/* Connection status indicator */}
       <div className="fixed bottom-4 right-4 z-50">
         <div
-          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-xs ${
-            connectionState === 'connected'
-              ? 'bg-green-900 text-green-300'
-              : connectionState === 'connecting' || connectionState === 'reconnecting'
-                ? 'bg-yellow-900 text-yellow-300'
-                : 'bg-red-900 text-red-300'
-          }`}
+          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-xs ${connectionState === 'connected'
+            ? 'bg-green-900 text-green-300'
+            : connectionState === 'connecting' || connectionState === 'reconnecting'
+              ? 'bg-yellow-900 text-yellow-300'
+              : 'bg-red-900 text-red-300'
+            }`}
         >
           <div
-            className={`w-2 h-2 rounded-full ${
-              connectionState === 'connected'
-                ? 'bg-green-400 animate-pulse'
-                : connectionState === 'connecting' || connectionState === 'reconnecting'
-                  ? 'bg-yellow-400 animate-pulse'
-                  : 'bg-red-400'
-            }`}
+            className={`w-2 h-2 rounded-full ${connectionState === 'connected'
+              ? 'bg-green-400 animate-pulse'
+              : connectionState === 'connecting' || connectionState === 'reconnecting'
+                ? 'bg-yellow-400 animate-pulse'
+                : 'bg-red-400'
+              }`}
           />
           <span className="font-medium">{connectionState}</span>
         </div>

@@ -72,30 +72,38 @@ class HierarchicalGroupChat(SelectorGroupChat):
         agent_input_queue: Any | None = None,
         **kwargs: Any,
     ) -> Callable[[], BaseGroupChatManager]:
-        return lambda: HierarchicalGroupChatManager(
-            self.allowed_transitions,
-            name,
-            group_topic_type,
-            output_topic_type,
-            participant_topic_types,
-            participant_names,
-            participant_descriptions,
-            output_message_queue,
-            termination_condition,
-            max_turns,
-            message_factory,
-            self._model_client,
-            self._selector_prompt,
-            self._allow_repeated_speaker,
-            self._selector_func,
-            self._max_selector_attempts,
-            self._candidate_func,
-            self._emit_team_events,
-            self._model_context,
-            self._model_client_streaming,
-            agent_input_queue=agent_input_queue,
-            enable_state_context=self._enable_state_context,  # type: ignore[attr-defined]
-            user_proxy_name=self._user_proxy_name,  # type: ignore[attr-defined]
-        )
+        def factory() -> BaseGroupChatManager:
+            manager = HierarchicalGroupChatManager(
+                self.allowed_transitions,
+                name,
+                group_topic_type,
+                output_topic_type,
+                participant_topic_types,
+                participant_names,
+                participant_descriptions,
+                output_message_queue,
+                termination_condition,
+                max_turns,
+                message_factory,
+                self._model_client,
+                self._selector_prompt,
+                self._allow_repeated_speaker,
+                self._selector_func,
+                self._max_selector_attempts,
+                self._candidate_func,
+                self._emit_team_events,
+                self._model_context,
+                self._model_client_streaming,
+                agent_input_queue=agent_input_queue,
+                enable_state_context=self._enable_state_context,  # type: ignore[attr-defined]
+                user_proxy_name=self._user_proxy_name,  # type: ignore[attr-defined]
+            )
+            # Set analysis fields on manager if they exist on team
+            if self._analysis_service is not None:  # type: ignore[attr-defined]
+                manager._analysis_service = self._analysis_service  # type: ignore[attr-defined]
+                manager._analysis_components = self._analysis_components  # type: ignore[attr-defined]
+                manager._trigger_threshold = self._trigger_threshold  # type: ignore[attr-defined]
+            return manager
+        return factory
 
 

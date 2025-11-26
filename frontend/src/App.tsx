@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { ChatDisplay } from './components/ChatDisplay'
+import { FloatingInputPanel } from './components/FloatingInputPanel'
+import { InterruptButton } from './components/InterruptButton'
+import { TerminateButton } from './components/TerminateButton'
 import { StateDisplay } from './components/StateDisplay'
 import { TreeVisualization } from './components/TreeVisualization'
-import AgentInputModal from './components/AgentInputModal'
+import AgentInputModal, { AgentInputMinimizedTab } from './components/AgentInputModal'
+import TerminationModal from './components/TerminationModal'
 import { ConfigForm } from './components/ConfigForm'
-import { MessageSquare, FileText } from 'lucide-react'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { ChevronLeft } from 'lucide-react'
 import type { RunConfig } from './types'
 import {
   useAgentInputActions,
@@ -16,11 +20,17 @@ import {
   useConnectionState,
   useConversationTree,
   useCurrentBranchId,
-  useIsChatDisplayVisible,
-  useChatDisplayActions,
+  useIsStreaming,
+  useMessageActions,
+  useUserInteractionActions,
   useIsStateDisplayVisible,
-  useStateDisplayActions,
+  useIsInterrupted,
+  useTrimCount,
+  useEdgeInterrupt,
+  useEdgeInterruptActions,
+  useAnalysisActions,
 } from './hooks/useStore'
+import type { TreeNode } from './types'
 
 function App(): React.ReactElement {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -35,18 +45,55 @@ function App(): React.ReactElement {
   const conversationTree = useConversationTree()
   const currentBranchId = useCurrentBranchId()
   const agentInputRequest = useAgentInputRequest()
-  const isChatDisplayVisible = useIsChatDisplayVisible()
+  const isStreaming = useIsStreaming()
+  const { sendInterrupt, sendUserMessage } = useMessageActions()
+  const { setTrimCount } = useUserInteractionActions()
   const isStateDisplayVisible = useIsStateDisplayVisible()
   const { sendHumanInputResponse } = useAgentInputActions()
-  const { setChatDisplayVisible } = useChatDisplayActions()
-  const { setStateDisplayVisible } = useStateDisplayActions()
+  const isInterrupted = useIsInterrupted()
+  const trimCount = useTrimCount()
+  const edgeInterrupt = useEdgeInterrupt()
+  const { clearEdgeInterrupt } = useEdgeInterruptActions()
+  const { markNodeUserInterrupted } = useAnalysisActions()
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
+  const [isInputPanelMinimized, setIsInputPanelMinimized] = useState(false)
+  const [isAgentInputMinimized, setIsAgentInputMinimized] = useState(false)
 
-  const handleToggleChatDisplay = () => {
-    setChatDisplayVisible(!isChatDisplayVisible)
+  // Find the last active node in the tree (deepest node in active branch)
+  const findLastActiveNode = (node: TreeNode): TreeNode | null => {
+    if (!node.is_active) return null
+
+    // Check children for deeper active nodes
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        const deeperNode = findLastActiveNode(child)
+        if (deeperNode) return deeperNode
+      }
+    }
+
+    // This node is active and has no active children, so it's the last
+    return node
   }
 
-  const handleToggleStateDisplay = () => {
-    setStateDisplayVisible(!isStateDisplayVisible)
+  const handleInterrupt = () => {
+    sendInterrupt()
+    setTrimCount(0)
+
+    // Mark the last active node as user-interrupted
+    if (conversationTree) {
+      const lastNode = findLastActiveNode(conversationTree)
+      if (lastNode) {
+        markNodeUserInterrupted(lastNode.id)
+      }
+    }
+  }
+
+  const handleSendMessage = (content: string, targetAgent: string, trimCount: number) => {
+    sendUserMessage(content, targetAgent, trimCount)
+    // Clear edge interrupt state after sending message
+    if (edgeInterrupt) {
+      clearEdgeInterrupt()
+    }
   }
 
   // Connect to WebSocket on mount (only once)
@@ -58,13 +105,26 @@ function App(): React.ReactElement {
     // No cleanup function - let WebSocket stay open across Strict Mode remounts
   }, [])
 
+  // Reset minimized state when interrupt happens so panel shows again
+  useEffect(() => {
+    if (isInterrupted) {
+      setIsInputPanelMinimized(false)
+    }
+  }, [isInterrupted])
+
+  // Reset agent input minimized state when new request comes in
+  useEffect(() => {
+    if (agentInputRequest) {
+      setIsAgentInputMinimized(false)
+    }
+  }, [agentInputRequest])
+
   const handleConfigSubmit = async (config: RunConfig) => {
     try {
-      console.log('=== Config submitted, sending to backend ===')
       sendConfig(config)
       setIsConfigured(true)
     } catch (error) {
-      console.error('Failed to send config:', error)
+      // Handle error silently
     }
   }
 
@@ -82,93 +142,100 @@ function App(): React.ReactElement {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text">
-      <div className="relative h-screen w-full">
-        {/* Tree visualization area (always full size) */}
-        <div className="absolute inset-0">
-          <TreeVisualization
-            treeData={conversationTree}
-            currentBranchId={currentBranchId}
-          />
-
-          {/* Agent Input Modal - positioned in tree area */}
-          {agentInputRequest && (
-            <AgentInputModal
-              request={agentInputRequest}
-              onSubmit={(userInput) => {
-                sendHumanInputResponse(agentInputRequest.request_id, userInput)
-              }}
-              onCancel={() => {
-                // Send 'continue' when user cancels
-                sendHumanInputResponse(agentInputRequest.request_id, 'continue')
-              }}
+    <ErrorBoundary>
+      <div className="min-h-screen bg-dark-bg text-dark-text">
+        <div className="relative h-screen w-full">
+          {/* Tree visualization area (always full size) */}
+          <div className="absolute inset-0">
+            <TreeVisualization
+              treeData={conversationTree}
+              currentBranchId={currentBranchId}
             />
+
+
+
+
+            {/* Top right controls */}
+            <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+              {/* Interrupt Button */}
+              <InterruptButton onInterrupt={handleInterrupt} isStreaming={isStreaming} />
+
+              {/* Terminate Button - ends run and shows final state */}
+              <TerminateButton />
+            </div>
+          </div>
+
+          {/* Floating Input Panel - slides in from right side for both button and edge interrupts */}
+          {(isInterrupted || edgeInterrupt) && !agentInputRequest && (
+            <>
+              {/* Expanded panel */}
+              <div
+                className={`fixed right-0 top-1/2 -translate-y-1/2 z-50 transition-transform duration-300 ease-in-out ${isInputPanelMinimized ? 'translate-x-full' : 'translate-x-0'
+                  }`}
+              >
+                <FloatingInputPanel
+                  onSendMessage={handleSendMessage}
+                  isInterrupted={isInterrupted || !!edgeInterrupt}
+                  selectedAgent={selectedAgent}
+                  onSelectAgent={setSelectedAgent}
+                  trimCount={edgeInterrupt?.trimCount ?? trimCount}
+                  onMinimize={() => setIsInputPanelMinimized(true)}
+                  className="rounded-l-lg rounded-r-none border-r-0"
+                />
+              </div>
+
+              {/* Collapsed tab button - only show when minimized */}
+              {isInputPanelMinimized && (
+                <button
+                  onClick={() => setIsInputPanelMinimized(false)}
+                  className="fixed right-0 top-1/2 -translate-y-1/2 z-50 bg-dark-accent hover:bg-dark-accent/80 text-white px-3 py-2 rounded-l-lg shadow-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
+                  title="Open message panel"
+                >
+                  <ChevronLeft size={18} />
+                  <span>Complete your interruption!</span>
+                </button>
+              )}
+            </>
           )}
 
-          {/* Floating toggle button for chat display */}
-          {!isChatDisplayVisible && (
-            <button
-              onClick={handleToggleChatDisplay}
-              className="absolute top-4 right-4 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-colors z-10"
-              aria-label="Show chat display"
-              title="Show full messages"
-            >
-              <MessageSquare size={24} />
-            </button>
+          {/* Agent Input Modal - slides in from right side */}
+          {agentInputRequest && (
+            <>
+              <AgentInputModal
+                request={agentInputRequest}
+                onSubmit={(userInput) => {
+                  sendHumanInputResponse(agentInputRequest.request_id, userInput)
+                }}
+                onCancel={() => {
+                  // Send 'continue' when user cancels
+                  sendHumanInputResponse(agentInputRequest.request_id, 'continue')
+                }}
+                isMinimized={isAgentInputMinimized}
+                onMinimize={() => setIsAgentInputMinimized(true)}
+              />
+
+              {/* Collapsed tab button for agent input - only show when minimized */}
+              {isAgentInputMinimized && (
+                <AgentInputMinimizedTab
+                  onClick={() => setIsAgentInputMinimized(false)}
+                  hasFeedbackContext={!!agentInputRequest.feedback_context}
+                />
+              )}
+            </>
           )}
 
-          {/* Floating toggle button for state display */}
-          {!isStateDisplayVisible && (
-            <button
-              onClick={handleToggleStateDisplay}
-              className="absolute top-4 left-4 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-lg transition-colors z-10"
-              aria-label="Show state display"
-              title="Show state context"
-            >
-              <FileText size={24} />
-            </button>
+          {/* State display overlay (slides in from left) */}
+          {isStateDisplayVisible && (
+            <div className="fixed left-0 top-0 h-full w-[400px] bg-dark-bg border-r border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
+              <StateDisplay />
+            </div>
           )}
         </div>
 
-        {/* Chat display overlay (slides in from right) */}
-        {isChatDisplayVisible && (
-          <div className="fixed right-0 top-0 h-full w-[400px] bg-dark-bg border-l border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
-            <ChatDisplay />
-          </div>
-        )}
-
-        {/* State display overlay (slides in from left) */}
-        {isStateDisplayVisible && (
-          <div className="fixed left-0 top-0 h-full w-[400px] bg-dark-bg border-r border-dark-border shadow-2xl z-40 transition-transform duration-300 flex flex-col">
-            <StateDisplay />
-          </div>
-        )}
+        {/* Termination Modal - displays when run is terminated by user */}
+        <TerminationModal />
       </div>
-
-      {/* Connection status indicator */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <div
-          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-xs ${
-            connectionState === 'connected'
-              ? 'bg-green-900 text-green-300'
-              : connectionState === 'connecting' || connectionState === 'reconnecting'
-                ? 'bg-yellow-900 text-yellow-300'
-                : 'bg-red-900 text-red-300'
-          }`}
-        >
-          <div
-            className={`w-2 h-2 rounded-full ${
-              connectionState === 'connected'
-                ? 'bg-green-400 animate-pulse'
-                : connectionState === 'connecting' || connectionState === 'reconnecting'
-                  ? 'bg-yellow-400 animate-pulse'
-                  : 'bg-red-400'
-            }`}
-          />
-          <span className="font-medium">{connectionState}</span>
-        </div>
-      </div>
-    </div>
+    </ErrorBoundary>
   )
 }
 

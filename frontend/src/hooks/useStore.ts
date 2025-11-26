@@ -16,6 +16,8 @@ import type {
     ConnectionState,
     StateUpdate,
     StreamState,
+    ToolCall,
+    ToolExecution,
     TreeNode
 } from '../types'
 
@@ -251,45 +253,21 @@ export function useIsStreaming(): boolean {
 
   /**
    * Hook to access tool calls by node ID.
+   * Returns a map of node_id -> ToolCall message.
+   * Used to look up tool call details for a given node.
    */
-  export function useToolCallsByNodeId(): Record<string, import('../types').ToolCall> {
+  export function useToolCallsByNodeId(): Record<string, ToolCall> {
     return useStore((state) => state.toolCallsByNodeId)
   }
-  
+
   /**
    * Hook to access tool executions by node ID.
+   * Returns a map of node_id -> ToolExecution message.
+   * Used to look up tool execution results for a given node.
+   * Note: ToolCall and ToolExecution may share the same node_id.
    */
-  export function useToolExecutionsByNodeId(): Record<string, import('../types').ToolExecution> {
+  export function useToolExecutionsByNodeId(): Record<string, ToolExecution> {
     return useStore((state) => state.toolExecutionsByNodeId)
-  }
-
-  /**
-   * Hook to access chat display visibility state.
-   */
-  export function useIsChatDisplayVisible(): boolean {
-    return useStore((state) => state.isChatDisplayVisible)
-  }
-
-  /**
-   * Hook to access the selected node ID for chat.
-   */
-export function useSelectedNodeIdForChat(): string | null {
-    return useStore((state) => state.selectedNodeIdForChat)
-}
-
-export function useChatFocusTarget() {
-  return useStore((state) => state.chatFocusTarget)
-}
-
-/**
- * Hook to access chat display actions.
- */
-export function useChatDisplayActions() {
-    return useStore((state) => ({
-      setChatDisplayVisible: state.setChatDisplayVisible,
-      setSelectedNodeIdForChat: state.setSelectedNodeIdForChat,
-      setChatFocusTarget: state.setChatFocusTarget,
-    }))
   }
 
   /**
@@ -297,6 +275,16 @@ export function useChatDisplayActions() {
    */
   export function useCurrentState(): StateUpdate | null {
     return useStore((state) => state.currentState)
+  }
+
+  /**
+   * Hook to access all state updates received from the backend.
+   * Returns an ordered list of all StateUpdate messages accumulated during the session.
+   * StateUpdates are sparse (not emitted for every message).
+   * Used for temporal lookup when populating Run State tab.
+   */
+  export function useAllStateUpdates(): StateUpdate[] {
+    return useStore((state) => state.stateUpdates)
   }
 
   /**
@@ -323,14 +311,109 @@ export function useChatDisplayActions() {
   }
 
   /**
+   * Hook to access edge interrupt minimized state.
+   */
+  export function useEdgeInterruptMinimized(): boolean {
+    return useStore((state) => state.edgeInterruptMinimized)
+  }
+
+  /**
    * Hook to access edge interrupt actions.
    */
   export function useEdgeInterruptActions(): {
     setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
     clearEdgeInterrupt: () => void
+    minimizeEdgeInterrupt: () => void
+    maximizeEdgeInterrupt: () => void
   } {
     return useStore((state) => ({
       setEdgeInterrupt: state.setEdgeInterrupt,
       clearEdgeInterrupt: state.clearEdgeInterrupt,
+      minimizeEdgeInterrupt: state.minimizeEdgeInterrupt,
+      maximizeEdgeInterrupt: state.maximizeEdgeInterrupt,
+    }))
+  }
+
+  /**
+   * Hook to access analysis components.
+   */
+  export function useAnalysisComponents() {
+    return useStore((state) => state.analysisComponents)
+  }
+
+  /**
+   * Hook to access analysis scores by node ID.
+   */
+  export function useAnalysisScores() {
+    return useStore((state) => state.analysisScores)
+  }
+
+  /**
+   * Hook to access triggered nodes set.
+   */
+  export function useTriggeredNodes() {
+    return useStore((state) => state.triggeredNodes)
+  }
+
+  /**
+   * Hook to access user-interrupted nodes set.
+   */
+  export function useUserInterruptedNodes() {
+    return useStore((state) => state.userInterruptedNodes)
+  }
+
+  /**
+   * Hook to access analysis actions.
+   */
+  export function useAnalysisActions() {
+    return useStore((state) => ({
+      setAnalysisComponents: state.setAnalysisComponents,
+      addAnalysisScore: state.addAnalysisScore,
+      markNodeTriggered: state.markNodeTriggered,
+      markNodeUserInterrupted: state.markNodeUserInterrupted,
+      clearAnalysisData: state.clearAnalysisData,
+    }))
+  }
+
+  /**
+   * Hook to access generated components for review.
+   */
+  export function useGeneratedComponents() {
+    return useStore((state) => state.generatedComponents)
+  }
+
+  /**
+   * Hook to check if components are being generated.
+   */
+  export function useIsGeneratingComponents(): boolean {
+    return useStore((state) => state.isGeneratingComponents)
+  }
+
+  /**
+   * Hook to access component generation actions.
+   */
+  export function useComponentGenerationActions() {
+    return useStore((state) => ({
+      sendComponentGenerationRequest: state.sendComponentGenerationRequest,
+      sendRunStartConfirmed: state.sendRunStartConfirmed,
+    }))
+  }
+
+  /**
+   * Hook to access termination data.
+   * Returns the TerminateAck data when user-initiated termination completes.
+   */
+  export function useTerminationData() {
+    return useStore((state) => state.terminationData)
+  }
+
+  /**
+   * Hook to access termination actions.
+   */
+  export function useTerminationActions() {
+    return useStore((state) => ({
+      sendTerminateRequest: state.sendTerminateRequest,
+      setTerminationData: state.setTerminationData,
+      clearTerminationData: state.clearTerminationData,
     }))
   }

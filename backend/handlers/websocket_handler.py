@@ -5,6 +5,7 @@ import contextlib
 import json
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 import uuid
@@ -34,6 +35,7 @@ from starlette.websockets import WebSocket, WebSocketState
 from handlers.agent_input_queue import AgentInputQueue
 from handlers.session_manager import get_session_manager, Session
 from models import (
+    AnalysisComponentsInit,
     HumanInputResponse,
     AgentInputRequest,
     AgentMessage,
@@ -52,10 +54,16 @@ from models import (
     ToolExecution,
     ToolExecutionResult,
     UserDirectedMessage,
-    UserInterrupt
+    UserInterrupt,
+    ComponentGenerationRequest,
+    ComponentGenerationResponse,
+    RunStartConfirmed,
+    TerminateRequest,
+    TerminateAck,
 )
 from utils.yaml_utils import get_agent_team_names, get_agent_details, get_team_main_tasks, get_summarization_system_prompt
 from utils.summarization import init_summarizer, summarize_message
+from autogen_agentchat.teams._group_chat._models import AnalysisUpdate as ExtensionAnalysisUpdate
 
 # we need to implement an autogen agent team factory
 from handlers.state_manager import StateManager
@@ -93,13 +101,38 @@ class WebSocketHandler:
 
             await self._send_agent_details()
 
-            # Step 2: Wait for config from frontend
-            print("→ Waiting for config from frontend...")
-            config_data = await self.websocket.receive_text()
-            print(f"✓ Received config: {config_data[:100]}...")
-            config_dict = json.loads(config_data)
+            # Step 2: Wait for either component generation request OR run start confirmation
+            print("→ Waiting for message from frontend...")
 
-            self.agent_team_config = RunConfig(**config_dict)
+            while True:
+                message_data = await self.websocket.receive_text()
+                print(f"✓ Received message: {message_data[:100]}...")
+                message_dict = json.loads(message_data)
+                message_type = message_dict.get('type')
+
+                if message_type == MessageType.COMPONENT_GENERATION_REQUEST:
+                    # Phase 1: Generate components and send back for review
+                    print("→ Handling component generation request...")
+                    await self._handle_component_generation(message_dict)
+                    print("✓ Components generated and sent")
+                    # Continue loop, wait for run start confirmation
+
+                elif message_type == MessageType.RUN_START_CONFIRMED:
+                    # Phase 2: Start run with approved components
+                    print("→ Handling run start confirmation...")
+                    self.agent_team_config = RunStartConfirmed(**message_dict)
+                    break  # Exit loop, proceed to initialization
+
+                elif message_type == MessageType.START_RUN:
+                    # Legacy path: Direct run start without component review
+                    print("→ Handling legacy run config...")
+                    self.agent_team_config = RunConfig(**message_dict)
+                    break  # Exit loop, proceed to initialization
+
+                else:
+                    print(f"✗ Unexpected message type: {message_type}")
+                    await self._send_error("INVALID_MESSAGE_TYPE", f"Unexpected message type: {message_type}")
+                    continue
 
             # Get or create session based on session_id
             session_id = self.agent_team_config.session_id
@@ -181,6 +214,50 @@ class WebSocketHandler:
             await self._cleanup()
 
 
+    async def _handle_component_generation(self, request_dict: dict) -> None:
+        """Generate analysis components from user prompt without starting run."""
+        try:
+            request = ComponentGenerationRequest(**request_dict)
+
+            # Get API key for temporary model client
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                raise RuntimeError("OPENAI_API_KEY not set in environment")
+
+            # Create temporary model client for component generation
+            from autogen_ext.models.openai import OpenAIChatCompletionClient
+            temp_client = OpenAIChatCompletionClient(
+                model="gpt-4o-mini",
+                api_key=api_key
+            )
+
+            # Create analysis service and parse prompt
+            from analysis_service import AnalysisService
+            analysis_service = AnalysisService(model_client=temp_client)
+
+            logger.info(f"Generating components from prompt: {request.analysis_prompt[:100]}...")
+            components = await analysis_service.parse_prompt(request.analysis_prompt)
+
+            # Send components back to frontend for review
+            response = ComponentGenerationResponse(
+                type=MessageType.COMPONENT_GENERATION_RESPONSE,
+                components=components,
+                timestamp=datetime.now()
+            )
+
+            await self.websocket.send_text(response.model_dump_json())
+            logger.info(f"Sent {len(components)} components to frontend for review")
+
+        except Exception as e:
+            logger.error(f"Component generation failed: {e}", exc_info=True)
+            # Send empty components list on failure - user can add manually
+            response = ComponentGenerationResponse(
+                type=MessageType.COMPONENT_GENERATION_RESPONSE,
+                components=[],
+                timestamp=datetime.now()
+            )
+            await self.websocket.send_text(response.model_dump_json())
+
     async def _initialize_run(self) -> None:
 
         if not self.session:
@@ -207,6 +284,74 @@ class WebSocketHandler:
 
         # Update StateManager with display_names from agent team context
         self.session.state_manager.display_names = self.session.agent_team_context.display_names
+
+        # Initialize analysis service with user-approved components if provided
+        # Check if config is RunStartConfirmed (new flow) or RunConfig (legacy flow)
+        approved_components = []
+        trigger_threshold = 8
+
+        if isinstance(self.agent_team_config, RunStartConfirmed):
+            # New flow: Use user-approved components
+            approved_components = self.agent_team_config.approved_components
+            trigger_threshold = self.agent_team_config.trigger_threshold
+            logger.info(f"Using {len(approved_components)} user-approved components")
+
+        elif isinstance(self.agent_team_config, RunConfig) and self.agent_team_config.analysis_prompt:
+            # Legacy flow: Parse analysis_prompt directly
+            logger.info(f"Legacy flow: Parsing analysis prompt: {self.agent_team_config.analysis_prompt[:100]}...")
+
+            from analysis_service import AnalysisService
+
+            model_client = self.session.agent_team_context.team._model_client
+            analysis_service = AnalysisService(model_client=model_client)
+
+            try:
+                approved_components = await analysis_service.parse_prompt(
+                    self.agent_team_config.analysis_prompt
+                )
+                trigger_threshold = self.agent_team_config.trigger_threshold
+                logger.info(f"Parsed {len(approved_components)} components in legacy mode")
+            except Exception as e:
+                logger.error(f"Failed to parse prompt in legacy mode: {e}", exc_info=True)
+                approved_components = []
+
+        # Setup analysis if we have components
+        if approved_components:
+            from analysis_service import AnalysisService
+            from datetime import timezone
+
+            # Get model client from team
+            model_client = self.session.agent_team_context.team._model_client
+
+            # Create analysis service
+            analysis_service = AnalysisService(model_client=model_client)
+
+            # Store in session
+            self.session.analysis_service = analysis_service
+            self.session.active_components = approved_components
+            self.session.trigger_threshold = trigger_threshold
+
+            # Pass analysis fields to team
+            self.session.agent_team_context.team._analysis_service = analysis_service
+            self.session.agent_team_context.team._analysis_components = approved_components
+            self.session.agent_team_context.team._trigger_threshold = trigger_threshold
+
+            # Send to frontend
+            init_message = AnalysisComponentsInit(
+                type="analysis_components_init",
+                components=approved_components,
+                timestamp=datetime.now(timezone.utc)
+            )
+
+            # Broadcast to all connections in session
+            await self.session_manager.broadcast_to_session(
+                session_id=self.session.session_id,
+                message=init_message.model_dump_json()
+            )
+
+            logger.info(f"Analysis initialized with {len(approved_components)} components")
+        else:
+            logger.info("No analysis components configured")
 
     async def _conversation_stream(self, initial_topic: str) -> None:
 
@@ -265,6 +410,13 @@ class WebSocketHandler:
                     elif isinstance(message, BaseChatMessage):
                         total_messages += 1
                         print(f"[{total_messages}] [{message.source}]: {message.content}")
+                        # Skip processing "You" messages from the stream since they're already handled
+                        # in create_branch when the user sends a directed message
+                        if message.source == "You":
+                            print(f"[SKIP] Skipping duplicate 'You' message from stream")
+                            # Still need to create the next task
+                            message_task = asyncio.create_task(stream.__anext__())
+                            continue
                         await self._process_agent_message(message)
                     
                     elif isinstance(message, ToolCallRequestEvent):
@@ -285,6 +437,10 @@ class WebSocketHandler:
                         print(
                             f"\n💬 [{message.source}] is requesting input from the human user."
                         )
+                    
+                    elif isinstance(message, ExtensionAnalysisUpdate):
+                        print(f"📊 [ANALYSIS] Sending update for node {message.node_id}")
+                        await self._send_analysis_update(message)
                     
                     elif hasattr(message, "stop_reason"):
                         print(f"🏁 Stream ended: {message.stop_reason}")
@@ -355,6 +511,8 @@ class WebSocketHandler:
                 await self._handle_human_input_response(message_dict)
             elif message_type == MessageType.USER_DIRECTED_MESSAGE:
                 await self._handle_user_message(message_dict)
+            elif message_type == MessageType.TERMINATE_REQUEST:
+                await self._handle_terminate_request(message_dict)
         except json.JSONDecodeError as e:
             print(f"Failed to decode client message: {e}")
         except Exception as e:
@@ -385,7 +543,93 @@ class WebSocketHandler:
 
         except Exception as e:
             await self._send_error("INTERRUPT_ERROR", str(e))
-        
+
+    async def _handle_terminate_request(self, message_dict: dict[str, Any]) -> None:
+        """
+        Handle user-initiated termination request.
+
+        This triggers the ExternalTermination condition which will gracefully
+        terminate the run, then sends a TerminateAck with final state data.
+        """
+        try:
+            print("=" * 60)
+            print("TERMINATE REQUEST RECEIVED FROM FRONTEND")
+            print("=" * 60)
+
+            if not self.session or not self.session.agent_team_context:
+                raise RuntimeError("Agent team context not initialized")
+
+            # Get current state before triggering termination
+            team = self.session.agent_team_context.team
+            external_termination = self.session.agent_team_context.external_termination
+
+            # Get state package from the manager
+            state_pkg = team.get_current_state_package()
+
+            # Find the last TextMessage in the message thread
+            last_text_msg = self._find_last_text_message()
+
+            # Trigger the external termination condition
+            # This will cause the termination condition to return a StopMessage
+            # on the next check, gracefully ending the run
+            external_termination.set()
+
+            print("EXTERNAL TERMINATION TRIGGERED")
+            print("=" * 60)
+
+            # Send TerminateAck with final state data
+            ack = TerminateAck(
+                state_of_run=state_pkg.get('state_of_run', ''),
+                tool_call_facts=state_pkg.get('tool_call_facts', ''),
+                last_message_content=last_text_msg.content if last_text_msg else '',
+                last_message_source=last_text_msg.source if last_text_msg else ''
+            )
+
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                await self.websocket.send_text(ack.model_dump_json())
+
+            print("TERMINATE ACK SENT TO FRONTEND")
+
+        except Exception as e:
+            print(f"Error handling terminate request: {e}")
+            import traceback
+            traceback.print_exc()
+            await self._send_error("TERMINATE_ERROR", str(e))
+
+    def _find_last_text_message(self) -> TextMessage | None:
+        """
+        Find the last TextMessage in the conversation.
+
+        Traverses the manager's message thread backwards to find
+        the most recent TextMessage.
+        """
+        try:
+            if not self.session or not self.session.agent_team_context:
+                return None
+
+            team = self.session.agent_team_context.team
+
+            # Access the manager's message thread
+            # The manager is stored in _manager_holder after team initialization
+            manager_holder = getattr(team, '_manager_holder', None)
+            if not manager_holder:
+                return None
+
+            manager = manager_holder.get('manager')
+            if not manager:
+                return None
+
+            message_thread = getattr(manager, '_message_thread', [])
+
+            # Walk backwards through messages to find last TextMessage
+            for msg in reversed(message_thread):
+                if isinstance(msg, TextMessage):
+                    return msg
+
+            return None
+        except Exception as e:
+            print(f"Error finding last text message: {e}")
+            return None
 
     async def _handle_user_message(self, message_dict: dict[str, Any]) -> None:
         try:
@@ -404,6 +648,15 @@ class WebSocketHandler:
                     "INVALID_TARGET_AGENT",
                     f"Agent '{user_message.target_agent}' not found. "
                     f"Valid agents: {', '.join(self.session.agent_team_context.participant_names)}",
+                )
+                return
+
+            # Prevent sending messages to user_proxy agents (they represent the user)
+            if "user_proxy" in user_message.target_agent.lower():
+                await self._send_error(
+                    "INVALID_TARGET_AGENT",
+                    f"Cannot send messages to '{user_message.target_agent}' as it represents the user. "
+                    f"Please select a different agent.",
                 )
                 return
             print(
@@ -428,6 +681,12 @@ class WebSocketHandler:
 
             if result and getattr(result, "messages", None):
                 for response in result.messages:
+                    # Skip "You" messages as they're already handled via create_branch
+                    if isinstance(response, BaseChatMessage) and response.source == "You":
+                        print("[WS]: Skipping 'You' message from result.messages")
+                        continue
+
+
                     if isinstance(
                         response,
                         (
@@ -463,11 +722,19 @@ class WebSocketHandler:
         summary = await summarize_message(agent_name=agent_name, message_content=content)
         logger.info(f"Summary generated: {summary[:100]}...")
 
+        # Check if message has an ID (e.g. from SelectorGroupChat analysis)
+        msg_id = getattr(message, "id", None)
+        if msg_id:
+            print(f"✅ [WEBSOCKET] Message from {agent_name} HAS ID: {msg_id}")
+        else:
+            print(f"⚠️ [WEBSOCKET] Message from {agent_name} has NO ID, will generate new one")
+
         # Create a new node for this message with summary
         node = self.session.state_manager.add_node(
             agent_name=agent_name,
             message=content,
-            summary=summary
+            summary=summary,
+            node_id=msg_id
         )
         if node is None:
             return
@@ -481,7 +748,13 @@ class WebSocketHandler:
             summary=summary,
             node_id=node_id
         )
-        self._pending_agent_messages.append(agent_msg)
+
+        # If we have a UserDirectedMessage, we want to see it immediately
+        if agent_name == "You":
+            await self._send_message(agent_msg)
+        else:
+            self._pending_agent_messages.append(agent_msg)
+
         logger.info(
             "Queued agent message %s awaiting state update (%d pending)",
             node_id,
@@ -550,8 +823,15 @@ class WebSocketHandler:
         if not self.session or not self.session.agent_team_context:
             raise RuntimeError("Agent team context not initialized")
 
+        # Filter out user_proxy agents from the participant list
+        # These represent the user and shouldn't receive directed messages
+        filtered_participants = [
+            name for name in self.session.agent_team_context.participant_names
+            if "user_proxy" not in name.lower()
+        ]
+
         participant_names_msg = ParticipantNames(
-            participant_names=self.session.agent_team_context.participant_names
+            participant_names=filtered_participants
         )
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(participant_names_msg.model_dump_json())
@@ -617,11 +897,15 @@ class WebSocketHandler:
             await self.websocket.send_text(ack.model_dump_json())
 
     async def _send_tool_calls_request(self, message: ToolCallRequestEvent) -> None:
+        # Check if message has an ID (e.g. from SelectorGroupChat analysis)
+        msg_id = getattr(message, "id", None)
+
         # Create new node for tool call
         node = self.session.state_manager.add_node(
             agent_name=message.source,
             message=message.to_text(),
-            node_type="tool_call"
+            node_type="tool_call",
+            node_id=msg_id
         )
         self.current_tool_call_node_id = node.id
         self.session.state_manager.save_to_file()
@@ -640,6 +924,20 @@ class WebSocketHandler:
         if self.websocket.client_state == WebSocketState.CONNECTED:
             await self.websocket.send_text(tc_request.model_dump_json())
     
+    async def _send_analysis_update(self, message: ExtensionAnalysisUpdate) -> None:
+        try:
+            print(f"📊 [WEBSOCKET] Attempting to send analysis update for node {message.node_id}")
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                json_data = message.model_dump_json()
+                await self.websocket.send_text(json_data)
+                print(f"✅ [WEBSOCKET] Successfully sent analysis update for node {message.node_id}")
+            else:
+                print(f"⚠️ [WEBSOCKET] Cannot send analysis update, WebSocket state: {self.websocket.client_state}")
+        except Exception as e:
+            print(f"❌ [WEBSOCKET] Failed to send analysis update for node {message.node_id}: {e}")
+            import traceback
+            traceback.print_exc()
+
     async def _send_tool_calls_execution(self, message: ToolCallExecutionEvent) -> None:
 
         results = []
@@ -699,13 +997,14 @@ class WebSocketHandler:
                 print(f"Error sending error message: {e}")
     
     async def send_agent_input_request(
-        self, request_id: str, prompt: str, agent_name: str
+        self, request_id: str, prompt: str, agent_name: str, feedback_context: dict[str, Any] | None = None
     ) -> None:
-        
+
         request = AgentInputRequest(
             request_id=request_id,
             prompt=prompt,
-            agent_name=agent_name
+            agent_name=agent_name,
+            feedback_context=feedback_context
         )
 
         if self.websocket.client_state == WebSocketState.CONNECTED:

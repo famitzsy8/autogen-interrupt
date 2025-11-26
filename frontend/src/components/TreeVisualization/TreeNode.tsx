@@ -13,7 +13,7 @@
 
 import React from 'react'
 import type { TreeNode as TreeNodeType } from '../../types'
-import { getAgentColor, getAgentDisplayName } from '../../constants/agents'
+import { getAgentColorD3 } from '../../utils/colorSchemes'
 
 /**
  * Props for TreeNode component.
@@ -36,8 +36,8 @@ export function TreeNode({
   onClick,
   position,
 }: TreeNodeProps): React.ReactElement {
-  const agentColor = getAgentColor(node.agent_name)
-  const displayName = getAgentDisplayName(node.agent_name)
+  const agentColor = getAgentColorD3(node.agent_name)
+  const displayName = node.display_name
 
   const opacity = node.is_active ? (isInActivePath ? 1 : 0.6) : 0.3
 
@@ -112,8 +112,8 @@ interface TreeNodeInfoProps {
 export function TreeNodeInfo({ node, onClose }: TreeNodeInfoProps): React.ReactElement | null {
   if (!node) return null
 
-  const agentColor = getAgentColor(node.agent_name)
-  const displayName = getAgentDisplayName(node.agent_name)
+  const agentColor = getAgentColorD3(node.agent_name)
+  const displayName = node.display_name
 
   return (
     <div className="absolute top-4 right-4 bg-dark-hover border border-dark-border rounded-lg p-4 max-w-md shadow-lg z-10">
@@ -121,10 +121,11 @@ export function TreeNodeInfo({ node, onClose }: TreeNodeInfoProps): React.ReactE
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: agentColor }}
-          />
-          <h3 className="text-sm font-semibold text-dark-text">{displayName}</h3>
+            className="px-3 py-1 rounded text-sm font-semibold"
+            style={{ backgroundColor: agentColor, color: '#ffffff' }}
+          >
+            {displayName}
+          </div>
         </div>
         <button
           onClick={onClose}
