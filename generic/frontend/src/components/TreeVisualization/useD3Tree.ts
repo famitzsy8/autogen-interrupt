@@ -25,6 +25,7 @@ interface UseD3TreeOptions {
   analysisComponents?: AnalysisComponent[]
   analysisScores?: Map<string, AnalysisScores>
   triggeredNodes?: Set<string>
+  userInterruptedNodes?: Set<string>
 }
 
 interface UseD3TreeReturn {
@@ -45,9 +46,8 @@ const ANIMATION_DURATION = 300
 
 // Swimlane layout constants for horizontal visualization
 const SWIMLANE_HEIGHT = 120          // Height of each agent swimlane in pixels
-const NODE_HORIZONTAL_SPACING = 200  // Horizontal distance between depth levels
 const LEFT_MARGIN = 150              // Left margin before first nodes
-const NODE_RADIUS = 8                // Radius of node circles
+const NODE_RADIUS = 13               // Radius of node circles (60% larger than original 8)
 
 // Dynamic spacing parameters
 const RECENT_NODE_MAX_SPACING = 300  // Maximum spacing for the most recent nodes
@@ -142,6 +142,7 @@ export function useD3Tree(
     analysisComponents = [],
     analysisScores = new Map(),
     triggeredNodes = new Set(),
+    userInterruptedNodes = new Set(),
   } = options
 
   const svgRef = useRef<SVGSVGElement>(null)
@@ -155,6 +156,7 @@ export function useD3Tree(
   const [centerNodeId, setCenterNodeId] = useState<string | null>(null)
   const [autoCenterEnabled, setAutoCenterEnabled] = useState<boolean>(true)
   const [hoveredSummaryNodeIds, setHoveredSummaryNodeIds] = useState<Set<string>>(new Set())
+  const [foregroundSummaryId, setForegroundSummaryId] = useState<string | null>(null)
   const lastMouseActivityRef = useRef<number>(Date.now())
   const throttleTimeoutRef = useRef<number | null>(null)
   const isInitializedRef = useRef<boolean>(false)
@@ -221,6 +223,27 @@ export function useD3Tree(
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.5, 3])
+      .filter((event: Event) => {
+        // Allow wheel events for zooming
+        if (event.type === 'wheel') return true
+        // Allow double-click zoom
+        if (event.type === 'dblclick') return true
+        // For mouse/touch events, check if target is an interactive element
+        if (event.type === 'mousedown' || event.type === 'touchstart') {
+          const target = event.target as Element
+          // Don't initiate pan/drag if clicking on interactive elements (circles, nodes, edges)
+          if (target.classList.contains('summary-circle') ||
+              target.classList.contains('node-circle') ||
+              target.classList.contains('edge-path') ||
+              target.closest('.summary-circle') ||
+              target.closest('.node-group') ||
+              target.closest('.edge-group')) {
+            return false
+          }
+          return true // Allow drag on empty space
+        }
+        return false
+      })
       .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
         g.attr('transform', event.transform.toString())
         transformRef.current = event.transform
@@ -326,6 +349,7 @@ export function useD3Tree(
       analysisComponents,
       analysisScores,
       triggeredNodes,
+      userInterruptedNodes,
       hoveredSummaryNodeIds,
       onSummaryHover: (nodeId: string | null) => {
         if (nodeId) {
@@ -341,6 +365,10 @@ export function useD3Tree(
           })
         }
       },
+      foregroundSummaryId,
+      onSummaryForeground: (nodeId: string | null) => {
+        setForegroundSummaryId(nodeId)
+      },
     })
 
     // After tree updates, preserve transform in navigation mode
@@ -351,7 +379,7 @@ export function useD3Tree(
         svg.call(zoomRef.current!.transform, transformRef.current)
       }, 0)
     }
-  }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick, analysisComponents, analysisScores, triggeredNodes, hoveredSummaryNodeIds])
+  }, [root, activeNodeIds, width, height, treeConfig, toolCallsByNodeId, toolExecutionsByNodeId, edgeInterrupt, onEdgeClick, autoCenterEnabled, onNodeClick, analysisComponents, analysisScores, triggeredNodes, userInterruptedNodes, hoveredSummaryNodeIds, foregroundSummaryId])
 
   /**
    * Update center node when tree data changes to keep view on latest messages.
@@ -572,9 +600,12 @@ interface UpdateTreeOptions {
   analysisComponents: AnalysisComponent[]
   analysisScores: Map<string, AnalysisScores>
   triggeredNodes: Set<string>
+  userInterruptedNodes: Set<string>
   hoveredSummaryNodeIds: Set<string>
   onSummaryHover: (nodeId: string | null) => void
   onSummaryHoverOut: (nodeId: string | null) => void
+  foregroundSummaryId: string | null
+  onSummaryForeground: (nodeId: string | null) => void
 }
 
 /**
@@ -611,9 +642,12 @@ function updateTree(
     analysisComponents,
     analysisScores,
     triggeredNodes,
+    userInterruptedNodes,
     hoveredSummaryNodeIds,
     onSummaryHover,
     onSummaryHoverOut,
+    foregroundSummaryId,
+    onSummaryForeground,
   } = options
 
   // Expand all nodes to show full tree
@@ -856,37 +890,7 @@ function updateTree(
       return `translate(10, ${centerY})`
     })
 
-  // Update background rectangles with agent colors
-  labelGroupsMerged.selectAll<SVGRectElement, string>('.swimlane-label-bg')
-    .data((d: string) => [d])
-    .attr('x', 0)
-    .attr('y', -10)
-    .attr('width', (d: string) => {
-      const displayName = swimlaneDisplayNames.get(d)
-      if (displayName === undefined) {
-        throw new Error(`Display name for swimlane ${d} not found`)
-      }
-      // Estimate width based on text length (rough approximation)
-      return displayName.length * 8 + 12
-    })
-    .attr('height', 20)
-    .attr('rx', 10)
-    .attr('fill', (d: string) => {
-      // Get the first agent_name that maps to this normalized swimlane name
-      // to determine the color
-      let agentNameForColor = d
-      rawAgentNames.forEach(name => {
-        const normalized = normalizeAgentName(name)
-        if (normalized === d) {
-          agentNameForColor = name
-        }
-      })
-      return getAgentColorD3(agentNameForColor)
-    })
-    .attr('opacity', 0.9)
-    .style('pointer-events', 'none')
-
-  // Update text labels
+  // Update text labels FIRST (so we can measure their width)
   labelGroupsMerged.selectAll<SVGTextElement, string>('.swimlane-label-text')
     .data((d: string) => [d])
     .attr('x', 6)
@@ -902,11 +906,45 @@ function updateTree(
       return displayName
     })
     .style('fill', '#ffffff')
-    .style('font-size', '13px')
+    .style('font-size', '20px')
     .style('font-weight', '600')
     .style('line-height', '1')
     .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
     .style('pointer-events', 'none')
+
+  // Update background rectangles with agent colors (measure actual text width)
+  labelGroupsMerged.each(function (this: SVGGElement, d: string) {
+    const group = d3.select<SVGGElement, string>(this)
+    const textElement = group.select<SVGTextElement>('.swimlane-label-text').node()
+
+    if (!textElement) {
+      throw new Error(`Text element not found for swimlane ${d}`)
+    }
+
+    // Measure actual text width
+    const textBBox = textElement.getBBox()
+    const padding = 16 // 8px padding on each side
+    const actualWidth = textBBox.width + padding
+
+    // Get agent color
+    let agentNameForColor = d
+    rawAgentNames.forEach(name => {
+      const normalized = normalizeAgentName(name)
+      if (normalized === d) {
+        agentNameForColor = name
+      }
+    })
+
+    group.select<SVGRectElement>('.swimlane-label-bg')
+      .attr('x', 0)
+      .attr('y', -14)
+      .attr('width', actualWidth)
+      .attr('height', 28)
+      .attr('rx', 14)
+      .attr('fill', getAgentColorD3(agentNameForColor))
+      .attr('opacity', 0.9)
+      .style('pointer-events', 'none')
+  })
 
   labelGroups.exit().remove()
 
@@ -944,11 +982,11 @@ function updateTree(
     })
     .attr('stroke-width', (d: Edge) => {
       if (edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id) {
-        return 4
+        return 8
       }
-      return d.target.node.data.is_active ? 2 : 1
+      return d.target.node.data.is_active ? 5 : 3
     })
-    .attr('opacity', (d: Edge) => d.target.node.data.is_active ? 1 : 0.5)
+    .attr('opacity', (d: Edge) => d.target.node.data.is_active ? 1 : 0.2)
     .style('cursor', (d: Edge) => d.target.node.data.is_active ? 'pointer' : 'default')
     .on('mouseenter', function (this: SVGPathElement, _event: MouseEvent, d: Edge) {
       if (d.target.node.data.is_active) {
@@ -959,12 +997,12 @@ function updateTree(
       }
     })
     .on('mouseleave', function (this: SVGPathElement, _event: MouseEvent, d: Edge) {
-      const baseWidth = d.target.node.data.is_active ? 2 : 1
+      const baseWidth = d.target.node.data.is_active ? 5 : 3
       const interrupted = edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id
       d3.select(this)
         .transition()
         .duration(200)
-        .attr('stroke-width', interrupted ? 4 : baseWidth)
+        .attr('stroke-width', interrupted ? 8 : baseWidth)
     })
     .on('click', function (event: MouseEvent, d: Edge) {
       if (onEdgeClick && d.target.node.data.is_active && treeData) {
@@ -989,34 +1027,32 @@ function updateTree(
     .append('g')
     .attr('class', 'node')
 
+  // Append circles for non-tool nodes
   nodeEnter
+    .filter((d: PositionedNode) => d.node.data.node_type !== 'tool_call' && d.node.data.node_type !== 'tool_execution')
     .append('circle')
-    .attr('class', 'node-circle')
+    .attr('class', 'node-shape')
     .attr('r', NODE_RADIUS)
-    .attr('fill', (d: PositionedNode) => {
-      const node = d.node.data
-      // Get agent color for this node
-      return getAgentColorD3(node.agent_name)
-    })
-    .attr('fill-opacity', (d: PositionedNode) => {
-      const node = d.node.data
-      // Tool calls have lower opacity (0.5), messages have higher opacity (0.9)
-      if (node.node_type === 'tool_call' || node.node_type === 'tool_execution') {
-        return 0.5
-      }
-      return 0.9
-    })
-    .attr('stroke', (d: PositionedNode) => {
-      // Yellow border for triggered nodes
-      if (triggeredNodes.has(d.node.data.id)) {
-        return '#fbbf24'
-      }
-      return '#58a6ff'
-    })
-    .attr('stroke-width', (d: PositionedNode) => {
-      // Thicker border for triggered nodes
-      return triggeredNodes.has(d.node.data.id) ? 3 : 2
-    })
+    .attr('fill', (d: PositionedNode) => getAgentColorD3(d.node.data.agent_name))
+    .attr('fill-opacity', 0.9)
+    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
+    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
+
+  // Append squares (rect) for tool_call and tool_execution nodes
+  const squareSize = NODE_RADIUS * 1.6
+  nodeEnter
+    .filter((d: PositionedNode) => d.node.data.node_type === 'tool_call' || d.node.data.node_type === 'tool_execution')
+    .append('rect')
+    .attr('class', 'node-shape')
+    .attr('x', -squareSize / 2)
+    .attr('y', -squareSize / 2)
+    .attr('width', squareSize)
+    .attr('height', squareSize)
+    .attr('rx', 2) // Slight corner rounding
+    .attr('fill', (d: PositionedNode) => getAgentColorD3(d.node.data.agent_name))
+    .attr('fill-opacity', 0.5)
+    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
+    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
 
   const nodeUpdate = nodeEnter.merge(nodes)
 
@@ -1024,34 +1060,20 @@ function updateTree(
     .transition()
     .duration(ANIMATION_DURATION)
     .attr('transform', (d: PositionedNode) => `translate(${d.x},${d.y})`)
-    .attr('opacity', (d: PositionedNode) => d.node.data.is_active ? 1 : 0.6)
+    .attr('opacity', (d: PositionedNode) => d.node.data.is_active ? 1 : 0.25)
     .style('cursor', 'pointer')
 
-  nodeUpdate.selectAll<SVGCircleElement, PositionedNode>('.node-circle')
-    .attr('fill', (d: PositionedNode) => {
-      const node = d.node.data
-      // Get agent color for this node
-      return getAgentColorD3(node.agent_name)
-    })
+  nodeUpdate.selectAll<SVGElement, PositionedNode>('.node-shape')
+    .attr('fill', (d: PositionedNode) => getAgentColorD3(d.node.data.agent_name))
     .attr('fill-opacity', (d: PositionedNode) => {
-      const node = d.node.data
       // Tool calls have lower opacity (0.5), messages have higher opacity (0.9)
-      if (node.node_type === 'tool_call' || node.node_type === 'tool_execution') {
+      if (d.node.data.node_type === 'tool_call' || d.node.data.node_type === 'tool_execution') {
         return 0.5
       }
       return 0.9
     })
-    .attr('stroke', (d: PositionedNode) => {
-      // Yellow border for triggered nodes
-      if (triggeredNodes.has(d.node.data.id)) {
-        return '#fbbf24'
-      }
-      return '#58a6ff'
-    })
-    .attr('stroke-width', (d: PositionedNode) => {
-      // Thicker border for triggered nodes
-      return triggeredNodes.has(d.node.data.id) ? 3 : 2
-    })
+    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
+    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
 
   nodeUpdate
     .on('click', function (event: MouseEvent, d: PositionedNode) {
@@ -1157,31 +1179,70 @@ function updateTree(
     if (triggeredNodes.has(d.node.data.id)) {
       const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
 
-      // Add a small warning circle indicator
+      // Add a larger warning indicator positioned above the node
       const indicatorGroup = nodeGroup
         .append('g')
         .attr('class', 'node-triggered-indicator')
-        .attr('transform', `translate(${NODE_RADIUS - 2}, ${-NODE_RADIUS + 2})`)
+        .attr('transform', `translate(0, ${-NODE_RADIUS - 20})`)
 
       // Background circle
       indicatorGroup
         .append('circle')
-        .attr('r', 6)
+        .attr('r', 16)
         .attr('fill', '#fbbf24')
         .attr('stroke', '#0d1117')
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', 2)
 
       // Warning symbol (exclamation mark) using text
       indicatorGroup
         .append('text')
         .attr('text-anchor', 'middle')
         .attr('dy', '0.35em')
-        .attr('font-size', '10px')
+        .attr('font-size', '22px')
         .attr('font-weight', 'bold')
         .attr('fill', '#0d1117')
         .text('!')
         .append('title')
         .text('Analysis triggered feedback')
+    }
+  })
+
+  // Add user-interrupted node indicator (red exclamation mark)
+  nodeUpdate.selectAll('.node-user-interrupted-indicator').remove()
+
+  nodeUpdate.each(function (this: SVGGElement, d: PositionedNode) {
+    if (userInterruptedNodes.has(d.node.data.id)) {
+      const nodeGroup = d3.select<SVGGElement, PositionedNode>(this)
+
+      // Check if this node already has a triggered indicator to offset position
+      const hasTriggeredIndicator = triggeredNodes.has(d.node.data.id)
+      const xOffset = hasTriggeredIndicator ? 24 : 0 // Offset to the right if triggered indicator exists
+
+      // Add a red indicator positioned above the node
+      const indicatorGroup = nodeGroup
+        .append('g')
+        .attr('class', 'node-user-interrupted-indicator')
+        .attr('transform', `translate(${xOffset}, ${-NODE_RADIUS - 20})`)
+
+      // Background circle (red)
+      indicatorGroup
+        .append('circle')
+        .attr('r', 16)
+        .attr('fill', '#ef4444')
+        .attr('stroke', '#0d1117')
+        .attr('stroke-width', 2)
+
+      // Exclamation mark symbol
+      indicatorGroup
+        .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('font-size', '22px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#ffffff')
+        .text('!')
+        .append('title')
+        .text('User interrupted at this point')
     }
   })
 
@@ -1192,8 +1253,54 @@ function updateTree(
   // Calculate the Y position for the summary area (below all swimlanes)
   const totalTreeHeight = swimlaneNames.length * SWIMLANE_HEIGHT
   const summaryAreaY = totalTreeHeight + 40 // 40px gap below last swimlane
-  const collapsedBoxWidth = 40
-  const collapsedBoxHeight = 20
+  // Circle dimensions for hoverable indicators (only for older summaries, not last 3)
+  const circleRadius = 14
+  const circleY = summaryAreaY // Y position for circles (above summaries)
+  const expandedSummaryY = summaryAreaY + 40 // Y position for expanded summaries (below circles)
+
+  // Add "Summaries" label on the left side (same position as agent name labels)
+  g.selectAll('.summaries-label-group').remove()
+  const summariesLabelGroup = g
+    .append('g')
+    .attr('class', 'summaries-label-group')
+    .attr('transform', `translate(10, ${circleY})`)
+
+  // Add colored background rectangle
+  const summariesLabelText = summariesLabelGroup
+    .append('text')
+    .attr('class', 'summaries-label-text')
+    .attr('x', 6)
+    .attr('y', 0)
+    .attr('dy', '0.05em')
+    .attr('text-anchor', 'start')
+    .attr('dominant-baseline', 'middle')
+    .text('Summaries')
+    .style('fill', '#ffffff')
+    .style('font-size', '16px')
+    .style('font-weight', '600')
+    .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif')
+    .style('pointer-events', 'none')
+
+  // Measure text and add background
+  const textNode = summariesLabelText.node()
+  if (textNode) {
+    const textBBox = textNode.getBBox()
+    const padding = 12
+    const actualWidth = textBBox.width + padding
+
+    // Insert background rect before text
+    summariesLabelGroup
+      .insert('rect', 'text')
+      .attr('class', 'summaries-label-bg')
+      .attr('x', 0)
+      .attr('y', -12)
+      .attr('width', actualWidth)
+      .attr('height', 24)
+      .attr('rx', 12)
+      .attr('fill', '#6b7280') // Gray color for summaries
+      .attr('opacity', 0.9)
+      .style('pointer-events', 'none')
+  }
 
   // Helper function to calculate dynamic box dimensions based on text length
   const calculateBoxDimensions = (text: string): { width: number; height: number } => {
@@ -1222,6 +1329,107 @@ function updateTree(
     pNode => pNode.node.data.summary && pNode.node.data.summary.trim() !== '' && pNode.node.data.is_active
   )
 
+  // Sort by depth (position in active path) to find the last 3
+  const sortedNodesWithSummaries = [...nodesWithSummaries].sort((a, b) => b.node.depth - a.node.depth)
+
+  // Get the last 3 node IDs that should be always displayed (no hover needed)
+  const last3SummaryNodeIds = new Set(
+    sortedNodesWithSummaries.slice(0, 3).map(pNode => pNode.node.data.id)
+  )
+
+  // Get ALL visible summaries: last 3 + any toggled ones, sorted by depth (oldest first)
+  const visibleSummaries = nodesWithSummaries
+    .filter(pNode => last3SummaryNodeIds.has(pNode.node.data.id) || hoveredSummaryNodeIds.has(pNode.node.data.id))
+    .sort((a, b) => a.node.depth - b.node.depth) // Sort oldest first (lowest depth)
+
+  // Calculate y-offsets to fully separate overlapping summaries
+  // Each summary checks against all previously placed summaries and stacks below if overlapping
+  interface OverlapInfo {
+    yOffset: number       // Y offset to avoid overlap
+    boxHeight: number     // Height of this summary box
+  }
+  const overlapMap = new Map<string, OverlapInfo>()
+  const VERTICAL_GAP = 10 // Gap between stacked summaries
+
+  // Track placed summaries with their bounds
+  interface PlacedSummary {
+    id: string
+    left: number
+    right: number
+    yOffset: number
+    height: number
+  }
+  const placedSummaries: PlacedSummary[] = []
+
+  // Process summaries from oldest to newest (so newer ones stack on top/below older ones)
+  for (const current of visibleSummaries) {
+    const currentBox = calculateBoxDimensions(current.node.data.summary)
+    const currentLeft = current.x - currentBox.width / 2
+    const currentRight = current.x + currentBox.width / 2
+
+    // Find all summaries this one overlaps with horizontally
+    const overlappingPlacements = placedSummaries.filter(placed => {
+      return !(currentRight < placed.left || currentLeft > placed.right)
+    })
+
+    // Calculate y-offset: stack below all overlapping summaries
+    let yOffset = 0
+    if (overlappingPlacements.length > 0) {
+      // Find the bottom of the lowest overlapping summary
+      const maxBottom = Math.max(...overlappingPlacements.map(p => p.yOffset + p.height))
+      yOffset = maxBottom + VERTICAL_GAP
+    }
+
+    // If this summary is being hovered, bring it to front (y=0) and push others down
+    if (foregroundSummaryId === current.node.data.id) {
+      yOffset = 0
+    }
+
+    overlapMap.set(current.node.data.id, { yOffset, boxHeight: currentBox.height })
+
+    // Add to placed summaries
+    placedSummaries.push({
+      id: current.node.data.id,
+      left: currentLeft,
+      right: currentRight,
+      yOffset,
+      height: currentBox.height
+    })
+  }
+
+  // If a summary is hovered, recalculate offsets to push overlapping ones down
+  if (foregroundSummaryId) {
+    const hoveredSummary = visibleSummaries.find(s => s.node.data.id === foregroundSummaryId)
+    if (hoveredSummary) {
+      const hoveredBox = calculateBoxDimensions(hoveredSummary.node.data.summary)
+      const hoveredLeft = hoveredSummary.x - hoveredBox.width / 2
+      const hoveredRight = hoveredSummary.x + hoveredBox.width / 2
+
+      // Hovered summary is at y=0
+      overlapMap.set(foregroundSummaryId, { yOffset: 0, boxHeight: hoveredBox.height })
+
+      // Recalculate positions for non-hovered summaries
+      let currentYOffset = hoveredBox.height + VERTICAL_GAP
+
+      for (const summary of visibleSummaries) {
+        if (summary.node.data.id === foregroundSummaryId) continue
+
+        const box = calculateBoxDimensions(summary.node.data.summary)
+        const left = summary.x - box.width / 2
+        const right = summary.x + box.width / 2
+
+        // Check if this overlaps horizontally with hovered
+        const overlapsWithHovered = !(right < hoveredLeft || left > hoveredRight)
+
+        if (overlapsWithHovered) {
+          overlapMap.set(summary.node.data.id, { yOffset: currentYOffset, boxHeight: box.height })
+          currentYOffset += box.height + VERTICAL_GAP
+        }
+        // Non-overlapping summaries keep their original offset (already in overlapMap)
+      }
+    }
+  }
+
   // Create summary groups for each node with a summary
   const summaryGroups = g
     .selectAll<SVGGElement, PositionedNode>('.node-summary-group')
@@ -1236,59 +1444,89 @@ function updateTree(
 
   const summaryGroupsMerged = summaryGroupsEnter.merge(summaryGroups)
 
-  // Position summary groups at node X position
+  // Position summary groups at node X position (circles are always at circleY)
   summaryGroupsMerged
     .attr('transform', (d: PositionedNode) => {
-      const isExpanded = hoveredSummaryNodeIds.has(d.node.data.id)
+      // Position group at node's X, with circle at circleY
+      return `translate(${d.x}, ${circleY})`
+    })
 
-      if (isExpanded) {
-        // Center the expanded summary box horizontally at the node's X position
-        const boxDimensions = calculateBoxDimensions(d.node.data.summary)
-        const summaryX = d.x - (boxDimensions.width / 2)
-        return `translate(${summaryX}, ${summaryAreaY})`
+  // Add circle indicators only for OLDER summaries (not the last 3 which are always visible)
+  summaryGroupsMerged.selectAll('.summary-circle').remove()
+
+  // Filter to only show circles for nodes NOT in last 3
+  const olderSummaryGroups = summaryGroupsMerged
+    .filter((d: PositionedNode) => !last3SummaryNodeIds.has(d.node.data.id))
+
+  olderSummaryGroups
+    .append('circle')
+    .attr('class', 'summary-circle')
+    .attr('cx', 0)
+    .attr('cy', 0)
+    .attr('r', circleRadius)
+    .attr('fill', (d: PositionedNode) => {
+      // Grey when not toggled, slightly lighter when toggled
+      const isToggled = hoveredSummaryNodeIds.has(d.node.data.id)
+      return isToggled ? '#6b7280' : '#4b5563'
+    })
+    .attr('stroke', (d: PositionedNode) => {
+      const isToggled = hoveredSummaryNodeIds.has(d.node.data.id)
+      return isToggled ? '#9ca3af' : '#6b7280'
+    })
+    .attr('stroke-width', 2)
+    .attr('opacity', 0.9)
+    .style('pointer-events', 'all')
+    .style('cursor', 'pointer')
+    .on('click', function (event: MouseEvent, d: PositionedNode) {
+      // Stop propagation to prevent other handlers from interfering
+      event.stopPropagation()
+
+      const isToggled = hoveredSummaryNodeIds.has(d.node.data.id)
+
+      // Toggle: if already showing, hide it; if hidden, show it
+      if (isToggled) {
+        onSummaryHoverOut(d.node.data.id)
       } else {
-        // Center the collapsed box at node's X position
-        const summaryX = d.x - (collapsedBoxWidth / 2)
-        return `translate(${summaryX}, ${summaryAreaY})`
+        onSummaryHover(d.node.data.id)
       }
     })
-    .on('mouseleave', function (_event: MouseEvent, d: PositionedNode) {
-      // Collapse when mouse leaves the entire summary group area
-      onSummaryHoverOut(d.node.data.id)
-    })
 
-  // Add small collapsed box (when not expanded)
-  summaryGroupsMerged.selectAll('.summary-collapsed-box').remove()
-  summaryGroupsMerged
-    .filter((d: PositionedNode) => !hoveredSummaryNodeIds.has(d.node.data.id))
-    .append('rect')
-    .attr('class', 'summary-collapsed-box')
-    .attr('x', 0)
-    .attr('y', 0)
-    .attr('width', collapsedBoxWidth)
-    .attr('height', collapsedBoxHeight)
-    .attr('rx', 6)
-    .attr('ry', 6)
-    .attr('fill', '#374151')
-    .attr('stroke', '#6b7280')
-    .attr('stroke-width', 1)
-    .attr('opacity', 0.9)
-    .style('cursor', 'pointer')
-    .on('mouseenter', function (_event: MouseEvent, d: PositionedNode) {
-      onSummaryHover(d.node.data.id)
-    })
-    .on('mouseleave', function (_event: MouseEvent, d: PositionedNode) {
-      onSummaryHoverOut(d.node.data.id)
-    })
+  // Offset from circle center to expanded summary box (positioned below circles)
+  const summaryOffsetY = expandedSummaryY - circleY
 
-  // Add summary box background (only when expanded)
+  // Add summary box background (only when expanded) - positioned below circles
   summaryGroupsMerged.selectAll('.summary-box-bg').remove()
+  summaryGroupsMerged.selectAll('.summary-expanded-group').remove()
 
+  // Show summary for: last 3 (always visible) OR currently toggled (for older summaries)
   const expandedBoxes = summaryGroupsMerged
-    .filter((d: PositionedNode) => hoveredSummaryNodeIds.has(d.node.data.id))
+    .filter((d: PositionedNode) => last3SummaryNodeIds.has(d.node.data.id) || hoveredSummaryNodeIds.has(d.node.data.id))
 
-  // Create a clipPath for each expanded box for the left-to-right animation
-  expandedBoxes.each(function (d: PositionedNode) {
+  // Create a sub-group for expanded summaries positioned below the circles
+  // Apply y-offset based on overlap detection (works for both last 3 and toggled summaries)
+  const expandedGroups = expandedBoxes
+    .append('g')
+    .attr('class', 'summary-expanded-group')
+    .attr('transform', (d: PositionedNode) => {
+      const boxDimensions = calculateBoxDimensions(d.node.data.summary)
+      // Get overlap offset from the map (applies to all visible summaries)
+      const overlapInfo = overlapMap.get(d.node.data.id)
+      const yOffset = overlapInfo ? overlapInfo.yOffset : 0
+      // Center the box horizontally relative to the circle, position below with overlap offset
+      return `translate(${-boxDimensions.width / 2}, ${summaryOffsetY + yOffset})`
+    })
+    .style('cursor', 'pointer') // All visible summaries can be hovered for foreground
+    .on('mouseenter', function (_event: MouseEvent, d: PositionedNode) {
+      // Bring this summary to foreground when hovered (works for all visible summaries)
+      onSummaryForeground(d.node.data.id)
+    })
+    .on('mouseleave', function () {
+      // Remove from foreground when mouse leaves
+      onSummaryForeground(null)
+    })
+
+  // Create a clipPath for each expanded box (no animation, render immediately)
+  expandedGroups.each(function (d: PositionedNode) {
     const group = d3.select<SVGGElement, PositionedNode>(this)
     const boxDimensions = calculateBoxDimensions(d.node.data.summary)
     const clipId = `summary-clip-${d.node.data.id}`
@@ -1296,20 +1534,16 @@ function updateTree(
     // Remove existing clipPath if any
     group.selectAll(`#${clipId}`).remove()
 
-    // Create clipPath with animated rect
+    // Create clipPath - all summaries render immediately without animation
     const clipPath = group.append('clipPath').attr('id', clipId)
     clipPath.append('rect')
       .attr('x', 0)
       .attr('y', 0)
       .attr('height', boxDimensions.height)
-      .attr('width', 0) // Start with 0 width
-      .transition()
-      .duration(200)
-      .ease(d3.easeQuadOut)
-      .attr('width', boxDimensions.width) // Expand to full width
+      .attr('width', boxDimensions.width)
   })
 
-  expandedBoxes
+  expandedGroups
     .append('rect')
     .attr('class', 'summary-box-bg')
     .attr('clip-path', (d: PositionedNode) => `url(#summary-clip-${d.node.data.id})`)
@@ -1324,13 +1558,18 @@ function updateTree(
     .attr('rx', 8)
     .attr('ry', 8)
     .attr('fill', '#1f2937')
-    .attr('stroke', '#4b5563')
-    .attr('stroke-width', 1)
+    .attr('stroke', (d: PositionedNode) => {
+      // Highlight border when this summary is in foreground
+      return foregroundSummaryId === d.node.data.id ? '#818cf8' : '#4b5563'
+    })
+    .attr('stroke-width', (d: PositionedNode) => {
+      return foregroundSummaryId === d.node.data.id ? 2 : 1
+    })
     .attr('opacity', 0.95)
 
   // Add summary text (only for expanded summaries)
   summaryGroupsMerged.selectAll('.summary-text').remove()
-  expandedBoxes
+  expandedGroups
     .append('foreignObject')
     .attr('class', 'summary-text')
     .attr('clip-path', (d: PositionedNode) => `url(#summary-clip-${d.node.data.id})`)
