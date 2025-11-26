@@ -361,7 +361,8 @@ async def build_agents(
                 "system_message": agent_cfg["system_message"],
                 "description": description,
                 "model_client_stream": agent_cfg.get("model_client_stream", False),
-                "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False)
+                "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False),
+                "include_state_in_context": agent_cfg.get("include_state_in_context", False)
             }
 
             if python_tools:
@@ -389,7 +390,8 @@ async def build_agents(
                 "system_message": agent_cfg["system_message"],
                 "description": description,
                 "model_client_stream": agent_cfg.get("model_client_stream", False),
-                "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False)
+                "reflect_on_tool_use": agent_cfg.get("reflect_on_tool_use", False),
+                "include_state_in_context": agent_cfg.get("include_state_in_context", False)
             }
 
             # Cannot use both workbench and tools - workbench takes precedence
