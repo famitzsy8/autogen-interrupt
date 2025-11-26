@@ -2,13 +2,14 @@
  * Agent configuration utilities for the generic agent team application.
  *
  * Unlike dr-frontend, we don't hardcode agent names - they come dynamically from the backend.
+ * Uses a sequential OrRd (Orange-Red) color scheme for better visual consistency.
  */
 
 import { getAgentColorD3 } from '../utils/colorSchemes'
 
 /**
- * Get agent color by name using D3's Dark2 categorical scheme.
- * Uses special colors for system agents, otherwise rotates through Dark2 palette.
+ * Get agent color by name using D3's interpolateOrRd sequential scheme.
+ * Uses special colors for system/user agents, otherwise distributes colors evenly.
  */
 export function getAgentColor(agentName: string): string {
   return getAgentColorD3(agentName)

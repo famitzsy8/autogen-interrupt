@@ -2,12 +2,12 @@
  * Color scheme utilities using D3.js d3-scale-chromatic
  *
  * This module provides:
- * 1. Agent colors using schemeDark2 categorical scheme
+ * 1. Agent colors using interpolateOrRd sequential scheme (evenly distributed)
  * 2. Analysis component colors using sequential schemes
  * 3. Score-based color selection for visualizations
  */
 
-import { schemeDark2 } from 'd3-scale-chromatic'
+import { interpolateOrRd } from 'd3-scale-chromatic'
 import * as d3 from 'd3-scale-chromatic'
 
 /**
@@ -65,29 +65,70 @@ export function getColorForScore(schemeName: SequentialSchemeName, score: number
 }
 
 /**
- * Agent color palette using D3's Dark2 categorical scheme.
- * Dark2 provides 8 distinct colors suitable for categorical data.
+ * Agent color range configuration for interpolateOrRd.
+ * We use a range of [0.4, 0.85] to:
+ * - Avoid very light colors (< 0.4) that are hard to see
+ * - Avoid very dark colors (> 0.85) that blend into backgrounds
  */
-export const AGENT_COLORS_D3 = schemeDark2
+const AGENT_COLOR_RANGE = { min: 0.4, max: 0.85 }
 
 /**
- * Special colors for system agents (not from D3 schemes).
- * Note: "You" and "User" are NOT special - they get D3 colors like other agents.
+ * Get agent color from interpolateOrRd based on index and total count.
+ * Evenly distributes agents across the OrRd gradient.
+ *
+ * @param index - Agent's index (0-based)
+ * @param totalAgents - Total number of non-special agents
+ * @returns RGB color string from interpolateOrRd
  */
-const SPECIAL_AGENT_COLORS: Record<string, string> = {
-  'System': '#9ca3af',   // gray for system
+function getAgentColorFromOrRd(index: number, totalAgents: number): string {
+  const { min, max } = AGENT_COLOR_RANGE
+  const range = max - min
+
+  // Evenly distribute across the range
+  const t = totalAgents <= 1
+    ? (min + max) / 2  // Center if only one agent
+    : min + (index / (totalAgents - 1)) * range
+
+  return interpolateOrRd(t)
 }
 
 /**
- * Agent color registry for sequential color assignment.
- * Maps agent names to their assigned color indices to ensure:
- * 1. Each agent gets a distinct color
- * 2. Colors are assigned sequentially in order of first encounter
+ * Special colors for system agents and user-type agents.
+ * These agents get fixed colors instead of colors from the sequential scheme.
+ */
+const SPECIAL_AGENT_COLORS: Record<string, string> = {
+  'System': '#9ca3af',   // gray for system
+  'User': '#64748b',     // slate gray for all user-type agents
+}
+
+/**
+ * Normalize agent names for color consistency.
+ * All user-type agents (You, User, UserProxy, user_proxy) get normalized to "User"
+ * so they all receive the same color.
+ */
+function normalizeAgentNameForColor(name: string): string {
+  const lower = name.toLowerCase()
+  if (lower === 'you' || lower === 'user' || lower.includes('user_proxy') || lower.includes('userproxy')) {
+    return 'User'
+  }
+  return name
+}
+
+/**
+ * Agent color registry for sequential color assignment using interpolateOrRd.
+ * Maps agent names to their assigned color indices and evenly distributes
+ * colors across the OrRd gradient based on total agent count.
+ *
+ * Key features:
+ * 1. Each agent gets a distinct color from the OrRd gradient
+ * 2. Colors are evenly spread across the gradient range
  * 3. The same agent always gets the same color across the application
+ * 4. Special agents (User, System) get fixed colors
  */
 class AgentColorRegistry {
   private agentToColorIndex: Map<string, number> = new Map()
   private nextColorIndex: number = 0
+  private registeredAgentCount: number = 0
 
   /**
    * Get or assign a color index for an agent.
@@ -104,24 +145,43 @@ class AgentColorRegistry {
     // Assign next color index and increment
     const newIndex = this.nextColorIndex
     this.agentToColorIndex.set(agentName, newIndex)
-    this.nextColorIndex = (this.nextColorIndex + 1) % AGENT_COLORS_D3.length
+    this.nextColorIndex++
+    this.registeredAgentCount++
 
     return newIndex
   }
 
   /**
-   * Get color for an agent. Assigns sequentially on first encounter.
+   * Get total count of registered (non-special) agents.
+   * Used for even distribution of colors across the gradient.
+   */
+  getTotalAgentCount(): number {
+    return this.registeredAgentCount
+  }
+
+  /**
+   * Get color for an agent using interpolateOrRd.
    * Special agents (User, System) get their designated colors.
+   * User-type agents are normalized so they all get the same color.
+   * Other agents get colors evenly distributed across the OrRd gradient.
    */
   getColor(agentName: string): string {
+    // Normalize agent name first (e.g., "You", "UserProxy" -> "User")
+    const normalized = normalizeAgentNameForColor(agentName)
+
     // Check for special agents first
-    if (SPECIAL_AGENT_COLORS[agentName]) {
-      return SPECIAL_AGENT_COLORS[agentName]
+    if (SPECIAL_AGENT_COLORS[normalized]) {
+      return SPECIAL_AGENT_COLORS[normalized]
     }
 
     // Get sequential color index
-    const colorIndex = this.getColorIndex(agentName)
-    return AGENT_COLORS_D3[colorIndex]
+    const colorIndex = this.getColorIndex(normalized)
+
+    // Use at least the current count for even distribution
+    // This ensures colors are spread even as new agents are added
+    const totalAgents = Math.max(this.registeredAgentCount, 1)
+
+    return getAgentColorFromOrRd(colorIndex, totalAgents)
   }
 
   /**
@@ -130,17 +190,31 @@ class AgentColorRegistry {
   reset(): void {
     this.agentToColorIndex.clear()
     this.nextColorIndex = 0
+    this.registeredAgentCount = 0
   }
 
   /**
-   * Pre-register multiple agents in order to ensure consistent color assignment.
-   * This should be called when agent names are first known (e.g., from tree traversal).
+   * Pre-register multiple agents in the given order to ensure consistent color assignment.
+   * Colors are assigned based on position in the array (first = lightest, last = darkest).
+   * This should be called with sorted swimlane names to match vertical ordering.
+   *
+   * IMPORTANT: This resets existing registrations to ensure the new order takes effect.
    */
   registerAgents(agentNames: string[]): void {
+    // Reset to ensure we use the new order
+    this.reset()
+
+    // Register each agent in order (preserving the order for color progression)
     agentNames.forEach(name => {
-      // Skip special agents
-      if (!SPECIAL_AGENT_COLORS[name]) {
-        this.getColorIndex(name)
+      const normalized = normalizeAgentNameForColor(name)
+      // Skip special agents (they have fixed colors)
+      if (!SPECIAL_AGENT_COLORS[normalized]) {
+        // Only register if not already registered (handles duplicates)
+        if (!this.agentToColorIndex.has(normalized)) {
+          this.agentToColorIndex.set(normalized, this.nextColorIndex)
+          this.nextColorIndex++
+          this.registeredAgentCount++
+        }
       }
     })
   }
@@ -150,10 +224,11 @@ class AgentColorRegistry {
    * Returns true if the agent is in the registry or is a special agent.
    */
   hasColor(agentName: string): boolean {
-    if (SPECIAL_AGENT_COLORS[agentName]) {
+    const normalized = normalizeAgentNameForColor(agentName)
+    if (SPECIAL_AGENT_COLORS[normalized]) {
       return true
     }
-    return this.agentToColorIndex.has(agentName)
+    return this.agentToColorIndex.has(normalized)
   }
 }
 
@@ -161,12 +236,12 @@ class AgentColorRegistry {
 const agentColorRegistry = new AgentColorRegistry()
 
 /**
- * Get agent color by name using D3's Dark2 scheme.
- * Uses special colors for system agents, otherwise assigns colors sequentially
- * in the order agents are first encountered.
+ * Get agent color by name using D3's interpolateOrRd sequential scheme.
+ * Colors are evenly distributed across the OrRd gradient (orange to red).
+ * Special agents (User, System) get fixed colors for consistency.
  *
  * @param agentName - Name of the agent
- * @returns Hex color string
+ * @returns RGB color string
  */
 export function getAgentColorD3(agentName: string): string {
   return agentColorRegistry.getColor(agentName)
@@ -174,9 +249,10 @@ export function getAgentColorD3(agentName: string): string {
 
 /**
  * Pre-register agents to ensure consistent color assignment.
- * Call this when you first know all agent names (e.g., from tree extraction).
+ * Colors are assigned based on position in the array (first = lightest, last = darkest).
+ * Call this with sorted swimlane names to match vertical ordering in the visualization.
  *
- * @param agentNames - Array of agent names in order of first appearance
+ * @param agentNames - Array of agent names in desired color order (typically sorted alphabetically)
  */
 export function registerAgentColors(agentNames: string[]): void {
   agentColorRegistry.registerAgents(agentNames)

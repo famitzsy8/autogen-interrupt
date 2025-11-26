@@ -261,10 +261,8 @@ export function useD3Tree(
     // Convert tree data to D3 hierarchy
     const hierarchy = convertToD3Hierarchy(treeData)
 
-    // Extract agent names in order of first appearance and register colors
-    // This ensures consistent sequential color assignment across all components
-    const agentNames = extractAgentNames(treeData)
-    registerAgentColors(agentNames)
+    // Note: Agent colors are registered later in renderTree() after swimlanes are sorted
+    // This ensures colors progress from light (top) to dark (bottom) matching vertical position
 
     // Initialize node positions
     hierarchy.x0 = width / 2
@@ -694,6 +692,10 @@ function updateTree(
 
   const swimlaneNames = Array.from(swimlaneNamesSet).sort()
 
+  // Register agent colors in sorted swimlane order
+  // This ensures colors progress from light (top) to dark (bottom) matching vertical position
+  registerAgentColors(swimlaneNames)
+
   // Create swimlane Y-map (mapping normalized name to Y position)
   const swimlaneYMap = new Map<string, number>()
   swimlaneNames.forEach((name, index) => {
@@ -1035,8 +1037,6 @@ function updateTree(
     .attr('r', NODE_RADIUS)
     .attr('fill', (d: PositionedNode) => getAgentColorD3(d.node.data.agent_name))
     .attr('fill-opacity', 0.9)
-    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
-    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
 
   // Append squares (rect) for tool_call and tool_execution nodes
   const squareSize = NODE_RADIUS * 1.6
@@ -1051,8 +1051,6 @@ function updateTree(
     .attr('rx', 2) // Slight corner rounding
     .attr('fill', (d: PositionedNode) => getAgentColorD3(d.node.data.agent_name))
     .attr('fill-opacity', 0.5)
-    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
-    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
 
   const nodeUpdate = nodeEnter.merge(nodes)
 
@@ -1072,8 +1070,6 @@ function updateTree(
       }
       return 0.9
     })
-    .attr('stroke', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? '#fbbf24' : 'none')
-    .attr('stroke-width', (d: PositionedNode) => triggeredNodes.has(d.node.data.id) ? 3 : 0)
 
   nodeUpdate
     .on('click', function (event: MouseEvent, d: PositionedNode) {
