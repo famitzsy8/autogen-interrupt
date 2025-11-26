@@ -90,6 +90,7 @@ interface State {
         position: { x: number; y: number }
         trimCount: number
     } | null
+    edgeInterruptMinimized: boolean
 
     // Agent input request state
     agentInputRequest: AgentInputRequest | null
@@ -152,6 +153,8 @@ interface State {
     // Actions: Edge interrupt management
     setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
     clearEdgeInterrupt: () => void
+    minimizeEdgeInterrupt: () => void
+    maximizeEdgeInterrupt: () => void
 
     // Actions: Human-Agent interaction (UserProxyAgent)
     sendHumanInputResponse: (requestId: string, userInput: string) => void
@@ -166,6 +169,7 @@ interface State {
     setAnalysisComponents: (components: AnalysisComponent[]) => void
     addAnalysisScore: (nodeId: string, scores: AnalysisScores) => void
     markNodeTriggered: (nodeId: string) => void
+    markNodeUserInterrupted: (nodeId: string) => void
     clearAnalysisData: () => void
 
     setStateDisplayVisible: (visible: boolean) => void
@@ -200,6 +204,7 @@ const initialState = {
     trimCount: 0,
     userMessageDraft: '',
     edgeInterrupt: null,
+    edgeInterruptMinimized: false,
     agentInputRequest: null,
     humanInputDraft: '',
     toolCallsByNodeId: {},
@@ -207,12 +212,14 @@ const initialState = {
     analysisComponents: [] as AnalysisComponent[],
     analysisScores: new Map<string, AnalysisScores>(),
     triggeredNodes: new Set<string>(),
+    userInterruptedNodes: new Set<string>(),
     generatedComponents: null as AnalysisComponent[] | null,
     isGeneratingComponents: false,
     isStateDisplayVisible: false,  // Hidden by default
     currentState: null as StateUpdate | null,
     stateUpdates: [] as StateUpdate[],
-    error: null
+    error: null,
+    terminationData: null as TerminateAck | null,
 }
 
 // We reconnect at most 5 times, trying with exponential frequency (1, 2, 4, 8.. seconds)
@@ -248,6 +255,7 @@ export const useStore = create<State>()(
                     analysisComponents: [],
                     analysisScores: new Map(),
                     triggeredNodes: new Set(),
+                    userInterruptedNodes: new Set(),
                     stateUpdates: [],
                     isInterrupted: false,
                     streamState: StreamStateEnum.IDLE,
@@ -258,6 +266,7 @@ export const useStore = create<State>()(
                     trimCount: 0,
                     userMessageDraft: '',
                     edgeInterrupt: null,
+                    edgeInterruptMinimized: false,
                 })
 
                 try {
@@ -636,6 +645,7 @@ export const useStore = create<State>()(
                     isInterrupted: false,
                     streamState: StreamStateEnum.STREAMING,
                     edgeInterrupt: null,
+                    edgeInterruptMinimized: false,
                 })
             },
 
@@ -681,11 +691,20 @@ export const useStore = create<State>()(
                         position,
                         trimCount,
                     },
+                    edgeInterruptMinimized: false,
                 })
             },
 
             clearEdgeInterrupt: () => {
-                set({ edgeInterrupt: null })
+                set({ edgeInterrupt: null, edgeInterruptMinimized: false })
+            },
+
+            minimizeEdgeInterrupt: () => {
+                set({ edgeInterruptMinimized: true })
+            },
+
+            maximizeEdgeInterrupt: () => {
+                set({ edgeInterruptMinimized: false })
             },
 
             sendHumanInputResponse: (requestId: string, userInput: string) => {
@@ -751,11 +770,20 @@ export const useStore = create<State>()(
                 })
             },
 
+            markNodeUserInterrupted: (nodeId: string) => {
+                set((state) => {
+                    const newUserInterrupted = new Set(state.userInterruptedNodes)
+                    newUserInterrupted.add(nodeId)
+                    return { userInterruptedNodes: newUserInterrupted }
+                })
+            },
+
             clearAnalysisData: () => {
                 set({
                     analysisComponents: [],
                     analysisScores: new Map(),
-                    triggeredNodes: new Set()
+                    triggeredNodes: new Set(),
+                    userInterruptedNodes: new Set()
                 })
             },
 
