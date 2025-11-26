@@ -30,6 +30,7 @@ agents:
     name: planner
     model_client_stream: true
     reflect_on_tool_use: false
+    include_state_in_context: true
 
   quality_assurance:
     display_name: Quality Assurance
@@ -45,6 +46,7 @@ agents:
     name: quality_assurance
     model_client_stream: true
     reflect_on_tool_use: false
+    include_state_in_context: true
 
   web_search_agent:
     display_name: Web Search Agent
@@ -60,6 +62,7 @@ agents:
         - web_search
     model_client_stream: true
     reflect_on_tool_use: false
+    include_state_in_context: true
 
   report_writer:
     display_name: Report Writer
@@ -72,6 +75,7 @@ agents:
     name: report_writer
     model_client_stream: true
     reflect_on_tool_use: false
+    include_state_in_context: true
 
 tasks:
   main_task:
@@ -131,22 +135,16 @@ team:
     default_selector_prompt_advanced: true
   enable_state_context: true
   initial_handoff_context: >
-    # User Feedback Involvement
-
-    Request user_proxy feedback when major plan changes or approvals are needed.
-
     ## Agent Responsibilities
 
     - If research/planning is needed → **planner**
     - If quality assurance or feedback is needed → **quality_assurance**
     - If web search is needed → **web_search_agent**
     - If report writing or task completion is needed → **report_writer**
-    - If user approval or guidance is needed → **user_proxy**
 
     ## Escalation & Sync Points
 
     - If the research is complete → **report_writer**
-    - If feedback or approval is needed → **user_proxy**
 
     ## Special User Requests
 
@@ -154,16 +152,16 @@ team:
   initial_state_of_run: >
     # State of Research
 
-    ## Task
-    [Will be populated with the actual task]
-
     ## What we have done so far
+
     Nothing yet - investigation is just starting.
 
     ## Research Outlook (Next Steps)
+
     - Begin investigation
 
     ## Concrete Next Step
+    
     We start with the planner
 
 llm:
