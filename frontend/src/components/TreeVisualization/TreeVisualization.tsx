@@ -14,7 +14,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { TreeControls, useTreeKeyboardShortcuts } from './TreeControls'
 import { useD3Tree } from './useD3Tree'
-import { countNodes, getTreeDepth, findStateForNode } from './utils/treeUtils'
+import { findStateForNode } from './utils/treeUtils'
 import {
   useToolCallsByNodeId,
   useToolExecutionsByNodeId,
@@ -26,8 +26,9 @@ import {
   useAnalysisComponents,
   useAnalysisScores,
   useTriggeredNodes,
+  useUserInterruptedNodes,
+  useAnalysisActions,
 } from '../../hooks/useStore'
-import { EdgeInterruptPopup } from './EdgeInterruptPopup'
 import { NodeDetailsPopup } from './NodeDetailsPopup'
 import type { TreeNode, StateUpdate, ToolCall, ToolExecution } from '../../types'
 
@@ -58,6 +59,8 @@ export function TreeVisualization({
   const analysisComponents = useAnalysisComponents()
   const analysisScores = useAnalysisScores()
   const triggeredNodes = useTriggeredNodes()
+  const userInterruptedNodes = useUserInterruptedNodes()
+  const { markNodeUserInterrupted } = useAnalysisActions()
 
   const allStateUpdates = useAllStateUpdates()
 
@@ -97,8 +100,8 @@ export function TreeVisualization({
     }
   }
   const edgeInterrupt = useEdgeInterrupt()
-  const { setEdgeInterrupt, clearEdgeInterrupt } = useEdgeInterruptActions()
-  const { sendInterrupt, sendUserMessage } = useMessageActions()
+  const { setEdgeInterrupt } = useEdgeInterruptActions()
+  const { sendInterrupt } = useMessageActions()
 
   // Update dimensions on resize
   useEffect(() => {
@@ -127,6 +130,9 @@ export function TreeVisualization({
     try {
       sendInterrupt()
 
+      // Mark the target node (receiving node of the clicked edge) as user-interrupted
+      markNodeUserInterrupted(targetNodeId)
+
       // Convert screen coordinates (clientX/clientY) to container-relative coordinates
       // The popup is absolutely positioned relative to svgContainerRef (which has position: relative)
       if (svgContainerRef.current) {
@@ -142,7 +148,7 @@ export function TreeVisualization({
   }
 
   // Initialize D3 tree
-  const { svgRef, root, recenter, zoomIn, zoomOut, resetZoom, isNavigationMode, enableAutoCenter } = useD3Tree(
+  const { svgRef, recenter, zoomIn, zoomOut, resetZoom, isNavigationMode, enableAutoCenter } = useD3Tree(
     treeData,
     currentBranchId,
     {
@@ -157,6 +163,7 @@ export function TreeVisualization({
       analysisComponents,
       analysisScores,
       triggeredNodes,
+      userInterruptedNodes,
     }
   )
 
@@ -168,20 +175,10 @@ export function TreeVisualization({
     onResetZoom: resetZoom,
   })
 
-  // Calculate tree stats
-  const nodeCount = root ? countNodes(root) : 0
-  const treeDepth = root ? getTreeDepth(root) : 0
-
   return (
     <div ref={containerRef} className={`relative w-full h-full ${className}`}>
       {/* Controls */}
       <TreeControls
-        onRecenter={recenter}
-        onZoomIn={zoomIn}
-        onZoomOut={zoomOut}
-        onResetZoom={resetZoom}
-        nodeCount={nodeCount}
-        treeDepth={treeDepth}
         isNavigationMode={isNavigationMode}
         onEnableAutoCenter={enableAutoCenter}
       />
@@ -210,17 +207,7 @@ export function TreeVisualization({
           <EmptyTreeState />
         )}
 
-        {/* Edge Interrupt Popup */}
-        {edgeInterrupt && (
-          <EdgeInterruptPopup
-            position={edgeInterrupt.position}
-            targetNodeId={edgeInterrupt.targetNodeId}
-            trimCount={edgeInterrupt.trimCount}
-            onSendMessage={sendUserMessage}
-            onClose={clearEdgeInterrupt}
-          />
-        )}
-      </div>
+              </div>
 
       {/* Node Details Popup */}
       {selectedNodeForPopup && (

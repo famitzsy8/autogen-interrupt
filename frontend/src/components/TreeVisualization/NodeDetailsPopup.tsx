@@ -146,7 +146,6 @@ export function NodeDetailsPopup({
             {nodeScores && (
               <div className="pt-4 border-t border-dark-border">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-dark-accent">Analysis Scores</h3>
                   {isTriggered && (
                     <span className="flex items-center gap-1 px-3 py-1 bg-red-900/30 text-red-400 border border-red-800 rounded-full text-xs font-medium">
                       <AlertTriangle size={12} />

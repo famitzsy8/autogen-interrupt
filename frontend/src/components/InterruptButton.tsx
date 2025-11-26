@@ -12,11 +12,12 @@ export function InterruptButton({ onInterrupt, isStreaming }: InterruptButtonPro
     return (
         <button
             onClick={onInterrupt}
-            className="p-3 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all animate-pulse z-50"
+            className="px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg shadow-lg transition-all z-50 flex items-center gap-2 min-w-[120px] justify-center"
             title="Interrupt generation"
             aria-label="Interrupt"
         >
             <Square size={20} fill="currentColor" />
+            <span className="font-medium">Interrupt</span>
         </button>
     )
 }

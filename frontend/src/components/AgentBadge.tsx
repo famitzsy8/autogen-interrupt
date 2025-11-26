@@ -6,13 +6,14 @@
  *
  * Features:
  * - Uses D3 schemeDark2 colors via getAgentColorD3()
+ * - Shows plain text (no colored box) until agent color is registered
  * - Supports different sizes (sm, md, lg)
  * - Optional display of agent_name vs display_name
  * - Accessible with proper contrast
  */
 
 import React from 'react'
-import { getAgentColorD3 } from '../utils/colorSchemes'
+import { getAgentColorD3, hasAgentColor } from '../utils/colorSchemes'
 
 interface AgentBadgeProps {
   agentName: string
@@ -27,7 +28,8 @@ export function AgentBadge({
   size = 'md',
   className = '',
 }: AgentBadgeProps): React.ReactElement {
-  const color = getAgentColorD3(agentName)
+  const hasColor = hasAgentColor(agentName)
+  const color = hasColor ? getAgentColorD3(agentName) : undefined
   const label = displayName || agentName
 
   // Size-based styling
@@ -38,6 +40,22 @@ export function AgentBadge({
   }
 
   const sizeClass = sizeClasses[size]
+
+  // If no color is registered yet, show plain text without colored box
+  if (!hasColor) {
+    return (
+      <span
+        className={`inline-flex items-center justify-center font-semibold ${sizeClass} ${className}`}
+        style={{
+          color: '#9ca3af', // gray text
+          lineHeight: 1,
+        }}
+        title={agentName !== label ? agentName : undefined}
+      >
+        {label}
+      </span>
+    )
+  }
 
   return (
     <span
