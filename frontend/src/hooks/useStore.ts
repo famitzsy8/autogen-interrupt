@@ -271,35 +271,6 @@ export function useIsStreaming(): boolean {
   }
 
   /**
-   * Hook to access chat display visibility state.
-   */
-  export function useIsChatDisplayVisible(): boolean {
-    return useStore((state) => state.isChatDisplayVisible)
-  }
-
-  /**
-   * Hook to access the selected node ID for chat.
-   */
-export function useSelectedNodeIdForChat(): string | null {
-    return useStore((state) => state.selectedNodeIdForChat)
-}
-
-export function useChatFocusTarget() {
-  return useStore((state) => state.chatFocusTarget)
-}
-
-/**
- * Hook to access chat display actions.
- */
-export function useChatDisplayActions() {
-    return useStore((state) => ({
-      setChatDisplayVisible: state.setChatDisplayVisible,
-      setSelectedNodeIdForChat: state.setSelectedNodeIdForChat,
-      setChatFocusTarget: state.setChatFocusTarget,
-    }))
-  }
-
-  /**
    * Hook to access current state update.
    */
   export function useCurrentState(): StateUpdate | null {
@@ -340,15 +311,26 @@ export function useChatDisplayActions() {
   }
 
   /**
+   * Hook to access edge interrupt minimized state.
+   */
+  export function useEdgeInterruptMinimized(): boolean {
+    return useStore((state) => state.edgeInterruptMinimized)
+  }
+
+  /**
    * Hook to access edge interrupt actions.
    */
   export function useEdgeInterruptActions(): {
     setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
     clearEdgeInterrupt: () => void
+    minimizeEdgeInterrupt: () => void
+    maximizeEdgeInterrupt: () => void
   } {
     return useStore((state) => ({
       setEdgeInterrupt: state.setEdgeInterrupt,
       clearEdgeInterrupt: state.clearEdgeInterrupt,
+      minimizeEdgeInterrupt: state.minimizeEdgeInterrupt,
+      maximizeEdgeInterrupt: state.maximizeEdgeInterrupt,
     }))
   }
 
@@ -374,6 +356,13 @@ export function useChatDisplayActions() {
   }
 
   /**
+   * Hook to access user-interrupted nodes set.
+   */
+  export function useUserInterruptedNodes() {
+    return useStore((state) => state.userInterruptedNodes)
+  }
+
+  /**
    * Hook to access analysis actions.
    */
   export function useAnalysisActions() {
@@ -381,6 +370,7 @@ export function useChatDisplayActions() {
       setAnalysisComponents: state.setAnalysisComponents,
       addAnalysisScore: state.addAnalysisScore,
       markNodeTriggered: state.markNodeTriggered,
+      markNodeUserInterrupted: state.markNodeUserInterrupted,
       clearAnalysisData: state.clearAnalysisData,
     }))
   }
@@ -406,5 +396,24 @@ export function useChatDisplayActions() {
     return useStore((state) => ({
       sendComponentGenerationRequest: state.sendComponentGenerationRequest,
       sendRunStartConfirmed: state.sendRunStartConfirmed,
+    }))
+  }
+
+  /**
+   * Hook to access termination data.
+   * Returns the TerminateAck data when user-initiated termination completes.
+   */
+  export function useTerminationData() {
+    return useStore((state) => state.terminationData)
+  }
+
+  /**
+   * Hook to access termination actions.
+   */
+  export function useTerminationActions() {
+    return useStore((state) => ({
+      sendTerminateRequest: state.sendTerminateRequest,
+      setTerminationData: state.setTerminationData,
+      clearTerminationData: state.clearTerminationData,
     }))
   }
