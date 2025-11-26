@@ -57,7 +57,9 @@ from models import (
     UserInterrupt,
     ComponentGenerationRequest,
     ComponentGenerationResponse,
-    RunStartConfirmed
+    RunStartConfirmed,
+    TerminateRequest,
+    TerminateAck,
 )
 from utils.yaml_utils import get_agent_team_names, get_agent_details, get_team_main_tasks, get_summarization_system_prompt
 from utils.summarization import init_summarizer, summarize_message
@@ -509,6 +511,8 @@ class WebSocketHandler:
                 await self._handle_human_input_response(message_dict)
             elif message_type == MessageType.USER_DIRECTED_MESSAGE:
                 await self._handle_user_message(message_dict)
+            elif message_type == MessageType.TERMINATE_REQUEST:
+                await self._handle_terminate_request(message_dict)
         except json.JSONDecodeError as e:
             print(f"Failed to decode client message: {e}")
         except Exception as e:
@@ -539,7 +543,93 @@ class WebSocketHandler:
 
         except Exception as e:
             await self._send_error("INTERRUPT_ERROR", str(e))
-        
+
+    async def _handle_terminate_request(self, message_dict: dict[str, Any]) -> None:
+        """
+        Handle user-initiated termination request.
+
+        This triggers the ExternalTermination condition which will gracefully
+        terminate the run, then sends a TerminateAck with final state data.
+        """
+        try:
+            print("=" * 60)
+            print("TERMINATE REQUEST RECEIVED FROM FRONTEND")
+            print("=" * 60)
+
+            if not self.session or not self.session.agent_team_context:
+                raise RuntimeError("Agent team context not initialized")
+
+            # Get current state before triggering termination
+            team = self.session.agent_team_context.team
+            external_termination = self.session.agent_team_context.external_termination
+
+            # Get state package from the manager
+            state_pkg = team.get_current_state_package()
+
+            # Find the last TextMessage in the message thread
+            last_text_msg = self._find_last_text_message()
+
+            # Trigger the external termination condition
+            # This will cause the termination condition to return a StopMessage
+            # on the next check, gracefully ending the run
+            external_termination.set()
+
+            print("EXTERNAL TERMINATION TRIGGERED")
+            print("=" * 60)
+
+            # Send TerminateAck with final state data
+            ack = TerminateAck(
+                state_of_run=state_pkg.get('state_of_run', ''),
+                tool_call_facts=state_pkg.get('tool_call_facts', ''),
+                last_message_content=last_text_msg.content if last_text_msg else '',
+                last_message_source=last_text_msg.source if last_text_msg else ''
+            )
+
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                await self.websocket.send_text(ack.model_dump_json())
+
+            print("TERMINATE ACK SENT TO FRONTEND")
+
+        except Exception as e:
+            print(f"Error handling terminate request: {e}")
+            import traceback
+            traceback.print_exc()
+            await self._send_error("TERMINATE_ERROR", str(e))
+
+    def _find_last_text_message(self) -> TextMessage | None:
+        """
+        Find the last TextMessage in the conversation.
+
+        Traverses the manager's message thread backwards to find
+        the most recent TextMessage.
+        """
+        try:
+            if not self.session or not self.session.agent_team_context:
+                return None
+
+            team = self.session.agent_team_context.team
+
+            # Access the manager's message thread
+            # The manager is stored in _manager_holder after team initialization
+            manager_holder = getattr(team, '_manager_holder', None)
+            if not manager_holder:
+                return None
+
+            manager = manager_holder.get('manager')
+            if not manager:
+                return None
+
+            message_thread = getattr(manager, '_message_thread', [])
+
+            # Walk backwards through messages to find last TextMessage
+            for msg in reversed(message_thread):
+                if isinstance(msg, TextMessage):
+                    return msg
+
+            return None
+        except Exception as e:
+            print(f"Error finding last text message: {e}")
+            return None
 
     async def _handle_user_message(self, message_dict: dict[str, Any]) -> None:
         try:

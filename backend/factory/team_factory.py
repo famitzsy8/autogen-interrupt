@@ -10,7 +10,7 @@ import openai
 import yaml
 from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_agentchat.agents._user_control_agent import UserControlAgent
-from autogen_agentchat.conditions import TextMentionTermination
+from autogen_agentchat.conditions import TextMentionTermination, ExternalTermination
 from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage
 from autogen_agentchat.teams import BaseGroupChat
 from autogen_agentchat.teams._group_chat._selector_group_chat import SelectorGroupChat
@@ -108,6 +108,7 @@ class AgentTeamContext:
     user_control: UserControlAgent
     participant_names: list[str]
     display_names: dict[str, str]  # Maps agent_name -> display_name
+    external_termination: ExternalTermination  # For user-initiated termination
 
 async def init_team(
     api_key: str,
@@ -223,6 +224,9 @@ async def init_team(
     # Determine group chat class and build appropriate selector
     group_chat_class_name = config_data["team"]["group_chat_class"]
 
+    # Create external termination for user-initiated termination
+    external_termination = ExternalTermination()
+
     # For HierarchicalGroupChat, use selector_prompt as a string
     # For SelectorGroupChat (congress), use selector_func as a callable
     if group_chat_class_name == "HierarchicalGroupChat":
@@ -235,9 +239,13 @@ async def init_team(
         else:
             selector_prompt_str = config_data["team"]["group_chat_args"]["default_selector_prompt"]
 
+        # Combine text mention termination with external termination
+        text_termination = TextMentionTermination("<TERMINATE>", [a.name for a in agents if a.name not in ["user", "You", user_proxy_name]])
+        combined_termination = text_termination | external_termination
+
         team_kwargs = {
             "participants": agents,
-            "termination_condition": TextMentionTermination("<TERMINATE>", [a.name for a in agents if a.name not in ["user", "You", user_proxy_name]]),
+            "termination_condition": combined_termination,
             "selector_prompt": selector_prompt_str,
             "model_client": model_client,
             "agent_input_queue": agent_input_queue,
@@ -263,9 +271,13 @@ async def init_team(
         # Do NOT use build_default_selector_prompt() as it's incompatible with state context
         selector_prompt_str = config_data["team"]["group_chat_args"]["default_selector_prompt"]
 
+        # Combine text mention termination with external termination
+        text_termination = TextMentionTermination("<TERMINATE>", [a.name for a in agents if a.name not in ["You", "user", user_proxy_name]])
+        combined_termination = text_termination | external_termination
+
         team_kwargs = {
             "participants": agents,
-            "termination_condition": TextMentionTermination("<TERMINATE>", [a.name for a in agents if a.name not in ["You", "user", user_proxy_name]]),
+            "termination_condition": combined_termination,
             "selector_prompt": selector_prompt_str,
             "model_client": model_client,
             "agent_input_queue": agent_input_queue,
@@ -301,7 +313,8 @@ async def init_team(
         team=team,
         user_control=user_control,
         participant_names=[a.name for a in agents],
-        display_names=display_names
+        display_names=display_names,
+        external_termination=external_termination
     )
 
 
