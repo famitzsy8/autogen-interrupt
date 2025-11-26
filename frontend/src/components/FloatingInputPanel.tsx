@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, MessageSquare, X } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { useAgentDetails } from '../hooks/useStore'
 import { AgentSelector } from './AgentSelector'
 
@@ -10,6 +10,7 @@ interface FloatingInputPanelProps {
     onSelectAgent: (agent: string | null) => void
     trimCount: number
     onClose?: () => void // Optional close handler if needed
+    onMinimize?: () => void // Optional minimize handler (replace close behavior)
     className?: string
 }
 
@@ -20,6 +21,7 @@ export function FloatingInputPanel({
     onSelectAgent,
     trimCount,
     onClose,
+    onMinimize,
     className = ''
 }: FloatingInputPanelProps): React.ReactElement | null {
     const [message, setMessage] = useState('')
@@ -61,49 +63,45 @@ export function FloatingInputPanel({
         <div className={`bg-dark-bg border-2 border-dark-accent rounded-lg shadow-2xl p-4 w-96 pointer-events-auto flex flex-col gap-3 ${className}`}>
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold text-dark-accent">
-                    <MessageSquare size={16} />
-                    <span>Send Message</span>
-                </div>
-                {onClose && (
+                <h2 className="text-base font-bold text-dark-accent">
+                    Send a Message to an agent of your choice!
+                </h2>
+                {(onClose || onMinimize) && (
                     <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-300 transition-colors"
+                        onClick={onMinimize || onClose}
+                        className="text-gray-500 hover:text-dark-accent transition-colors p-1 rounded hover:bg-dark-surface flex-shrink-0"
+                        title="Hide panel"
                     >
-                        <X size={16} />
+                        <ChevronRight size={18} />
                     </button>
                 )}
             </div>
 
             {/* Agent Selector */}
-            <div>
-                <label className="text-xs text-gray-500 mb-1 block">To Agent:</label>
-                <AgentSelector
-                    agents={agents}
-                    selectedAgent={selectedAgent}
-                    onSelectAgent={onSelectAgent}
-                    disabled={!isInterrupted}
-                />
-            </div>
+            <AgentSelector
+                agents={agents}
+                selectedAgent={selectedAgent}
+                onSelectAgent={onSelectAgent}
+                disabled={!isInterrupted}
+            />
 
             {/* Message Input */}
-            <div className="relative">
+            <div className="flex flex-col gap-3">
                 <textarea
                     ref={textareaRef}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Type your message..."
-                    className="w-full bg-dark-surface border border-dark-border rounded-md p-3 pr-10 text-sm text-dark-text placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-dark-accent resize-none min-h-[80px]"
+                    className="w-full bg-dark-surface border border-dark-border rounded-md p-3 text-sm text-dark-text placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-dark-accent resize-none min-h-[80px]"
                     disabled={!isInterrupted}
                 />
                 <button
                     onClick={handleSend}
                     disabled={!message.trim() || !selectedAgent}
-                    className="absolute bottom-2 right-2 p-1.5 bg-dark-accent text-white rounded hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    title="Send"
+                    className="w-full py-2.5 px-4 bg-dark-accent text-white font-semibold rounded-md hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                    <Send size={14} />
+                    Send
                 </button>
             </div>
 
