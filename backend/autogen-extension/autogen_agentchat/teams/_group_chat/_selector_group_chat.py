@@ -58,6 +58,7 @@ from ._events import (
 )
 from ._node_message_mapping import count_messages_for_node_trim
 from ._agent_buffer_node_mapping import convert_manager_trim_to_agent_trim
+from ._chat_agent_container import ChatAgentContainer
 
 trace_logger = logging.getLogger(TRACE_LOGGER_NAME)
 message_thread_logger = logging.getLogger(f"{__name__}.message_thread")
@@ -374,12 +375,22 @@ class SelectorGroupChatManager(BaseGroupChatManager):
 
         latest_message = self._message_thread[-1]
 
-        # Check if latest message is from user_proxy - skip analysis if so
-        # This prevents infinite feedback loops
+        # Check if latest message is from user/system - skip analysis if so
+        # This prevents infinite feedback loops and avoids analyzing user instructions
+        # Skip analysis for:
+        # 1. user_proxy messages (feedback responses)
+        # 2. Messages from sources not in participant list (external user messages)
+        # 3. Messages from "You" or "User" (direct user input)
         if isinstance(latest_message, BaseChatMessage):
-            if latest_message.source == self._user_proxy_name:
-                logger.info(f"📊 [ANALYSIS] Skipping analysis for user_proxy message: {latest_message.source}")
-                # User just provided feedback - skip analysis, go to next AI agent
+            message_source = latest_message.source
+            is_user_or_system_message = (
+                message_source == self._user_proxy_name or
+                message_source not in self._participant_names or
+                message_source.lower() in ("you", "user", "system")
+            )
+            if is_user_or_system_message:
+                logger.info(f"📊 [ANALYSIS] Skipping analysis for user/system message from: {message_source}")
+                # User/system message - skip analysis, go directly to AI agent selection
 
                 # Build participants list (same logic as select_speaker)
                 if self._candidate_func is not None:
@@ -664,11 +675,10 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             # Extract message content as text
             message_text = user_message.to_text()
 
-            # Format prompt with current state, context, user proxy name, and message
+            # Format prompt with current state, context, and message
             prompt = HANDOFF_CONTEXT_UPDATING_PROMPT.format(
                 stateOfRun=self._state_of_run_text,
                 handoffContext=self._handoff_context_text,
-                user_proxy_name=self._user_proxy_name,
                 user_message=message_text
             )
 
@@ -1564,6 +1574,60 @@ Read the above conversation. Then select the next role from {participants} to pl
         self._trigger_threshold: int = 8
         self._team_reference: Any | None = team_reference
 
+        # Shared manager holder for state context injection
+        # This allows ChatAgentContainers to get state from the manager
+        # even though they are created before the manager exists
+        self._manager_holder: Dict[str, SelectorGroupChatManager] = {}
+
+    def get_current_state_package(self) -> Dict[str, Any]:
+        """
+        Get the current state package from the manager.
+
+        Returns a dictionary containing:
+        - state_of_run: Current research progress
+        - tool_call_facts: Accumulated facts from tool executions
+        - handoff_context: Agent selection rules
+        - participant_names: List of participant names
+
+        Returns empty dict if manager is not yet initialized.
+        """
+        manager = self._manager_holder.get('manager')
+        if manager is not None:
+            return manager.get_current_state_package()
+        return {}
+
+    def _create_participant_factory(
+        self,
+        parent_topic_type: str,
+        output_topic_type: str,
+        agent: ChatAgent | Team,
+        message_factory: MessageFactory,
+    ) -> Callable[[], ChatAgentContainer]:
+        """Override to inject state context getter into ChatAgentContainer."""
+        # Capture references for the closure
+        manager_holder = self._manager_holder
+        enable_state_context = self._enable_state_context
+
+        def _state_package_getter() -> Dict[str, Any]:
+            """Get state package from manager if available."""
+            manager = manager_holder.get('manager')
+            if manager is not None:
+                return manager.get_current_state_package()
+            return {}
+
+        def _factory() -> ChatAgentContainer:
+            container = ChatAgentContainer(
+                parent_topic_type,
+                output_topic_type,
+                agent,
+                message_factory,
+                enable_state_context=enable_state_context,
+                state_package_getter=_state_package_getter if enable_state_context else None,
+            )
+            return container
+
+        return _factory
+
     def _create_group_chat_manager_factory(
         self,
         name: str,
@@ -1612,6 +1676,9 @@ Read the above conversation. Then select the next role from {participants} to pl
                 manager._analysis_service = self._analysis_service
                 manager._analysis_components = self._analysis_components
                 manager._trigger_threshold = self._trigger_threshold
+
+            # Register manager in holder so ChatAgentContainers can access state
+            self._manager_holder['manager'] = manager
             return manager
         return factory
 
