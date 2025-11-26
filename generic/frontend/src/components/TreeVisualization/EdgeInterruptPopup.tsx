@@ -10,8 +10,9 @@
  */
 
 import React, { useState, useRef } from 'react'
+import { MessageCircle } from 'lucide-react'
 import { FloatingInputPanel } from '../FloatingInputPanel'
-import { useIsInterrupted } from '../../hooks/useStore'
+import { useIsInterrupted, useEdgeInterruptMinimized } from '../../hooks/useStore'
 
 interface EdgeInterruptPopupProps {
   position: { x: number; y: number }
@@ -19,6 +20,8 @@ interface EdgeInterruptPopupProps {
   trimCount: number
   onSendMessage: (content: string, targetAgent: string, trimCount: number) => void
   onClose: () => void
+  onMinimize: () => void
+  onMaximize: () => void
 }
 
 export function EdgeInterruptPopup({
@@ -27,10 +30,13 @@ export function EdgeInterruptPopup({
   trimCount,
   onSendMessage,
   onClose,
+  onMinimize,
+  onMaximize,
 }: EdgeInterruptPopupProps): React.ReactElement | null {
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   const isInterrupted = useIsInterrupted()
+  const isMinimized = useEdgeInterruptMinimized()
 
   // No click-outside listener to allow interaction with the tree
   // The popup will be closed explicitly via the close button or sending a message
@@ -38,6 +44,29 @@ export function EdgeInterruptPopup({
   // Don't show popup until interrupt is acknowledged
   if (!isInterrupted) {
     return null
+  }
+
+  // Show minimized marker instead of full popup
+  if (isMinimized) {
+    return (
+      <div
+        className="absolute z-50"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          transform: 'translate(-50%, 10px)',
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onMaximize}
+          className="group flex items-center justify-center w-10 h-10 bg-dark-accent/90 hover:bg-dark-accent rounded-full shadow-xl border-2 border-dark-border hover:border-dark-accent transition-all duration-200 hover:scale-110"
+          title="Click to reopen message form"
+        >
+          <MessageCircle size={20} className="text-white" />
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -60,7 +89,7 @@ export function EdgeInterruptPopup({
         selectedAgent={selectedAgent}
         onSelectAgent={setSelectedAgent}
         trimCount={trimCount}
-        onClose={onClose}
+        onMinimize={onMinimize}
         className="shadow-xl border-dark-accent"
       />
     </div>

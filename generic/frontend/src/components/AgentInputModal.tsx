@@ -1,23 +1,27 @@
 /**
  * Agent Input Modal Component
  *
- * Displays a compact modal in the tree area when an agent requests human input.
+ * Displays a sliding panel from the right when an agent requests human input.
  * When triggered by analysis, displays highlighted analysis components with their
  * descriptions and expandable reasoning.
- * Does not block the chat display but prevents tree interaction.
+ * Can be minimized and restored like the FloatingInputPanel.
  */
 
 import React, { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
+import { AlertTriangle, ChevronDown, ChevronUp, ChevronRight, ChevronLeft } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { useAgentInputActions, useAgentInputDraft } from '../hooks/useStore'
 import { useStore } from '../store/store'
 import { AgentBadge } from './AgentBadge'
 import type { AgentInputRequest } from '../types'
+import './StateDisplay/StateDisplay.css'
 
 interface AgentInputModalProps {
   request: AgentInputRequest
   onSubmit: (userInput: string) => void
   onCancel?: () => void
+  isMinimized?: boolean
+  onMinimize?: () => void
 }
 
 interface ExpandedComponent {
@@ -28,6 +32,8 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
   request,
   onSubmit,
   onCancel,
+  isMinimized = false,
+  onMinimize,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const agentInputDraft = useAgentInputDraft()
@@ -74,61 +80,75 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 
   return (
     <div
-      className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-40 flex items-end justify-center px-4 pointer-events-none"
+      className={`fixed right-0 top-1/2 -translate-y-1/2 z-50 transition-transform duration-300 ease-in-out ${isMinimized ? 'translate-x-full' : 'translate-x-0'
+        }`}
     >
-      {/* Compact modal card - pointer events auto to allow interaction within the card */}
+      {/* Sliding panel from the right */}
       <div
-        className="relative bg-gray-800 border border-gray-600 rounded-lg shadow-2xl max-w-3xl w-full pointer-events-auto max-h-[80vh] overflow-y-auto"
+        className="relative bg-gray-800 border-2 border-amber-600 rounded-l-lg shadow-2xl w-[420px] pointer-events-auto max-h-[80vh] overflow-y-auto"
         role="dialog"
         aria-labelledby="agent-input-modal-title"
       >
         {/* Header bar */}
-        <div className="bg-gray-700 px-4 py-2 rounded-t-lg border-b border-gray-600">
-          <h3
-            id="agent-input-modal-title"
-            className="text-sm font-semibold text-gray-200 flex items-center gap-2"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div className={`px-4 py-3 rounded-tl-lg border-b ${hasFeedbackContext ? 'bg-amber-900/40 border-amber-700/50' : 'bg-gray-700 border-gray-600'}`}>
+          <div className="flex items-center justify-between">
+            <h3
+              id="agent-input-modal-title"
+              className={`text-sm font-semibold flex items-center gap-2 ${hasFeedbackContext ? 'text-amber-300' : 'text-gray-200'}`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <AgentBadge agentName={request.agent_name} size="sm" />
-            <span>needs input</span>
-          </h3>
+              {hasFeedbackContext ? (
+                <>
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Analysis Triggered!</span>
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <AgentBadge agentName={request.agent_name} size="sm" />
+                  <span>needs input</span>
+                </>
+              )}
+            </h3>
+            {onMinimize && (
+              <button
+                onClick={onMinimize}
+                className="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-700/50 flex-shrink-0"
+                title="Hide panel"
+              >
+                <ChevronRight size={18} />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Body */}
         <form onSubmit={handleSubmit} className="p-4">
-          {/* Prompt message */}
-          <p className="text-sm text-gray-300 mb-3 whitespace-pre-wrap">
-            {request.prompt}
-          </p>
+          {/* Prompt message - only show for non-analysis requests */}
+          {!hasFeedbackContext && (
+            <p className="text-sm text-gray-300 mb-3 whitespace-pre-wrap">
+              {request.prompt}
+            </p>
+          )}
 
           {/* Feedback Context Section - Only shown when analysis triggered */}
           {hasFeedbackContext && feedback_context && (
-            <div className="mb-6 space-y-4">
-              {/* Alert Banner */}
-              <div className="flex gap-3 p-3 bg-amber-950/40 rounded-lg border border-amber-700/50">
-                <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <strong className="text-amber-300 text-sm font-semibold block mb-1">
-                    Analysis Alert
-                  </strong>
-                  <p className="text-xs text-gray-300">
-                    The following components triggered above the threshold. Review the details and provide feedback.
-                  </p>
-                </div>
-              </div>
-
+            <div className="mb-4 space-y-3">
+              {/* Info text */}
+              <p className="text-xs text-gray-300">
+                The following components triggered above the threshold. Review the details and provide feedback.
+              </p>
 
               {/* Triggered Components with Details */}
               {feedback_context.triggered_with_details && Object.entries(feedback_context.triggered_with_details).length > 0 ? (
@@ -243,41 +263,40 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 
               {/* Expandable Details Section */}
               <details className="p-3 bg-gray-900/50 rounded border border-gray-600/30">
-                <summary className="cursor-pointer font-medium text-sm text-gray-300 hover:text-gray-100 transition-colors">
-                  View Agent Message & Research Context
-                </summary>
+                <strong className="cursor-pointer font-medium text-sm text-gray-300 hover:text-gray-100 transition-colors">
+                  View The Message That Triggered
+                </strong>
 
                 <div className="mt-3 space-y-3">
                   {/* Agent Message */}
                   <div>
-                    <strong className="block mb-1 text-xs font-semibold text-gray-400">
-                      Agent Message:
-                    </strong>
-                    <pre className="p-2 bg-gray-800 rounded text-xs overflow-x-auto whitespace-pre-wrap text-gray-300">
-                      {feedback_context.message
-                        ? JSON.stringify(feedback_context.message, null, 2)
-                        : 'N/A'}
-                    </pre>
+                    <div className="p-2 bg-gray-800 rounded text-xs overflow-x-auto text-gray-300 markdown-content">
+                      {feedback_context.message ? (
+                        typeof feedback_context.message === 'string' ? (
+                          <ReactMarkdown>{feedback_context.message}</ReactMarkdown>
+                        ) : typeof feedback_context.message === 'object' && 'content' in feedback_context.message ? (
+                          <ReactMarkdown>{String(feedback_context.message.content)}</ReactMarkdown>
+                        ) : (
+                          <ReactMarkdown>{JSON.stringify(feedback_context.message)}</ReactMarkdown>
+                        )
+                      ) : (
+                        'N/A'
+                      )}
+                    </div>
                   </div>
 
                   {/* Verified Facts */}
                   <div>
-                    <strong className="block mb-1 text-xs font-semibold text-gray-400">
-                      Verified Facts:
-                    </strong>
-                    <pre className="p-2 bg-gray-800 rounded text-xs overflow-x-auto whitespace-pre-wrap text-gray-300">
-                      {feedback_context.tool_call_facts || '(None yet)'}
-                    </pre>
-                  </div>
-
-                  {/* Research State */}
-                  <div>
-                    <strong className="block mb-1 text-xs font-semibold text-gray-400">
-                      Research State:
-                    </strong>
-                    <pre className="p-2 bg-gray-800 rounded text-xs overflow-x-auto whitespace-pre-wrap text-gray-300">
-                      {feedback_context.state_of_run || '(None yet)'}
-                    </pre>
+                    <h2 className="block mb-1 text-xs font-semibold text-gray-400">
+                      Verified Facts from Tool Calls
+                    </h2>
+                    <div className="p-2 bg-gray-800 rounded text-xs overflow-x-auto text-gray-300 markdown-content">
+                      {feedback_context.tool_call_facts ? (
+                        <ReactMarkdown>{feedback_context.tool_call_facts}</ReactMarkdown>
+                      ) : (
+                        '(None yet)'
+                      )}
+                    </div>
                   </div>
                 </div>
               </details>
@@ -296,16 +315,8 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
             required
           />
 
-          {/* Help text */}
-          <p className="text-xs text-gray-500 mt-1 mb-3">
-            <kbd className="px-1 py-0.5 bg-gray-700 border border-gray-600 rounded text-xs">
-              Ctrl+Enter
-            </kbd>{' '}
-            to submit
-          </p>
-
           {/* Buttons */}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 mt-3">
             {onCancel && (
               <button
                 type="button"
@@ -330,3 +341,29 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 }
 
 export default AgentInputModal
+
+/**
+ * Collapsed tab button shown when the AgentInputModal is minimized.
+ * Clicking this restores the modal.
+ */
+export function AgentInputMinimizedTab({
+  onClick,
+  hasFeedbackContext,
+}: {
+  onClick: () => void
+  hasFeedbackContext: boolean
+}): React.ReactElement {
+  return (
+    <button
+      onClick={onClick}
+      className={`fixed right-0 top-1/2 -translate-y-1/2 z-50 px-3 py-2 rounded-l-lg shadow-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium ${hasFeedbackContext
+        ? 'bg-amber-600 hover:bg-amber-500 text-white'
+        : 'bg-blue-600 hover:bg-blue-500 text-white'
+        }`}
+      title="Open feedback panel"
+    >
+      <ChevronLeft size={18} />
+      <span>{hasFeedbackContext ? 'Analysis triggered!' : 'Agent needs input'}</span>
+    </button>
+  )
+}

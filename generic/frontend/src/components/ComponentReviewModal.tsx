@@ -84,16 +84,15 @@ export function ComponentReviewModal({
         {/* Header */}
         <div className="p-6 border-b border-gray-700">
           <h2 className="text-2xl font-bold text-dark-text mb-2">
-            Review Analysis Components
+            Review Your Watchlist!
           </h2>
           <p className="text-sm text-gray-400">
             {isGenerating
               ? 'AI is generating analysis criteria...'
               : components.length === 0
-              ? 'Component generation failed. You can add custom components manually.'
-              : `The AI generated ${components.length} watchlist ${
-                  components.length === 1 ? 'criterion' : 'criteria'
-                }. Review, edit, or add more before starting.`}
+                ? 'Component generation failed. You can add custom components manually.'
+                : `The AI generated ${components.length} watchlist ${components.length === 1 ? 'criterion' : 'criteria'
+                }. Review, edit, or add more before starting. You can use the "tool calls" as references for factual information.`}
           </p>
           <p className="text-xs text-gray-500 mt-2">
             Trigger threshold: <span className="font-semibold text-blue-400">{trigger_threshold}/10</span>
@@ -122,7 +121,7 @@ export function ComponentReviewModal({
               {/* Label */}
               <div>
                 <label className="block text-xs font-medium text-gray-400 mb-1">
-                  Label (kebab-case identifier)
+                  Label
                 </label>
                 <input
                   type="text"
