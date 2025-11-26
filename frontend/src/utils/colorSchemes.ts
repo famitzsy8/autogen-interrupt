@@ -72,10 +72,9 @@ export const AGENT_COLORS_D3 = schemeDark2
 
 /**
  * Special colors for system agents (not from D3 schemes).
+ * Note: "You" and "User" are NOT special - they get D3 colors like other agents.
  */
 const SPECIAL_AGENT_COLORS: Record<string, string> = {
-  'You': '#ffffff',      // white for user
-  'User': '#ffffff',     // white for user
   'System': '#9ca3af',   // gray for system
 }
 
@@ -145,6 +144,17 @@ class AgentColorRegistry {
       }
     })
   }
+
+  /**
+   * Check if an agent has been registered (has a real color assigned).
+   * Returns true if the agent is in the registry or is a special agent.
+   */
+  hasColor(agentName: string): boolean {
+    if (SPECIAL_AGENT_COLORS[agentName]) {
+      return true
+    }
+    return this.agentToColorIndex.has(agentName)
+  }
 }
 
 // Singleton instance for global color consistency
@@ -170,6 +180,18 @@ export function getAgentColorD3(agentName: string): string {
  */
 export function registerAgentColors(agentNames: string[]): void {
   agentColorRegistry.registerAgents(agentNames)
+}
+
+/**
+ * Check if an agent has a registered color.
+ * Returns true if the agent has been seen before or is a special agent.
+ * Use this to determine if a color badge should be shown.
+ *
+ * @param agentName - Name of the agent
+ * @returns True if the agent has a registered color
+ */
+export function hasAgentColor(agentName: string): boolean {
+  return agentColorRegistry.hasColor(agentName)
 }
 
 /**
