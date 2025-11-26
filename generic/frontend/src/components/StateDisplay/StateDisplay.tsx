@@ -27,15 +27,6 @@ export function StateDisplay(): React.ReactElement {
     handoffContext: false,
   })
 
-  // Debug logging
-  React.useEffect(() => {
-    console.log('🎨 [StateDisplay] Component rendered, currentState:', currentState ? {
-      message_index: currentState.message_index,
-      has_state_of_run: !!currentState.state_of_run,
-      has_tool_call_facts: !!currentState.tool_call_facts,
-      has_handoff_context: !!currentState.handoff_context,
-    } : 'null')
-  }, [currentState])
 
   const handleCloseStateDisplay = (): void => {
     setStateDisplayVisible(false)
@@ -87,10 +78,6 @@ export function StateDisplay(): React.ReactElement {
                 onClick={() => toggleSection('stateOfRun')}
                 className="w-full flex items-center justify-between p-4 hover:bg-dark-hover transition-colors"
               >
-                <h3 className="text-sm font-semibold text-dark-accent flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  State of Run
-                </h3>
                 {expandedSections.stateOfRun ? (
                   <ChevronDown size={18} className="text-gray-400" />
                 ) : (
@@ -114,10 +101,6 @@ export function StateDisplay(): React.ReactElement {
                 onClick={() => toggleSection('toolCallFacts')}
                 className="w-full flex items-center justify-between p-4 hover:bg-dark-hover transition-colors"
               >
-                <h3 className="text-sm font-semibold text-dark-accent flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                  Tool Call Facts
-                </h3>
                 {expandedSections.toolCallFacts ? (
                   <ChevronDown size={18} className="text-gray-400" />
                 ) : (

@@ -4,7 +4,7 @@
 from __future__ import annotations
 from datetime import datetime
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -29,6 +29,13 @@ class MessageType(str, Enum):
     TOOL_EXECUTION = 'tool_execution'
     STATE_UPDATE = 'state_update'
     RUN_TERMINATION = 'run_termination'
+    ANALYSIS_UPDATE = 'analysis_update'
+    ANALYSIS_COMPONENTS_INIT = 'analysis_components_init'
+    COMPONENT_GENERATION_REQUEST = 'component_generation_request'
+    COMPONENT_GENERATION_RESPONSE = 'component_generation_response'
+    RUN_START_CONFIRMED = 'run_start_confirmed'
+    TERMINATE_REQUEST = 'terminate_request'
+    TERMINATE_ACK = 'terminate_ack'
 
 
 class AgentTeamNames(BaseModel):
@@ -280,6 +287,10 @@ class AgentInputRequest(BaseModel):
     request_id: str = Field(..., description="Unique identifier for this input request")
     prompt: str = Field(..., description="The question/prompt to display to the human user")
     agent_name: str = Field(..., description="Name of the agent requesting input")
+    feedback_context: dict[str, Any] | None = Field(
+        default=None,
+        description="Optional context when triggered by analysis (contains triggered, scores, message, tool_call_facts, state_of_run)"
+    )
     timestamp: datetime = Field(default_factory=datetime.now)
 
     @field_validator("request_id")
@@ -359,6 +370,18 @@ class RunConfig(BaseModel):
         description="Congress number (e.g., 116th, 117th)"
     )
 
+    # Analysis watchlist configuration
+    analysis_prompt: str | None = Field(
+        default=None,
+        description="User's free-form criteria description for analysis watchlist"
+    )
+    trigger_threshold: int = Field(
+        default=8,
+        ge=1,
+        le=10,
+        description="Score threshold for triggering analysis alerts (1-10 scale)"
+    )
+
     timestamp: datetime = Field(default_factory=datetime.now)
 
 class ToolCallInfo(BaseModel): # corresponds to ToolCallRequestEvent in autogen
@@ -421,4 +444,200 @@ class StateUpdate(BaseModel):
     tool_call_facts: str = Field(default="", description="Accumulated facts from tool executions")
     handoff_context: str = Field(default="", description="Agent selection rules and guidelines")
     message_index: int = Field(..., description="Message index when this state snapshot was created")
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+# ===== Analysis Watchlist System Models =====
+
+def get_analysis_component_color(label: str) -> str:
+    """Deterministic color assignment based on label hash."""
+    colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8",
+              "#F3A683", "#778BEB", "#E77F67", "#CF6A87", "#786FA6"]
+    return colors[hash(label) % len(colors)]
+
+
+class AnalysisComponent(BaseModel):
+    # Individual watchlist criterion for monitoring agent conversations.
+
+    label: str = Field(..., description="Short identifier for this component (e.g., 'committee-membership')")
+    description: str = Field(..., description="Full explanation of what this component checks for")
+    color: str = Field(..., description="Hex color for UI badge display")
+
+    @field_validator("label")
+    @classmethod
+    def validate_label(cls, v: str) -> str:
+        # Label must not be empty
+        if not v or not v.strip():
+            raise ValueError("label cannot be empty")
+        return v.strip()
+
+    @field_validator("description")
+    @classmethod
+    def validate_description(cls, v: str) -> str:
+        # Description must not be empty
+        if not v or not v.strip():
+            raise ValueError("description cannot be empty")
+        return v.strip()
+
+
+class ComponentScore(BaseModel):
+    # Scoring result for one analysis component.
+
+    score: int = Field(..., ge=1, le=10, description="Score on 1-10 scale")
+    reasoning: str = Field(..., description="One sentence explanation of the score")
+
+    @field_validator("reasoning")
+    @classmethod
+    def validate_reasoning(cls, v: str) -> str:
+        # Reasoning must not be empty
+        if not v or not v.strip():
+            raise ValueError("reasoning cannot be empty")
+        return v.strip()
+
+
+class AnalysisScores(BaseModel):
+    # Complete scoring result for a message across all analysis components.
+
+    scores: dict[str, ComponentScore] = Field(
+        ...,
+        description="Mapping of component label to its score object"
+    )
+
+
+class AnalysisUpdate(BaseModel):
+    # WebSocket message to frontend with scoring results for a specific node.
+
+    type: Literal[MessageType.ANALYSIS_UPDATE] = MessageType.ANALYSIS_UPDATE
+    node_id: str = Field(..., description="Message node ID that was scored")
+    scores: dict[str, ComponentScore] = Field(..., description="All component scores for this message")
+    triggered_components: list[str] = Field(
+        ...,
+        description="List of component labels where score >= threshold"
+    )
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("node_id")
+    @classmethod
+    def validate_node_id(cls, v: str) -> str:
+        # Node ID must not be empty
+        if not v or not v.strip():
+            raise ValueError("node_id cannot be empty")
+        return v.strip()
+
+
+class AnalysisComponentsInit(BaseModel):
+    # Initial component broadcast sent when WebSocket connection is established.
+
+    type: Literal[MessageType.ANALYSIS_COMPONENTS_INIT] = MessageType.ANALYSIS_COMPONENTS_INIT
+    components: list[AnalysisComponent] = Field(
+        ...,
+        description="List of all analysis components in the watchlist"
+    )
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("components")
+    @classmethod
+    def validate_components(cls, v: list[AnalysisComponent]) -> list[AnalysisComponent]:
+        # Components list must not be empty
+        if not v:
+            raise ValueError("components cannot be empty")
+        return v
+
+
+class ComponentGenerationRequest(BaseModel):
+    # Request from frontend to generate analysis components without starting run.
+
+    type: Literal[MessageType.COMPONENT_GENERATION_REQUEST] = MessageType.COMPONENT_GENERATION_REQUEST
+    analysis_prompt: str = Field(..., description="User's free-form criteria description")
+    trigger_threshold: int = Field(
+        default=8,
+        ge=1,
+        le=10,
+        description="Score threshold for triggering analysis alerts (1-10 scale)"
+    )
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("analysis_prompt")
+    @classmethod
+    def validate_analysis_prompt(cls, v: str) -> str:
+        # Analysis prompt must not be empty
+        if not v or not v.strip():
+            raise ValueError("analysis_prompt cannot be empty")
+        return v.strip()
+
+
+class ComponentGenerationResponse(BaseModel):
+    # Response from backend with generated components for user review.
+
+    type: Literal[MessageType.COMPONENT_GENERATION_RESPONSE] = MessageType.COMPONENT_GENERATION_RESPONSE
+    components: list[AnalysisComponent] = Field(
+        ...,
+        description="AI-generated components for user review (can be empty if generation failed)"
+    )
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class RunStartConfirmed(BaseModel):
+    # Final confirmation from frontend to start run with user-approved components.
+
+    type: Literal[MessageType.RUN_START_CONFIRMED] = MessageType.RUN_START_CONFIRMED
+
+    session_id: str = Field(..., description="Unique session ID for this conversation")
+
+    initial_topic: str | None = Field(
+        default=None,
+        description="The task of the agent team (optional, uses backend default if not provided)",
+    )
+
+    # Company-bill investigation parameters
+    company_name: str | None = Field(default=None, description="Name of the company being investigated")
+    bill_name: str | None = Field(default=None, description="Bill identifier (e.g., S.1593)")
+    congress: str | None = Field(default=None, description="Congress number (e.g., 116th, 117th)")
+
+    # User-approved analysis components
+    approved_components: list[AnalysisComponent] = Field(
+        default_factory=list,
+        description="Analysis components approved/edited by user (can be empty)"
+    )
+    trigger_threshold: int = Field(
+        default=8,
+        ge=1,
+        le=10,
+        description="Score threshold for triggering analysis alerts (1-10 scale)"
+    )
+
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class TerminateRequest(BaseModel):
+    # User-initiated request to gracefully terminate the agent run.
+    # Unlike USER_INTERRUPT which pauses for user input, this fully ends the run
+    # and returns final state data.
+
+    type: Literal[MessageType.TERMINATE_REQUEST] = MessageType.TERMINATE_REQUEST
+    timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class TerminateAck(BaseModel):
+    # Acknowledgment of user-initiated termination with final state data.
+    # Sent after the run is terminated, containing the final research state
+    # and the last message for display in a termination modal.
+
+    type: Literal[MessageType.TERMINATE_ACK] = MessageType.TERMINATE_ACK
+    state_of_run: str = Field(
+        ...,
+        description="Final research progress state at time of termination"
+    )
+    tool_call_facts: str = Field(
+        ...,
+        description="Accumulated facts from tool executions"
+    )
+    last_message_content: str = Field(
+        ...,
+        description="Content of the last TextMessage before termination"
+    )
+    last_message_source: str = Field(
+        ...,
+        description="Agent who sent the last message"
+    )
     timestamp: datetime = Field(default_factory=datetime.now)

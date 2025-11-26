@@ -23,6 +23,13 @@ export enum MessageType {
     TOOL_EXECUTION = 'tool_execution',
     STATE_UPDATE = 'state_update',
     RUN_TERMINATION = 'run_termination',
+    ANALYSIS_UPDATE = 'analysis_update',
+    ANALYSIS_COMPONENTS_INIT = 'analysis_components_init',
+    COMPONENT_GENERATION_REQUEST = 'component_generation_request',
+    COMPONENT_GENERATION_RESPONSE = 'component_generation_response',
+    RUN_START_CONFIRMED = 'run_start_confirmed',
+    TERMINATE_REQUEST = 'terminate_request',
+    TERMINATE_ACK = 'terminate_ack',
 }
 
 /**
@@ -78,6 +85,9 @@ export interface RunConfig extends BaseMessage {
     company_name?: string,
     bill_name?: string,
     congress?: string,
+    // Analysis watchlist parameters
+    analysis_prompt?: string,
+    trigger_threshold?: number,
 }
 
 /**
@@ -179,6 +189,18 @@ export interface AgentInputRequest extends BaseMessage {
     request_id: string
     prompt: string
     agent_name: string
+    feedback_context?: {
+        triggered: string[]
+        triggered_with_details?: Record<string, {
+            description: string
+            score: number
+            reasoning: string
+        }>
+        scores: Record<string, ComponentScore>
+        message: unknown
+        tool_call_facts: string
+        state_of_run: string
+    }
 }
 
 /**
@@ -241,6 +263,100 @@ export interface StateUpdate extends BaseMessage {
 }
 
 /**
+ * Configuration for a single analysis component/watchlist item.
+ */
+export interface AnalysisComponent {
+    label: string
+    description: string
+    color: string // Legacy: kept for backwards compatibility, but prefer using sequentialScheme
+    sequentialScheme?: string // D3 sequential scheme name (e.g., 'Blues', 'Reds', 'Greys')
+}
+
+/**
+ * Score and reasoning for a single analysis component.
+ */
+export interface ComponentScore {
+    score: number
+    reasoning: string
+}
+
+/**
+ * Container for all component scores.
+ */
+export interface AnalysisScores {
+    scores: Record<string, ComponentScore>
+}
+
+/**
+ * WebSocket message containing analysis results for a message.
+ */
+export interface AnalysisUpdate extends BaseMessage {
+    type: MessageType.ANALYSIS_UPDATE
+    node_id: string
+    scores: Record<string, ComponentScore>
+    triggered_components: string[]
+}
+
+/**
+ * Initial list of analysis components sent at session start.
+ */
+export interface AnalysisComponentsInit extends BaseMessage {
+    type: MessageType.ANALYSIS_COMPONENTS_INIT
+    components: AnalysisComponent[]
+}
+
+/**
+ * Request to generate analysis components without starting run.
+ */
+export interface ComponentGenerationRequest extends BaseMessage {
+    type: MessageType.COMPONENT_GENERATION_REQUEST
+    analysis_prompt: string
+    trigger_threshold: number
+}
+
+/**
+ * Response with generated components for user review.
+ */
+export interface ComponentGenerationResponse extends BaseMessage {
+    type: MessageType.COMPONENT_GENERATION_RESPONSE
+    components: AnalysisComponent[]
+}
+
+/**
+ * Final confirmation to start run with user-approved components.
+ */
+export interface RunStartConfirmed extends BaseMessage {
+    type: MessageType.RUN_START_CONFIRMED
+    session_id: string
+    initial_topic?: string
+    company_name?: string
+    bill_name?: string
+    congress?: string
+    approved_components: AnalysisComponent[]
+    trigger_threshold: number
+}
+
+/**
+ * User-initiated request to gracefully terminate the agent run.
+ * Unlike USER_INTERRUPT which pauses for user input, this fully ends the run.
+ */
+export interface TerminateRequest extends BaseMessage {
+    type: MessageType.TERMINATE_REQUEST
+}
+
+/**
+ * Acknowledgment of user-initiated termination with final state data.
+ * Contains the final research state and last message for display in a modal.
+ */
+export interface TerminateAck extends BaseMessage {
+    type: MessageType.TERMINATE_ACK
+    state_of_run: string
+    tool_call_facts: string
+    last_message_content: string
+    last_message_source: string
+}
+
+/**
  * Union type of all possible WebSocket messages from server.
  * We declare this to do neat case distinction when the frontend recieves a message from the agent team.
  */
@@ -259,12 +375,16 @@ export type ServerMessage =
   | ToolCall
   | ToolExecution
   | StateUpdate
+  | AnalysisUpdate
+  | AnalysisComponentsInit
+  | ComponentGenerationResponse
+  | TerminateAck
 
 /**
  * Union type of all possible WebSocket messages sent to server.
  * We declare this to do neat case distinction when the frontend sends a message to the agent team.
  */
-export type ClientMessage = RunConfig | UserInterrupt | UserDirectedMessage | HumanInputResponse
+export type ClientMessage = RunConfig | UserInterrupt | UserDirectedMessage | HumanInputResponse | ComponentGenerationRequest | RunStartConfirmed | TerminateRequest
 
 /**
  * State of the WebSocket connection between frontend and backend.

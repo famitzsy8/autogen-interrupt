@@ -8,8 +8,8 @@
  * 5. The trim count for branching
  */
 
-import {create} from 'zustand'
-import {devtools} from 'zustand/middleware'
+import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 
 import type {
     RunConfig,
@@ -30,7 +30,15 @@ import type {
     UserDirectedMessage,
     UserInterrupt,
     AppError,
-    ChatFocusTarget,
+    AnalysisComponent,
+    AnalysisScores,
+    AnalysisUpdate,
+    AnalysisComponentsInit,
+    ComponentGenerationRequest,
+    ComponentGenerationResponse,
+    RunStartConfirmed,
+    TerminateRequest,
+    TerminateAck,
 } from '../types'
 
 import {
@@ -38,6 +46,8 @@ import {
     ConnectionState as ConnectionStateEnum,
     StreamState as StreamStateEnum,
 } from '../types'
+
+import { resetAgentColorRegistry } from '../utils/colorSchemes'
 
 
 interface WebSocketConnection {
@@ -80,6 +90,7 @@ interface State {
         position: { x: number; y: number }
         trimCount: number
     } | null
+    edgeInterruptMinimized: boolean
 
     // Agent input request state
     agentInputRequest: AgentInputRequest | null
@@ -89,17 +100,26 @@ interface State {
     toolCallsByNodeId: Record<string, ToolCall>
     toolExecutionsByNodeId: Record<string, ToolExecution>
 
-    // Chat display state
-    isChatDisplayVisible: boolean
-    selectedNodeIdForChat: string | null
-    chatFocusTarget: ChatFocusTarget | null
+    // Analysis state
+    analysisComponents: AnalysisComponent[]
+    analysisScores: Map<string, AnalysisScores>
+    triggeredNodes: Set<string>
+    userInterruptedNodes: Set<string>
+
+    // Component generation state (for review modal)
+    generatedComponents: AnalysisComponent[] | null
+    isGeneratingComponents: boolean
 
     // State display state
     isStateDisplayVisible: boolean
     currentState: StateUpdate | null
+    stateUpdates: StateUpdate[]
 
     // Error state
     error: AppError | null
+
+    // Termination state (for graceful user-initiated termination)
+    terminationData: TerminateAck | null
 
     // Below are the functions that are used to manage (add/remove/update) different fields of our above-defined
     // Zustand state
@@ -108,6 +128,8 @@ interface State {
     // Actions: WebSocket management
     connect: (url: string) => void
     sendConfig: (config: RunConfig) => void
+    sendComponentGenerationRequest: (analysisPrompt: string, triggerThreshold: number) => void
+    sendRunStartConfirmed: (config: RunStartConfirmed) => void
     disconnect: () => void
     reconnect: () => void
 
@@ -131,6 +153,8 @@ interface State {
     // Actions: Edge interrupt management
     setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => void
     clearEdgeInterrupt: () => void
+    minimizeEdgeInterrupt: () => void
+    maximizeEdgeInterrupt: () => void
 
     // Actions: Human-Agent interaction (UserProxyAgent)
     sendHumanInputResponse: (requestId: string, userInput: string) => void
@@ -140,12 +164,23 @@ interface State {
     // Actions: Toggling state variables
     setStreamState: (state: StreamState) => void
     setInterrupted: (interrupted: boolean) => void
-    setChatDisplayVisible: (visible: boolean) => void
-    setSelectedNodeIdForChat: (nodeId: string | null) => void
-    setChatFocusTarget: (target: ChatFocusTarget | null) => void
+
+    // Actions: Analysis state management
+    setAnalysisComponents: (components: AnalysisComponent[]) => void
+    addAnalysisScore: (nodeId: string, scores: AnalysisScores) => void
+    markNodeTriggered: (nodeId: string) => void
+    markNodeUserInterrupted: (nodeId: string) => void
+    clearAnalysisData: () => void
+
     setStateDisplayVisible: (visible: boolean) => void
     setError: (error: AppError | null) => void
     clearError: () => void
+
+    // Actions: Termination management
+    sendTerminateRequest: () => void
+    setTerminationData: (data: TerminateAck) => void
+    clearTerminationData: () => void
+
     reset: () => void
 }
 
@@ -169,16 +204,22 @@ const initialState = {
     trimCount: 0,
     userMessageDraft: '',
     edgeInterrupt: null,
+    edgeInterruptMinimized: false,
     agentInputRequest: null,
     humanInputDraft: '',
     toolCallsByNodeId: {},
     toolExecutionsByNodeId: {},
-    isChatDisplayVisible: false,  // Hidden by default, shows when summary is clicked
-    selectedNodeIdForChat: null,
-    chatFocusTarget: null,
+    analysisComponents: [] as AnalysisComponent[],
+    analysisScores: new Map<string, AnalysisScores>(),
+    triggeredNodes: new Set<string>(),
+    userInterruptedNodes: new Set<string>(),
+    generatedComponents: null as AnalysisComponent[] | null,
+    isGeneratingComponents: false,
     isStateDisplayVisible: false,  // Hidden by default
     currentState: null as StateUpdate | null,
-    error: null
+    stateUpdates: [] as StateUpdate[],
+    error: null,
+    terminationData: null as TerminateAck | null,
 }
 
 // We reconnect at most 5 times, trying with exponential frequency (1, 2, 4, 8.. seconds)
@@ -192,12 +233,15 @@ export const useStore = create<State>()(
 
             // Connect to WebSocket server (does NOT send config - that comes later)
             connect: (url: string) => {
-                const {wsConnection, disconnect} = get()
+                const { wsConnection, disconnect } = get()
 
                 // If there is already an existing connection: close it
                 if (wsConnection.ws) {
                     disconnect()
                 }
+
+                // Reset agent color registry for new session to ensure consistent color assignment
+                resetAgentColorRegistry()
 
                 set({
                     connectionState: ConnectionStateEnum.CONNECTING,
@@ -208,6 +252,11 @@ export const useStore = create<State>()(
                     activeNodeId: null,
                     toolCallsByNodeId: {},
                     toolExecutionsByNodeId: {},
+                    analysisComponents: [],
+                    analysisScores: new Map(),
+                    triggeredNodes: new Set(),
+                    userInterruptedNodes: new Set(),
+                    stateUpdates: [],
                     isInterrupted: false,
                     streamState: StreamStateEnum.IDLE,
                     agentInputRequest: null,
@@ -217,14 +266,13 @@ export const useStore = create<State>()(
                     trimCount: 0,
                     userMessageDraft: '',
                     edgeInterrupt: null,
+                    edgeInterruptMinimized: false,
                 })
 
                 try {
                     const ws = new WebSocket(url)
 
                     ws.onopen = () => {
-                        console.log('=== WebSocket connected, waiting for agent team names ===')
-
                         set({
                             connectionState: ConnectionStateEnum.CONNECTED,
                             wsConnection: {
@@ -243,7 +291,7 @@ export const useStore = create<State>()(
                             get().handleServerMessage(message)
                         } catch (error) {
                             const errorMessage = error instanceof Error ? error.message : 'Unknown parsing error'
-                            
+
                             set({
                                 error: {
                                     code: 'MESSAGE_PARSE_ERROR',
@@ -270,8 +318,8 @@ export const useStore = create<State>()(
                     }
 
                     ws.onclose = () => {
-                        const {wsConnection, reconnect} = get()
-                        set({ connectionState: ConnectionStateEnum.DISCONNECTED})
+                        const { wsConnection, reconnect } = get()
+                        set({ connectionState: ConnectionStateEnum.DISCONNECTED })
 
                         if (
                             wsConnection.reconnectAttempts < MAX_RECONNECT_ATTEMPTS &&
@@ -304,13 +352,42 @@ export const useStore = create<State>()(
 
             // Send config to backend after receiving agent team names
             sendConfig: (config: RunConfig) => {
-                const {wsConnection, connectionState} = get()
+                const { wsConnection, connectionState } = get()
 
                 if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
                     throw new Error('WebSocket is not connected')
                 }
 
-                console.log('=== Sending config to backend ===', config)
+                wsConnection.ws.send(JSON.stringify(config))
+            },
+
+            // Send component generation request
+            sendComponentGenerationRequest: (analysisPrompt: string, triggerThreshold: number) => {
+                const { wsConnection, connectionState } = get()
+
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
+                    throw new Error('WebSocket is not connected')
+                }
+
+                const request: ComponentGenerationRequest = {
+                    type: MessageType.COMPONENT_GENERATION_REQUEST,
+                    analysis_prompt: analysisPrompt,
+                    trigger_threshold: triggerThreshold,
+                    timestamp: new Date().toISOString(),
+                }
+
+                set({ isGeneratingComponents: true })
+                wsConnection.ws.send(JSON.stringify(request))
+            },
+
+            // Send run start confirmation with approved components
+            sendRunStartConfirmed: (config: RunStartConfirmed) => {
+                const { wsConnection, connectionState } = get()
+
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
+                    throw new Error('WebSocket is not connected')
+                }
+
                 wsConnection.ws.send(JSON.stringify(config))
             },
 
@@ -341,7 +418,7 @@ export const useStore = create<State>()(
             },
 
             reconnect: () => {
-                const {wsConnection} = get()
+                const { wsConnection } = get()
 
                 if (wsConnection.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
                     set({
@@ -354,7 +431,7 @@ export const useStore = create<State>()(
                     return
                 }
 
-                const delay = RECONNECT_DELAY_MS * Math.pow(2, wsConnection.reconnectAttempts) 
+                const delay = RECONNECT_DELAY_MS * Math.pow(2, wsConnection.reconnectAttempts)
 
                 set({
                     connectionState: ConnectionStateEnum.RECONNECTING,
@@ -400,7 +477,7 @@ export const useStore = create<State>()(
                     case 'tree_update':
                         get().updateConversationTree(message)
                         break
-                    
+
                     case 'interrupt_acknowledged':
                         set({
                             isInterrupted: true,
@@ -408,20 +485,25 @@ export const useStore = create<State>()(
                             agentInputRequest: null,
                         })
                         break
-                    
+
                     case 'stream_end':
                         set({
                             streamState: StreamStateEnum.ENDED
                         })
                         break
-                    
+
                     case 'agent_input_request':
-                        set({
-                            agentInputRequest: message,
-                            streamState: StreamStateEnum.WAITING_FOR_AGENT_INPUT
-                        })
+                        // Delay modal appearance to allow message and analysis badges to render first.
+                        // This ensures the user sees: message → badges → modal in sequence,
+                        // rather than the modal appearing before the message is visible.
+                        setTimeout(() => {
+                            set({
+                                agentInputRequest: message,
+                                streamState: StreamStateEnum.WAITING_FOR_AGENT_INPUT
+                            })
+                        }, 500)
                         break
-                    
+
                     case 'error':
                         set({
                             error: {
@@ -431,7 +513,7 @@ export const useStore = create<State>()(
                             }
                         })
                         break
-                    
+
                     case 'tool_call':
                         set((state) => ({
                             toolCallsByNodeId: {
@@ -452,20 +534,48 @@ export const useStore = create<State>()(
                         break
 
                     case 'state_update':
-                        console.log('🔔 [FRONTEND] Received STATE_UPDATE message:', {
-                            message_index: message.message_index,
-                            state_of_run_length: message.state_of_run.length,
-                            tool_call_facts_length: message.tool_call_facts.length,
-                            handoff_context_length: message.handoff_context.length,
-                        })
-                        console.log('   state_of_run:', message.state_of_run.substring(0, 100) + '...')
-                        console.log('   tool_call_facts:', message.tool_call_facts.substring(0, 100) + '...')
-                        console.log('   handoff_context:', message.handoff_context.substring(0, 100) + '...')
-                        set({
-                            currentState: message
-                        })
-                        console.log('✅ [FRONTEND] STATE_UPDATE stored in currentState')
+                        set((state) => ({
+                            currentState: message,
+                            stateUpdates: [...state.stateUpdates, message]
+                        }))
                         break
+
+                    case 'component_generation_response': {
+                        const typedMessage = message as ComponentGenerationResponse
+                        set({
+                            generatedComponents: typedMessage.components,
+                            isGeneratingComponents: false,
+                        })
+                        break
+                    }
+
+                    case 'analysis_components_init': {
+                        const typedMessage = message as AnalysisComponentsInit
+                        get().setAnalysisComponents(typedMessage.components)
+                        break
+                    }
+
+                    case 'analysis_update': {
+                        const typedMessage = message as AnalysisUpdate
+                        const { addAnalysisScore, markNodeTriggered } = get()
+
+                        addAnalysisScore(typedMessage.node_id, { scores: typedMessage.scores })
+
+                        if (typedMessage.triggered_components.length > 0) {
+                            markNodeTriggered(typedMessage.node_id)
+                        }
+
+                        break
+                    }
+
+                    case 'terminate_ack': {
+                        const typedMessage = message as TerminateAck
+                        set({
+                            terminationData: typedMessage,
+                            streamState: StreamStateEnum.ENDED,
+                        })
+                        break
+                    }
 
                     default:
                         set({
@@ -479,25 +589,18 @@ export const useStore = create<State>()(
             },
 
             setAgentTeamNames: (agentTeamNames: AgentTeamNames) => {
-                set({agent_names: agentTeamNames})
+                set({ agent_names: agentTeamNames })
             },
 
             setAgentDetails: (agentDetails: AgentDetails) => {
-                set({agent_details: agentDetails})
+                set({ agent_details: agentDetails })
             },
 
             setParticipantNames: (participantNames: ParticipantNames) => {
-                set({participant_names: participantNames})
+                set({ participant_names: participantNames })
             },
 
             addMessage: (message: AgentMessage) => {
-                console.log('[Store] addMessage called', {
-                    node_id: message.node_id,
-                    agent_name: message.agent_name,
-                    content_length: message.content.length,
-                    content_preview: message.content.substring(0, 100)
-                })
-
                 set((state) => ({
                     messages: [...state.messages, message],
                     activeNodeId: message.node_id,
@@ -513,15 +616,15 @@ export const useStore = create<State>()(
             },
 
             sendUserMessage: (content: string, targetAgent: string, trimCount: number) => {
-                const {wsConnection, connectionState} = get()
+                const { wsConnection, connectionState } = get()
 
-                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws ) {
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
                     throw new Error('WebSocket is not connected')
                 }
                 if (!content.trim()) {
                     throw new Error('Message content cannot be empty')
                 }
-        
+
                 if (!targetAgent.trim()) {
                     throw new Error('Target agent must be specified')
                 }
@@ -542,16 +645,17 @@ export const useStore = create<State>()(
                     isInterrupted: false,
                     streamState: StreamStateEnum.STREAMING,
                     edgeInterrupt: null,
+                    edgeInterruptMinimized: false,
                 })
             },
 
             sendInterrupt: () => {
-                const {wsConnection, connectionState, streamState} = get()
+                const { wsConnection, connectionState, streamState } = get()
 
                 if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
                     throw new Error('WebSocket is not connected')
                 }
-        
+
                 if (streamState !== StreamStateEnum.STREAMING) {
                     throw new Error('Cannot interrupt when stream is not active')
                 }
@@ -566,18 +670,18 @@ export const useStore = create<State>()(
             },
 
             setSelectedAgent: (agentName: string | null) => {
-                set({selectedAgent: agentName})
+                set({ selectedAgent: agentName })
             },
 
             setTrimCount: (count: number) => {
                 if (count < 0) {
                     throw new Error('Trim count cannot be negative')
                 }
-                set({trimCount: count})
+                set({ trimCount: count })
             },
 
             setUserMessageDraft: (draft: string) => {
-                set({userMessageDraft: draft})
+                set({ userMessageDraft: draft })
             },
 
             setEdgeInterrupt: (targetNodeId: string, position: { x: number; y: number }, trimCount: number) => {
@@ -587,15 +691,24 @@ export const useStore = create<State>()(
                         position,
                         trimCount,
                     },
+                    edgeInterruptMinimized: false,
                 })
             },
 
             clearEdgeInterrupt: () => {
-                set({edgeInterrupt: null})
+                set({ edgeInterrupt: null, edgeInterruptMinimized: false })
+            },
+
+            minimizeEdgeInterrupt: () => {
+                set({ edgeInterruptMinimized: true })
+            },
+
+            maximizeEdgeInterrupt: () => {
+                set({ edgeInterruptMinimized: false })
             },
 
             sendHumanInputResponse: (requestId: string, userInput: string) => {
-                const {wsConnection, connectionState} = get()
+                const { wsConnection, connectionState } = get()
 
                 if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
                     throw new Error('WebSocket is not connected')
@@ -618,7 +731,7 @@ export const useStore = create<State>()(
             },
 
             setHumanInputDraft: (draft: string) => {
-                set({humanInputDraft: draft})
+                set({ humanInputDraft: draft })
             },
 
             clearAgentInputRequest: () => {
@@ -629,46 +742,95 @@ export const useStore = create<State>()(
             },
 
             setStreamState: (state: StreamState) => {
-                set({streamState: state})
+                set({ streamState: state })
             },
 
             setInterrupted: (interrupted: boolean) => {
-                set({isInterrupted: interrupted})
+                set({ isInterrupted: interrupted })
             },
 
-            setChatDisplayVisible: (visible: boolean) => {
-                set({isChatDisplayVisible: visible})
+            // Analysis actions
+            setAnalysisComponents: (components: AnalysisComponent[]) => {
+                set({ analysisComponents: components })
             },
 
-            setSelectedNodeIdForChat: (nodeId: string | null) => {
-                set({
-                    selectedNodeIdForChat: nodeId,
-                    chatFocusTarget: nodeId ? { nodeId, itemType: 'message' } : null,
+            addAnalysisScore: (nodeId: string, scores: AnalysisScores) => {
+                set((state) => {
+                    const newScores = new Map(state.analysisScores)
+                    newScores.set(nodeId, scores)
+                    return { analysisScores: newScores }
                 })
             },
 
-            setChatFocusTarget: (target: ChatFocusTarget | null) => {
+            markNodeTriggered: (nodeId: string) => {
+                set((state) => {
+                    const newTriggered = new Set(state.triggeredNodes)
+                    newTriggered.add(nodeId)
+                    return { triggeredNodes: newTriggered }
+                })
+            },
+
+            markNodeUserInterrupted: (nodeId: string) => {
+                set((state) => {
+                    const newUserInterrupted = new Set(state.userInterruptedNodes)
+                    newUserInterrupted.add(nodeId)
+                    return { userInterruptedNodes: newUserInterrupted }
+                })
+            },
+
+            clearAnalysisData: () => {
                 set({
-                    chatFocusTarget: target,
-                    selectedNodeIdForChat: target ? target.nodeId : null,
+                    analysisComponents: [],
+                    analysisScores: new Map(),
+                    triggeredNodes: new Set(),
+                    userInterruptedNodes: new Set()
                 })
             },
 
             setStateDisplayVisible: (visible: boolean) => {
-                set({isStateDisplayVisible: visible})
+                set({ isStateDisplayVisible: visible })
             },
 
-            setError: (error: AppError | null ) => {
-                set({error})
+            setError: (error: AppError | null) => {
+                set({ error })
             },
 
             clearError: () => {
-                set({ error: null})
+                set({ error: null })
+            },
+
+            // Termination actions
+            sendTerminateRequest: () => {
+                const { wsConnection, connectionState, streamState } = get()
+
+                if (connectionState !== ConnectionStateEnum.CONNECTED || !wsConnection.ws) {
+                    throw new Error('WebSocket is not connected')
+                }
+
+                if (streamState !== StreamStateEnum.STREAMING) {
+                    throw new Error('Cannot terminate when stream is not active')
+                }
+
+                const message: TerminateRequest = {
+                    type: MessageType.TERMINATE_REQUEST,
+                    timestamp: new Date().toISOString()
+                }
+
+                wsConnection.ws.send(JSON.stringify(message))
+            },
+
+            setTerminationData: (data: TerminateAck) => {
+                set({ terminationData: data })
+            },
+
+            clearTerminationData: () => {
+                set({ terminationData: null })
             },
 
             reset: () => {
-                const {disconnect} = get()
+                const { disconnect } = get()
                 disconnect()
+                resetAgentColorRegistry()
                 set(initialState)
             },
 

@@ -27,9 +27,10 @@ class StateManager:
         """Get display name for an agent, falling back to agent_name if not found."""
         return self.display_names.get(agent_name, agent_name)
 
-    def initialize_root(self, agent_name: str, message: str, summary: str = "") -> TreeNode:
+    def initialize_root(self, agent_name: str, message: str, summary: str = "", node_id: str | None = None) -> TreeNode:
 
-        node_id = self._generate_node_id()
+        if node_id is None:
+            node_id = self._generate_node_id()
         new_node = TreeNode(
             id=node_id,
             agent_name=agent_name,
@@ -50,7 +51,7 @@ class StateManager:
 
         return new_node
 
-    def add_node(self, agent_name: str, message: str, summary: str = "", node_type: str = "message") -> TreeNode | None:
+    def add_node(self, agent_name: str, message: str, summary: str = "", node_type: str = "message", node_id: str | None = None) -> TreeNode | None:
 
         # TODO: This is the function where we can filter the addition of a message node based on the user
 
@@ -60,7 +61,8 @@ class StateManager:
         if "GroupChatManager" in agent_name:
             return None # TODO: make sure we don't use the gcm_count across the code and we ignore GCM messages overall
 
-        node_id = self._generate_node_id()
+        if node_id is None:
+            node_id = self._generate_node_id()
         new_node = TreeNode(
             id=node_id,
             agent_name=agent_name,
