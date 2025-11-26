@@ -336,6 +336,7 @@ team:
     # HandoffContext
 
     ## Agent Responsibilities
+
     - If we need bill sections, sponsors, or cosponsors → **bill_specialist**
     - If we need committee membership or committee actions → **committee_specialist**
     - If we need legislative actions timeline → **actions_specialist**
@@ -343,6 +344,7 @@ team:
     - If we need Congress member details (state, party) → **congress_member_specialist**
 
     ## Escalation & Sync Points
+    
     - **ALWAYS INVOLVE ME (user_proxy_1) AFTER EACH CHANGE OF PLAN.** The orchestrator must consult with me whenever the research direction changes, before proceeding with a new strategy.
 
     ## Special User Requests
@@ -355,12 +357,15 @@ team:
     [Will be populated with the actual task]
 
     ## What we have done so far
+
     Nothing yet - investigation is just starting.
 
     ## Research Outlook (Next Steps)
+
     - Begin investigation
 
     ## Concrete Next Step
+
     We start with the orchestrator
 
 llm:

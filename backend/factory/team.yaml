@@ -34,7 +34,7 @@ agents:
       After you have called an agent, he will communicate his findings back to you.
       The investigation will be a VERY DEEP step-by-step investigation, prompting you to ask yourself each time if you have found all the puzzle pieces to complete the task.
       If not, you will need to call another agent.
-      ONLY if you are ABSOLUTELY SURE that you have all the information you need, you can compile the table and terminate the task.
+      ONLY if you are ABSOLUTELY SURE that you have all the information you need, you can compile the table and terminate the task (by writing <TERMINATE>).
       For this you will need to give the agent detailed instructions on what you want to know, and the last word should be either one of the {agent_names} or terminate the task.
 
       IMPORTANT: NEVER hallucinate committee rosters or other sponsorship information.
@@ -45,7 +45,7 @@ agents:
     ui_summary: >
       Leads the entire congressional investigation, deciding which specialist to call and verifying every gap is filled before moving forward. Coordinates findings, gathers user feedback after major steps, and compiles the final deliverable.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       python_tools:
         - web_search
@@ -76,7 +76,7 @@ agents:
     ui_summary: >
       Maps out the bill's timeline—introductions, hearings, markups, and floor actions—to explain how events connect to company interests. Use this agent to stitch together who acted when and why those moves matter for the investigation.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -112,7 +112,7 @@ agents:
     ui_summary: >
       Owns the primary bill context by pulling sponsors, cosponsors, committees, and the sections most relevant to the company. Engage this agent when you need to understand why the bill matters or who initiated and shepherded it.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -145,7 +145,7 @@ agents:
     ui_summary: >
       Digs into committee rosters, activities, and reports to reveal who shaped the bill before it reached the floor. Use this agent whenever committee dynamics, markups, or membership insights are needed to explain legislative momentum.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -179,7 +179,7 @@ agents:
     ui_summary: >
       Investigates amendments, their text, sponsors, and actions to show how lawmakers attempted to reshape the bill. Call this agent to surface late-game changes or targeted edits that affect the company's position.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -215,7 +215,7 @@ agents:
     ui_summary: >
       Provides concise dossiers on individual lawmakers—their party, state, and relevant actions—to link bill sections to real political incentives. Use this agent whenever you need factual, member-level context to ground the investigation.
     system_message: ''
-    agent_class: PlannerAgent
+    agent_class: AssistantAgent
     tools:
       mcp_tools:
         workbench_class: FilteredWorkbench
@@ -333,17 +333,17 @@ team:
       
     default_selector_prompt_advanced: true
   initial_handoff_context: >
-    # HandoffContext
+    # User Feedback Involvement
+
+    If we have are planning anything amendment-related, get feedback from user_proxy_1
 
     ## Agent Responsibilities
+
     - If we need bill sections, sponsors, or cosponsors → **bill_specialist**
     - If we need committee membership or committee actions → **committee_specialist**
     - If we need legislative actions timeline → **actions_specialist**
     - If we need amendment information → **amendment_specialist**
     - If we need Congress member details (state, party) → **congress_member_specialist**
-
-    ## Escalation & Sync Points
-    - If a major step is completed or the next action is unclear → **user_proxy_1**
 
     ## Special User Requests
 
@@ -351,16 +351,16 @@ team:
   initial_state_of_run: >
     # State of Research
 
-    ## Task
-    [Will be populated with the actual task]
-
     ## What we have done so far
+
     Nothing yet - investigation is just starting.
 
     ## Research Outlook (Next Steps)
+
     - Begin investigation
 
     ## Concrete Next Step
+    
     We start with the orchestrator
 
 llm:

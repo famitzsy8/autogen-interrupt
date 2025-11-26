@@ -351,16 +351,16 @@ team:
   initial_state_of_run: >
     # State of Research
 
-    ## Task
-    [Will be populated with the actual task]
-
     ## What we have done so far
+
     Nothing yet - investigation is just starting.
 
     ## Research Outlook (Next Steps)
+
     - Begin investigation
 
     ## Concrete Next Step
+    
     We start with the orchestrator
 
 llm:
