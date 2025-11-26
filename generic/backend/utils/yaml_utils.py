@@ -13,21 +13,19 @@ class AgentDetail(TypedDict):
 
 
 def get_agent_team_names() -> List[str]:
-    # Scan factory directory for .yaml files and extract team_name field from each
-    team_names = []
+    # Read team_name from team.yaml only (other yaml files are backups)
     factory_dir = Path(__file__).parent.parent / "factory"
+    team_yaml = factory_dir / "team.yaml"
 
-    for yaml_file in factory_dir.glob("*.yaml"):
-        try:
-            with open(yaml_file, 'r', encoding='utf-8') as f:
-                data = yaml.safe_load(f)
-                if data and "team_name" in data:
-                    team_names.append(data["team_name"])
-        except Exception as e:
-            print(f"Warning: Could not read team_name from {yaml_file}: {e}")
-            continue
+    try:
+        with open(team_yaml, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+            if data and "team_name" in data:
+                return [data["team_name"]]
+    except Exception as e:
+        raise ValueError(f"Could not read team_name from team.yaml: {e}")
 
-    return team_names
+    raise ValueError("team_name not found in team.yaml")
 
 
 def load_team_config_by_name(team_name: str) -> dict:
