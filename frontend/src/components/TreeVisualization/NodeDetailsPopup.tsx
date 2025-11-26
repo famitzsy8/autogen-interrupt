@@ -26,7 +26,7 @@ interface NodeDetailsPopupProps {
   onClose: () => void
 }
 
-type TabName = 'message' | 'runState' | 'toolEffects' | 'handoff'
+type TabName = 'message' | 'runState' | 'toolEffects'
 
 interface Tab {
   id: TabName
@@ -93,11 +93,6 @@ export function NodeDetailsPopup({
       id: 'toolEffects',
       label: 'Actions',
       isEnabled: Boolean(toolCall || toolExecution),
-    },
-    {
-      id: 'handoff',
-      label: 'Handoff',
-      isEnabled: Boolean(stateUpdate?.handoff_context),
     },
   ]
 
@@ -230,22 +225,6 @@ export function NodeDetailsPopup({
             {!toolCall && !toolExecution && (
               <p className="text-gray-500 italic text-sm">(no actions recorded)</p>
             )}
-          </div>
-        )
-
-      case 'handoff':
-        return (
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-dark-accent mb-2">Handoff Context</h3>
-              {stateUpdate?.handoff_context ? (
-                <div className="text-sm text-dark-text markdown-content">
-                  <ReactMarkdown>{stateUpdate.handoff_context}</ReactMarkdown>
-                </div>
-              ) : (
-                <p className="text-gray-500 italic text-sm">(no handoff context)</p>
-              )}
-            </div>
           </div>
         )
 

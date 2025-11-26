@@ -1104,67 +1104,73 @@ function updateTree(
         .attr('transform', `translate(${-NODE_RADIUS}, ${NODE_RADIUS + 8})`)
 
       const barHeight = 12
-      const barSpacing = 3
       const maxBarWidth = NODE_RADIUS * 2 * 3 // 3x wider to match 3x height increase
-      const dotRadius = 3
-      const dotOffset = 4 // Space between bar and dot
 
-      // Render horizontal bars for each component with score-based colors
+      // Find the maximum score across all components
+      let maxScore = 0
+      let maxScoreComponentLabel = ''
+      let maxScoreComponentScheme: string | undefined = undefined
+      let maxScoreIndex = 0
       analysisComponents.forEach((component, index) => {
         const score = nodeScores.scores[component.label]?.score || 0
-        const barWidth = (score / 10) * maxBarWidth // Scale 0-10 to bar width
-
-        // Determine sequential scheme for this component
-        const schemeName = (component.sequentialScheme as SequentialSchemeName) || assignSequentialScheme(component.label, index)
-
-        // Get color based on the actual score value
-        const barColor = getColorForScore(schemeName, score)
-
-        // Get the darkest color (index 8) for the visual marker
-        const markerColor = getColorForScore(schemeName, 10) // Score 10 maps to index 8 (darkest)
-
-        const barY = index * (barHeight + barSpacing)
-
-        // Background bar (lighter gray with border for better visibility)
-        barGroup
-          .append('rect')
-          .attr('x', 0)
-          .attr('y', barY)
-          .attr('width', maxBarWidth)
-          .attr('height', barHeight)
-          .attr('fill', '#3a3a3a')
-          .attr('stroke', '#4a4a4a')
-          .attr('stroke-width', 1)
-          .attr('rx', 6)
-          .attr('ry', 6)
-
-        // Foreground bar (colored by score using D3 sequential scheme)
-        barGroup
-          .append('rect')
-          .attr('x', 0)
-          .attr('y', barY)
-          .attr('width', barWidth)
-          .attr('height', barHeight)
-          .attr('fill', barColor)
-          .attr('opacity', 0.9)
-          .attr('rx', 6)
-          .attr('ry', 6)
-          .style('cursor', 'pointer')
-          .append('title')
-          .text(`${component.label}: ${score}/10\n${nodeScores.scores[component.label]?.reasoning || ''}`)
-
-        // Add visual marker dot (using darkest color from scheme)
-        barGroup
-          .append('circle')
-          .attr('cx', -(dotOffset + dotRadius))
-          .attr('cy', barY + (barHeight / 2)) // Center vertically with bar
-          .attr('r', dotRadius)
-          .attr('fill', markerColor)
-          .attr('opacity', 0.9)
-          .style('cursor', 'pointer')
-          .append('title')
-          .text(`${component.label} (color scheme indicator)`)
+        if (score > maxScore) {
+          maxScore = score
+          maxScoreComponentLabel = component.label
+          maxScoreComponentScheme = component.sequentialScheme
+          maxScoreIndex = index
+        }
       })
+
+      // Render a single aggregated bar with the max value
+      const barWidth = (maxScore / 10) * maxBarWidth // Scale 0-10 to bar width
+
+      // Determine sequential scheme for the max-scoring component
+      let schemeName: SequentialSchemeName = 'OrRd'
+      if (maxScoreComponentLabel) {
+        if (maxScoreComponentScheme) {
+          schemeName = maxScoreComponentScheme as SequentialSchemeName
+        } else {
+          schemeName = assignSequentialScheme(maxScoreComponentLabel, maxScoreIndex)
+        }
+      }
+
+      // Get color based on the actual max score value
+      const barColor = getColorForScore(schemeName, maxScore)
+
+      // Background bar (lighter gray with border for better visibility)
+      barGroup
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', maxBarWidth)
+        .attr('height', barHeight)
+        .attr('fill', '#3a3a3a')
+        .attr('stroke', '#4a4a4a')
+        .attr('stroke-width', 1)
+        .attr('rx', 6)
+        .attr('ry', 6)
+
+      // Foreground bar (colored by max score)
+      const foregroundBar = barGroup
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', barWidth)
+        .attr('height', barHeight)
+        .attr('fill', barColor)
+        .attr('opacity', 0.9)
+        .attr('rx', 6)
+        .attr('ry', 6)
+        .style('cursor', 'pointer')
+
+      // Build tooltip with all component scores
+      const tooltipLines = analysisComponents.map(component => {
+        const score = nodeScores.scores[component.label]?.score || 0
+        return `${component.label}: ${score}/10`
+      })
+      foregroundBar
+        .append('title')
+        .text(`Max: ${maxScore}/10\n${tooltipLines.join('\n')}`)
     }
   })
 
