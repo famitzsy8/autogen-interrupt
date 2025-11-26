@@ -84,15 +84,15 @@ User description:
 {prompt}
 
 Return JSON with criteria, each having:
-- label: 2-3 word kebab-case identifier (e.g., "committee-membership")
-- description: 1-2 sentence explanation of what to check
+- label: 2-3 word label identifier (e.g., "committee-membership")
+- description: 1-2 sentence explanation of when to invoke feedback
 
 Format your response as valid JSON only, no other text.
 Example:
 {{
   "components": [
-    {{"label": "committee-membership", "description": "Verify that committee member names match API data"}},
-    {{"label": "geographic-hallucination", "description": "Check if agent invents cities or districts not present in source data"}}
+    {{"label": "committee-membership", "description": "Trigger if committee member names don't match API data"}},
+    {{"label": "geographic-hallucination", "description": "Trigger if agent invents cities or districts not present in source data"}}
   ]
 }}
 """
@@ -196,29 +196,71 @@ Example:
         example_reasoning = {label: "Example reasoning" if i == 0 else ""
                             for i, label in enumerate(component_labels[:2])}
 
-        scoring_prompt = f"""Analyze this agent message for accuracy and consistency against known facts.
+        scoring_prompt = f"""
+
+# Task
+
+You have to grade this agent message against the trigger descriptions that the user provided.
+Trigger descriptions are sentences that the user provided, when he wants to be notified.
+
+## Context Information for your decision
 
 === TRUSTED FACTS (from verified tool calls) ===
 {facts_section}
 
-=== AGENT'S CLAIM (what to verify) ===
-{message}
-
 === RESEARCH CONTEXT (for reference) ===
 {context_section}
 
-=== CRITERIA TO SCORE (YOU MUST USE EXACTLY THESE LABELS) ===
+## The message of the agent to grade
+
+{message}
+
+## The trigger criteria to grade against
+
 {components_text}
 
-IMPORTANT: You MUST score ALL and ONLY these components: {', '.join(component_labels)}
+## How To Grade
 
 For each criterion, score 1-10:
-- 1-3: Claim is fully supported by trusted facts
-- 4-7: Claim makes unverified assertions (not in trusted facts)
-- 8-10: Claim contradicts trusted facts or shows hallucination
+- 1-3: The criterion doesn't require the message to be inspected by the user at all
+- 4-7: The message somehow hints at what the criterion encompasses and the user may find it of interest to look over
+- 8-10: The criterion requires the user to urgently look at the message and give his feedback.
 
-Only include reasoning if score >= {trigger_threshold}.
-Return valid JSON with EXACTLY the component labels provided above.
+For grades 8-10 you MUST include a reasoning as to why the criterion requires the user to urgently look at the message.
+
+## Some Examples
+
+### Example 1
+
+Trigger Description: "Notify me when in-vivo studies are found"
+
+Agent Message: "We found several studies for fMRI, lenses and bacterial studies"
+
+Grade: 2/10 (no mention of in-vivo studies)
+
+### Example 2
+
+Trigger Description: "Notify me when in-vivo studies are found"
+
+Agent Message: "We are planning to search for in-vivo studies..."
+
+Grade: 5/10 (hints at in-vivo studies, but only in a searching context and not in a FINDING context)
+
+### Example 3
+
+Trigger Description: "Notify me when in-vivo studies are found"
+
+Agent Message: "We have found several studies... 1. fMRI retina scans 2. fMRI lens scans 3. fMRI bacterial scans 4. bacterial in-vivo tracing"
+
+Grade: 9/10 (with official reasoning: "An actual study has been found tracing bacteria in-vivo...")
+
+## Important Grading Notes
+
+- You MUST score ALL and ONLY these components: {', '.join(component_labels)}
+- Only include reasoning if score >= {trigger_threshold}.
+- Return valid JSON with EXACTLY the component labels provided above.
+
+## Example Output Format (EXAMPLE ONLY)
 
 Example format (using YOUR component labels):
 {{
