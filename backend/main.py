@@ -16,11 +16,7 @@ load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    # Lifespan context manager for application startup/shutdown
-    print("Starting agent run...")
-    # Logging is configured at module import time in base_group_chat_manager.py
     yield
-    print("Shutting down agent run backend...")
 
 app = FastAPI(
     title="Autogen Backend API",

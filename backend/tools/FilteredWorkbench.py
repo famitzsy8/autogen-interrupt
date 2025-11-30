@@ -30,8 +30,6 @@ class FilteredWorkbench(McpWorkbench):
             raise ValueError(f"Tool '{name}' is not available to this agent.")
 
         args_to_send = arguments or {}
-
-        print(args_to_send)
         return await self._underlying.call_tool(name, args_to_send, **kwargs)
 
     def _to_config(self) -> Mapping[str, Any]:

@@ -78,10 +78,20 @@ class AnalysisService:
             logger.warning("Empty prompt provided to parse_prompt")
             return []
 
-        parse_prompt_text = f"""Extract 2-5 structured criteria from this user description of what to watch for.
+        parse_prompt_text = f"""
+# Task
 
-User description:
-{prompt}
+You will recieve an unstructured text of the user's wishes when to involve him/her in a conversation between mulitple AI agents.
+You need to convert these into concrete and concise evaluation markers that will be passed to subsequent prompts that assess an agent's message if it should trigger a feedback request to the human user.
+
+
+## Input
+
+The user's unstructred wishes: {prompt}
+
+## Output
+
+Extract 2-5 structured evaluation markers from this user description of what to watch for.
 
 Return JSON with criteria, each having:
 - label: 2-3 word label identifier (e.g., "committee-membership")

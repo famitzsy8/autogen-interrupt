@@ -51,7 +51,7 @@ def get_team_main_tasks() -> str:
     Only includes yaml files with both 'team_name' and 'tasks.main_task.description' present.
     """
     factory_dir = Path(__file__).parent.parent / "factory"
-    print("Trying to get initial task")
+
     for yaml_file in factory_dir.glob("*.yaml"):
         try:
             with open(yaml_file, 'r', encoding='utf-8') as f:
@@ -65,9 +65,8 @@ def get_team_main_tasks() -> str:
                 ):
                     main_task = data["tasks"]["main_task"]
                     return main_task["description"]
-                    
-        except Exception as e:
-            print(f"Warning: Could not read main_task from {yaml_file}: {e}")
+
+        except Exception:
             continue
 
     raise ValueError("Task extraction failed")
@@ -93,8 +92,7 @@ def get_summarization_system_prompt() -> str:
                 ):
                     return data["prompts"]["summarization_system_prompt"]
 
-        except Exception as e:
-            print(f"Warning: Could not read summarization_system_prompt from {yaml_file}: {e}")
+        except Exception:
             continue
 
     raise ValueError("Summarization system prompt extraction failed")

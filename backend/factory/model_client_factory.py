@@ -143,26 +143,6 @@ class ModelClientFactory:
         """
         return self._configs.copy()
 
-    def print_config(self, name: str | None = None) -> None:
-        """Print configuration details for debugging.
-
-        Args:
-            name: Configuration name. If None, prints all.
-        """
-        if name:
-            cfg = self.get_config(name)
-            print(f"Model Config: {name}")
-            print(f"  Provider: {cfg.provider}")
-            print(f"  Model: {cfg.model}")
-            print(f"  Description: {cfg.description}")
-        else:
-            print("=== All Model Configurations ===")
-            for cfg_name, cfg in self._configs.items():
-                print(f"\n{cfg_name}:")
-                print(f"  Provider: {cfg.provider}")
-                print(f"  Model: {cfg.model}")
-                print(f"  Description: {cfg.description}")
-
 
 # Global factory instance (lazy initialized)
 _factory: ModelClientFactory | None = None

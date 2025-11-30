@@ -922,22 +922,6 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             await model_context.add_message(msg.to_model_message())
 
     async def update_message_thread(self, messages: Sequence[BaseAgentEvent | BaseChatMessage]) -> None:
-        # Calculate token count for new messages
-        new_tokens = 0
-        for msg in messages:
-            if hasattr(msg, 'content'):
-                content = msg.content
-                if isinstance(content, str):
-                    new_tokens += _count_tokens(content)
-                elif isinstance(content, list):
-                    for item in content:
-                        if isinstance(item, str):
-                            new_tokens += _count_tokens(item)
-                        else:
-                            new_tokens += _count_tokens(str(item))
-                else:
-                    new_tokens += _count_tokens(str(content))
-
         # Extend the message thread
         self._message_thread.extend(messages)
         base_chat_messages = [m for m in messages if isinstance(m, BaseChatMessage)]

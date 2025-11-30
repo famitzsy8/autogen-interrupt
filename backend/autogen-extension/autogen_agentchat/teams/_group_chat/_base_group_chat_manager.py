@@ -6,7 +6,7 @@ from typing import Any, List, Sequence
 from autogen_core import CancellationToken, DefaultTopicId, MessageContext, event, rpc
 
 from ...base import TerminationCondition
-from ...messages import BaseAgentEvent, BaseChatMessage, MessageFactory, SelectSpeakerEvent, StopMessage
+from ...messages import BaseAgentEvent, BaseChatMessage, MessageFactory, SelectSpeakerEvent, StopMessage, TextMessage
 from ._events import (
     GroupChatAgentResponse,
     GroupChatBranch,
@@ -115,6 +115,15 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
                 logger.debug("Cancelled all pending agent input requests due to interrupt")
             except Exception as e:
                 logger.warning(f"Error cancelling pending input requests: {e}")
+
+        # Publish interrupt marker to output topic before termination
+        # This ensures the message queue is properly flushed before termination signal
+        interrupt_marker = TextMessage(content="USER_INTERRUPT", source=self._name)
+        await self.publish_message(
+            GroupChatMessage(message=interrupt_marker),
+            topic_id=DefaultTopicId(type=self._output_topic_type),
+        )
+        await self._output_message_queue.put(interrupt_marker)
 
         stop_message = StopMessage(content="USER_INTERRUPT", source=self._name)
         await self._signal_termination(stop_message)

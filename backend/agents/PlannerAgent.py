@@ -200,9 +200,7 @@ class PlannerAgent(AssistantAgent):
                     desc = t.get("description", "") if isinstance(t, dict) else getattr(t, "description", "")
                     if name:
                         tool_descriptions[name] = desc or ""
-        except Exception as e:
-            print(f"Error listing tools: {e}")
-            # If listing tools fails, proceed without descriptions
+        except Exception:
             pass
 
         # Mutate every tool call arguments using LLM inference (regardless of being empty or not)
