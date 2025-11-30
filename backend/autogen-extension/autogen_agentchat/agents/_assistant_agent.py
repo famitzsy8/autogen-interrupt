@@ -957,14 +957,14 @@ class AssistantAgent(BaseChatAgent, Component[AssistantAgentConfig]):
 
                                                     {state_context.state_of_run_text}
 
-                                                    {state_context.tool_call_facts_text}
+                                                    ## What we Found Out from Tool Calls
 
-                                                    {state_context.handoff_context_text}
+                                                    {state_context.tool_call_facts_text}
 
                                                     ## Available Team Members
 
                                                     {participant_str}
-                                                    """ # TODO: ENGINEERING -- maybe take out handoff context here
+                                                    """
                 enhanced_system_messages = [SystemMessage(content=enhanced_content)]
                 # Add any additional system messages
                 enhanced_system_messages.extend(system_messages[1:])
