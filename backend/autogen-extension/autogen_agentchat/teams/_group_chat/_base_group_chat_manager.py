@@ -6,7 +6,7 @@ from typing import Any, List, Sequence
 from autogen_core import CancellationToken, DefaultTopicId, MessageContext, event, rpc
 
 from ...base import TerminationCondition
-from ...messages import BaseAgentEvent, BaseChatMessage, MessageFactory, SelectSpeakerEvent, StopMessage, TextMessage
+from ...messages import BaseAgentEvent, BaseChatMessage, MessageFactory, SelectSpeakerEvent, StopMessage
 from ._events import (
     GroupChatAgentResponse,
     GroupChatBranch,
@@ -24,33 +24,10 @@ from ._events import (
     SerializableException,
 )
 from ._sequential_routed_agent import SequentialRoutedAgent
-from ._node_message_mapping import count_messages_for_node_trim, analyze_thread_structure
+from ._node_message_mapping import count_messages_for_node_trim
 from ._agent_buffer_node_mapping import convert_manager_trim_to_agent_trim
 
-# Create a logger for message thread tracking
 logger = logging.getLogger(__name__)
-message_thread_logger = logging.getLogger(f"{__name__}.message_thread")
-
-# Configure logging at module import time to ensure it works in Docker
-def _setup_logging() -> None:
-    """Setup logging configuration for message thread tracking."""
-    import sys
-
-    # Ensure message_thread_logger has a handler
-    if not message_thread_logger.handlers:
-        handler = logging.StreamHandler(sys.stderr)
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        handler.setFormatter(formatter)
-        message_thread_logger.addHandler(handler)
-        message_thread_logger.setLevel(logging.INFO)
-        message_thread_logger.propagate = False
-
-        # Verify setup with a print statement
-        print("✅ MESSAGE THREAD LOGGER INITIALIZED", file=sys.stderr, flush=True)
-
-# Setup logging immediately when module is imported
-_setup_logging()
 
 
 class BaseGroupChatManager(SequentialRoutedAgent, ABC):
@@ -135,21 +112,12 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         if self._agent_input_queue is not None and hasattr(self._agent_input_queue, 'cancel_all_pending'):
             try:
                 self._agent_input_queue.cancel_all_pending()
-                print(f"✓ Cancelled all pending agent input requests due to interrupt")
+                logger.debug("Cancelled all pending agent input requests due to interrupt")
             except Exception as e:
-                # Don't let cancellation errors block the interrupt
-                print(f"⚠️ Error cancelling pending input requests: {e}")
+                logger.warning(f"Error cancelling pending input requests: {e}")
 
-        # DEBUG marker
-        debug_msg = TextMessage(content="DEBUG: handle_user_interrupt received", source=self._name)
-        await self.publish_message(
-            GroupChatMessage(message=debug_msg),
-            topic_id=DefaultTopicId(type=self._output_topic_type),
-        )
-        await self._output_message_queue.put(debug_msg)
         stop_message = StopMessage(content="USER_INTERRUPT", source=self._name)
         await self._signal_termination(stop_message)
-        
 
     @rpc
     async def handle_user_directed_message(self, message: UserDirectedMessage, ctx: MessageContext) -> None:
@@ -159,65 +127,12 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         trim_up = message.trim_up
         self._old_threads.append(self._message_thread)
 
-        thread_size_before = len(self._message_thread)
-
         # Branch handling: trim manager thread and notify agents
         if trim_up > 0:
-            # print(f"\n=== BRANCHING EVENT ===", flush=True)
-            # print(f"Branch: trim_up={trim_up} nodes", flush=True)
-            # print(f"Thread size before trim: {thread_size_before} entries", flush=True)
-
-            # # Show last 3 messages BEFORE trim
-            # print(f"\nLast 3 entries BEFORE trim:", flush=True)
-            # for i, msg in enumerate(self._message_thread[-3:], start=len(self._message_thread)-3):
-            #     msg_type = type(msg).__name__
-            #     if hasattr(msg, 'content'):
-            #         content_preview = str(msg.content)[:100] if msg.content else "(no content)"
-            #     elif hasattr(msg, 'source'):
-            #         content_preview = f"source={msg.source}"
-            #     else:
-            #         content_preview = "(no preview)"
-            #     print(f"  [{i}] {msg_type}: {content_preview}", flush=True)
-
-            # Calculate trim amounts
             messages_to_trim = count_messages_for_node_trim(self._message_thread, trim_up)
             agent_trim_up = convert_manager_trim_to_agent_trim(self._message_thread, trim_up)
 
-            # print(f"\nTrim calculations:", flush=True)
-            # print(f"  Manager will trim: {messages_to_trim} entries", flush=True)
-            # print(f"  Agents will trim: {agent_trim_up} messages", flush=True)
-
-            # Trim manager thread
             self._message_thread = self._message_thread[:-messages_to_trim]
-
-            # print(f"\nThread size after trim: {len(self._message_thread)} entries", flush=True)
-
-            # # Show last 3 messages AFTER trim
-            # print(f"\nLast 3 entries AFTER trim:", flush=True)
-            # for i, msg in enumerate(self._message_thread[-3:], start=len(self._message_thread)-3):
-            #     msg_type = type(msg).__name__
-            #     if hasattr(msg, 'content'):
-            #         content_preview = str(msg.content)[:100] if msg.content else "(no content)"
-            #     elif hasattr(msg, 'source'):
-            #         content_preview = f"source={msg.source}"
-            #     else:
-            #         content_preview = "(no preview)"
-            #     print(f"  [{i}] {msg_type}: {content_preview}", flush=True)
-
-            # # Show THE VERY LAST MESSAGE in detail
-            # if len(self._message_thread) > 0:
-            #     last_msg = self._message_thread[-1]
-            #     print(f"\n>>> LAST MESSAGE AFTER TRIM (detailed):", flush=True)
-            #     print(f"    Type: {type(last_msg).__name__}", flush=True)
-            #     if hasattr(last_msg, 'content'):
-            #         print(f"    Content: {last_msg.content}", flush=True)
-            #     if hasattr(last_msg, 'source'):
-            #         print(f"    Source: {last_msg.source}", flush=True)
-            #     if hasattr(last_msg, 'models_usage'):
-            #         print(f"    Models Usage: {last_msg.models_usage}", flush=True)
-            #     print(f"    Full repr: {repr(last_msg)[:200]}", flush=True)
-
-            # print(f"\n=== END BRANCHING EVENT ===\n", flush=True)
 
             # Broadcast branch event to all agents
             await self.publish_message(

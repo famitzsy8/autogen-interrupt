@@ -1,12 +1,13 @@
 import asyncio
 import logging
 import re
-import tiktoken
 import uuid
-from inspect import iscoroutinefunction
 from datetime import datetime, timezone
-from pydantic import BaseModel, Field, field_validator
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, List, Mapping, Optional, Sequence, Union, cast
+from inspect import iscoroutinefunction
+from typing import Any, Awaitable, Callable, Dict, List, Mapping, Optional, Sequence, Union, cast
+
+from pydantic import BaseModel, Field
+from typing_extensions import Self
 
 from autogen_core import AgentRuntime, CancellationToken, Component, ComponentModel, DefaultTopicId, MessageContext, event, rpc
 from autogen_core.model_context import (
@@ -22,14 +23,6 @@ from autogen_core.models import (
     SystemMessage,
     UserMessage,
 )
-from autogen_agentchat.teams._group_chat._state_prompts import (
-    STATE_OF_RUN_UPDATE_PROMPT,
-    TOOL_CALL_UPDATING_PROMPT,
-    HANDOFF_CONTEXT_UPDATING_PROMPT
-)
-from autogen_agentchat.teams._group_chat._handoff_intent_router import HandoffIntentRouter
-from pydantic import BaseModel
-from typing_extensions import Self
 
 from ... import TRACE_LOGGER_NAME
 from ...base import ChatAgent, Team, TerminationCondition
@@ -44,8 +37,11 @@ from ...messages import (
     UserInputRequestedEvent,
 )
 from ...state import SelectorManagerState, StateSnapshot
+from ._agent_buffer_node_mapping import convert_manager_trim_to_agent_trim
+from ._analysis_service import AnalysisService
 from ._base_group_chat import BaseGroupChat
 from ._base_group_chat_manager import BaseGroupChatManager
+from ._chat_agent_container import ChatAgentContainer
 from ._events import (
     GroupChatAgentResponse,
     GroupChatBranch,
@@ -53,57 +49,21 @@ from ._events import (
     GroupChatStart,
     GroupChatTeamResponse,
     GroupChatTermination,
+    SerializableException,
     StateUpdateEvent,
     UserDirectedMessage,
 )
+from ._handoff_intent_router import HandoffIntentRouter
+from ._models import AnalysisComponent, AnalysisUpdate, ComponentScore
 from ._node_message_mapping import count_messages_for_node_trim
-from ._agent_buffer_node_mapping import convert_manager_trim_to_agent_trim
-from ._chat_agent_container import ChatAgentContainer
+from ._state_prompts import (
+    HANDOFF_CONTEXT_UPDATING_PROMPT,
+    STATE_OF_RUN_UPDATE_PROMPT,
+    TOOL_CALL_UPDATING_PROMPT,
+)
 
 trace_logger = logging.getLogger(TRACE_LOGGER_NAME)
-message_thread_logger = logging.getLogger(f"{__name__}.message_thread")
 logger = logging.getLogger(__name__)
-
-from ._models import AnalysisComponent, ComponentScore, AnalysisUpdate
-from ._analysis_service import AnalysisService
-
-
-# Initialize tiktoken encoder for token counting
-def _get_tiktoken_encoder() -> tiktoken.Encoding:
-    """Get the tiktoken encoder for GPT-3.5/4 models."""
-    try:
-        return tiktoken.get_encoding("cl100k_base")
-    except Exception:
-        # Fallback to a simple token counter if tiktoken fails
-        return None
-
-_tiktoken_encoder = _get_tiktoken_encoder()
-
-def _count_tokens(text: str) -> int:
-    """Count tokens in text using tiktoken."""
-    if _tiktoken_encoder is None:
-        # Fallback: rough estimate of 4 chars per token
-        return len(text) // 4
-    try:
-        return len(_tiktoken_encoder.encode(text))
-    except Exception:
-        return len(text) // 4
-
-# Configure logging at module import time
-def _setup_selector_logging() -> None:
-    """Setup logging configuration for selector group chat."""
-    import sys
-
-    if not message_thread_logger.handlers:
-        handler = logging.StreamHandler(sys.stderr)
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        handler.setFormatter(formatter)
-        message_thread_logger.addHandler(handler)
-        message_thread_logger.setLevel(logging.INFO)
-        message_thread_logger.propagate = False
-
-_setup_selector_logging()
 
 
 SyncSelectorFunc = Callable[[Sequence[BaseAgentEvent | BaseChatMessage]], str | None]
@@ -206,9 +166,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         pass
 
     async def reset(self) -> None:
-        reset_msg = f"\n{'='*80}\n🔄 RESETTING MESSAGE THREAD (previous size: {len(self._message_thread)})\n{'='*80}\n"
-        message_thread_logger.info(reset_msg)
-        print(reset_msg, flush=True)
+        logger.debug(f"Resetting message thread (previous size: {len(self._message_thread)})")
 
         self._current_turn = 0
         self._message_thread.clear()
@@ -217,9 +175,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             await self._termination_condition.reset()
         self._previous_speaker = None
 
-        success_msg = "✅ Message thread reset successfully\n"
-        message_thread_logger.info(success_msg)
-        print(success_msg, flush=True)
+        logger.debug("Message thread reset successfully")
 
     async def save_state(self) -> Mapping[str, Any]:
         """Save manager state including three-state context."""
@@ -436,26 +392,21 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                     if isinstance(latest_message, BaseChatMessage)
                     else str(latest_message)
                 )
-                
-                message_source = getattr(latest_message, 'source', 'unknown')
-                print(f"📊 [ANALYSIS] Scoring message from {message_source}: {len(message_content)} chars")
 
-                # Score the message
-                logger.debug(f"Scoring message with analysis service: {len(message_content)} chars")
+                message_source = getattr(latest_message, 'source', 'unknown')
+                logger.debug(f"Scoring message from {message_source}: {len(message_content)} chars")
+
                 scores = await self._analysis_service.score_message(
                     message=message_content,
                     components=self._analysis_components,
-                    tool_call_facts=self._tool_call_facts_text,  # Existing state field
-                    state_of_run=self._state_of_run_text,        # Existing state field
+                    tool_call_facts=self._tool_call_facts_text,
+                    state_of_run=self._state_of_run_text,
                     trigger_threshold=self._trigger_threshold
                 )
 
                 # Always emit analysis update to frontend (regardless of trigger)
-                # Use the message's existing ID (BaseChatMessage has an id field)
                 node_id = getattr(latest_message, 'id', str(uuid.uuid4()))
-                
-                message_source = getattr(latest_message, 'source', 'unknown')
-                print(f"📊 [ANALYSIS] Using message ID {node_id} for analysis from {message_source}")
+                logger.debug(f"Using message ID {node_id} for analysis from {message_source}")
 
                 triggered_components = [
                     label for label, score_obj in scores.items()
@@ -703,23 +654,6 @@ class SelectorGroupChatManager(BaseGroupChatManager):
 
         except Exception as e:
             logger.warning(f"Failed to update HandoffContext: {e}")
-
-    # def _log_complete_state(self, event: str = "State Update") -> None:
-    #     """FOR TESTING -- TO REMOVE: Log complete current state.
-    #
-    #     Args:
-    #         event: Description of the event that triggered this state dump
-    #     """
-    #     message_thread_logger.info(f"\n{'#'*80}")
-    #     message_thread_logger.info(f"# COMPLETE STATE SNAPSHOT: {event}")
-    #     message_thread_logger.info(f"{'#'*80}")
-    #     message_thread_logger.info(f"# State of Run:")
-    #     message_thread_logger.info(f"{self._state_of_run_text}")
-    #     message_thread_logger.info(f"\n# Tool Call Facts:")
-    #     message_thread_logger.info(f"{self._tool_call_facts_text if self._tool_call_facts_text else '(empty)'}")
-    #     message_thread_logger.info(f"\n# Handoff Context:")
-    #     message_thread_logger.info(f"{self._handoff_context_text if self._handoff_context_text else '(empty)'}")
-    #     message_thread_logger.info(f"{'#'*80}\n")
 
     def get_current_state_package(self) -> dict[str, Any]:
         """Get current state package for passing to agents.
@@ -969,10 +903,8 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             await self._transition_to_next_speakers(ctx.cancellation_token)
         except Exception as e:
             # Handle the exception and signal termination with an error
-            from ._events import SerializableException
             error = SerializableException.from_exception(e)
             await self._signal_termination_with_error(error)
-            # Raise the exception to the runtime
             raise
 
     @staticmethod

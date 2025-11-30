@@ -1,5 +1,5 @@
-from typing import Any, Callable, Dict, List, Mapping
 import logging
+from typing import Any, Callable, Dict, List, Mapping
 
 from autogen_core import DefaultTopicId, MessageContext, event, rpc, trace_invoke_agent_span
 
@@ -7,8 +7,6 @@ from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage, MessageF
 
 from ...base import ChatAgent, Response, TaskResult, Team
 from ...state import ChatAgentContainerState
-
-logger = logging.getLogger(__name__)
 from ._events import (
     GroupChatAgentResponse,
     GroupChatBranch,
@@ -23,6 +21,8 @@ from ._events import (
     SerializableException,
 )
 from ._sequential_routed_agent import SequentialRoutedAgent
+
+logger = logging.getLogger(__name__)
 
 
 class ChatAgentContainer(SequentialRoutedAgent):
@@ -119,9 +119,9 @@ class ChatAgentContainer(SequentialRoutedAgent):
             buffer_size_before = len(self._message_buffer)
             if buffer_size_before >= agent_trim_up:
                 self._message_buffer = self._message_buffer[:-agent_trim_up]
-                print(f"[{self._agent.name}] Branch: trimmed {agent_trim_up} messages ({buffer_size_before} -> {len(self._message_buffer)})", flush=True)
+                logger.debug(f"[{self._agent.name}] Branch: trimmed {agent_trim_up} messages ({buffer_size_before} -> {len(self._message_buffer)})")
             else:
-                print(f"[{self._agent.name}] Branch: cannot trim {agent_trim_up}, buffer has {buffer_size_before}", flush=True)
+                logger.warning(f"[{self._agent.name}] Branch: cannot trim {agent_trim_up}, buffer has {buffer_size_before}")
 
     @event
     async def handle_request(self, message: GroupChatRequestPublish, ctx: MessageContext) -> None:
