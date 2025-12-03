@@ -36,15 +36,13 @@ class AgentInputQueue:
 
         self.pending_requests[request_id] = (future, prompt, agent_name)
 
+        # Get feedback context from team if not provided
         if feedback_context is None and self.websocket_handler and self.websocket_handler.session:
             session = self.websocket_handler.session
-
             if session.agent_team_context and session.agent_team_context.team:
                 team = session.agent_team_context.team
-                if hasattr(team, '_feedback_context'):
-                    if team._feedback_context:
-                        feedback_context = team._feedback_context
-                        team._feedback_context = None
+                if hasattr(team, 'get_feedback_context'):
+                    feedback_context = team.get_feedback_context()
 
         await self.websocket_handler.send_agent_input_request(
             request_id, prompt, agent_name, feedback_context

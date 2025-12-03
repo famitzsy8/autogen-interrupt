@@ -7,7 +7,6 @@ This service uses an LLM (gpt-4o-mini) to:
 """
 
 from __future__ import annotations
-from asyncio import CancelledError
 import json
 import logging
 from typing import Any
@@ -15,9 +14,7 @@ from typing import Any
 from autogen_core.models import ChatCompletionClient, UserMessage
 from pydantic import BaseModel, Field
 
-from models import AnalysisComponent, get_analysis_component_color
-# Import ComponentScore from the extension to ensure type compatibility with SelectorGroupChat
-from autogen_agentchat.teams._group_chat._models import ComponentScore
+from ._models import AnalysisComponent, ComponentScore, get_analysis_component_color
 
 logger = logging.getLogger(__name__)
 
@@ -78,31 +75,21 @@ class AnalysisService:
             logger.warning("Empty prompt provided to parse_prompt")
             return []
 
-        parse_prompt_text = f"""
-# Task
+        parse_prompt_text = f"""Extract 2-5 structured criteria from this user description of what to watch for.
 
-You will recieve an unstructured text of the user's wishes when to involve him/her in a conversation between mulitple AI agents.
-You need to convert these into concrete and concise evaluation markers that will be passed to subsequent prompts that assess an agent's message if it should trigger a feedback request to the human user.
-
-
-## Input
-
-The user's unstructred wishes: {prompt}
-
-## Output
-
-Extract 2-5 structured evaluation markers from this user description of what to watch for.
+User description:
+{prompt}
 
 Return JSON with criteria, each having:
-- label: 2-3 word label identifier (e.g., "committee-membership")
-- description: 1-2 sentence explanation of when to invoke feedback
+- label: 2-3 word kebab-case identifier (e.g., "committee-membership")
+- description: 1-2 sentence explanation of what to check
 
 Format your response as valid JSON only, no other text.
 Example:
 {{
   "components": [
-    {{"label": "committee-membership", "description": "Trigger if committee member names don't match API data"}},
-    {{"label": "geographic-hallucination", "description": "Trigger if agent invents cities or districts not present in source data"}}
+    {{"label": "committee-membership", "description": "Verify that committee member names match API data"}},
+    {{"label": "geographic-hallucination", "description": "Check if agent invents cities or districts not present in source data"}}
   ]
 }}
 """
@@ -206,71 +193,30 @@ Example:
         example_reasoning = {label: "Example reasoning" if i == 0 else ""
                             for i, label in enumerate(component_labels[:2])}
 
-        scoring_prompt = f"""
+        scoring_prompt = f"""Analyze this agent message against the watchlist criteria below.
 
-# Task
-
-You have to grade this agent message against the trigger descriptions that the user provided.
-Trigger descriptions are sentences that the user provided, when he wants to be notified.
-
-## Context Information for your decision
-
-=== TRUSTED FACTS (from verified tool calls) ===
-{facts_section}
-
-=== RESEARCH CONTEXT (for reference) ===
-{context_section}
-
-## The message of the agent to grade
-
+=== AGENT MESSAGE ===
 {message}
 
-## The trigger criteria to grade against
-
+=== WATCHLIST CRITERIA (score each one) ===
 {components_text}
 
-## How To Grade
+=== CONTEXT (for reference) ===
+Trusted Facts: {facts_section}
+Research Progress: {context_section}
 
-For each criterion, score 1-10:
-- 1-3: The criterion doesn't require the message to be inspected by the user at all
-- 4-7: The message somehow hints at what the criterion encompasses and the user may find it of interest to look over
-- 8-10: The criterion requires the user to urgently look at the message and give his feedback.
+IMPORTANT: You MUST score ALL and ONLY these components: {', '.join(component_labels)}
 
-For grades 8-10 you MUST include a reasoning as to why the criterion requires the user to urgently look at the message.
+For each criterion, score 1-10 based on HOW STRONGLY the criterion is matched/triggered:
+- 1-3: Criterion is NOT relevant to this message (no match)
+- 4-6: Criterion is PARTIALLY relevant (weak match)
+- 7-8: Criterion is CLEARLY relevant (strong match)
+- 9-10: Criterion is HIGHLY relevant and the message strongly focuses on this topic
 
-## Some Examples
+The user wants to be alerted when messages match these criteria. Higher scores = stronger match = more likely to trigger an alert.
 
-### Example 1
-
-Trigger Description: "Notify me when in-vivo studies are found"
-
-Agent Message: "We found several studies for fMRI, lenses and bacterial studies"
-
-Grade: 2/10 (no mention of in-vivo studies)
-
-### Example 2
-
-Trigger Description: "Notify me when in-vivo studies are found"
-
-Agent Message: "We are planning to search for in-vivo studies..."
-
-Grade: 5/10 (hints at in-vivo studies, but only in a searching context and not in a FINDING context)
-
-### Example 3
-
-Trigger Description: "Notify me when in-vivo studies are found"
-
-Agent Message: "We have found several studies... 1. fMRI retina scans 2. fMRI lens scans 3. fMRI bacterial scans 4. bacterial in-vivo tracing"
-
-Grade: 9/10 (with official reasoning: "An actual study has been found tracing bacteria in-vivo...")
-
-## Important Grading Notes
-
-- You MUST score ALL and ONLY these components: {', '.join(component_labels)}
-- Only include reasoning if score >= {trigger_threshold}.
-- Return valid JSON with EXACTLY the component labels provided above.
-
-## Example Output Format (EXAMPLE ONLY)
+Always include reasoning for scores >= {trigger_threshold}.
+Return valid JSON with EXACTLY the component labels provided above.
 
 Example format (using YOUR component labels):
 {{
@@ -280,18 +226,13 @@ Example format (using YOUR component labels):
 """
 
         try:
-            logger.info(f"[SCORE_MESSAGE] Scoring message against {len(components)} components")
-            logger.debug(f"[SCORE_MESSAGE] Message: {message[:200]}...")
-
             # Use structured output with flattened schema
             try:
                 response = await self.model_client.create(
                     messages=[UserMessage(content=scoring_prompt, source="user")],
                     json_output=AnalysisScoresStructured
                 )
-                logger.debug("[SCORE_MESSAGE] Used structured output successfully")
-            except Exception as e:
-                logger.warning(f"[SCORE_MESSAGE] Structured output failed ({e}); retrying without schema")
+            except Exception:
                 response = await self.model_client.create(
                     messages=[UserMessage(content=scoring_prompt, source="user")]
                 )
@@ -336,7 +277,6 @@ Example format (using YOUR component labels):
                 # Already in nested format
                 scores_data = raw_data["scores"]
             else:
-                logger.warning("[SCORE_MESSAGE] Unexpected response format, no scores found - using default scores")
                 # Return default scores (5/10) for all components when format is unexpected
                 default_scores = {}
                 for component in components:
@@ -347,7 +287,6 @@ Example format (using YOUR component labels):
                 return default_scores
 
             if not scores_data:
-                logger.warning("[SCORE_MESSAGE] No scores found in LLM response - using default scores")
                 # Return default scores (5/10) for all components when LLM fails
                 default_scores = {}
                 for component in components:
@@ -365,23 +304,18 @@ Example format (using YOUR component labels):
                     reasoning_value = score_data.get("reasoning", "") if isinstance(score_data, dict) else score_data.reasoning
 
                     if score_value is None:
-                        logger.warning(f"[SCORE_MESSAGE] Missing score for component: {label}")
                         continue
 
                     # Validate score range
                     if not (1 <= score_value <= 10):
-                        logger.warning(f"[SCORE_MESSAGE] Invalid score {score_value} for {label}, clamping to [1,10]")
                         score_value = max(1, min(10, score_value))
 
                     scores[label] = ComponentScore(
                         score=score_value,
                         reasoning=reasoning_value if reasoning_value else ""
                     )
-                except Exception as e:
-                    logger.error(f"[SCORE_MESSAGE] Failed to parse score for {label}: {e}")
+                except Exception:
                     continue
-
-            logger.info(f"[SCORE_MESSAGE] Successfully scored {len(scores)}/{len(components)} components")
             return scores
 
         except json.JSONDecodeError as e:

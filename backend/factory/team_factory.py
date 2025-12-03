@@ -19,6 +19,14 @@ from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams, SseServerParams
 from openai import AsyncOpenAI
 
+# Plugin imports
+from autogen_agentchat.teams._group_chat.plugins.state_context import StateContextPlugin
+from autogen_agentchat.teams._group_chat.plugins.analysis_watchlist import (
+    AnalysisWatchlistPlugin,
+    AnalysisService,
+    AnalysisComponent,
+)
+
 # Local imports
 from agents.PlannerAgent import PlannerAgent
 from handlers.agent_input_queue import AgentInputQueue
@@ -109,6 +117,7 @@ class AgentTeamContext:
     participant_names: list[str]
     display_names: dict[str, str]  # Maps agent_name -> display_name
     external_termination: ExternalTermination  # For user-initiated termination
+    state_context_plugin: StateContextPlugin | None = None  # For state queries via websocket
 
 async def init_team(
     api_key: str,
@@ -221,6 +230,20 @@ async def init_team(
     initial_handoff_context = config_data["team"].get("initial_handoff_context")
     initial_state_of_run = config_data["team"].get("initial_state_of_run")
 
+    # Create plugins list
+    plugins: list = []
+    state_context_plugin: StateContextPlugin | None = None
+
+    # Create StateContextPlugin if enabled
+    if enable_state_context:
+        state_context_plugin = StateContextPlugin(
+            model_client=model_client,
+            user_proxy_name=user_proxy_name,
+            initial_state_of_run=initial_state_of_run or "",
+            initial_handoff_context=initial_handoff_context or "",
+        )
+        plugins.append(state_context_plugin)
+
     # Determine group chat class and build appropriate selector
     group_chat_class_name = config_data["team"]["group_chat_class"]
 
@@ -250,11 +273,7 @@ async def init_team(
             "model_client": model_client,
             "agent_input_queue": agent_input_queue,
             "emit_team_events": True,  # Enable state update events
-            # State context parameters
-            "enable_state_context": enable_state_context,
-            "user_proxy_name": user_proxy_name,
-            "initial_handoff_context": initial_handoff_context,
-            "initial_state_of_run": initial_state_of_run
+            "plugins": plugins,  # Pass plugins list instead of individual state parameters
         }
 
         allowed_transitions = config_data["team"]["group_chat_args"].get("allowed_transitions")
@@ -282,11 +301,7 @@ async def init_team(
             "model_client": model_client,
             "agent_input_queue": agent_input_queue,
             "emit_team_events": True,  # Enable state update events
-            # State context parameters
-            "enable_state_context": enable_state_context,
-            "user_proxy_name": user_proxy_name,
-            "initial_handoff_context": initial_handoff_context,
-            "initial_state_of_run": initial_state_of_run
+            "plugins": plugins,  # Pass plugins list instead of individual state parameters
         }
 
         team = globals()[group_chat_class_name](**team_kwargs)
@@ -314,7 +329,8 @@ async def init_team(
         user_control=user_control,
         participant_names=[a.name for a in agents],
         display_names=display_names,
-        external_termination=external_termination
+        external_termination=external_termination,
+        state_context_plugin=state_context_plugin
     )
 
 

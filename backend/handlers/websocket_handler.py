@@ -26,12 +26,16 @@ from autogen_agentchat.messages import (
     UserInputRequestedEvent,
 )
 from autogen_agentchat.teams._group_chat._events import StateUpdateEvent
-from autogen_agentchat.teams._group_chat._models import AnalysisUpdate as ExtensionAnalysisUpdate
+from autogen_agentchat.teams._group_chat.plugins.analysis_watchlist import (
+    AnalysisService,
+    AnalysisComponent,
+    AnalysisUpdate,
+    AnalysisWatchlistPlugin,
+)
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocket, WebSocketState
 
-from analysis_service import AnalysisService
 from factory.team_factory import AgentTeamContext, init_team
 from handlers.agent_input_queue import AgentInputQueue
 from handlers.session_manager import get_session_manager, Session
@@ -51,6 +55,7 @@ from models import (
     ParticipantNames,
     RunConfig,
     RunStartConfirmed,
+    RunTermination,
     StateUpdate,
     StreamEnd,
     TerminateAck,
@@ -154,9 +159,16 @@ class WebSocketHandler:
             await self._send_error("CONFIG_VALIDATION_ERROR", str(e))
         except WebSocketDisconnect:
             pass
+        except RuntimeError as e:
+            # Handle WebSocket "not connected" errors gracefully
+            if "not connected" in str(e).lower():
+                logger.debug(f"WebSocket disconnected: {e}")
+            else:
+                logger.error(f"Runtime error: {e}", exc_info=True)
         except Exception as e:
             logger.error(f"Handler error: {type(e).__name__}: {e}", exc_info=True)
-            await self._send_error("HANDLER_ERROR", str(e))
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                await self._send_error("HANDLER_ERROR", str(e))
 
 
         finally:
@@ -239,16 +251,41 @@ class WebSocketHandler:
                 approved_components = []
 
         if approved_components:
+            # Create analysis service for component generation and session storage
             model_client = self.session.agent_team_context.team._model_client
             analysis_service = AnalysisService(model_client=model_client)
 
+            # Store for the session (used for component generation and tracking)
             self.session.analysis_service = analysis_service
             self.session.active_components = approved_components
             self.session.trigger_threshold = trigger_threshold
 
-            self.session.agent_team_context.team._analysis_service = analysis_service
-            self.session.agent_team_context.team._analysis_components = approved_components
-            self.session.agent_team_context.team._trigger_threshold = trigger_threshold
+            # Create state getter to provide state to the analysis plugin
+            def state_getter() -> dict[str, str]:
+                state_pkg = self.session.agent_team_context.team.get_current_state_package()
+                return {
+                    "tool_call_facts": state_pkg.get("tool_call_facts", ""),
+                    "state_of_run": state_pkg.get("state_of_run", ""),
+                }
+
+            # Find the actual user_proxy name from participants
+            user_proxy_name = next(
+                (name for name in self.session.agent_team_context.participant_names
+                 if "user_proxy" in name.lower()),
+                "user_proxy"  # fallback
+            )
+
+            # Create AnalysisWatchlistPlugin and add to team
+            analysis_plugin = AnalysisWatchlistPlugin(
+                analysis_service=analysis_service,
+                components=approved_components,
+                trigger_threshold=trigger_threshold,
+                state_getter=state_getter,
+                user_proxy_name=user_proxy_name,
+            )
+
+            # Add plugin to team (will be wired up with event emission)
+            self.session.agent_team_context.team.add_plugin(analysis_plugin)
 
             init_message = AnalysisComponentsInit(
                 type="analysis_components_init",
@@ -267,9 +304,15 @@ class WebSocketHandler:
 
         stream = self.session.agent_team_context.team.run_stream(task=initial_topic)
         message_task = asyncio.create_task(stream.__anext__())
-        client_task: asyncio.Task[str] | None = asyncio.create_task(
-            self.websocket.receive_text()
-        )
+
+        # Only create client task if WebSocket is still connected
+        client_task: asyncio.Task[str] | None = None
+        if self.websocket.client_state == WebSocketState.CONNECTED:
+            try:
+                client_task = asyncio.create_task(self.websocket.receive_text())
+            except RuntimeError as e:
+                logger.warning(f"Failed to create initial client task: {e}")
+                client_task = None
 
         try:
             while True:
@@ -319,7 +362,7 @@ class WebSocketHandler:
                     elif isinstance(message, UserInputRequestedEvent):
                         pass  # Handled via agent input queue
 
-                    elif isinstance(message, ExtensionAnalysisUpdate):
+                    elif isinstance(message, AnalysisUpdate):
                         await self._send_analysis_update(message)
 
                     elif hasattr(message, "stop_reason"):
@@ -333,7 +376,13 @@ class WebSocketHandler:
                 if client_task is not None and client_task in done:
                     client_task = await self._process_client_command(client_task)
                     if client_task is None:
+                        # WebSocket disconnected, stop processing
                         break
+
+                # If we have no client task and WebSocket is disconnected, exit
+                if client_task is None and self.websocket.client_state != WebSocketState.CONNECTED:
+                    logger.info("WebSocket disconnected, stopping conversation stream")
+                    break
 
         except asyncio.CancelledError:
             raise
@@ -353,9 +402,21 @@ class WebSocketHandler:
             return None
         except (EOFError, WebSocketDisconnect):
             return None
+        except RuntimeError as exc:
+            # WebSocket disconnected
+            if "not connected" in str(exc).lower():
+                return None
+            logger.error(f"Client message failed: {exc}", exc_info=True)
+            return None
         except Exception as exc:
             logger.error(f"Client message failed: {exc}", exc_info=True)
-            return asyncio.create_task(self.websocket.receive_text())
+            # Check if WebSocket is still connected before creating new task
+            if self.websocket.client_state != WebSocketState.CONNECTED:
+                return None
+            try:
+                return asyncio.create_task(self.websocket.receive_text())
+            except RuntimeError:
+                return None
 
         try:
             message_dict = json.loads(raw_message)
@@ -373,9 +434,18 @@ class WebSocketHandler:
             logger.error(f"Failed to decode client message: {e}")
         except Exception as e:
             logger.error(f"Error processing client message: {e}")
-            await self._send_error("MESSAGE_PROCESSING_ERROR", str(e))
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                await self._send_error("MESSAGE_PROCESSING_ERROR", str(e))
 
-        return asyncio.create_task(self.websocket.receive_text())
+        # Check if WebSocket is still connected before creating new task
+        if self.websocket.client_state != WebSocketState.CONNECTED:
+            return None
+        try:
+            return asyncio.create_task(self.websocket.receive_text())
+        except RuntimeError as e:
+            # WebSocket may have disconnected between state check and task creation
+            logger.debug(f"Failed to create receive task: {e}")
+            return None
     
     async def _handle_interrupt(self, message_dict: dict[str, Any]) -> None:
         try:
@@ -389,7 +459,8 @@ class WebSocketHandler:
 
         except Exception as e:
             logger.error(f"Interrupt error: {e}", exc_info=True)
-            await self._send_error("INTERRUPT_ERROR", str(e))
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                await self._send_error("INTERRUPT_ERROR", str(e))
 
     async def _handle_terminate_request(self, message_dict: dict[str, Any]) -> None:
         """Handle user-initiated termination request."""
@@ -413,11 +484,15 @@ class WebSocketHandler:
             )
 
             if self.websocket.client_state == WebSocketState.CONNECTED:
-                await self.websocket.send_text(ack.model_dump_json())
+                try:
+                    await self.websocket.send_text(ack.model_dump_json())
+                except RuntimeError:
+                    pass  # WebSocket disconnected during send
 
         except Exception as e:
             logger.error(f"Terminate error: {e}", exc_info=True)
-            await self._send_error("TERMINATE_ERROR", str(e))
+            if self.websocket.client_state == WebSocketState.CONNECTED:
+                await self._send_error("TERMINATE_ERROR", str(e))
 
     def _find_last_text_message(self) -> TextMessage | None:
         """Find the last TextMessage in the conversation."""
@@ -560,20 +635,29 @@ class WebSocketHandler:
             source=source
         )
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(termination.model_dump_json())
+            try:
+                await self.websocket.send_text(termination.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
     
     async def _send_agent_team_names(self, team_names: list[str]) -> None:
         # Send available agent team configuration names to frontend
         team_names_msg = AgentTeamNames(agent_team_names=team_names)
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(team_names_msg.model_dump_json())
+            try:
+                await self.websocket.send_text(team_names_msg.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
 
     async def _send_agent_details(self) -> None:
         # Send agent details (names and descriptions) to frontend
         agents_data = get_agent_details()
         agent_details_msg = AgentDetails(agents=agents_data)
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(agent_details_msg.model_dump_json())
+            try:
+                await self.websocket.send_text(agent_details_msg.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
 
     async def _send_participant_names(self) -> None:
         # Send individual agent participant names to frontend for agent selection dropdown
@@ -591,11 +675,17 @@ class WebSocketHandler:
             participant_names=filtered_participants
         )
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(participant_names_msg.model_dump_json())
+            try:
+                await self.websocket.send_text(participant_names_msg.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
 
     async def _send_message(self, message: AgentMessage) -> None:
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(message.model_dump_json())
+            try:
+                await self.websocket.send_text(message.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
 
     async def _flush_pending_agent_messages(self) -> None:
         if not self._pending_agent_messages:
@@ -621,7 +711,10 @@ class WebSocketHandler:
         )
 
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(tree_update.model_dump_json())
+            try:
+                await self.websocket.send_text(tree_update.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
 
     async def _broadcast_tree_update(self) -> None:
         """Broadcast tree update to all WebSocket connections in this session."""
@@ -645,7 +738,10 @@ class WebSocketHandler:
     async def _send_interrupt_acknowledged(self) -> None:
         ack = InterruptAcknowledged()
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(ack.model_dump_json())
+            try:
+                await self.websocket.send_text(ack.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
 
     async def _send_tool_calls_request(self, message: ToolCallRequestEvent) -> None:
         # Check if message has an ID (e.g. from SelectorGroupChat analysis)
@@ -673,9 +769,12 @@ class WebSocketHandler:
         )
 
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(tc_request.model_dump_json())
-    
-    async def _send_analysis_update(self, message: ExtensionAnalysisUpdate) -> None:
+            try:
+                await self.websocket.send_text(tc_request.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
+
+    async def _send_analysis_update(self, message: AnalysisUpdate) -> None:
         try:
             if self.websocket.client_state == WebSocketState.CONNECTED:
                 await self.websocket.send_text(message.model_dump_json())
@@ -704,7 +803,10 @@ class WebSocketHandler:
             await self._send_tree_update()
 
             if self.websocket.client_state == WebSocketState.CONNECTED:
-                await self.websocket.send_text(tc_execution.model_dump_json())
+                try:
+                    await self.websocket.send_text(tc_execution.model_dump_json())
+                except RuntimeError:
+                    pass  # WebSocket disconnected during send
 
         self.current_tool_call_node_id = None
 
@@ -717,7 +819,10 @@ class WebSocketHandler:
         )
         try:
             if self.websocket.client_state == WebSocketState.CONNECTED:
-                await self.websocket.send_text(state_update.model_dump_json())
+                try:
+                    await self.websocket.send_text(state_update.model_dump_json())
+                except RuntimeError:
+                    pass  # WebSocket disconnected during send
         finally:
             await self._flush_pending_agent_messages()
 
@@ -727,7 +832,10 @@ class WebSocketHandler:
 
         stream_end = StreamEnd(reason=reason)
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(stream_end.model_dump_json())
+            try:
+                await self.websocket.send_text(stream_end.model_dump_json())
+            except RuntimeError:
+                pass  # WebSocket disconnected during send
     
     async def _send_error(self, error_code: str, message: str) -> None:
         error = ErrorMessage(error_code=error_code, message=message)
@@ -740,7 +848,6 @@ class WebSocketHandler:
     async def send_agent_input_request(
         self, request_id: str, prompt: str, agent_name: str, feedback_context: dict[str, Any] | None = None
     ) -> None:
-
         request = AgentInputRequest(
             request_id=request_id,
             prompt=prompt,
@@ -749,7 +856,10 @@ class WebSocketHandler:
         )
 
         if self.websocket.client_state == WebSocketState.CONNECTED:
-            await self.websocket.send_text(request.model_dump_json())
+            try:
+                await self.websocket.send_text(request.model_dump_json())
+            except RuntimeError:
+                pass
     
     
     async def _handle_human_input_response(self, message_dict: dict) -> None:

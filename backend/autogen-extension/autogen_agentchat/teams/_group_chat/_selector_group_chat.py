@@ -1,8 +1,6 @@
 import asyncio
 import logging
 import re
-import uuid
-from datetime import datetime, timezone
 from inspect import iscoroutinefunction
 from typing import Any, Awaitable, Callable, Dict, List, Mapping, Optional, Sequence, Union, cast
 
@@ -38,10 +36,10 @@ from ...messages import (
 )
 from ...state import SelectorManagerState, StateSnapshot
 from ._agent_buffer_node_mapping import convert_manager_trim_to_agent_trim
-from ._analysis_service import AnalysisService
 from ._base_group_chat import BaseGroupChat
 from ._base_group_chat_manager import BaseGroupChatManager
 from ._chat_agent_container import ChatAgentContainer
+from .plugins._base import GroupChatPlugin
 from ._events import (
     GroupChatAgentResponse,
     GroupChatBranch,
@@ -53,14 +51,7 @@ from ._events import (
     StateUpdateEvent,
     UserDirectedMessage,
 )
-from ._handoff_intent_router import HandoffIntentRouter
-from ._models import AnalysisComponent, AnalysisUpdate, ComponentScore
 from ._node_message_mapping import count_messages_for_node_trim
-from ._state_prompts import (
-    HANDOFF_CONTEXT_UPDATING_PROMPT,
-    STATE_OF_RUN_UPDATE_PROMPT,
-    TOOL_CALL_UPDATING_PROMPT,
-)
 
 trace_logger = logging.getLogger(TRACE_LOGGER_NAME)
 logger = logging.getLogger(__name__)
@@ -101,12 +92,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         model_context: ChatCompletionContext | None,
         model_client_streaming: bool = False,
         agent_input_queue: Any | None = None,
-        enable_state_context: bool = True,
-        user_proxy_name: str = "user_proxy",
-        initial_handoff_context: str | None = None,
-        initial_state_of_run: str | None = None,
-        state_model_client: ChatCompletionClient | None = None,
-        team_reference: Any | None = None,
+        plugins: list[GroupChatPlugin] | None = None,
     ) -> None:
         super().__init__(
             name,
@@ -121,10 +107,9 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             message_factory,
             emit_team_events,
             agent_input_queue=agent_input_queue,
+            plugins=plugins,
         )
         self._model_client = model_client
-        # Use separate model client for state updates if provided, otherwise use main client
-        self._state_model_client = state_model_client or model_client
         self._selector_prompt = selector_prompt
         self._previous_speaker: str | None = None
         self._allow_repeated_speaker = allow_repeated_speaker
@@ -139,28 +124,6 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         else:
             self._model_context = UnboundedChatCompletionContext()
         self._cancellation_token = CancellationToken()
-
-        # State context management
-        self._enable_state_context = enable_state_context
-        self._user_proxy_name = user_proxy_name
-
-        # Initialize states as empty strings (or initial context if provided)
-        self._state_of_run_text: str = initial_state_of_run or ""
-        self._tool_call_facts_text: str = ""
-        self._handoff_context_text: str = initial_handoff_context or ""
-
-        # Initialize snapshots dict (sparse - only entries for state changes)
-        self._state_snapshots: Dict[int, Any] = {}
-
-        # Initialize intent router for detecting handoff intent in user messages
-        self._intent_router = HandoffIntentRouter(model_client)
-
-        # Analysis-related fields
-        self._analysis_service: AnalysisService | None = None
-        self._analysis_components: list[AnalysisComponent] = []
-        self._trigger_threshold: int = 8
-        self._feedback_context: dict[str, Any] | None = None
-        self._team_reference: Any | None = team_reference
 
     async def validate_group_state(self, messages: List[BaseChatMessage] | None) -> None:
         pass
@@ -178,29 +141,30 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         logger.debug("Message thread reset successfully")
 
     async def save_state(self) -> Mapping[str, Any]:
-        """Save manager state including three-state context."""
-        # NEW: Save snapshots (convert int keys to str for JSON compatibility)
-        snapshots_dict = {}
-        for idx, snap in self._state_snapshots.items():
-            snapshots_dict[str(idx)] = snap.model_dump()
-
+        """Save manager state including plugin states."""
         state = SelectorManagerState(
             message_thread=[msg.dump() for msg in self._message_thread],
             current_turn=self._current_turn,
             previous_speaker=self._previous_speaker,
-            # NEW: Save state strings
-            state_of_run_text=self._state_of_run_text,
-            tool_call_facts_text=self._tool_call_facts_text,
-            handoff_context_text=self._handoff_context_text,
-            # NEW: Save snapshots (already converted above)
-            state_snapshots=snapshots_dict,
         )
 
         result = state.model_dump()
+
+        # Save plugin states
+        plugin_states: dict[str, Any] = {}
+        for plugin in self._plugins:
+            try:
+                plugin_state = await plugin.save_state()
+                plugin_states[plugin.name] = plugin_state
+            except Exception as e:
+                logger.warning(f"Plugin '{plugin.name}' failed to save state: {e}", exc_info=True)
+
+        result['plugin_states'] = plugin_states
+
         return result
 
     async def load_state(self, state: Mapping[str, Any]) -> None:
-        """Load manager state including three-state context."""
+        """Load manager state including plugin states."""
         selector_state = SelectorManagerState.model_validate(state)
 
         # Existing restoration logic
@@ -211,276 +175,20 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         self._current_turn = selector_state.current_turn
         self._previous_speaker = selector_state.previous_speaker
 
-        # NEW: Restore state strings (use .get() with default for backward compatibility)
-        self._state_of_run_text = selector_state.state_of_run_text or ""
-        self._tool_call_facts_text = selector_state.tool_call_facts_text or ""
-        self._handoff_context_text = selector_state.handoff_context_text or ""
-
-        # NEW: Restore snapshots (convert str keys back to int)
-        if selector_state.state_snapshots:
-            self._state_snapshots = {
-                int(idx): StateSnapshot.model_validate(snap)
-                for idx, snap in selector_state.state_snapshots.items()
-            }
-        else:
-            self._state_snapshots = {}
-
-    async def _create_state_snapshot(self) -> None:
-        """Create a snapshot of current state at current message index.
-
-        IMPORTANT: User messages ALWAYS create snapshots (they always update StateOfRun).
-        Snapshots are sparse - not every message creates a snapshot (tool requests don't change state).
-        """
-        if not self._enable_state_context:
-            return
-
-        try:
-            # Calculate message index (0-based)
-            msg_idx = len(self._message_thread) - 1
-
-            if msg_idx < 0:
-                logger.warning("Cannot create snapshot: message thread is empty")
-                return
-
-            # Create StateSnapshot with all three current state texts and participant names
-            snapshot = StateSnapshot(
-                message_index=msg_idx,
-                state_of_run_text=self._state_of_run_text,
-                tool_call_facts_text=self._tool_call_facts_text,
-                handoff_context_text=self._handoff_context_text,
-                participant_names=self._participant_names
-            )
-
-            # Store in snapshots dict
-            self._state_snapshots[msg_idx] = snapshot
-
-            # Emit state update event to output stream
-            if self._emit_team_events:
-                state_event = StateUpdateEvent(
-                    source=self._name,
-                    state_of_run=self._state_of_run_text,
-                    tool_call_facts=self._tool_call_facts_text,
-                    handoff_context=self._handoff_context_text,
-                    message_index=msg_idx
-                )
-                await self._output_message_queue.put(state_event)
-        except Exception as e:
-            logger.exception(f"Exception in _create_state_snapshot: {type(e).__name__}: {e}")
-
-    async def _emit_analysis_update(
-        self,
-        node_id: str,
-        scores: dict[str, "ComponentScore"],
-        triggered_components: list[str]
-    ) -> None:
-        """
-        Emit analysis update to frontend via WebSocket.
-
-        This message is sent via websocket_handler to all clients in the session.
-
-        Args:
-            node_id: Message node ID that was scored
-            scores: All component scores for the message
-            triggered_components: Labels where score >= threshold
-        """
-        if self._emit_team_events:  # Check if events should be emitted
-
-            logger.info(
-                f"📤 [BACKEND] Emitting ANALYSIS_UPDATE for node {node_id}: "
-                f"scores={list(scores.keys())}, triggered={triggered_components}"
-            )
-
-            # Log individual scores
-            for label, score_obj in scores.items():
-                logger.debug(
-                    f"   📊 {label}: score={score_obj.score}, "
-                    f"reasoning=\"{score_obj.reasoning[:50]}...\""
-                )
-
-            update = AnalysisUpdate(
-                type="analysis_update",
-                node_id=node_id,
-                scores=scores,
-                triggered_components=triggered_components,
-                timestamp=datetime.now(timezone.utc)
-            )
-
-            # Emit as event for websocket_handler to broadcast
-            await self._output_message_queue.put(update)
-
-            logger.info(
-                f"✅ [BACKEND] Analysis update queued for WebSocket broadcast"
-            )
+        # Load plugin states
+        plugin_states = state.get('plugin_states', {})
+        for plugin in self._plugins:
+            try:
+                plugin_state = plugin_states.get(plugin.name)
+                if plugin_state is not None:
+                    await plugin.load_state(plugin_state)
+                    logger.debug(f"Loaded state for plugin '{plugin.name}'")
+            except Exception as e:
+                logger.warning(f"Plugin '{plugin.name}' failed to load state: {e}", exc_info=True)
 
     async def _transition_to_next_speakers(self, cancellation_token: CancellationToken) -> None:
-        """
-        Select next speaker(s) with optional analysis scoring.
-
-        Flow:
-        1. Get latest message from thread
-        2. Check if it's from user_proxy (bypass analysis if so)
-        3. If analysis enabled, score the message
-        4. If triggered, inject user_proxy with feedback context
-        5. Otherwise, select AI agent only
-        6. Request speaker response
-        """
-        # Get latest message
-        if not self._message_thread:
-            logger.warning("No messages in thread, cannot select speaker")
-            return
-
-        latest_message = self._message_thread[-1]
-
-        # Check if latest message is from user/system - skip analysis if so
-        # This prevents infinite feedback loops and avoids analyzing user instructions
-        # Skip analysis for:
-        # 1. user_proxy messages (feedback responses)
-        # 2. Messages from sources not in participant list (external user messages)
-        # 3. Messages from "You" or "User" (direct user input)
-        if isinstance(latest_message, BaseChatMessage):
-            message_source = latest_message.source
-            is_user_or_system_message = (
-                message_source == self._user_proxy_name or
-                message_source not in self._participant_names or
-                message_source.lower() in ("you", "user", "system")
-            )
-            if is_user_or_system_message:
-                logger.info(f"📊 [ANALYSIS] Skipping analysis for user/system message from: {message_source}")
-                # User/system message - skip analysis, go directly to AI agent selection
-
-                # Build participants list (same logic as select_speaker)
-                if self._candidate_func is not None:
-                    if self._is_candidate_func_async:
-                        async_candidate_func = cast(AsyncCandidateFunc, self._candidate_func)
-                        participants = await async_candidate_func(self._message_thread)
-                    else:
-                        sync_candidate_func = cast(SyncCandidateFunc, self._candidate_func)
-                        participants = sync_candidate_func(self._message_thread)
-                else:
-                    # Construct the candidate agent list to be selected from, skip the previous speaker if not allowed.
-                    if self._previous_speaker is not None and not self._allow_repeated_speaker:
-                        participants = [p for p in self._participant_names if p != self._previous_speaker]
-                    else:
-                        participants = list(self._participant_names)
-
-                # Construct agent roles
-                roles = ""
-                for topic_type, description in zip(self._participant_names, self._participant_descriptions, strict=True):
-                    roles += re.sub(r"\s+", " ", f"{topic_type}: {description}").strip() + "\n"
-                roles = roles.strip()
-
-                # Select AI agent only
-                next_speaker = await self._select_speaker_ai_only(roles, participants, self._max_selector_attempts)
-                self._previous_speaker = next_speaker
-
-                # Send request to publish
-                speaker_topic_type = self._participant_name_to_topic_type[next_speaker]
-                await self.publish_message(
-                    GroupChatRequestPublish(),
-                    topic_id=DefaultTopicId(type=speaker_topic_type),
-                    cancellation_token=cancellation_token,
-                )
-                self._active_speakers.append(next_speaker)
-                return
-
-        # Perform analysis scoring (if enabled)
-        if self._analysis_service is not None and self._analysis_components:
-            try:
-                # Extract message content
-                message_content = (
-                    latest_message.content
-                    if isinstance(latest_message, BaseChatMessage)
-                    else str(latest_message)
-                )
-
-                message_source = getattr(latest_message, 'source', 'unknown')
-                logger.debug(f"Scoring message from {message_source}: {len(message_content)} chars")
-
-                scores = await self._analysis_service.score_message(
-                    message=message_content,
-                    components=self._analysis_components,
-                    tool_call_facts=self._tool_call_facts_text,
-                    state_of_run=self._state_of_run_text,
-                    trigger_threshold=self._trigger_threshold
-                )
-
-                # Always emit analysis update to frontend (regardless of trigger)
-                node_id = getattr(latest_message, 'id', str(uuid.uuid4()))
-                logger.debug(f"Using message ID {node_id} for analysis from {message_source}")
-
-                triggered_components = [
-                    label for label, score_obj in scores.items()
-                    if score_obj.score >= self._trigger_threshold
-                ]
-                
-                await self._emit_analysis_update(
-                    node_id=node_id,
-                    scores=scores,
-                    triggered_components=triggered_components
-                )
-
-                # Check if feedback should be triggered
-                if triggered_components:
-                    logger.info(
-                        f"Analysis triggered: components={triggered_components}, "
-                        f"injecting user_proxy for feedback"
-                    )
-
-                    # Build triggered components with their descriptions and scores
-                    triggered_with_details = {}
-                    for label in triggered_components:
-                        component = next(
-                            (c for c in self._analysis_components if c.label == label),
-                            None
-                        )
-                        if component:
-                            triggered_with_details[label] = {
-                                "description": component.description,
-                                "score": scores[label].score,
-                                "reasoning": scores[label].reasoning
-                            }
-
-                    # Inject user_proxy with feedback context
-                    next_speaker = self._user_proxy_name
-
-                    feedback_context_data = {
-                        "triggered": triggered_components,
-                        "triggered_with_details": triggered_with_details,
-                        "scores": scores,
-                        "message": latest_message,
-                        "tool_call_facts": self._tool_call_facts_text,
-                        "state_of_run": self._state_of_run_text
-                    }
-
-                    # Set feedback context on manager (self) AND on team if available
-                    self._feedback_context = feedback_context_data
-                    if self._team_reference is not None:
-                        self._team_reference._feedback_context = feedback_context_data
-
-                    # Set previous speaker
-                    self._previous_speaker = next_speaker
-
-                    # Send request to publish (user_proxy will trigger AgentInputRequest)
-                    speaker_topic_type = self._participant_name_to_topic_type[next_speaker]
-                    await self.publish_message(
-                        GroupChatRequestPublish(),
-                        topic_id=DefaultTopicId(type=speaker_topic_type),
-                        cancellation_token=cancellation_token,
-                    )
-                    self._active_speakers.append(next_speaker)
-                    return
-                else:
-                    logger.debug(f"Analysis completed: max score below threshold")
-
-            except Exception as e:
-                logger.warning(
-                    f"Analysis scoring failed: {e}, continuing without analysis",
-                    exc_info=True
-                )
-                # Fall through to normal speaker selection
-
-        # No trigger or analysis disabled - normal speaker selection (AI agents only)
-        # Build participants list (same logic as select_speaker)
+        """Select next speaker(s) using plugin hooks and selector logic."""
+        # Build participants list
         if self._candidate_func is not None:
             if self._is_candidate_func_async:
                 async_candidate_func = cast(AsyncCandidateFunc, self._candidate_func)
@@ -501,8 +209,32 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             roles += re.sub(r"\s+", " ", f"{topic_type}: {description}").strip() + "\n"
         roles = roles.strip()
 
-        # Select AI agent only
-        next_speaker = await self._select_speaker_ai_only(roles, participants, self._max_selector_attempts)
+        # Check plugins for speaker override BEFORE normal selection
+        next_speaker: str | None = None
+        for plugin in self._plugins:
+            override = await plugin.on_before_speaker_selection(
+                self._message_thread, participants, self._participant_names
+            )
+            if override is not None:
+                if override in participants:
+                    next_speaker = override
+                    break
+
+        # If no plugin override, select using normal selection (AI agents only)
+        if next_speaker is None:
+            # Filter out user_proxy from candidates - user_proxy can ONLY be selected via plugin override
+            # (e.g., when analysis_watchlist triggers)
+            ai_only_participants = [p for p in participants if "user_proxy" not in p.lower()]
+
+            if not ai_only_participants:
+                raise RuntimeError(
+                    f"INVARIANT VIOLATION: No AI agents available for selection. "
+                    f"user_proxy can ONLY be selected when analysis triggers. "
+                    f"Available participants were: {participants}"
+                )
+
+            next_speaker = await self._select_speaker(roles, ai_only_participants, self._max_selector_attempts)
+
         self._previous_speaker = next_speaker
 
         # Send request to publish
@@ -514,165 +246,30 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         )
         self._active_speakers.append(next_speaker)
 
-    async def _update_state_of_run(self, agent_message: BaseChatMessage, cancellation_token: CancellationToken | None = None, from_user_proxy: bool = False) -> None:
-        """Update StateOfRun from agent message using LLM.
-
-        Args:
-            agent_message: Message from agent describing what it did
-            cancellation_token: Token to cancel the LLM call if interrupt occurs
-        """
-        if not self._enable_state_context:
-            return
-
-        if self._interrupted:
-            return
-
-        try:
-            # Extract message content as text
-            message_text = agent_message.to_text()
-
-            # Format prompt with current state and agent message
-            handoff_info = "just recieved user feedback" if from_user_proxy else self._handoff_context_text
-            prompt = STATE_OF_RUN_UPDATE_PROMPT.format(
-                stateOfRun=self._state_of_run_text,
-                handoffContext=handoff_info,
-                agentMessage=message_text
-            )
-
-            # Wrap LLM call in task to make it cancellable (matching agent tool call pattern)
-            async def _make_llm_call() -> Any:
-                return await self._state_model_client.create(
-                    messages=[
-                        SystemMessage(content="You are updating research progress state."),
-                        UserMessage(content=prompt, source="manager")
-                    ]
-                )
-
-            task = asyncio.create_task(_make_llm_call())
-            if cancellation_token:
-                cancellation_token.link_future(task)
-
-            response = await task
-
-            # Store response directly as new state
-            self._state_of_run_text = response.content if isinstance(response.content, str) else str(response.content)
-
-        except Exception as e:
-            logger.exception(f"Exception in _update_state_of_run: {type(e).__name__}: {e}")
-
-    async def _update_tool_call_facts(self, tool_result_message: BaseAgentEvent, cancellation_token: CancellationToken | None = None) -> None:
-        """Update ToolCallFacts from tool execution results using LLM.
-
-        IMPORTANT: Only RAW tool execution results should be passed to this method.
-        The prompt will handle summarization. Agent analysis/commentary should NOT
-        appear in tool_result_message.
-
-        Args:
-            tool_result_message: Message containing ONLY raw tool execution results
-            cancellation_token: Token to cancel the LLM call if interrupt occurs
-        """
-        if not self._enable_state_context:
-            return
-
-        if self._interrupted:
-            return
-
-        try:
-            # Extract message content as text
-            message_text = tool_result_message.to_text()
-
-            # Format prompt with current facts and tool results
-            prompt = TOOL_CALL_UPDATING_PROMPT.format(
-                toolCallFacts=self._tool_call_facts_text,
-                toolCallExecutionResults=message_text
-            )
-
-            # Wrap LLM call in task to make it cancellable (matching agent tool call pattern)
-            async def _make_llm_call() -> Any:
-                return await self._state_model_client.create(
-                    messages=[
-                        SystemMessage(content="You are updating the discovered facts whiteboard."),
-                        UserMessage(content=prompt, source="manager")
-                    ]
-                )
-
-            task = asyncio.create_task(_make_llm_call())
-            if cancellation_token:
-                cancellation_token.link_future(task)
-
-            response = await task
-
-            # Concatenate new additions to existing whiteboard
-            new_additions = response.content if isinstance(response.content, str) else str(response.content)
-            self._tool_call_facts_text = self._tool_call_facts_text + "\n\n" + new_additions
-
-        except Exception as e:
-            logger.warning(f"Failed to update ToolCallFacts: {e}")
-
-    async def _update_handoff_context(self, user_message: BaseChatMessage, cancellation_token: CancellationToken | None = None) -> None:
-        """Update HandoffContext from user message using LLM.
-
-        Args:
-            user_message: Message from user providing new handoff instructions
-            cancellation_token: Token to cancel the LLM call if interrupt occurs
-        """
-        if not self._enable_state_context:
-            return
-
-        if self._interrupted:
-            return
-
-        try:
-            # Extract message content as text
-            message_text = user_message.to_text()
-
-            # Format prompt with current state, context, and message
-            prompt = HANDOFF_CONTEXT_UPDATING_PROMPT.format(
-                stateOfRun=self._state_of_run_text,
-                handoffContext=self._handoff_context_text,
-                user_message=message_text
-            )
-
-            # Wrap LLM call in task to make it cancellable (matching agent tool call pattern)
-            async def _make_llm_call() -> Any:
-                return await self._state_model_client.create(
-                    messages=[
-                        SystemMessage(content="You are updating handoff instructions."),
-                        UserMessage(content=prompt, source="manager")
-                    ]
-                )
-
-            task = asyncio.create_task(_make_llm_call())
-            if cancellation_token:
-                cancellation_token.link_future(task)
-
-            response = await task
-
-            # Store response directly as new handoff context
-            self._handoff_context_text = response.content if isinstance(response.content, str) else str(response.content)
-            logger.debug(f"✓ HandoffContext updated ({len(self._handoff_context_text)} chars)")
-
-        except Exception as e:
-            logger.warning(f"Failed to update HandoffContext: {e}")
 
     def get_current_state_package(self) -> dict[str, Any]:
-        """Get current state package for passing to agents.
+        """Get current state package from plugins.
+
+        This method aggregates state from all registered plugins by calling their
+        `get_state_for_agent()` methods. Later plugins can override keys from
+        earlier plugins if they return the same keys.
 
         Returns:
-            Dict with keys:
-            - 'state_of_run': Current research progress (str)
-            - 'tool_call_facts': Discovered facts (str)
-            - 'handoff_context': Agent selection rules (str)
-            - 'participant_names': Available team members (list[str])
+            Dict with combined state from all plugins.
 
         This is called by ChatAgentContainer via callback to inject state into agent buffers.
         """
-        return {
-            'state_of_run': self._state_of_run_text,
-            'tool_call_facts': self._tool_call_facts_text,
-            'handoff_context': self._handoff_context_text,
-            'participant_names': self._participant_names,
-        }
+        state: dict[str, Any] = {'participant_names': self._participant_names}
+
+        # Aggregate state from all plugins
+        for plugin in self._plugins:
+            try:
+                plugin_state = plugin.get_state_for_agent()
+                state.update(plugin_state)
+            except Exception as e:
+                logger.warning(f"Plugin '{plugin.name}' failed to provide state for agent: {e}", exc_info=True)
+
+        return state
 
     @rpc
     async def handle_user_directed_message(self, message: UserDirectedMessage, ctx: MessageContext) -> None:  # type: ignore[override]
@@ -703,21 +300,13 @@ class SelectorGroupChatManager(BaseGroupChatManager):
 
             logger.debug(f"After trim - Thread length: {len(self._message_thread)}")
 
-            # Recover states from snapshot at trim point
-            if self._enable_state_context and len(self._message_thread) > 0:
-                last_message_idx = len(self._message_thread) - 1
-
-                if last_message_idx in self._state_snapshots:
-                    snap = self._state_snapshots[last_message_idx]
-                    self._state_of_run_text = snap.state_of_run_text
-                    self._tool_call_facts_text = snap.tool_call_facts_text
-                    self._handoff_context_text = snap.handoff_context_text
-
-                # Clean old snapshots beyond trim point
-                self._state_snapshots = {
-                    k: v for k, v in self._state_snapshots.items()
-                    if k < len(self._message_thread)
-                }
+            # Notify plugins of branch
+            new_thread_length = len(self._message_thread)
+            for plugin in self._plugins:
+                try:
+                    await plugin.on_branch(trim_up, new_thread_length)
+                except Exception as e:
+                    logger.warning(f"Plugin '{plugin.name}' failed to handle branch: {e}", exc_info=True)
 
             # Broadcast branch event to all agents
             await self.publish_message(
@@ -745,43 +334,18 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         # Append to thread
         await self.update_message_thread([message.message])
 
-        # Check if this message is from a human client (UserControlAgent or UserProxyAgent)
-        # Messages in UserDirectedMessage come from the user control API, and the source
-        # field tells us who sent it. Human messages are from:
-        # - UserProxyAgent (source = _user_proxy_name, e.g., "user_proxy")
-        # - UserControlAgent (source = "You" or custom name, not in _participant_names)
-        is_human_message = (
-            self._enable_state_context and
-            isinstance(message.message, BaseChatMessage) and
-            (message.message.source == self._user_proxy_name or
-             message.message.source not in self._participant_names)
-        )
-
-        if is_human_message:
-            # Human messages ALWAYS update both StateOfRun and HandoffContext
-            try:
-                await self._update_state_of_run(message.message, ctx.cancellation_token)
-            except Exception as e:
-                logger.exception(f"Exception in _update_state_of_run: {type(e).__name__}: {e}")
-
-            try:
-                await self._update_handoff_context(message.message, ctx.cancellation_token)
-            except Exception as e:
-                logger.exception(f"Exception in _update_handoff_context: {type(e).__name__}: {e}")
-
-            # Additionally check for explicit handoff intent
-            try:
-                has_intent = await self._intent_router.detect_intent(message.message.to_text())
-                if has_intent:
-                    logger.debug("Explicit handoff intent detected in human message")
-            except Exception as e:
-                logger.exception(f"Exception in intent detection: {type(e).__name__}: {e}")
-
-            # Create snapshot after state updates
-            try:
-                await self._create_state_snapshot()
-            except Exception as e:
-                logger.exception(f"Exception in _create_state_snapshot: {type(e).__name__}: {e}")
+        # Notify plugins of user message
+        if isinstance(message.message, BaseChatMessage):
+            for plugin in self._plugins:
+                try:
+                    await plugin.on_user_message(
+                        message.message,
+                        is_directed=True,
+                        target=target,
+                        cancellation_token=ctx.cancellation_token
+                    )
+                except Exception as e:
+                    logger.warning(f"Plugin '{plugin.name}' failed to handle user message: {e}", exc_info=True)
 
         # Check termination condition
         if await self._apply_termination_condition([message.message]):
@@ -833,57 +397,6 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                 self._active_speakers.remove(message.name) if message.name in self._active_speakers else None
                 return
 
-            # NEW: Update states after messages are added to thread
-            if self._enable_state_context:
-                # Update ToolCallFacts from inner_messages (tool execution results)
-                if isinstance(message, GroupChatAgentResponse):
-                    if message.response.inner_messages is not None:
-                        for inner_message in message.response.inner_messages:
-                            # Tool result messages are BaseAgentEvent instances
-                            if isinstance(inner_message, ToolCallExecutionEvent):
-                                try:
-                                    await self._update_tool_call_facts(inner_message, ctx.cancellation_token)
-                                    await self._create_state_snapshot()
-                                except Exception as e:
-                                    logger.warning(f"Failed to update ToolCallFacts: {e}")
-
-                # Update StateOfRun from agent's chat message
-                logger.info(f"New message: {type(message)} from {message.name}")
-                logger.info(f"New message: {type(message)} from {message.name}")
-                if isinstance(message, GroupChatAgentResponse):
-                    logger.info(f"New message: {message.response.chat_message} from {message.name}")
-                    try:
-                        await self._update_state_of_run(message.response.chat_message, ctx.cancellation_token)
-                        await self._create_state_snapshot()
-                    except Exception as e:
-                        logger.warning(f"Failed to update StateOfRun: {e}")
-
-                    if agent_name == self._user_proxy_name:
-                        try:
-                            await self._update_handoff_context(message.response.chat_message, ctx.cancellation_token)
-                            await self._create_state_snapshot()
-                        except Exception as e:
-                            logger.warning(f"Failed to update HandoffContext: {e}")
-                else:
-                    # For team responses, update from all messages
-                    for msg in message.result.messages:
-                        if isinstance(msg, BaseChatMessage):
-                            try:
-                                await self._update_state_of_run(msg, ctx.cancellation_token)
-                                await self._create_state_snapshot()
-                            except Exception as e:
-                                logger.warning(f"Failed to update StateOfRun: {e}")
-
-                if isinstance(message, UserInputRequestedEvent):
-                    logger.info("User proxy agent had feedback!")
-                    try:
-                        logger.info("Updating user proxy feedback")
-                        await self._update_handoff_context(msg, ctx.cancellation_token)
-                        await self._create_state_snapshot()
-                    except Exception as e:
-                        logger.warning(f"Failed to update HandoffContext from UserProxyAgent {e}")
-
-
             # Remove the agent from the active speakers list
             self._active_speakers.remove(message.name)
             if len(self._active_speakers) > 0:
@@ -926,6 +439,28 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         self._message_thread.extend(messages)
         base_chat_messages = [m for m in messages if isinstance(m, BaseChatMessage)]
         await self._add_messages_to_context(self._model_context, base_chat_messages)
+
+        # Notify plugins of new messages
+        for message in messages:
+            # Skip plugin notifications if interrupted
+            if self._interrupted:
+                return
+
+            for plugin in self._plugins:
+                # Check again before each plugin call
+                if self._interrupted:
+                    return
+
+                try:
+                    await plugin.on_message_added(message, self._message_thread, self._cancellation_token)
+                except asyncio.CancelledError:
+                    raise
+                except Exception:
+                    pass  # Continue with other plugins
+
+                # NOTE: Plugins may emit events (like StateUpdateEvent or AnalysisUpdate)
+                # These will be handled by checking the return value in future iterations
+                # For now, plugins must use callbacks or manager references to emit events
 
     async def select_speaker(self, thread: Sequence[BaseAgentEvent | BaseChatMessage]) -> List[str] | str:
         """Selects the next speaker in a group chat using a ChatCompletion client,
@@ -1007,59 +542,24 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         history: str = "\n".join(history_messages)
         return history
 
-    async def _select_speaker_ai_only(
-        self,
-        roles: str,
-        participants: List[str],
-        max_attempts: int
-    ) -> str:
-        """
-        Select next speaker from AI agents only (exclude user_proxy).
-
-        This prevents LLM from auto-selecting user_proxy. Only user_proxy enters via:
-        - Analysis trigger (explicit injection)
-        - Orchestrator explicit request
-        - User direct message
-
-        Args:
-            roles: Agent role descriptions
-            participants: List of available agent names
-            max_attempts: Maximum selection retry attempts
-
-        Returns:
-            Name of selected AI agent
-        """
-        # Filter out user_proxy from participants
-        ai_agents = [
-            p for p in participants
-            if p != self._user_proxy_name
-        ]
-
-        # INVARIANT ENFORCEMENT: user_proxy can ONLY be selected via analysis trigger
-        # This method is called from non-trigger paths, so we must never select user_proxy
-        if len(ai_agents) == 0:
-            raise RuntimeError(
-                f"INVARIANT VIOLATION: No AI agents available for selection. "
-                f"user_proxy '{self._user_proxy_name}' can ONLY be selected when analysis components trigger. "
-                f"Available participants were: {participants}"
-            )
-
-        # Single agent optimization
-        if len(ai_agents) == 1:
-            return ai_agents[0]
-
-        # Use existing _select_speaker logic but with filtered participants
-        return await self._select_speaker(roles, ai_agents, max_attempts)
-
     async def _select_speaker(self, roles: str, participants: List[str], max_attempts: int) -> str:
         model_context_messages = await self._model_context.get_messages()
         model_context_history = self.construct_message_history(model_context_messages)
 
-        select_speaker_prompt = self._selector_prompt.format(**{
+        # Aggregate selector state from plugins
+        selector_state: dict[str, Any] = {
             "participants": str(participants),
-            "state_of_run": self._state_of_run_text,
-            "handoff_context": self._handoff_context_text,
-        })
+        }
+
+        # Let plugins provide state for selector
+        for plugin in self._plugins:
+            try:
+                plugin_selector_state = plugin.get_state_for_selector()
+                selector_state.update(plugin_selector_state)
+            except Exception as e:
+                logger.warning(f"Plugin '{plugin.name}' failed to provide selector state: {e}", exc_info=True)
+
+        select_speaker_prompt = self._selector_prompt.format(**selector_state)
 
         logger.debug(f"🎯 Selector prompt:\n{select_speaker_prompt[:500]}...")
 
@@ -1447,12 +947,7 @@ Read the above conversation. Then select the next role from {participants} to pl
         model_client_streaming: bool = False,
         model_context: ChatCompletionContext | None = None,
         agent_input_queue: Any | None = None,
-        enable_state_context: bool = True,
-        user_proxy_name: str = "user_proxy",
-        initial_handoff_context: str | None = None,
-        initial_state_of_run: str | None = None,
-        state_model_client: ChatCompletionClient | None = None,
-        team_reference: Any | None = None,
+        plugins: list[GroupChatPlugin] | None = None,
     ):
         super().__init__(
             name=name or self.DEFAULT_NAME,
@@ -1472,28 +967,45 @@ Read the above conversation. Then select the next role from {participants} to pl
             raise ValueError("At least two participants are required for SelectorGroupChat.")
         self._selector_prompt = selector_prompt
         self._model_client = model_client
-        self._state_model_client = state_model_client
         self._allow_repeated_speaker = allow_repeated_speaker
         self._selector_func = selector_func
         self._max_selector_attempts = max_selector_attempts
         self._candidate_func = candidate_func
         self._model_client_streaming = model_client_streaming
         self._model_context = model_context
-        self._enable_state_context = enable_state_context
-        self._user_proxy_name = user_proxy_name
-        self._initial_handoff_context = initial_handoff_context
-        self._initial_state_of_run = initial_state_of_run
-
-        # Analysis-related fields (can be set after init)
-        self._analysis_service: 'AnalysisService | None' = None
-        self._analysis_components: list['AnalysisComponent'] = []
-        self._trigger_threshold: int = 8
-        self._team_reference: Any | None = team_reference
+        self._plugins = plugins or []
 
         # Shared manager holder for state context injection
         # This allows ChatAgentContainers to get state from the manager
         # even though they are created before the manager exists
         self._manager_holder: Dict[str, SelectorGroupChatManager] = {}
+
+    def add_plugin(self, plugin: GroupChatPlugin) -> None:
+        """Add a plugin to the team.
+
+        The plugin will be wired up with the manager when the run starts.
+        If the manager is already running, the plugin is also registered with the manager.
+
+        Args:
+            plugin: The plugin to add
+        """
+        self._plugins.append(plugin)
+
+        # If manager already exists, register the plugin and wire up event emission
+        manager = self._manager_holder.get('manager')
+        if manager is not None:
+            manager.register_plugin(plugin)
+            # Wire up event emission for plugins that support it
+            if hasattr(plugin, '_emit_event'):
+                mgr = manager  # Capture in local variable for closure
+                async def emit_to_queue(event: Any) -> None:
+                    try:
+                        if mgr._interrupted:
+                            return
+                        await mgr._output_message_queue.put(event)
+                    except Exception:
+                        pass
+                plugin._emit_event = emit_to_queue
 
     def get_current_state_package(self) -> Dict[str, Any]:
         """
@@ -1512,6 +1024,46 @@ Read the above conversation. Then select the next role from {participants} to pl
             return manager.get_current_state_package()
         return {}
 
+    def get_feedback_context(self) -> Dict[str, Any] | None:
+        """
+        Get feedback context from the analysis_watchlist plugin if available.
+
+        Returns the pending analysis context when analysis has been triggered
+        and is awaiting user feedback. Returns None if no feedback is pending.
+
+        Note: This method clears the pending analysis after retrieval to prevent
+        the same context from being sent multiple times.
+
+        Returns:
+            Dict with feedback context or None
+        """
+        for plugin in self._plugins:
+            if plugin.name == "analysis_watchlist":
+                if hasattr(plugin, 'get_pending_analysis'):
+                    pending = plugin.get_pending_analysis()
+                    if pending:
+                        # Build the feedback context
+                        context = {
+                            "triggered_components": pending.get("triggered", []),
+                            "triggered_with_details": pending.get("triggered_with_details", {}),
+                            "scores": {
+                                label: {"score": score.score, "reasoning": score.reasoning}
+                                for label, score in pending.get("scores", {}).items()
+                            },
+                            "last_message": {
+                                "content": str(pending["message"].content) if pending.get("message") and hasattr(pending["message"], "content") else "",
+                                "source": pending["message"].source if pending.get("message") and hasattr(pending["message"], "source") else "unknown",
+                            },
+                            # Include tool_call_facts and state_of_run for frontend display
+                            "tool_call_facts": pending.get("tool_call_facts", ""),
+                            "state_of_run": pending.get("state_of_run", ""),
+                        }
+                        # Clear the pending analysis after retrieval
+                        if hasattr(plugin, 'clear_pending_analysis'):
+                            plugin.clear_pending_analysis()
+                        return context
+        return None
+
     def _create_participant_factory(
         self,
         parent_topic_type: str,
@@ -1522,7 +1074,6 @@ Read the above conversation. Then select the next role from {participants} to pl
         """Override to inject state context getter into ChatAgentContainer."""
         # Capture references for the closure
         manager_holder = self._manager_holder
-        enable_state_context = self._enable_state_context
 
         def _state_package_getter() -> Dict[str, Any]:
             """Get state package from manager if available."""
@@ -1537,8 +1088,8 @@ Read the above conversation. Then select the next role from {participants} to pl
                 output_topic_type,
                 agent,
                 message_factory,
-                enable_state_context=enable_state_context,
-                state_package_getter=_state_package_getter if enable_state_context else None,
+                enable_state_context=True,
+                state_package_getter=_state_package_getter,
             )
             return container
 
@@ -1580,21 +1131,28 @@ Read the above conversation. Then select the next role from {participants} to pl
                 self._model_context,
                 self._model_client_streaming,
                 agent_input_queue=agent_input_queue,
-                enable_state_context=self._enable_state_context,
-                user_proxy_name=self._user_proxy_name,
-                initial_handoff_context=self._initial_handoff_context,
-                initial_state_of_run=self._initial_state_of_run,
-                state_model_client=self._state_model_client,
-                team_reference=self._team_reference,
+                plugins=self._plugins,
             )
-            # Set analysis fields on manager if they exist on team
-            if self._analysis_service is not None:
-                manager._analysis_service = self._analysis_service
-                manager._analysis_components = self._analysis_components
-                manager._trigger_threshold = self._trigger_threshold
 
             # Register manager in holder so ChatAgentContainers can access state
             self._manager_holder['manager'] = manager
+
+            # Wire up event emission for plugins that support it
+            def wire_plugin_emit(p: GroupChatPlugin, mgr: SelectorGroupChatManager) -> None:
+                """Wire up _emit_event for a single plugin."""
+                if hasattr(p, '_emit_event'):
+                    async def emit_to_queue(event: Any) -> None:
+                        try:
+                            if mgr._interrupted:
+                                return
+                            await mgr._output_message_queue.put(event)
+                        except Exception:
+                            pass
+                    p._emit_event = emit_to_queue
+
+            for plugin in self._plugins:
+                wire_plugin_emit(plugin, manager)
+
             return manager
         return factory
 

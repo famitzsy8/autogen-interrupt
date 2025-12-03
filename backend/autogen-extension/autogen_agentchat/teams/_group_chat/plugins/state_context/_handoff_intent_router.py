@@ -21,7 +21,7 @@ class HandoffIntentRouter:
 
     #  Uses a two-pass detection strategy:
     #- Pass 1: Fast regex pattern matching
-    
+
     #- Pass 2: LLM-based detection (only for longer messages that fail pattern matching)
 
 

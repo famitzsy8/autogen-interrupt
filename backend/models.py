@@ -8,6 +8,13 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+# Import analysis models from plugin to avoid duplication
+from autogen_agentchat.teams._group_chat.plugins.analysis_watchlist import (
+    AnalysisComponent,
+    ComponentScore,
+    get_analysis_component_color,
+)
+
 class MessageType(str, Enum):
 
     # WebSocket message types (equal in frontend src/types/index.ts)
@@ -448,52 +455,7 @@ class StateUpdate(BaseModel):
 
 
 # ===== Analysis Watchlist System Models =====
-
-def get_analysis_component_color(label: str) -> str:
-    """Deterministic color assignment based on label hash."""
-    colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8",
-              "#F3A683", "#778BEB", "#E77F67", "#CF6A87", "#786FA6"]
-    return colors[hash(label) % len(colors)]
-
-
-class AnalysisComponent(BaseModel):
-    # Individual watchlist criterion for monitoring agent conversations.
-
-    label: str = Field(..., description="Short identifier for this component (e.g., 'committee-membership')")
-    description: str = Field(..., description="Full explanation of what this component checks for")
-    color: str = Field(..., description="Hex color for UI badge display")
-
-    @field_validator("label")
-    @classmethod
-    def validate_label(cls, v: str) -> str:
-        # Label must not be empty
-        if not v or not v.strip():
-            raise ValueError("label cannot be empty")
-        return v.strip()
-
-    @field_validator("description")
-    @classmethod
-    def validate_description(cls, v: str) -> str:
-        # Description must not be empty
-        if not v or not v.strip():
-            raise ValueError("description cannot be empty")
-        return v.strip()
-
-
-class ComponentScore(BaseModel):
-    # Scoring result for one analysis component.
-
-    score: int = Field(..., ge=1, le=10, description="Score on 1-10 scale")
-    reasoning: str = Field(..., description="One sentence explanation of the score")
-
-    @field_validator("reasoning")
-    @classmethod
-    def validate_reasoning(cls, v: str) -> str:
-        # Reasoning must not be empty
-        if not v or not v.strip():
-            raise ValueError("reasoning cannot be empty")
-        return v.strip()
-
+# Note: AnalysisComponent, ComponentScore, and get_analysis_component_color are imported from plugin
 
 class AnalysisScores(BaseModel):
     # Complete scoring result for a message across all analysis components.

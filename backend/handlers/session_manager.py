@@ -19,8 +19,7 @@ from handlers.state_manager import StateManager
 from factory.team_factory import AgentTeamContext
 
 if TYPE_CHECKING:
-    from analysis_service import AnalysisService
-    from models import AnalysisComponent
+    from autogen_agentchat.teams._group_chat.plugins.analysis_watchlist import AnalysisService, AnalysisComponent
 
 logger = logging.getLogger(__name__)
 

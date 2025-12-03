@@ -37,7 +37,7 @@ class ChatAgentContainer(SequentialRoutedAgent):
         message_factory (MessageFactory): The message factory to use for
             creating messages from JSON data.
         enable_state_context (bool): Whether to enable state context injection.
-        state_package_getter (Callable[[], Dict[str, str]] | None): Callback to get state package from manager.
+        state_package_getter (Callable[[], Dict[str, Any]] | None): Callback to get state package from manager.
     """
 
     def __init__(
@@ -47,7 +47,7 @@ class ChatAgentContainer(SequentialRoutedAgent):
         agent: ChatAgent | Team,
         message_factory: MessageFactory,
         enable_state_context: bool = True,
-        state_package_getter: Callable[[], Dict[str, str]] | None = None,
+        state_package_getter: Callable[[], Dict[str, Any]] | None = None,
     ) -> None:
         super().__init__(
             description=agent.description,

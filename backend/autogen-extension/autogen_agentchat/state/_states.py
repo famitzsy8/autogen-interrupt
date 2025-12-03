@@ -61,14 +61,9 @@ class SelectorManagerState(BaseGroupChatManagerState):
     """State for :class:`~autogen_agentchat.teams.SelectorGroupChat` manager."""
 
     previous_speaker: Optional[str] = Field(default=None)
-    # NEW: State text fields for three-state context management
-    state_of_run_text: str = Field(default="", description="Current research state as text")
-    tool_call_facts_text: str = Field(default="", description="Discovered facts whiteboard as text")
-    handoff_context_text: str = Field(default="", description="Handoff selection rules as text")
-    # NEW: Snapshots dictionary (uses string keys for JSON compatibility)
-    state_snapshots: Dict[str, Mapping[str, Any]] = Field(
+    plugin_states: Dict[str, Mapping[str, Any]] = Field(
         default_factory=dict,
-        description="Message index -> StateSnapshot (keys are strings for JSON compatibility)"
+        description="Plugin name -> plugin state data for persistence"
     )
     type: str = Field(default="SelectorManagerState")
 

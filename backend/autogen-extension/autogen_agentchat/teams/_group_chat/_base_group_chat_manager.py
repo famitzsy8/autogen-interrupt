@@ -26,6 +26,7 @@ from ._events import (
 from ._sequential_routed_agent import SequentialRoutedAgent
 from ._node_message_mapping import count_messages_for_node_trim
 from ._agent_buffer_node_mapping import convert_manager_trim_to_agent_trim
+from .plugins._base import GroupChatPlugin
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,7 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         message_factory: MessageFactory,
         emit_team_events: bool = False,
         agent_input_queue: Any | None = None,
+        plugins: list[GroupChatPlugin] | None = None,
     ):
         super().__init__(
             description="Group chat manager",
@@ -96,6 +98,11 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         self._interrupted = False
         self._old_threads: List[List[BaseAgentEvent | BaseChatMessage]] = []
         self._agent_input_queue = agent_input_queue
+        self._plugins: list[GroupChatPlugin] = plugins or []
+
+    def register_plugin(self, plugin: GroupChatPlugin) -> None:
+        """Register a plugin with the group chat manager."""
+        self._plugins.append(plugin)
 
     @rpc
     async def handle_user_interrupt(self, message: UserInterrupt, ctx: MessageContext) -> None:
@@ -168,6 +175,10 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
 
         # Append to thread
         await self.update_message_thread([message.message])
+
+        # Plugins will be notified via subclass override:
+        # - on_user_message() for processing user input
+        # - on_branch() if trim_up > 0
 
         # Check termination condition
         if await self._apply_termination_condition([message.message]):
@@ -411,6 +422,12 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         """
         # Extend the message thread
         self._message_thread.extend(messages)
+
+        # Notify plugins of new messages
+        for plugin in self._plugins:
+            for msg in messages:
+                # Note: on_message_added is async, will be awaited in subclass override
+                pass  # Placeholder - actual calls happen in SelectorGroupChatManager override
 
     @abstractmethod
     async def select_speaker(self, thread: Sequence[BaseAgentEvent | BaseChatMessage]) -> List[str] | str:
