@@ -259,19 +259,22 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 
               {/* Expandable Details Section */}
               <details className="p-3 bg-gray-900/50 rounded border border-gray-600/30">
-
+                <summary
+                  className="text-xs font-semibold text-gray-400 cursor-pointer hover:text-gray-300 list-none flex items-center gap-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ChevronDown className="w-3 h-3 details-chevron" />
+                  Details
+                </summary>
                 <div className="mt-3 space-y-3">
                   {/* Agent Message */}
                   <div>
+                    <h2 className="block mb-1 text-xs font-semibold text-gray-400">
+                      Last Agent Message
+                    </h2>
                     <div className="p-2 bg-gray-800 rounded text-xs overflow-x-auto text-gray-300 markdown-content">
-                      {feedback_context.message ? (
-                        typeof feedback_context.message === 'string' ? (
-                          <ReactMarkdown>{feedback_context.message}</ReactMarkdown>
-                        ) : typeof feedback_context.message === 'object' && 'content' in feedback_context.message ? (
-                          <ReactMarkdown>{String(feedback_context.message.content)}</ReactMarkdown>
-                        ) : (
-                          <ReactMarkdown>{JSON.stringify(feedback_context.message)}</ReactMarkdown>
-                        )
+                      {feedback_context.last_message?.content ? (
+                        <ReactMarkdown>{String(feedback_context.last_message.content)}</ReactMarkdown>
                       ) : (
                         'N/A'
                       )}

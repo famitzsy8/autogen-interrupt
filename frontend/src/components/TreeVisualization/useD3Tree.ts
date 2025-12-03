@@ -812,11 +812,38 @@ function updateTree(
   })
 
   // ============================================================
+  // LAYER SETUP: Create layer groups for proper z-ordering
+  // SVG renders elements in document order, so later groups appear on top
+  // ============================================================
+
+  // Ensure layer groups exist (create them in order: bottom to top)
+  // Check if layers already exist to avoid duplicating on updates
+  let swimlaneLayer = g.select<SVGGElement>('.layer-swimlanes')
+  if (swimlaneLayer.empty()) {
+    swimlaneLayer = g.append('g').attr('class', 'layer-swimlanes')
+  }
+
+  let edgesLayer = g.select<SVGGElement>('.layer-edges')
+  if (edgesLayer.empty()) {
+    edgesLayer = g.append('g').attr('class', 'layer-edges')
+  }
+
+  let nodesLayer = g.select<SVGGElement>('.layer-nodes')
+  if (nodesLayer.empty()) {
+    nodesLayer = g.append('g').attr('class', 'layer-nodes')
+  }
+
+  let summariesLayer = g.select<SVGGElement>('.layer-summaries')
+  if (summariesLayer.empty()) {
+    summariesLayer = g.append('g').attr('class', 'layer-summaries')
+  }
+
+  // ============================================================
   // PHASE 2: RENDER SWIMLANE INFRASTRUCTURE
   // ============================================================
 
   // Render alternating background rectangles
-  const swimlanes = g
+  const swimlanes = swimlaneLayer
     .selectAll<SVGRectElement, string>('.swimlane-bg')
     .data(swimlaneNames, (d: string) => d)
 
@@ -861,7 +888,7 @@ function updateTree(
   swimlanes.exit().remove()
 
   // Render agent name labels on left with colored boxes
-  const labelGroups = g
+  const labelGroups = swimlaneLayer
     .selectAll<SVGGElement, string>('.swimlane-label-group')
     .data(swimlaneNames, (d: string) => d)
 
@@ -960,7 +987,7 @@ function updateTree(
     return `M ${d.sourceX},${d.sourceY} C ${midX},${d.sourceY} ${midX},${d.targetY} ${d.targetX},${d.targetY}`
   }
 
-  const link = g
+  const link = edgesLayer
     .selectAll<SVGPathElement, Edge>('.link')
     .data(edges, (d: Edge) => `${d.source.node.data.id}-${d.target.node.data.id}`)
 
@@ -1018,7 +1045,7 @@ function updateTree(
   // PHASE 4: RENDER NODES
   // ============================================================
 
-  const nodes = g
+  const nodes = nodesLayer
     .selectAll<SVGGElement, PositionedNode>('.node')
     .data(positionedNodes, (d: PositionedNode) => d.node.data.id)
 
@@ -1261,8 +1288,8 @@ function updateTree(
   const expandedSummaryY = summaryAreaY + 40 // Y position for expanded summaries (below circles)
 
   // Add "Summaries" label on the left side (same position as agent name labels)
-  g.selectAll('.summaries-label-group').remove()
-  const summariesLabelGroup = g
+  summariesLayer.selectAll('.summaries-label-group').remove()
+  const summariesLabelGroup = summariesLayer
     .append('g')
     .attr('class', 'summaries-label-group')
     .attr('transform', `translate(10, ${circleY})`)
@@ -1324,7 +1351,7 @@ function updateTree(
   }
 
   // Remove existing summary elements
-  g.selectAll('.node-summary-group').remove()
+  summariesLayer.selectAll('.node-summary-group').remove()
 
   // Filter nodes that have summaries and are in the active branch
   const nodesWithSummaries = positionedNodes.filter(
@@ -1433,7 +1460,7 @@ function updateTree(
   }
 
   // Create summary groups for each node with a summary
-  const summaryGroups = g
+  const summaryGroups = summariesLayer
     .selectAll<SVGGElement, PositionedNode>('.node-summary-group')
     .data(nodesWithSummaries, (d: PositionedNode) => d.node.data.id)
 
