@@ -549,6 +549,8 @@ class SelectorGroupChatManager(BaseGroupChatManager):
         # Aggregate selector state from plugins
         selector_state: dict[str, Any] = {
             "participants": str(participants),
+            "roles": roles,
+            "history": model_context_history,
         }
 
         # Let plugins provide state for selector
