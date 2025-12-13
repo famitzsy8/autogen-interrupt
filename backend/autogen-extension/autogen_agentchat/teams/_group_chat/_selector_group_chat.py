@@ -289,11 +289,20 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             logger.info(f"Trimming conversation: removing last {trim_up} nodes")
             logger.debug(f"Before trim - Thread length: {len(self._message_thread)}")
 
-            # Calculate trim amounts for manager and agents
+            # Calculate trim amount for manager thread
             messages_to_trim = count_messages_for_node_trim(self._message_thread, trim_up)
-            agent_trim_up = convert_manager_trim_to_agent_trim(self._message_thread, trim_up)
 
             logger.debug(f"Calculated messages_to_trim: {messages_to_trim}")
+
+            # Send individual branch events to each agent with their specific trim value
+            # (each agent has a different buffer size depending on when they last spoke)
+            for agent_name, agent_topic_type in self._participant_name_to_topic_type.items():
+                agent_trim_up = convert_manager_trim_to_agent_trim(self._message_thread, trim_up, agent_name)
+                await self.publish_message(
+                    GroupChatBranch(agent_trim_up=agent_trim_up),
+                    topic_id=DefaultTopicId(type=agent_topic_type),
+                    cancellation_token=ctx.cancellation_token,
+                )
 
             # Slice message thread to new length
             self._message_thread = self._message_thread[:-messages_to_trim]
@@ -307,13 +316,6 @@ class SelectorGroupChatManager(BaseGroupChatManager):
                     await plugin.on_branch(trim_up, new_thread_length)
                 except Exception as e:
                     logger.warning(f"Plugin '{plugin.name}' failed to handle branch: {e}", exc_info=True)
-
-            # Broadcast branch event to all agents
-            await self.publish_message(
-                GroupChatBranch(agent_trim_up=agent_trim_up),
-                topic_id=DefaultTopicId(type=self._group_topic_type),
-                cancellation_token=ctx.cancellation_token,
-            )
 
         if target not in self._participant_name_to_topic_type:
             raise ValueError(f"Target {target} not found in participant names {self._participant_names}")

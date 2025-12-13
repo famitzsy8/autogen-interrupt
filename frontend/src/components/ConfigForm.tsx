@@ -566,7 +566,7 @@ export function ConfigForm({
                   id="analysis-prompt"
                   value={analysisPrompt}
                   onChange={(e) => setAnalysisPrompt(e.target.value)}
-                  placeholder="e.g., Watch for hallucinated committee members or incorrect geographic information..."
+                  placeholder="e.g., Watch for hallucinated committee members or incorrect amendment numbers..."
                   rows={3}
                   className="w-full bg-gray-900 text-dark-text border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
                   disabled={isLoading}

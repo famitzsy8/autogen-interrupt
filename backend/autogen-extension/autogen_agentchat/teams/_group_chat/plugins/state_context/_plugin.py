@@ -129,44 +129,64 @@ class StateContextPlugin:
         )
 
         if is_human_message:
+            # REMOVED for efficiency's sake: See Context Engineering section in thesis
+            
             # Human messages ALWAYS update both StateOfRun and HandoffContext
-            try:
-                await self._update_state_of_run(message, cancellation_token)
-            except Exception as e:
-                logger.exception(f"Exception in _update_state_of_run: {type(e).__name__}: {e}")
-
-            try:
-                await self._update_handoff_context(message, cancellation_token)
-            except Exception as e:
-                logger.exception(f"Exception in _update_handoff_context: {type(e).__name__}: {e}")
+            # try:
+            #     await self._update_state_of_run(message, cancellation_token)
+            # except Exception as e:
+            #     logger.exception(f"Exception in _update_state_of_run: {type(e).__name__}: {e}")
+            # try:
+            #     await self._update_handoff_context(message, cancellation_token)
+            # except Exception as e:
+            #     logger.exception(f"Exception in _update_handoff_context: {type(e).__name__}: {e}")
 
             # Additionally check for explicit handoff intent
-            try:
-                has_intent = await self._intent_router.detect_intent(message.to_text())
-                if has_intent:
-                    logger.debug("Explicit handoff intent detected in human message")
-            except Exception as e:
-                logger.exception(f"Exception in intent detection: {type(e).__name__}: {e}")
+            # try:
+            #     has_intent = await self._intent_router.detect_intent(message.to_text())
+            #     if has_intent:
+            #         logger.debug("Explicit handoff intent detected in human message")
+            # except Exception as e:
+            #     logger.exception(f"Exception in intent detection: {type(e).__name__}: {e}")
 
-            # Create snapshot after state updates
-            try:
-                await self._create_snapshot()
-            except Exception as e:
-                logger.exception(f"Exception in _create_snapshot: {type(e).__name__}: {e}")
+            # # Create snapshot after state updates
+            # try:
+            #     await self._create_snapshot()
+            # except Exception as e:
+            #     logger.exception(f"Exception in _create_snapshot: {type(e).__name__}: {e}")
+            pass
 
     async def on_branch(self, trim_count: int, new_thread_length: int) -> None:
-        """Recover state from snapshot at new thread end.
+        """Recover state from snapshot at or before new thread end.
 
         When conversation branches (messages are trimmed), restore state
-        to the snapshot at the trim point.
+        to the most recent snapshot at or before the trim point.
+
+        Snapshots are sparse (not every message creates one), so we find
+        the nearest snapshot at or before the new end of the thread.
         """
         last_idx = new_thread_length - 1
-        if last_idx >= 0 and last_idx in self._state_snapshots:
-            snap = self._state_snapshots[last_idx]
+
+        # Find the nearest snapshot at or before last_idx
+        # (snapshots are sparse - not every message index has one)
+        nearest_snapshot_idx = None
+        if last_idx >= 0 and self._state_snapshots:
+            valid_indices = [k for k in self._state_snapshots.keys() if k <= last_idx]
+            if valid_indices:
+                nearest_snapshot_idx = max(valid_indices)
+
+        if nearest_snapshot_idx is not None:
+            snap = self._state_snapshots[nearest_snapshot_idx]
             self._state_of_run_text = snap.state_of_run_text
             self._tool_call_facts_text = snap.tool_call_facts_text
             self._handoff_context_text = snap.handoff_context_text
-            logger.debug(f"Recovered state from snapshot at index {last_idx}")
+            logger.debug(f"Recovered state from snapshot at index {nearest_snapshot_idx} (trim point was {last_idx})")
+        else:
+            # No snapshot found - reset to initial state
+            logger.warning(f"No snapshot found at or before index {last_idx}, resetting to empty state")
+            self._state_of_run_text = ""
+            self._tool_call_facts_text = ""
+            self._handoff_context_text = ""
 
         # Clean up snapshots beyond trim point
         self._state_snapshots = {k: v for k, v in self._state_snapshots.items() if k < new_thread_length}

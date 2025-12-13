@@ -146,16 +146,18 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
         # Branch handling: trim manager thread and notify agents
         if trim_up > 0:
             messages_to_trim = count_messages_for_node_trim(self._message_thread, trim_up)
-            agent_trim_up = convert_manager_trim_to_agent_trim(self._message_thread, trim_up)
+
+            # Send individual branch events to each agent with their specific trim value
+            # (each agent has a different buffer size depending on when they last spoke)
+            for agent_name, agent_topic_type in self._participant_name_to_topic_type.items():
+                agent_trim_up = convert_manager_trim_to_agent_trim(self._message_thread, trim_up, agent_name)
+                await self.publish_message(
+                    GroupChatBranch(agent_trim_up=agent_trim_up),
+                    topic_id=DefaultTopicId(type=agent_topic_type),
+                    cancellation_token=ctx.cancellation_token,
+                )
 
             self._message_thread = self._message_thread[:-messages_to_trim]
-
-            # Broadcast branch event to all agents
-            await self.publish_message(
-                GroupChatBranch(agent_trim_up=agent_trim_up),
-                topic_id=DefaultTopicId(type=self._group_topic_type),
-                cancellation_token=ctx.cancellation_token,
-            )
 
         if target not in self._participant_name_to_topic_type:
             raise ValueError(f"Target {target} not found in participant names {self._participant_names}")
