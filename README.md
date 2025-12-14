@@ -2,11 +2,11 @@ This is the main directory of the Bachelor's thesis, the other directories corre
 
 This directory is split into 3 parts:
 
-- `backend/`: Contains all the logic to build an AutoGen agent team dynamically, and stream it to the interface frontend via a WebSocket + FastAPI setup
+- `backend/`: Contains all the logic to build an AutoGen agent team dynamically, and stream it to the interface frontend via a WebSocket + FastAPI setup -- See Sections 5.3, 5.4 & 5.5
 
-- `frontend/`: Visual interface for multi-agent communication of AutoGen agent teams. Compatible only with the 2 specific agent teams used in the thesis
+- `frontend/`: Visual interface for multi-agent communication of AutoGen agent teams. Compatible only with the 2 specific agent teams used in the thesis -- See Chapter 6
 
-- `mcp/`: Directory that harbors all the MCP servers that the AutoGen agents have access to. In our case, it is the Congress MCP server under the name `ragMCP`
+- `mcp/`: Directory that harbors all the MCP servers that the AutoGen agents have access to. In our case, it is the Congress MCP server under the name `ragMCP` -- See Section 5.2
 
 
 Each of those repositories is containerized with Docker, and can be started using Docker Compose:

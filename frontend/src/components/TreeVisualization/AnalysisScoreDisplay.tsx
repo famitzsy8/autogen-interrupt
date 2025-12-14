@@ -28,7 +28,7 @@ export function AnalysisScoreDisplay({
   // Show empty state if no scores available
   if (Object.keys(scores).length === 0) {
     return (
-      <div className="p-4 text-center text-gray-500 italic text-sm">
+      <div className="p-4 text-center text-dark-text-muted italic text-sm">
         No analysis scores available
       </div>
     )
@@ -61,7 +61,7 @@ export function AnalysisScoreDisplay({
             key={component.label}
             className={`rounded-lg border overflow-hidden transition-colors ${
               isTriggered
-                ? 'bg-red-900/10 border-red-800'
+                ? 'bg-red-50 border-red-400'
                 : 'bg-dark-hover border-dark-border'
             }`}
           >
@@ -86,13 +86,13 @@ export function AnalysisScoreDisplay({
               </div>
 
               {/* Component Description */}
-              <p className="text-xs text-gray-400 mb-2">{component.description}</p>
+              <p className="text-xs text-dark-text-secondary mb-2">{component.description}</p>
 
               {/* Reasoning - Only shown if score >= threshold */}
               {score.reasoning && isTriggered && (
-                <div className="mt-3 p-2 bg-yellow-900/20 border-l-2 border-yellow-600 rounded">
-                  <p className="text-xs text-gray-300">
-                    <span className="font-semibold text-yellow-500">Reasoning:</span>{' '}
+                <div className="mt-3 p-2 bg-amber-50 border-l-2 border-amber-500 rounded">
+                  <p className="text-xs text-dark-text">
+                    <span className="font-semibold text-amber-700">Reasoning:</span>{' '}
                     {score.reasoning}
                   </p>
                 </div>
@@ -108,7 +108,7 @@ export function AnalysisScoreDisplay({
                   }}
                   title={`${component.label} color scheme indicator`}
                 />
-                <div className="flex-1 h-4.5 rounded-full overflow-hidden border border-gray-600" style={{ backgroundColor: '#3a3a3a' }}>
+                <div className="flex-1 h-4.5 rounded-full overflow-hidden border border-dark-border" style={{ backgroundColor: 'var(--color-surface)' }}>
                   <div
                     className="h-full transition-all duration-300 ease-out rounded-full"
                     style={{

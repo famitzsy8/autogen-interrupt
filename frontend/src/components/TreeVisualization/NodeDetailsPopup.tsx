@@ -39,11 +39,11 @@ function ToolArgumentsList({ tool }: { tool: { id: string; name: string; argumen
   try {
     const args = JSON.parse(tool.arguments)
     return (
-      <div className="bg-black bg-opacity-30 p-3 rounded text-xs font-mono">
+      <div className="bg-slate-50 border border-slate-200 p-3 rounded text-xs font-mono">
         {Object.entries(args).map(([key, value]) => (
           <div key={key} className="mb-1">
             <span className="text-dark-accent">{key}:</span>{' '}
-            <span className="text-gray-300">
+            <span className="text-dark-text">
               {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
             </span>
           </div>
@@ -53,7 +53,7 @@ function ToolArgumentsList({ tool }: { tool: { id: string; name: string; argumen
   } catch {
     // If JSON parsing fails, show raw arguments
     return (
-      <pre className="bg-black bg-opacity-30 p-3 rounded text-xs font-mono text-gray-300 overflow-x-auto">
+      <pre className="bg-slate-50 border border-slate-200 p-3 rounded text-xs font-mono text-dark-text overflow-x-auto">
         {tool.arguments}
       </pre>
     )
@@ -133,7 +133,7 @@ export function NodeDetailsPopup({
                   <ReactMarkdown>{node.message}</ReactMarkdown>
                 </div>
               ) : (
-                <p className="text-gray-500 italic text-sm">(no message content)</p>
+                <p className="text-dark-text-muted italic text-sm">(no message content)</p>
               )}
             </div>
 
@@ -142,7 +142,7 @@ export function NodeDetailsPopup({
               <div className="pt-4 border-t border-dark-border">
                 <div className="flex items-center justify-between mb-3">
                   {isTriggered && (
-                    <span className="flex items-center gap-1 px-3 py-1 bg-red-900/30 text-red-400 border border-red-800 rounded-full text-xs font-medium">
+                    <span className="flex items-center gap-1 px-3 py-1 bg-orange-500 text-white border border-orange-600 rounded-full text-xs font-medium">
                       <AlertTriangle size={12} />
                       Triggered Feedback
                     </span>
@@ -158,7 +158,7 @@ export function NodeDetailsPopup({
 
             {!nodeScores && analysisComponents.length > 0 && (
               <div className="pt-4 border-t border-dark-border">
-                <p className="text-gray-500 italic text-sm">
+                <p className="text-dark-text-muted italic text-sm">
                   Analysis scores not yet available for this node
                 </p>
               </div>
@@ -177,7 +177,7 @@ export function NodeDetailsPopup({
                   <ReactMarkdown>{stateUpdate.state_of_run}</ReactMarkdown>
                 </div>
               ) : (
-                <p className="text-gray-500 italic text-sm">(no state data)</p>
+                <p className="text-dark-text-muted italic text-sm">(no state data)</p>
               )}
             </div>
 
@@ -189,7 +189,7 @@ export function NodeDetailsPopup({
                   <ReactMarkdown>{stateUpdate.tool_call_facts}</ReactMarkdown>
                 </div>
               ) : (
-                <p className="text-gray-500 italic text-sm">(no tool call facts)</p>
+                <p className="text-dark-text-muted italic text-sm">(no tool call facts)</p>
               )}
             </div>
           </div>
@@ -223,13 +223,13 @@ export function NodeDetailsPopup({
             )}
 
             {!toolCall && !toolExecution && (
-              <p className="text-gray-500 italic text-sm">(no actions recorded)</p>
+              <p className="text-dark-text-muted italic text-sm">(no actions recorded)</p>
             )}
           </div>
         )
 
       default:
-        return <div className="text-gray-500 italic text-sm">Unknown tab</div>
+        return <div className="text-dark-text-muted italic text-sm">Unknown tab</div>
     }
   }
 
@@ -252,12 +252,12 @@ export function NodeDetailsPopup({
                 />
               </div>
               {node.summary && (
-                <p className="text-sm text-gray-400">{node.summary}</p>
+                <p className="text-sm text-dark-text-secondary">{node.summary}</p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-200 hover:bg-dark-hover rounded transition-colors flex-shrink-0"
+              className="p-2 text-dark-text-secondary hover:text-dark-text hover:bg-dark-hover rounded transition-colors flex-shrink-0"
               aria-label="Close popup"
               title="Close"
             >
@@ -277,8 +277,8 @@ export function NodeDetailsPopup({
                 className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === tab.id
                   ? 'text-dark-accent'
                   : tab.isEnabled
-                    ? 'text-gray-400 hover:text-gray-200'
-                    : 'text-gray-600 cursor-not-allowed'
+                    ? 'text-dark-text-secondary hover:text-dark-text'
+                    : 'text-dark-text-faint cursor-not-allowed'
                   } ${!tab.isEnabled ? 'opacity-50' : ''}`}
               >
                 {tab.label}
@@ -318,11 +318,11 @@ function ToolCallItem({ tool }: { tool: { id: string; name: string; arguments: s
 
       {showDetails && (
         <div className="p-3 border-t border-dark-border bg-dark-bg">
-          <div className="text-xs text-gray-400 mb-1">Arguments:</div>
-          <pre className="text-xs font-mono text-gray-300 bg-black bg-opacity-30 p-2 rounded overflow-x-auto">
+          <div className="text-xs text-dark-text-secondary mb-1">Arguments:</div>
+          <pre className="text-xs font-mono text-dark-text bg-slate-50 border border-slate-200 p-2 rounded overflow-x-auto">
             {tool.arguments}
           </pre>
-          <div className="text-xs text-gray-600 mt-2">ID: {tool.id}</div>
+          <div className="text-xs text-dark-text-faint mt-2">ID: {tool.id}</div>
         </div>
       )}
     </div>
@@ -356,8 +356,8 @@ function ToolResultItem({ result }: { result: { tool_call_id: string; tool_name:
 
       {showDetails && result.result && (
         <div className="p-3 border-t border-dark-border bg-dark-bg">
-          <div className="text-xs text-gray-400 mb-1">Result Output:</div>
-          <pre className="text-xs font-mono text-gray-300 bg-black bg-opacity-30 p-2 rounded overflow-x-auto max-h-64">
+          <div className="text-xs text-dark-text-secondary mb-1">Result Output:</div>
+          <pre className="text-xs font-mono text-dark-text bg-slate-50 border border-slate-200 p-2 rounded overflow-x-auto max-h-64">
             {result.result}
           </pre>
         </div>

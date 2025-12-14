@@ -24,8 +24,8 @@ export function AgentSelector({ agents, selectedAgent, onSelectAgent, disabled }
 
   if (filteredAgents.length === 0) {
     return (
-      <div className="bg-gray-900/30 border border-gray-600 rounded-lg p-4">
-        <span className="text-gray-400">⏳ Loading agent details...</span>
+      <div className="bg-dark-surface border border-dark-border rounded-lg p-4">
+        <span className="text-dark-text-secondary">⏳ Loading agent details...</span>
       </div>
     )
   }
@@ -56,16 +56,16 @@ export function AgentSelector({ agents, selectedAgent, onSelectAgent, disabled }
   }, [filteredAgents, selectedAgent, onSelectAgent])
 
   return (
-    <div className={`bg-white-900/20 border border-white-700 rounded-lg p-6 space-y-4 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+    <div className={`bg-dark-surface border border-dark-border rounded-lg p-6 space-y-4 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-white-400 font-semibold">Meet the Team!</span>
-        <span className="text-gray-500 text-sm">
+        <span className="text-dark-text font-semibold">Meet the Team!</span>
+        <span className="text-dark-text-muted text-sm">
           ({effectiveIndex + 1} of {filteredAgents.length})
         </span>
       </div>
 
       {/* Agent Display Card */}
-      <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700/50">
+      <div className="bg-dark-hover rounded-lg p-5 border border-dark-border">
         <div className="space-y-3">
           <div>
             <AgentBadge
@@ -74,7 +74,7 @@ export function AgentSelector({ agents, selectedAgent, onSelectAgent, disabled }
               size="lg"
             />
           </div>
-          <p className="text-sm text-gray-300 leading-relaxed">
+          <p className="text-sm text-dark-text leading-relaxed">
             {currentAgent.summary}
           </p>
         </div>
@@ -86,7 +86,7 @@ export function AgentSelector({ agents, selectedAgent, onSelectAgent, disabled }
           type="button"
           onClick={handlePrevious}
           disabled={disabled}
-          className="bg-gray-800 hover:bg-gray-700 text-gray-300 p-2 rounded-lg transition disabled:opacity-50"
+          className="bg-dark-surface hover:bg-dark-hover text-dark-text p-2 rounded-lg transition disabled:opacity-50"
           aria-label="Previous agent"
         >
           ←
@@ -102,7 +102,7 @@ export function AgentSelector({ agents, selectedAgent, onSelectAgent, disabled }
               disabled={disabled}
               className={`w-2 h-2 rounded-full transition ${agent.name === selectedAgent
                 ? 'bg-purple-400'
-                : 'bg-gray-600 hover:bg-gray-500'
+                : 'bg-dark-text-muted hover:bg-dark-text-secondary'
                 }`}
               aria-label={`Select ${agent.display_name}`}
               title={agent.display_name}
@@ -114,7 +114,7 @@ export function AgentSelector({ agents, selectedAgent, onSelectAgent, disabled }
           type="button"
           onClick={handleNext}
           disabled={disabled}
-          className="bg-gray-800 hover:bg-gray-700 text-gray-300 p-2 rounded-lg transition disabled:opacity-50"
+          className="bg-dark-surface hover:bg-dark-hover text-dark-text p-2 rounded-lg transition disabled:opacity-50"
           aria-label="Next agent"
         >
           →

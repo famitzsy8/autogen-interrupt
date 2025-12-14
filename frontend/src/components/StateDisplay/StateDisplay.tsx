@@ -50,7 +50,7 @@ export function StateDisplay(): React.ReactElement {
           </div>
           <button
             onClick={handleCloseStateDisplay}
-            className="p-2 text-gray-400 hover:text-gray-200 hover:bg-dark-hover rounded transition-colors"
+            className="p-2 text-dark-text-secondary hover:text-dark-text hover:bg-dark-hover rounded transition-colors"
             aria-label="Close state display"
             title="Hide state display"
           >
@@ -58,7 +58,7 @@ export function StateDisplay(): React.ReactElement {
           </button>
         </div>
         {currentState && (
-          <div className="mt-1 text-xs text-gray-500">
+          <div className="mt-1 text-xs text-dark-text-muted">
             Last updated: Message #{currentState.message_index}
           </div>
         )}
@@ -68,7 +68,7 @@ export function StateDisplay(): React.ReactElement {
       <div className="flex-1 overflow-y-auto p-4">
         {!currentState ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500 text-sm">No state updates yet. Waiting for conversation to start...</p>
+            <p className="text-dark-text-muted text-sm">No state updates yet. Waiting for conversation to start...</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -79,9 +79,9 @@ export function StateDisplay(): React.ReactElement {
                 className="w-full flex items-center justify-between p-4 hover:bg-dark-hover transition-colors"
               >
                 {expandedSections.stateOfRun ? (
-                  <ChevronDown size={18} className="text-gray-400" />
+                  <ChevronDown size={18} className="text-dark-text-secondary" />
                 ) : (
-                  <ChevronRight size={18} className="text-gray-400" />
+                  <ChevronRight size={18} className="text-dark-text-secondary" />
                 )}
               </button>
               {expandedSections.stateOfRun && (
@@ -89,7 +89,7 @@ export function StateDisplay(): React.ReactElement {
                   {currentState.state_of_run ? (
                     <ReactMarkdown>{currentState.state_of_run}</ReactMarkdown>
                   ) : (
-                    <p className="text-gray-500 italic">(empty)</p>
+                    <p className="text-dark-text-muted italic">(empty)</p>
                   )}
                 </div>
               )}
@@ -102,9 +102,9 @@ export function StateDisplay(): React.ReactElement {
                 className="w-full flex items-center justify-between p-4 hover:bg-dark-hover transition-colors"
               >
                 {expandedSections.toolCallFacts ? (
-                  <ChevronDown size={18} className="text-gray-400" />
+                  <ChevronDown size={18} className="text-dark-text-secondary" />
                 ) : (
-                  <ChevronRight size={18} className="text-gray-400" />
+                  <ChevronRight size={18} className="text-dark-text-secondary" />
                 )}
               </button>
               {expandedSections.toolCallFacts && (
@@ -112,7 +112,7 @@ export function StateDisplay(): React.ReactElement {
                   {currentState.tool_call_facts ? (
                     <ReactMarkdown>{currentState.tool_call_facts}</ReactMarkdown>
                   ) : (
-                    <p className="text-gray-500 italic">(empty)</p>
+                    <p className="text-dark-text-muted italic">(empty)</p>
                   )}
                 </div>
               )}
@@ -129,9 +129,9 @@ export function StateDisplay(): React.ReactElement {
                   Handoff Context
                 </h3>
                 {expandedSections.handoffContext ? (
-                  <ChevronDown size={18} className="text-gray-400" />
+                  <ChevronDown size={18} className="text-dark-text-secondary" />
                 ) : (
-                  <ChevronRight size={18} className="text-gray-400" />
+                  <ChevronRight size={18} className="text-dark-text-secondary" />
                 )}
               </button>
               {expandedSections.handoffContext && (
@@ -139,7 +139,7 @@ export function StateDisplay(): React.ReactElement {
                   {currentState.handoff_context ? (
                     <ReactMarkdown>{currentState.handoff_context}</ReactMarkdown>
                   ) : (
-                    <p className="text-gray-500 italic">(empty)</p>
+                    <p className="text-dark-text-muted italic">(empty)</p>
                   )}
                 </div>
               )}

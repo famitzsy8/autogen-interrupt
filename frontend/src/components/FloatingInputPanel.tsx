@@ -69,7 +69,7 @@ export function FloatingInputPanel({
                 {(onClose || onMinimize) && (
                     <button
                         onClick={onMinimize || onClose}
-                        className="text-gray-500 hover:text-dark-accent transition-colors p-1 rounded hover:bg-dark-surface flex-shrink-0"
+                        className="text-dark-text-muted hover:text-dark-accent transition-colors p-1 rounded hover:bg-dark-surface flex-shrink-0"
                         title="Hide panel"
                     >
                         <ChevronRight size={18} />
@@ -93,7 +93,7 @@ export function FloatingInputPanel({
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Type your message..."
-                    className="w-full bg-dark-surface border border-dark-border rounded-md p-3 text-sm text-dark-text placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-dark-accent resize-none min-h-[80px]"
+                    className="w-full bg-dark-surface border border-dark-border rounded-md p-3 text-sm text-dark-text placeholder-dark-text-muted focus:outline-none focus:ring-1 focus:ring-dark-accent resize-none min-h-[80px]"
                     disabled={!isInterrupted}
                 />
                 <button

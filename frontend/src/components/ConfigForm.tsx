@@ -462,7 +462,7 @@ export function ConfigForm({
           <button
             type="button"
             onClick={() => setWalkthroughStage(2)}
-            className="w-full bg-red-900/40 hover:bg-red-900/60 border border-red-700 text-red-300 font-semibold py-3 px-4 rounded-lg transition"
+            className="w-full bg-red-700 hover:bg-red-600 border border-red-500 text-white font-semibold py-3 px-4 rounded-lg transition"
           >
             What are these agents about to do?
           </button>
@@ -474,7 +474,7 @@ export function ConfigForm({
             {/* Company-Bill Investigation Pair Dropdown */}
             {showCompanyBillField && (
               <div>
-                <h2 className="text-gray-300 mb-4">
+                <h2 className="text-dark-text mb-4">
                   The agents above will investigate the most aligned and most opposed politicians to a company's likely position on a bill. In order to do this, they can call "tools" that retrieve information from the U.S. Congress website. You will guide and supervise them :)
                 </h2>
                 <label className="block text-sm font-semibold mb-2">
@@ -483,7 +483,7 @@ export function ConfigForm({
                 <select
                   value={selectedPairId}
                   onChange={(e) => setSelectedPairId(e.target.value)}
-                  className="w-full bg-gray-900 text-dark-text border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-dark-input text-dark-text border border-dark-input-border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-dark-accent"
                   disabled={isLoading}
                 >
                   {COMPANY_BILL_PAIRS.map((pair) => (
@@ -500,12 +500,12 @@ export function ConfigForm({
                   const congressUrl = getCongressGovUrl(selectedPair.bill_name, selectedPair.congress)
                   if (!congressUrl) return null
                   return (
-                    <div className="mt-3 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                    <div className="mt-3 p-3 bg-blue-700 border border-blue-500 rounded-lg">
                       <a
                         href={congressUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-2 transition-colors"
+                        className="text-white hover:text-blue-100 text-sm flex items-center gap-2 transition-colors"
                       >
                         <span>In case you need a refresh on what {selectedPair.bill_name} is about, check it out on the Congress website!</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -529,8 +529,8 @@ export function ConfigForm({
                 <textarea
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  placeholder="What would you like the AI agents to work on? Leave blank to use the backend's default task."
-                  className="w-full bg-gray-900 text-dark-text border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-32"
+                  placeholder="What would you like the AI agents to work on?"
+                  className="w-full bg-dark-input text-dark-text border border-dark-input-border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-dark-accent min-h-32"
                   disabled={isLoading}
                 />
               </div>
@@ -541,7 +541,7 @@ export function ConfigForm({
               <button
                 type="button"
                 onClick={() => setWalkthroughStage(3)}
-                className="w-full bg-red-900/40 hover:bg-red-900/60 border border-red-700 text-red-300 font-semibold py-3 px-4 rounded-lg transition mt-4"
+                className="w-full bg-red-700 hover:bg-red-600 border border-red-500 text-white font-semibold py-3 px-4 rounded-lg transition mt-4"
               >
                 And how am I involved?
               </button>
@@ -553,12 +553,12 @@ export function ConfigForm({
         {walkthroughStage >= 3 && (
           <div ref={stage3Ref} className="space-y-6">
             {/* Explanation text */}
-            <p className="text-gray-300">
+            <p className="text-dark-text">
               You can interrupt these agents and send messages to them. But most importantly: You can specify things you want to watch out for, and the agents will automatically involve you when they happen!
             </p>
 
             {/* Analysis Watchlist Section */}
-            <div className="border border-gray-700 rounded-lg p-4 bg-gray-900/50">
+            <div className="border border-dark-border rounded-lg p-4 bg-dark-surface">
               <h3 className="text-base font-semibold mb-2">Things You Want to Watch Out For</h3>
 
               <div className="mb-4">
@@ -568,7 +568,7 @@ export function ConfigForm({
                   onChange={(e) => setAnalysisPrompt(e.target.value)}
                   placeholder="e.g., Watch for hallucinated committee members or incorrect amendment numbers..."
                   rows={3}
-                  className="w-full bg-gray-900 text-dark-text border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                  className="w-full bg-dark-input text-dark-text border border-dark-input-border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-dark-accent resize-y"
                   disabled={isLoading}
                 />
               </div>
@@ -580,7 +580,7 @@ export function ConfigForm({
               <button
                 type="submit"
                 disabled={isLoading || isGeneratingComponents || !agentTeamNames || agentTeamNames.length === 0}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition"
+                className="flex-1 bg-dark-accent hover:bg-dark-accent-hover disabled:bg-dark-text-faint text-white font-semibold py-3 px-4 rounded-lg transition"
               >
                 {isGeneratingComponents
                   ? 'Generating Components...'

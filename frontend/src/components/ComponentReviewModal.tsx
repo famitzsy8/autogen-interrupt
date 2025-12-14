@@ -82,11 +82,11 @@ export function ComponentReviewModal({
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
       <div className="bg-dark-border rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-700">
+        <div className="p-6 border-b border-dark-border">
           <h2 className="text-2xl font-bold text-dark-text mb-2">
             Review Your Watchlist!
           </h2>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-dark-text-secondary">
             {isGenerating
               ? 'AI is generating analysis criteria...'
               : components.length === 0
@@ -94,19 +94,19 @@ export function ComponentReviewModal({
                 : `The AI generated ${components.length} watchlist ${components.length === 1 ? 'criterion' : 'criteria'
                 }. Review, edit, or add more before starting. You can use the "tool calls" as references for factual information.`}
           </p>
-          <p className="text-xs text-gray-500 mt-2">
-            Trigger threshold: <span className="font-semibold text-blue-400">{trigger_threshold}/10</span>
+          <p className="text-xs text-dark-text-muted mt-2">
+            Trigger threshold: <span className="font-semibold text-dark-accent">{trigger_threshold}/10</span>
           </p>
         </div>
 
         {/* Component List */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {editableComponents.length === 0 && !isAddingNew && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-dark-text-muted">
               <p className="mb-4">No components configured.</p>
               <button
                 onClick={() => setIsAddingNew(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+                className="bg-dark-accent hover:bg-dark-accent-hover text-white px-4 py-2 rounded-lg transition"
               >
                 + Add Custom Component
               </button>
@@ -116,11 +116,11 @@ export function ComponentReviewModal({
           {editableComponents.map((comp, index) => (
             <div
               key={index}
-              className="bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-3"
+              className="bg-dark-input border border-dark-border rounded-lg p-4 space-y-3"
             >
               {/* Label */}
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">
+                <label className="block text-xs font-medium text-dark-text-secondary mb-1">
                   Label
                 </label>
                 <input
@@ -128,13 +128,13 @@ export function ComponentReviewModal({
                   value={comp.label}
                   onChange={(e) => handleLabelChange(index, e.target.value)}
                   placeholder="e.g., committee-membership"
-                  className="w-full bg-gray-800 text-dark-text border border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full bg-dark-surface text-dark-text border border-dark-input-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent text-sm"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">
+                <label className="block text-xs font-medium text-dark-text-secondary mb-1">
                   Description (what to check for)
                 </label>
                 <textarea
@@ -142,7 +142,7 @@ export function ComponentReviewModal({
                   onChange={(e) => handleDescriptionChange(index, e.target.value)}
                   placeholder="Describe what this component monitors..."
                   rows={2}
-                  className="w-full bg-gray-800 text-dark-text border border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-y"
+                  className="w-full bg-dark-surface text-dark-text border border-dark-input-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent text-sm resize-y"
                 />
               </div>
 
@@ -150,7 +150,7 @@ export function ComponentReviewModal({
               <div className="flex justify-end">
                 <button
                   onClick={() => handleRemove(index)}
-                  className="text-red-400 hover:text-red-300 text-xs font-medium transition"
+                  className="text-dark-danger hover:opacity-80 text-xs font-medium transition"
                 >
                   ✕ Remove
                 </button>
@@ -161,11 +161,11 @@ export function ComponentReviewModal({
           {/* Add New Component Form */}
           {isAddingNew && (
             <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4 space-y-3">
-              <h3 className="text-sm font-semibold text-blue-400">Add Custom Component</h3>
+              <h3 className="text-sm font-semibold text-dark-accent">Add Custom Component</h3>
 
               {/* Label */}
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">
+                <label className="block text-xs font-medium text-dark-text-secondary mb-1">
                   Label
                 </label>
                 <input
@@ -173,13 +173,13 @@ export function ComponentReviewModal({
                   value={newLabel}
                   onChange={(e) => setNewLabel(e.target.value)}
                   placeholder="e.g., geographic-accuracy"
-                  className="w-full bg-gray-800 text-dark-text border border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full bg-dark-surface text-dark-text border border-dark-input-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent text-sm"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">
+                <label className="block text-xs font-medium text-dark-text-secondary mb-1">
                   Description
                 </label>
                 <textarea
@@ -187,7 +187,7 @@ export function ComponentReviewModal({
                   onChange={(e) => setNewDescription(e.target.value)}
                   placeholder="What should this component check for..."
                   rows={2}
-                  className="w-full bg-gray-800 text-dark-text border border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-y"
+                  className="w-full bg-dark-surface text-dark-text border border-dark-input-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-dark-accent text-sm resize-y"
                 />
               </div>
 
@@ -199,13 +199,13 @@ export function ComponentReviewModal({
                     setNewLabel('')
                     setNewDescription('')
                   }}
-                  className="text-gray-400 hover:text-gray-300 text-sm font-medium transition"
+                  className="text-dark-text-secondary hover:text-dark-text text-sm font-medium transition"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAddNew}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition"
+                  className="bg-dark-accent hover:bg-dark-accent-hover text-white px-4 py-2 rounded text-sm font-medium transition"
                 >
                   Add Component
                 </button>
@@ -217,7 +217,7 @@ export function ComponentReviewModal({
           {!isAddingNew && editableComponents.length > 0 && (
             <button
               onClick={() => setIsAddingNew(true)}
-              className="w-full border-2 border-dashed border-gray-600 hover:border-blue-500 text-gray-400 hover:text-blue-400 py-3 rounded-lg transition flex items-center justify-center gap-2 text-sm font-medium"
+              className="w-full border-2 border-dashed border-dark-border hover:border-dark-accent text-dark-text-secondary hover:text-dark-accent py-3 rounded-lg transition flex items-center justify-center gap-2 text-sm font-medium"
             >
               <span className="text-lg">+</span> Add Custom Component
             </button>
@@ -225,17 +225,17 @@ export function ComponentReviewModal({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-700 flex gap-3 justify-end">
+        <div className="p-6 border-t border-dark-border flex gap-3 justify-end">
           <button
             onClick={onCancel}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold transition"
+            className="px-6 py-3 bg-dark-surface hover:bg-dark-hover text-dark-text rounded-lg font-semibold transition"
           >
             Cancel
           </button>
           <button
             onClick={handleApprove}
             disabled={isGenerating}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg font-semibold transition"
+            className="px-6 py-3 bg-dark-accent hover:bg-dark-accent-hover disabled:bg-dark-text-faint text-white rounded-lg font-semibold transition"
           >
             {isGenerating ? 'Generating...' : `✓ Start Run with ${editableComponents.length} ${editableComponents.length === 1 ? 'Component' : 'Components'}`}
           </button>

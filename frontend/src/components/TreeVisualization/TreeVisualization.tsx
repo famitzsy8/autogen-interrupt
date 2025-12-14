@@ -237,7 +237,7 @@ function EmptyTreeState(): React.ReactElement {
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="mx-auto text-gray-600"
+            className="mx-auto text-dark-text-muted"
           >
             <path
               d="M12 2L2 7L12 12L22 7L12 2Z"
@@ -262,13 +262,13 @@ function EmptyTreeState(): React.ReactElement {
             />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-gray-500 mb-2">
+        <h3 className="text-lg font-semibold text-dark-text-secondary mb-2">
           No Conversation Tree Yet
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-dark-text-muted">
           The conversation tree will appear here once agents start conversing.
         </p>
-        <p className="text-xs text-gray-700 mt-2">
+        <p className="text-xs text-dark-text-faint mt-2">
           Each node represents an agent message, and branches show conversation flow.
         </p>
       </div>
@@ -286,7 +286,7 @@ export function TreeVisualizationLoading(): React.ReactElement {
         <div className="mb-4">
           <div className="w-12 h-12 border-4 border-dark-border border-t-dark-accent rounded-full animate-spin mx-auto" />
         </div>
-        <p className="text-sm text-gray-500">Loading conversation tree...</p>
+        <p className="text-sm text-dark-text-muted">Loading conversation tree...</p>
       </div>
     </div>
   )
@@ -321,10 +321,10 @@ export function TreeVisualizationError({
             <path d="M12 16H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-gray-300 mb-2">
+        <h3 className="text-lg font-semibold text-dark-text mb-2">
           Failed to Load Tree Visualization
         </h3>
-        <p className="text-sm text-gray-500 mb-4">{error.message}</p>
+        <p className="text-sm text-dark-text-muted mb-4">{error.message}</p>
         {onRetry && (
           <button
             onClick={onRetry}

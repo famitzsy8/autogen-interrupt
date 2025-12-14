@@ -8,7 +8,7 @@ import AgentInputModal, { AgentInputMinimizedTab } from './components/AgentInput
 import TerminationModal from './components/TerminationModal'
 import { ConfigForm } from './components/ConfigForm'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Sun, Moon } from 'lucide-react'
 import type { RunConfig } from './types'
 import {
   useAgentInputActions,
@@ -56,6 +56,7 @@ function App(): React.ReactElement {
   const { clearEdgeInterrupt } = useEdgeInterruptActions()
   const { markNodeUserInterrupted } = useAnalysisActions()
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const [isInputPanelMinimized, setIsInputPanelMinimized] = useState(false)
   const [isAgentInputMinimized, setIsAgentInputMinimized] = useState(false)
 
@@ -119,6 +120,11 @@ function App(): React.ReactElement {
     }
   }, [agentInputRequest])
 
+  // Toggle dark mode class on document
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode)
+  }, [isDarkMode])
+
   const handleConfigSubmit = async (config: RunConfig) => {
     try {
       sendConfig(config)
@@ -157,6 +163,15 @@ function App(): React.ReactElement {
 
             {/* Top right controls */}
             <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+              {/* Theme Toggle */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className="p-2 rounded-lg bg-dark-surface border border-dark-border hover:bg-dark-hover transition-colors"
+                title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+
               {/* Interrupt Button */}
               <InterruptButton onInterrupt={handleInterrupt} isStreaming={isStreaming} />
 

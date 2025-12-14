@@ -129,7 +129,7 @@ export function TreeNodeInfo({ node, onClose }: TreeNodeInfoProps): React.ReactE
         </div>
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-300 transition-colors"
+          className="text-dark-text-muted hover:text-dark-text transition-colors"
           aria-label="Close"
         >
           <svg
@@ -151,15 +151,15 @@ export function TreeNodeInfo({ node, onClose }: TreeNodeInfoProps): React.ReactE
 
       {/* Message content */}
       <div className="mb-3">
-        <p className="text-xs text-gray-400 mb-1">Message:</p>
+        <p className="text-xs text-dark-text-secondary mb-1">Message:</p>
         <p className="text-sm text-dark-text leading-relaxed">{node.message}</p>
       </div>
 
       {/* Metadata */}
-      <div className="space-y-1 text-xs text-gray-500">
+      <div className="space-y-1 text-xs text-dark-text-muted">
         <div className="flex items-center gap-2">
           <span>Branch ID:</span>
-          <span className="text-gray-400">{node.branch_id}</span>
+          <span className="text-dark-text-secondary">{node.branch_id}</span>
         </div>
         <div className="flex items-center gap-2">
           <span>Status:</span>
@@ -167,7 +167,7 @@ export function TreeNodeInfo({ node, onClose }: TreeNodeInfoProps): React.ReactE
             className={`px-2 py-0.5 rounded ${
               node.is_active
                 ? 'bg-green-900 text-green-300'
-                : 'bg-gray-700 text-gray-400'
+                : 'bg-dark-surface text-dark-text-secondary'
             }`}
           >
             {node.is_active ? 'Active' : 'Inactive'}
@@ -175,11 +175,11 @@ export function TreeNodeInfo({ node, onClose }: TreeNodeInfoProps): React.ReactE
         </div>
         <div className="flex items-center gap-2">
           <span>Children:</span>
-          <span className="text-gray-400">{node.children.length}</span>
+          <span className="text-dark-text-secondary">{node.children.length}</span>
         </div>
         <div className="flex items-center gap-2">
           <span>Timestamp:</span>
-          <span className="text-gray-400">
+          <span className="text-dark-text-secondary">
             {new Date(node.timestamp).toLocaleString()}
           </span>
         </div>

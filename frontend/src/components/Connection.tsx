@@ -28,11 +28,11 @@ export function Connection(): React.ReactElement {
       case ConnectionState.RECONNECTING:
         return 'text-yellow-500'
       case ConnectionState.DISCONNECTED:
-        return 'text-gray-500'
+        return 'text-dark-text-muted'
       case ConnectionState.ERROR:
         return 'text-red-500'
       default:
-        return 'text-gray-500'
+        return 'text-dark-text-muted'
     }
   }
 
@@ -65,7 +65,7 @@ export function Connection(): React.ReactElement {
           </span>
           <button
             onClick={clearError}
-            className="text-xs text-gray-400 hover:text-gray-200 underline"
+            className="text-xs text-dark-text-secondary hover:text-dark-text underline"
           >
             Dismiss
           </button>

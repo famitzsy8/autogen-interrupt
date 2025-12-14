@@ -12,6 +12,11 @@ import {
 } from './utils/treeUtils'
 import { getColorForScore, assignSequentialScheme, type SequentialSchemeName, getAgentColorD3, registerAgentColors } from '../../utils/colorSchemes'
 
+// Helper to get CSS variable values for theme-aware D3 rendering
+function getCssVar(varName: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
+}
+
 interface UseD3TreeOptions {
   width: number
   height: number
@@ -866,20 +871,19 @@ function updateTree(
     .attr('height', SWIMLANE_HEIGHT)
     .attr('rx', 8)
     .attr('ry', 8)
-    .attr('fill', (d: string, i: number) => {
-      // Use distinct color for User/You lane
+    .attr('fill', (d: string) => {
+      // Use theme-aware colors for swimlanes
       if (d === 'User') {
-        return '#2d3748' // Darker blue-gray for User lane
+        return getCssVar('--color-surface-elevated')
       }
-      return i % 2 === 0 ? '#1c1f26' : '#21242b'
+      return getCssVar('--color-surface')
     })
     .attr('opacity', (d: string) => {
       // Higher opacity for User lane to make it stand out
-      return d === 'User' ? 0.85 : 0.6
+      return d === 'User' ? 1 : 0.8
     })
-    .attr('stroke', (d: string) => {
-      // Subtle border accent for User lane
-      return d === 'User' ? '#4a5568' : 'none'
+    .attr('stroke', () => {
+      return getCssVar('--color-border')
     })
     .attr('stroke-width', (d: string) => {
       return d === 'User' ? 1 : 0
@@ -934,7 +938,7 @@ function updateTree(
       }
       return displayName
     })
-    .style('fill', '#ffffff')
+    .style('fill', '#ffffff') // Always white on colored agent badge
     .style('font-size', '20px')
     .style('font-weight', '600')
     .style('line-height', '1')
@@ -1006,8 +1010,8 @@ function updateTree(
       if (edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id) {
         return '#ef4444'
       }
-      // Use neutral gray for all edges
-      return '#6b7280'
+      // Use theme-aware edge color
+      return getCssVar('--color-edge')
     })
     .attr('stroke-width', (d: Edge) => {
       if (edgeInterrupt && edgeInterrupt.targetNodeId === d.target.node.data.id) {
@@ -1171,8 +1175,8 @@ function updateTree(
         .attr('y', 0)
         .attr('width', maxBarWidth)
         .attr('height', barHeight)
-        .attr('fill', '#3a3a3a')
-        .attr('stroke', '#4a4a4a')
+        .attr('fill', getCssVar('--color-surface'))
+        .attr('stroke', getCssVar('--color-border'))
         .attr('stroke-width', 1)
         .attr('rx', 6)
         .attr('ry', 6)
@@ -1218,8 +1222,8 @@ function updateTree(
       indicatorGroup
         .append('circle')
         .attr('r', 16)
-        .attr('fill', '#fbbf24')
-        .attr('stroke', '#0d1117')
+        .attr('fill', '#fbbf24') // Yellow warning color - intentionally fixed
+        .attr('stroke', getCssVar('--color-bg'))
         .attr('stroke-width', 2)
 
       // Warning symbol (exclamation mark) using text
@@ -1229,7 +1233,7 @@ function updateTree(
         .attr('dy', '0.35em')
         .attr('font-size', '22px')
         .attr('font-weight', 'bold')
-        .attr('fill', '#0d1117')
+        .attr('fill', getCssVar('--color-bg'))
         .text('!')
         .append('title')
         .text('Analysis triggered feedback')
@@ -1257,8 +1261,8 @@ function updateTree(
       indicatorGroup
         .append('circle')
         .attr('r', 16)
-        .attr('fill', '#ef4444')
-        .attr('stroke', '#0d1117')
+        .attr('fill', '#ef4444') // Red triggered color - intentionally fixed
+        .attr('stroke', getCssVar('--color-bg'))
         .attr('stroke-width', 2)
 
       // Exclamation mark symbol
@@ -1268,7 +1272,7 @@ function updateTree(
         .attr('dy', '0.35em')
         .attr('font-size', '22px')
         .attr('font-weight', 'bold')
-        .attr('fill', '#ffffff')
+        .attr('fill', getCssVar('--color-text'))
         .text('!')
         .append('title')
         .text('User interrupted at this point')
@@ -1326,7 +1330,7 @@ function updateTree(
       .attr('width', actualWidth)
       .attr('height', 24)
       .attr('rx', 12)
-      .attr('fill', '#6b7280') // Gray color for summaries
+      .attr('fill', getCssVar('--color-text-secondary')) // Theme-aware gray for summaries
       .attr('opacity', 0.9)
       .style('pointer-events', 'none')
   }
@@ -1496,11 +1500,11 @@ function updateTree(
     .attr('fill', (d: PositionedNode) => {
       // Grey when not toggled, slightly lighter when toggled
       const isToggled = hoveredSummaryNodeIds.has(d.node.data.id)
-      return isToggled ? '#6b7280' : '#4b5563'
+      return isToggled ? getCssVar('--color-text-muted') : getCssVar('--color-text-faint')
     })
     .attr('stroke', (d: PositionedNode) => {
       const isToggled = hoveredSummaryNodeIds.has(d.node.data.id)
-      return isToggled ? '#9ca3af' : '#6b7280'
+      return isToggled ? getCssVar('--color-text-secondary') : getCssVar('--color-text-muted')
     })
     .attr('stroke-width', 2)
     .attr('opacity', 0.9)
@@ -1586,10 +1590,10 @@ function updateTree(
     })
     .attr('rx', 8)
     .attr('ry', 8)
-    .attr('fill', '#1f2937')
+    .attr('fill', getCssVar('--color-surface-elevated'))
     .attr('stroke', (d: PositionedNode) => {
       // Highlight border when this summary is in foreground
-      return foregroundSummaryId === d.node.data.id ? '#818cf8' : '#4b5563'
+      return foregroundSummaryId === d.node.data.id ? getCssVar('--color-accent') : getCssVar('--color-border')
     })
     .attr('stroke-width', (d: PositionedNode) => {
       return foregroundSummaryId === d.node.data.id ? 2 : 1
@@ -1616,7 +1620,7 @@ function updateTree(
     .append('xhtml:div')
     .style('font-size', '12px')
     .style('font-family', 'system-ui, -apple-system, sans-serif')
-    .style('color', '#d1d5db')
+    .style('color', getCssVar('--color-text'))
     .style('line-height', '1.4')
     .style('overflow', 'hidden')
     .style('text-overflow', 'ellipsis')

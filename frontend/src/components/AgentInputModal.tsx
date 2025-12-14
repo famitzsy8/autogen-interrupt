@@ -85,16 +85,16 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
     >
       {/* Sliding panel from the right */}
       <div
-        className="relative bg-gray-800 border-2 border-amber-600 rounded-l-lg shadow-2xl w-[420px] pointer-events-auto max-h-[80vh] overflow-y-auto"
+        className="relative bg-dark-surface-elevated border-2 border-amber-600 rounded-l-lg shadow-2xl w-[420px] pointer-events-auto max-h-[80vh] overflow-y-auto"
         role="dialog"
         aria-labelledby="agent-input-modal-title"
       >
         {/* Header bar */}
-        <div className={`px-4 py-3 rounded-tl-lg border-b ${hasFeedbackContext ? 'bg-amber-900/40 border-amber-700/50' : 'bg-gray-700 border-gray-600'}`}>
+        <div className={`px-4 py-3 rounded-tl-lg border-b ${hasFeedbackContext ? 'bg-orange-500 border-orange-600' : 'bg-dark-surface border-dark-border'}`}>
           <div className="flex items-center justify-between">
             <h3
               id="agent-input-modal-title"
-              className={`text-sm font-semibold flex items-center gap-2 ${hasFeedbackContext ? 'text-amber-300' : 'text-gray-200'}`}
+              className={`text-sm font-semibold flex items-center gap-2 ${hasFeedbackContext ? 'text-white' : 'text-dark-text'}`}
             >
               {hasFeedbackContext ? (
                 <>
@@ -124,7 +124,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
             {onMinimize && (
               <button
                 onClick={onMinimize}
-                className="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-700/50 flex-shrink-0"
+                className="text-dark-text-secondary hover:text-dark-text transition-colors p-1 rounded hover:bg-dark-hover flex-shrink-0"
                 title="Hide panel"
               >
                 <ChevronRight size={18} />
@@ -137,7 +137,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
         <form onSubmit={handleSubmit} className="p-4">
           {/* Prompt message - only show for non-analysis requests */}
           {!hasFeedbackContext && (
-            <p className="text-sm text-gray-300 mb-3 whitespace-pre-wrap">
+            <p className="text-sm text-dark-text mb-3 whitespace-pre-wrap">
               {request.prompt}
             </p>
           )}
@@ -156,12 +156,12 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
                     return (
                       <div
                         key={label}
-                        className="rounded-lg border border-gray-600/50 bg-gray-800/30 overflow-hidden hover:border-gray-500/70 transition-colors"
+                        className="rounded-lg border border-dark-border bg-dark-hover overflow-hidden hover:border-dark-border-strong transition-colors"
                       >
                         {/* Component Header - Clickable to expand/collapse */}
                         <button
                           onClick={() => toggleComponentExpanded(label)}
-                          className="w-full px-4 py-3 flex items-start gap-3 hover:bg-gray-800/50 transition-colors text-left"
+                          className="w-full px-4 py-3 flex items-start gap-3 hover:bg-dark-hover transition-colors text-left"
                         >
                           {/* Color Indicator Circle */}
                           <div
@@ -172,20 +172,20 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
                           {/* Component Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-baseline gap-2 mb-1">
-                              <h4 className="text-sm font-semibold text-gray-100 break-words">
+                              <h4 className="text-sm font-semibold text-dark-text break-words">
                                 {label}
                               </h4>
                               <span className="text-xs font-bold text-red-400 flex-shrink-0">
                                 {details.score}/10
                               </span>
                             </div>
-                            <p className="text-xs text-gray-400 line-clamp-2">
+                            <p className="text-xs text-dark-text-secondary line-clamp-2">
                               {details.description}
                             </p>
                           </div>
 
                           {/* Expand/Collapse Icon */}
-                          <div className="flex-shrink-0 text-gray-400">
+                          <div className="flex-shrink-0 text-dark-text-secondary">
                             {isExpanded ? (
                               <ChevronUp className="w-4 h-4" />
                             ) : (
@@ -196,20 +196,20 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 
                         {/* Expanded Content */}
                         {isExpanded && (
-                          <div className="px-4 py-3 bg-gray-900/40 border-t border-gray-600/30 space-y-2">
+                          <div className="px-4 py-3 bg-dark-surface border-t border-dark-border space-y-2">
                             <div>
-                              <strong className="text-xs font-semibold text-gray-300 block mb-1">
+                              <strong className="text-xs font-semibold text-dark-text block mb-1">
                                 Why This Triggered:
                               </strong>
-                              <p className="text-xs text-gray-400 leading-relaxed">
+                              <p className="text-xs text-dark-text-secondary leading-relaxed">
                                 {details.reasoning || 'No additional reasoning provided.'}
                               </p>
                             </div>
                             <div>
-                              <strong className="text-xs font-semibold text-gray-300 block mb-1">
+                              <strong className="text-xs font-semibold text-dark-text block mb-1">
                                 Full Description:
                               </strong>
-                              <p className="text-xs text-gray-400 leading-relaxed">
+                              <p className="text-xs text-dark-text-secondary leading-relaxed">
                                 {details.description}
                               </p>
                             </div>
@@ -231,7 +231,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
                     return (
                       <div
                         key={label}
-                        className="p-3 bg-gray-900/50 rounded border-l-3 border-red-500"
+                        className="p-3 bg-dark-surface rounded border-l-3 border-red-500"
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <span
@@ -247,7 +247,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
                           </span>
                         </div>
                         {score.reasoning && (
-                          <div className="mt-2 text-xs text-gray-400">
+                          <div className="mt-2 text-xs text-dark-text-secondary">
                             {score.reasoning}
                           </div>
                         )}
@@ -258,9 +258,9 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
               )}
 
               {/* Expandable Details Section */}
-              <details className="p-3 bg-gray-900/50 rounded border border-gray-600/30">
+              <details className="p-3 bg-dark-surface rounded border border-dark-border">
                 <summary
-                  className="text-xs font-semibold text-gray-400 cursor-pointer hover:text-gray-300 list-none flex items-center gap-1"
+                  className="text-xs font-semibold text-dark-text-secondary cursor-pointer hover:text-dark-text list-none flex items-center gap-1"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <ChevronDown className="w-3 h-3 details-chevron" />
@@ -269,10 +269,10 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
                 <div className="mt-3 space-y-3">
                   {/* Agent Message */}
                   <div>
-                    <h2 className="block mb-1 text-xs font-semibold text-gray-400">
+                    <h2 className="block mb-1 text-xs font-semibold text-dark-text-secondary">
                       Last Agent Message
                     </h2>
-                    <div className="p-2 bg-gray-800 rounded text-xs overflow-x-auto text-gray-300 markdown-content">
+                    <div className="p-2 bg-dark-surface rounded text-xs overflow-x-auto text-dark-text markdown-content">
                       {feedback_context.last_message?.content ? (
                         <ReactMarkdown>{String(feedback_context.last_message.content)}</ReactMarkdown>
                       ) : (
@@ -283,10 +283,10 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
 
                   {/* Verified Facts */}
                   <div>
-                    <h2 className="block mb-1 text-xs font-semibold text-gray-400">
+                    <h2 className="block mb-1 text-xs font-semibold text-dark-text-secondary">
                       Verified Facts from Tool Calls
                     </h2>
-                    <div className="p-2 bg-gray-800 rounded text-xs overflow-x-auto text-gray-300 markdown-content">
+                    <div className="p-2 bg-dark-surface rounded text-xs overflow-x-auto text-dark-text markdown-content">
                       {feedback_context.tool_call_facts ? (
                         <ReactMarkdown>{feedback_context.tool_call_facts}</ReactMarkdown>
                       ) : (
@@ -305,7 +305,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
             value={agentInputDraft}
             onChange={(e) => setHumanInputDraft(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full px-3 py-2 bg-gray-900 text-gray-200 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+            className="w-full px-3 py-2 bg-dark-input text-dark-text border border-dark-input-border rounded-md focus:outline-none focus:ring-2 focus:ring-dark-accent focus:border-transparent resize-none text-sm"
             rows={3}
             placeholder="Type your response..."
             required
@@ -317,7 +317,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-3 py-1.5 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                className="px-3 py-1.5 text-sm font-medium text-dark-text bg-dark-surface hover:bg-dark-hover rounded transition-colors"
               >
                 Continue
               </button>
@@ -325,7 +325,7 @@ export const AgentInputModal: React.FC<AgentInputModalProps> = ({
             <button
               type="submit"
               disabled={!agentInputDraft.trim()}
-              className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded transition-colors"
+              className="px-3 py-1.5 text-sm font-medium text-white bg-dark-accent hover:bg-dark-accent-hover disabled:bg-dark-text-faint disabled:cursor-not-allowed rounded transition-colors"
             >
               Submit
             </button>
