@@ -1,29 +1,57 @@
-# Ignore compiled Python files
+# Python
 __pycache__/
 **/__pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
 
-# Ignore system files
+# System files
 .DS_Store
 **/.DS_Store
 
-# Ignore VSCode or IDE stuff
+# IDE
 .vscode/
 .idea/
+.pytest_cache/
 
-# Ignore cache directories
+# Secrets
+secrets.ini
+*.env
+.env
+.env.*
+
+# Logs and caches
+*.log
 .cache/
 **/.cache/
+nohup.out
 
-# Ignore secret configs
-secrets.ini
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.vite/
 
-# Project-specific ignores
-agentServer/logs
-frontend_demo/node_modules
-ragmcp/rag/vectorstores/
-ragmcp/rag/data/bill_summaries/
-ragmcp/rag/data/bill_texts/
-*.log
+# Backend runtime files
+backend/agent_run_state_session_*
+backend/demo/
+backend/tests/*
 
-frontend_demo/.next/
+# MCP / RAG data (large files)
+mcp/ragMCP/rag/vectorstores/
+mcp/ragMCP/rag/data/bill_texts/
+mcp/ragMCP/rag/data/bill_summaries/
+mcp/ragMCP/rag/data/tmp_sections/
+
+# Archive old experiments (keep in git but ignore runtime files)
+archive/ragMCP-legacy/rag/vectorstores/
+archive/ragMCP-legacy/rag/data/bill_texts/
+archive/ragMCP-legacy/rag/data/bill_summaries/
+archive/dr-backend/research_workspace/
+archive/dr-backend/venv/
+archive/dr-frontend/node_modules/
+archive/dr-frontend/dist/
