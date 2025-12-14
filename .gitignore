@@ -18,8 +18,7 @@ venv/
 .pytest_cache/
 
 # Secrets
-secrets.ini
-*.env
+**/secrets.ini
 .env
 .env.*
 
@@ -42,15 +41,15 @@ backend/demo/
 backend/tests/*
 
 # MCP / RAG data (large files)
-mcp/ragMCP/rag/vectorstores/
-mcp/ragMCP/rag/data/bill_texts/
-mcp/ragMCP/rag/data/bill_summaries/
-mcp/ragMCP/rag/data/tmp_sections/
+mcp/ragMCP/rag/vectorstores/*
+mcp/ragMCP/rag/data/bill_texts/*
+mcp/ragMCP/rag/data/bill_summaries/*
+mcp/ragMCP/rag/data/tmp_sections/*
 
 # Archive old experiments (keep in git but ignore runtime files)
-archive/ragMCP-legacy/rag/vectorstores/
-archive/ragMCP-legacy/rag/data/bill_texts/
-archive/ragMCP-legacy/rag/data/bill_summaries/
+archive/ragMCP-legacy/rag/vectorstores/*
+archive/ragMCP-legacy/rag/data/bill_texts/*
+archive/ragMCP-legacy/rag/data/bill_summaries/*
 archive/dr-backend/research_workspace/
 archive/dr-backend/venv/
 archive/dr-frontend/node_modules/
