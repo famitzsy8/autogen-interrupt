@@ -1,0 +1,147 @@
+import traceback
+from typing import List
+
+from pydantic import BaseModel, SerializeAsAny
+
+from ...base import Response, TaskResult
+from ...messages import BaseAgentEvent, BaseChatMessage, StopMessage
+
+
+class SerializableException(BaseModel):
+    """A serializable exception."""
+
+    error_type: str
+    """The type of error that occurred."""
+
+    error_message: str
+    """The error message that describes the error."""
+
+    traceback: str | None = None
+    """The traceback of the error, if available."""
+
+    @classmethod
+    def from_exception(cls, exc: Exception) -> "SerializableException":
+        """Create a GroupChatError from an exception."""
+        return cls(
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+            traceback="\n".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
+        )
+
+    def __str__(self) -> str:
+        """Return a string representation of the error, including the traceback if available."""
+        if self.traceback:
+            return f"{self.error_type}: {self.error_message}\nTraceback:\n{self.traceback}"
+        return f"{self.error_type}: {self.error_message}"
+
+
+class GroupChatStart(BaseModel):
+    """A request to start a group chat."""
+
+    messages: List[SerializeAsAny[BaseChatMessage]] | None = None
+    """An optional list of messages to start the group chat."""
+
+    output_task_messages: bool = True
+    """Whether to include task messages in the output. Defaults to True for backward compatibility."""
+
+
+class GroupChatAgentResponse(BaseModel):
+    """A response published to a group chat."""
+
+    response: SerializeAsAny[Response]
+    """The response from an agent."""
+
+    name: str
+    """The name of the agent that produced the response."""
+
+
+class GroupChatTeamResponse(BaseModel):
+    """A response published to a group chat from a team."""
+
+    result: SerializeAsAny[TaskResult]
+    """The result from a team."""
+
+    name: str
+    """The name of the team that produced the response."""
+
+
+class GroupChatRequestPublish(BaseModel):
+    """A request to publish a message to a group chat."""
+
+    ...
+
+
+class GroupChatMessage(BaseModel):
+    """A message from a group chat."""
+
+    message: SerializeAsAny[BaseAgentEvent | BaseChatMessage]
+    """The message that was published."""
+
+
+class GroupChatTermination(BaseModel):
+    """A message indicating that a group chat has terminated."""
+
+    message: StopMessage
+    """The stop message that indicates the reason of termination."""
+
+    error: SerializableException | None = None
+    """The error that occurred, if any."""
+
+
+class GroupChatReset(BaseModel):
+    """A request to reset the agents in the group chat."""
+
+    ...
+
+
+class GroupChatPause(BaseModel):
+    """A request to pause the group chat."""
+
+    ...
+
+
+class GroupChatResume(BaseModel):
+    """A request to resume the group chat."""
+
+    ...
+
+
+class GroupChatError(BaseModel):
+    """A message indicating that an error occurred in the group chat."""
+
+    error: SerializableException
+    """The error that occurred."""
+
+
+class UserInterrupt(BaseModel):
+    """A request to interrupt (pause) the group chat without tearing down state."""
+    ...
+
+
+class GroupChatBranch(BaseModel):
+    """A request to branch the conversation by trimming agent buffers.
+
+    Sent to all agents before a UserDirectedMessage when trim_up > 0.
+    Agents trim their message buffers to align with the manager's trimmed thread.
+    """
+    agent_trim_up: int
+    """Number of message nodes to remove from agent buffers (excludes tool call nodes)."""
+
+
+class UserDirectedMessage(BaseModel):
+    """A request to send a user message to a specific participant in the group chat."""
+    target: str
+    message: SerializeAsAny[BaseChatMessage]
+    trim_up: int = 0
+
+
+class StateUpdateEvent(BaseAgentEvent):
+    """Event emitted when the GroupChatManager creates a state snapshot."""
+    source: str
+    state_of_run: str
+    tool_call_facts: str
+    handoff_context: str
+    message_index: int
+
+    def to_text(self) -> str:
+        return f"State update at message {self.message_index}"

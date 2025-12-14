@@ -1,0 +1,159 @@
+/* Markdown content styling for StateDisplay */
+.markdown-content {
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.markdown-content h1 {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: var(--color-accent);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.3em;
+}
+
+.markdown-content h2 {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-top: 0.5em;
+  margin-bottom: 0.4em;
+  color: var(--color-accent);
+}
+
+.markdown-content h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-top: 0.4em;
+  margin-bottom: 0.3em;
+  color: var(--md-h3, #2563eb);
+}
+
+.markdown-content h4 {
+  font-size: 1em;
+  font-weight: 600;
+  margin-top: 0.3em;
+  margin-bottom: 0.2em;
+  color: var(--md-h4, #3b82f6);
+}
+
+.markdown-content p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-left: 1.5em;
+}
+
+.markdown-content li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content code {
+  background-color: var(--color-hover);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.9em;
+  color: var(--color-accent);
+}
+
+.markdown-content pre {
+  background-color: var(--color-surface);
+  padding: 0.75em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  border: 1px solid var(--color-border);
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+  color: var(--color-text);
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1em;
+  margin-left: 0;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: var(--md-muted, #6b7280);
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: var(--md-strong, #111827);
+}
+
+.markdown-content em {
+  font-style: italic;
+}
+
+.markdown-content a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--color-border);
+  padding: 0.5em;
+  text-align: left;
+}
+
+.markdown-content th {
+  background-color: var(--color-surface);
+  font-weight: 600;
+}
+
+/* Dark mode overrides for markdown */
+.dark .markdown-content h3 {
+  color: #79c0ff;
+}
+
+.dark .markdown-content h4 {
+  color: #a5d6ff;
+}
+
+.dark .markdown-content blockquote {
+  color: #8b949e;
+}
+
+.dark .markdown-content strong {
+  color: #f0f6fc;
+}
