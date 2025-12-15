@@ -19,8 +19,8 @@ venv/
 
 # Secrets
 **/secrets.ini
-.env
-.env.*
+**/.env
+
 
 # Logs and caches
 *.log

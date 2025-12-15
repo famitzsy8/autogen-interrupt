@@ -20,6 +20,8 @@ This is the backend that supports the dynamic agent team creation, and the exten
 
 ## Files
 
-The FastAPI server is located in `main.py`. The models that we use to communicate with the frontend are located in `models.py`. In order to run the backend server, run the following command:
+The FastAPI server is located in `main.py`. The models that we use to communicate with the frontend are located in `models.py`.
 
-`docker build -t backend .`
+## Set Up .env
+
+Take a look at `env.example` and fill in the values with your own API keys. An OpenAI API key can be obtained from [here](https://platform.openai.com/account/api-keys). An Anthropic API key can be obtained from [here](https://console.anthropic.com/).

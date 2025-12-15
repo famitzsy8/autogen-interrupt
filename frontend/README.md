@@ -24,6 +24,4 @@ This is the React frontend that provides the user interface for interacting with
 
 ## Files
 
-The application entry point is `main.tsx`, which renders `App.tsx`. The app uses Vite as the build tool and Tailwind CSS for styling. To run the frontend, use the following command:
-
-`docker build -t frontend .`
+The application entry point is `main.tsx`, which renders `App.tsx`. The app uses Vite as the build tool and Tailwind CSS for styling.
