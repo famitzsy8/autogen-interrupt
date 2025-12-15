@@ -4,21 +4,27 @@ This is the codebase for the my Bachelor's thesis at the IVIA Lab, ETH Zurich. I
 
 ## Backend
 
-- `backend/`: Contains all the logic to build an AutoGen agent team dynamically, and stream it to the interface frontend via a WebSocket + FastAPI setup -- See Sections 5.3, 5.4 & 5.5
+- `backend/`: Contains all the logic to build an AutoGen agent team dynamically, and stream it to the interface frontend via a WebSocket + FastAPI setup
+
+See Sections 5.3, 5.4 & 5.5
 
 ## Frontend
 
-- `frontend/`: Visual interface for multi-agent communication of AutoGen agent teams. Compatible only with the 2 specific agent teams used in the thesis -- See Chapter 6
+- `frontend/`: Visual interface for multi-agent communication of AutoGen agent teams. Compatible only with the 2 specific agent teams used in the thesis
+
+See Chapter 6
 
 ## MCP
 
-- `mcp/`: Directory that harbors all the MCP servers that the AutoGen agents have access to. In our case, it is the Congress MCP server under the name `ragMCP` -- See Section 5.2
+- `mcp/`: Directory that harbors all the MCP servers that the AutoGen agents have access to. In our case, it is the Congress MCP server under the name `ragMCP`
+
+See Section 5.2
 
 ## How to Run
 
 1. Make sure that you have all the .env/secrets files filled up with your API keys. The following files are crucial
 
-- `.env` ()
+- `.env`
 - `backend/.env`
 - `mcp/secrets.ini`
 
