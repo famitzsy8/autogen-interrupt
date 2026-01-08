@@ -32,10 +32,9 @@ Detailed instructions on how to obtain the API keys are found in the subdirector
 
 2. (Optional) Choose the team setup you wish to run in `backend/factory/team.yaml`. The Congress team is in `backend/factory/team.yaml.congress_backup` and the Deep Research team is in `backend/factory/team.yaml.research_backup`.
 
-3. Navigate to 03_Code and start the Docker container:
+3. Start the Docker container:
 
 ```zsh
-cd 03_Code
 docker compose up --build
 ```
 
@@ -43,4 +42,4 @@ docker compose up --build
 
 ## Thesis
 
-In order to read the thesis, click [here](../04_Thesis_FinalReport/thesis.pdf).
+In order to read the thesis, click [here](./thesis.pdf).
